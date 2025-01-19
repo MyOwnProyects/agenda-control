@@ -1,0 +1,25 @@
+# Ignorar el directorio de dependencias
+/vendor/
+
+# Ignorar el archivo de bloqueo de Composer (si decides no incluirlo)
+composer.lock
+
+# Ignorar directorios de caché de Phalcon
+/cache/
+
+# Ignorar logs
+/logs/
+
+# Ignorar archivos de configuración del editor (ej. VS Code y JetBrains)
+.vscode/
+.idea/
+
+# Ignorar node_modules si estás usando Node.js para el frontend
+/node_modules/
+
+# Ignorar archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de entorno
+.env
