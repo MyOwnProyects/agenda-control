@@ -1,0 +1,69 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <h2 class="text-center">Acceso</h2>
+            <form>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="username" placeholder="Ingrese su usuario" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" required>
+                </div>
+                <button id="loginForm" type="button" class="btn btn-primary w-100">Ingresar</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        // Capturar el evento submit del formulario
+        $('#loginForm').on('click', function(event) {
+            // Evitar que el formulario se envíe de forma predeterminada
+            event.preventDefault();
+            
+            // Obtener los valores de los campos del formulario
+            let username = $('#username').val();
+            let password = $('#password').val();
+
+            // Validar los campos (ejemplo simple)
+            if (username === '' || password === '') {
+                alert('Por favor, ingrese todos los campos.');
+                return;
+            }
+
+            // Mostrar los valores ingresados (solo para pruebas)
+            console.log('Usuario:', username);
+            console.log('Contraseña:', password);
+
+            // Aquí puedes enviar los datos al servidor usando AJAX o cualquier otra lógica
+            // Ejemplo con AJAX (enviar a una URL ficticia):
+            
+            $.ajax({
+                url: '/login/index',  // URL donde se procesan los datos
+                method: 'POST',
+                data: {
+                    username: username,
+                    password: password,
+                    action  : 'authenticate'
+                },
+                success: function(response) {
+                    // Procesar respuesta del servidor
+                    console.log('success');
+                    console.log(response);
+                    // Redirigir o mostrar mensaje de éxito
+                },
+                error: function() {
+                    // Manejar errores
+                    console.log('error');
+                    alert('Error al intentar iniciar sesión');
+                }
+            });
+            
+
+            // Si todo está correcto, enviar el formulario (en este caso lo evitamos por AJAX)
+            // this.submit(); // Descomentar si se quiere enviar de manera tradicional después de la validación
+        });
+    });
+</script>
