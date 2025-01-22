@@ -54,9 +54,10 @@
                     console.log(response);
                     // Redirigir o mostrar mensaje de éxito
                 },
-                error: function() {
+                error: function(error) {
                     // Manejar errores
                     console.log('error');
+                    console.log(error);
                     alert('Error al intentar iniciar sesión');
                 }
             });
