@@ -72,6 +72,14 @@ $di->set(
     }
 );
 
+$di->set('rutas',function(){
+    return require APP_PATH.'/config/rutas.php';
+});
+
+$di->set('config',function(){
+    return require APP_PATH.'/config/config.php';
+});
+
 $application = new Application($di);
 
 try {
