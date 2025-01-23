@@ -23,3 +23,6 @@ Thumbs.db
 
 # Ignorar archivos de entorno
 .env
+
+#Ignora carpeta tmp
+/public/tmp

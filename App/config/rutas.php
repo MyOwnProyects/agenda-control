@@ -2,6 +2,7 @@
 
 return [
     'ctusuarios'    => [
-        'show'  => "/ctusuarios/show"
+        'show'              => "/ctusuarios/show",
+        'get_info_usuario'  => "/ctusuarios/get_info_usuario"
     ]
 ];

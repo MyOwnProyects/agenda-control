@@ -66,7 +66,7 @@ class FuncionesGlobales{
             $response = curl_exec($ch);
 
             // Manejar errores
-            if (curl_errno($ch) || !is_array($response)) {
+            if (curl_errno($ch)) {
                 $error = curl_error($ch);
                 curl_close($ch);
                 return ['error' => $response,'status_code' => 400];

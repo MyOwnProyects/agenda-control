@@ -11,6 +11,12 @@
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" required>
                 </div>
+                <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display: none;">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                    <div>
+                        Usuario y/o contraseña invalido
+                    </div>
+                </div>
                 <button id="loginForm" type="button" class="btn btn-primary w-100">Ingresar</button>
             </form>
         </div>
@@ -58,7 +64,7 @@
                     // Manejar errores
                     console.log('error');
                     console.log(error);
-                    alert(error['responseText']);
+                    $("#alert_error").addClass('d-flex').show();
                 }
             });
             
