@@ -14,16 +14,18 @@ class LoginController extends Controller
     protected $url_api;
 
     public function initialize(){
-        $aqui = 1;
         $config         = $this->di;
         $this->rutas    = $config->get('rutas');
         $config         = $config->get('config');
         $this->url_api  = $config['BASEAPI'];
-        $aqui = 1;
     }
     
     public function indexAction()
     {
+        if ($this->session->has('clave')){
+            //$this->response->redirect('Menu/');
+        }
+
         if ($this->request->isAjax() && $this->request->isPost()){
             // Obtener los datos del formulario
             $username = $this->request->getPost('username', 'string');
@@ -95,5 +97,12 @@ class LoginController extends Controller
 
             return $response;
         }
+    }
+
+    public function logoutAction()
+    {
+        // Destruir la sesión y redirigir a login
+        $this->session->destroy();
+        $this->response->redirect('/');
     }
 }
