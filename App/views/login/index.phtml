@@ -26,6 +26,8 @@
     $(document).ready(function() {
         // Capturar el evento submit del formulario
         $('#loginForm').on('click', function(event) {
+            let btn = $(this);
+            $(btn).prop('disabled',true);
             // Evitar que el formulario se envíe de forma predeterminada
             event.preventDefault();
             
@@ -66,6 +68,7 @@
                     console.log('error');
                     console.log(error);
                     $("#alert_error").addClass('d-flex').show();
+                    $(btn).prop('disabled',false);
                 }
             });
             

@@ -23,7 +23,7 @@ class LoginController extends Controller
     public function indexAction()
     {
         if ($this->session->has('clave')){
-            //$this->response->redirect('Menu/');
+            $this->response->redirect('Menu/');
         }
 
         if ($this->request->isAjax() && $this->request->isPost()){

@@ -21,5 +21,14 @@ try {
     // Enviar la respuesta al cliente
     $response->send();
 } catch (\Exception $e) {
-    echo 'Exception: ', $e->getMessage();
+    // Acceso al servicio de sesión desde el contenedor de dependencias ($di)
+    if ($di->getSession()->has('clave')) {
+        // Redirigir al error personalizado si hay sesión activa
+        $di->getResponse()->redirect('/Menu/route404')->send();
+        exit;
+    } else {
+        // Redirigir a la página de inicio si no hay sesión activa
+        $di->getResponse()->redirect('/login/logout')->send();
+        exit;
+    }
 }

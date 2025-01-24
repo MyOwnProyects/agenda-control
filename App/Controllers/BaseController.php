@@ -9,30 +9,57 @@ class BaseController extends Controller
     public function beforeExecuteRoute()
     {
         // Excluir el controlador y la acción de login/index de la validación
-        $currentController = $this->dispatcher->getControllerName();
-        $currentAction = $this->dispatcher->getActionName();
+        $currentController  = $this->dispatcher->getControllerName();
+        $currentAction      = $this->dispatcher->getActionName();
 
         if ($currentController === 'login') {
             return; // No verificar sesión en login/index
         }
 
+        //  BANDERAS DE SESSION Y PERMISOS
+        $msg_error      = '';
+        $route_error    = '';
+
         // Verificar si el usuario tiene sesión
         if (!$this->session->has('clave')) {
+            $msg_error      = "Sin sesión activa";
+            $route_error    = 'login/logout';
+        } else {
+            //  EN CASO DE QUE EXISTA SESION, SE VERIFICA SI EL USUARIOI
+            //  TIENE LOS PERMISOS PARA REALIZAR LA ACCION
+            $permisos   = $this->session->get('permisos');
+            $has_access = false;
+            foreach($permisos as $permiso){
+                if ($permiso['controlador'] == $currentController &&
+                    $permiso['accion'] == $currentAction
+                ) {
+                    $has_access = true;
+                    break;
+                }
+            }
+
+            $msg_error      = !$has_access ? 'No tienes acceso a la ruta' : '';
+            $route_error    = 'Menu/route404';
+        }
+
+        if ($msg_error != ''){
             if ($this->request->isAjax()) {
                 // Responder con un error si es una solicitud AJAX
                 $this->response->setJsonContent([
-                    'status' => 'error',
-                    'message' => 'No hay sesión activa.',
+                    'status'        => 'error',
+                    'message'       => $msg_error,
+                    'route_error'   => $route_error
                 ]);
                 $this->response->setStatusCode(401, 'Unauthorized'); // Código HTTP 401
                 $this->response->send();
                 exit;
             } else {
                 // Redirigir a login/index si es una solicitud normal
-                $this->response->redirect('login/logout');
+                $this->response->redirect($route_error);
                 $this->response->send();
                 exit;
             }
         }
+        
     }
 }

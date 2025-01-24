@@ -21,7 +21,11 @@ class MenuController extends BaseController
     }
 
     public function IndexAction(){
-        $aqui   = 1;
+        
+    }
+
+    public function route404Action(){
+        
     }
     
 }
