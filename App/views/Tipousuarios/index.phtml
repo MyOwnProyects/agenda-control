@@ -105,7 +105,7 @@ use App\Library\FuncionesGlobales;
 <div id="template_padre" style="display:none;">
     <div class="d-flex align-items-center"> <!-- Flex para alinear elementos -->
         <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
-        <input class="form-check-input me-1" type="checkbox" value="">
+        <input class="form-check-input me-1 header_check" type="checkbox" value="">
         </label>
         <span class="span_controlador"></span> <!-- Texto alineado con el checkbox -->
     </div>
@@ -113,7 +113,7 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <label id="template_sublist" class="list-group-item hide div_label_accion" style="display:none;">
-    <input class="form-check-input" type="checkbox" value="">
+    <input class="form-check-input check_sublist" type="checkbox" value="">
     <span class="span_accion"></span>
 </label>
 
@@ -263,6 +263,29 @@ var mod_tipo_usuario    = (function(){
                 $(this).closest('.div_header').find('.div_label_accion').removeClass('hide');
             } else {
                 $(this).closest('.div_header').find('.div_label_accion').addClass('hide');
+            }
+        });
+
+        //  EVENTO PARA CHECK
+        $(modal_clone).on('click','.header_check',function(){
+            let status_check    = $(this).prop('checked');
+
+            $(this).closest('.div_header').find('.check_sublist').prop('checked',status_check);
+        });
+
+        $(modal_clone).on('click','.check_sublist',function(){
+            let count_elements  = $(this).closest('.child-options').find('.check_sublist').length;
+
+            console.log('checked');
+            console.log($(this).closest('.child-options').find('.check_sublist:checked').length);
+            if ($(this).closest('.child-options').find('.check_sublist:checked').length == count_elements){
+                console.log('todos checked');
+                $(this).closest('.div_header').find('.header_check').prop('checked',true);
+            }
+
+            if ($(this).closest('.child-options').find('.check_sublist:checked').length == 0){
+                console.log('ninguno checked');
+                $(this).closest('.div_header').find('.header_check').prop('checked',false);
             }
         });
 

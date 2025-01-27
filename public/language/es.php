@@ -22,5 +22,7 @@ return [
     'html_title_name'       => 'Ingrese un nombre',
     'html_new'              => 'Nuevo',
     'html_description'      => 'Descripci&oacute;n',
-    'html_action'           => 'Acci&oacute;n'
+    'html_action'           => 'Acci&oacute;n',
+    'html_btn_save'         => 'Guardar',
+    'html_btn_cancel'       => 'Cancelar'    
 ];
