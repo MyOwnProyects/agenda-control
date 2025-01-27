@@ -2,6 +2,9 @@
 
 namespace App\Library;
 
+use Phalcon\Di\Di; // Ajuste para Phalcon >= 4.x
+use Phalcon\Di\DiInterface; // Interfaz para compatibilidad
+
 class FuncionesGlobales{
 
     /** 
@@ -80,5 +83,39 @@ class FuncionesGlobales{
         }catch(\Exception $e){
             return $e->getMessage();
         }
+    }
+
+    /**
+     * FUNCION QUE RETORNA SI EL USUARIO TIENE ACCESO A UN PERMISO EN ESPECIFICO
+     * 
+     * @param   string  $controller
+     * @param   string  $action
+     * @return  boolean
+     */
+    public static function HasAccess($controller,$action){
+        
+        $flag_return    = false;
+        // Obtén el contenedor DI global
+        $di = Di::getDefault();
+
+        // Verifica si el servicio de sesión está disponible
+        if (!$di instanceof DiInterface || !$di->has('session')) {
+            return $flag_return;
+        }
+
+        // Obtén el servicio de sesión
+        $session = $di->get('session');
+
+        $arr_permisos   = $session->get('permisos');
+
+        foreach($arr_permisos as $permiso){
+            if ($permiso['controlador'] == $controller && $permiso['accion'] == $action){
+                $flag_return    = true;
+                break;
+            }
+        }
+
+        return $flag_return;
+
     }
 }

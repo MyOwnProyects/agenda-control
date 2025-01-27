@@ -59,6 +59,23 @@ class BaseController extends Controller
                 $this->response->send();
                 exit;
             }
+        } else {
+            //  SECCION PARA INCLUIR LENGUAJE EN TODOS LOS CONTROLADORES
+            // Define el idioma deseado (puedes obtenerlo de la sesión, navegador o configuración)
+            $language = $this->session->get('language', 'es'); // Idioma por defecto: español
+
+            // Ruta del archivo de idioma
+            $languageFile = BASE_PATH . "/public/language/{$language}.php";
+
+            // Verifica que el archivo de idioma exista
+            if (file_exists($languageFile)) {
+                $translations = include $languageFile; // Carga las traducciones
+            } else {
+                $translations = []; // Evita errores si no se encuentra el archivo
+            }
+
+            // Pasa las traducciones a todas las vistas
+            $this->view->translations = $translations;
         }
         
     }

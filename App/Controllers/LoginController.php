@@ -77,6 +77,8 @@ class LoginController extends Controller
                 $this->session->set("clave_tipo_usuario",$request[0]['clave']);
                 $this->session->set("nombre_tipo_usuario",$request[0]['clave']);
                 $this->session->set("permisos",array());
+                $this->session->set("language",'es');
+                
 
                 //  CREACION DE SESION
                 $route      = $this->url_api.$this->rutas['ctusuarios']['get_info_usuario'];
