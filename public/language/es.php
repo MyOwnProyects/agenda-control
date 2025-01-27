@@ -24,5 +24,10 @@ return [
     'html_description'      => 'Descripci&oacute;n',
     'html_action'           => 'Acci&oacute;n',
     'html_btn_save'         => 'Guardar',
-    'html_btn_cancel'       => 'Cancelar'    
+    'html_btn_cancel'       => 'Cancelar',   
+
+    //  MENSAJES DE ERROR
+    'html_error_access_key' => 'Por favor, ingrese una clave.',
+    'html_error_name'       => 'Por favor, ingrese un nombre.',
+    'html_error_empty_list' => 'Por favor, seleccione al menos un permiso',
 ];
