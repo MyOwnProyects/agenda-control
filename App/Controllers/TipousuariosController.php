@@ -29,10 +29,10 @@ class TipousuariosController extends BaseController
                 $aqui   = 1;
 
                 $arr_return = array(
-                    "draw"          => $this->request->getPost('draw'),
-                    "recordsTotal" => 0,
-                    "recordsFiltered" => 10,
-                    "data" => array()
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 10,
+                    "data"              => array()
                 );
         
                 // SE REALIZA LA BUSQUEDA DEL COUNT
@@ -40,7 +40,12 @@ class TipousuariosController extends BaseController
                 $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
                 if (count($result) == 0){
-                    return $arr_return;
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 10,
+                        "data"              => $result
+                    );
                 }
         
                 $result = array(
@@ -68,6 +73,26 @@ class TipousuariosController extends BaseController
         $this->view->create = FuncionesGlobales::HasAccess("Tipousuarios","create");
         $this->view->update = FuncionesGlobales::HasAccess("Tipousuarios","update");
         $this->view->delete = FuncionesGlobales::HasAccess("Tipousuarios","delete");
+    }
+
+    public function createAction(){
+        if ($this->request->isAjax()){
+            $aqui   = 1;
+
+            $route  = $this->url_api.$this->rutas['cttipo_usuarios']['create'];
+            $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+            $response = new Response();
+
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
+                return $response;
+            }
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
     }
     
 }

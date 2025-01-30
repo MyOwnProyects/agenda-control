@@ -55,6 +55,7 @@ class FuncionesGlobales{
                     curl_setopt($ch,CURLOPT_URL,$route . '?'. http_build_query($params,'flags_'));
                 } else {
                     curl_setopt($ch,CURLOPT_POSTFIELDS, json_encode($params));
+                    $headers[] = 'Content-Type: application/json';
                 }
             }
 
@@ -68,8 +69,11 @@ class FuncionesGlobales{
             // Ejecutar la solicitud
             $response = curl_exec($ch);
 
+            // STATUS CODE DE RESPUESTA
+            $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
             // Manejar errores
-            if (curl_errno($ch)) {
+            if (curl_errno($ch) || $httpStatus >= 400) {
                 $error = curl_error($ch);
                 curl_close($ch);
                 return ['error' => $response,'status_code' => 400];

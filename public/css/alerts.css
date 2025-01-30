@@ -1,0 +1,18 @@
+/* ESTILO PARA MENSAJES DE ALERT EN SISTEMA */
+.alert-fixed {
+    position: fixed;
+    top: 10px;
+    left: 50%; /* Centrar horizontalmente */
+    transform: translateX(-50%); /* Ajustar el centrado */
+    z-index: 1000;
+    display: none;
+    min-width: 300px; /* Ancho mínimo */
+    text-align: center; /* Centrar el texto */
+}
+
+/* Estilos adicionales para el atributo data-mdb-position */
+[data-mdb-position="top-center"] {
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}

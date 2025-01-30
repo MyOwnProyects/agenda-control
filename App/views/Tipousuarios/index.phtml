@@ -36,7 +36,7 @@ use App\Library\FuncionesGlobales;
                     <button type="button" class="btn btn-primary" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
                     <button type="button" class="btn btn-success" id="btnCrear"><?php echo $translations['html_new']; ?></button>
                     <button type="button" class="btn btn-secondary"><?php echo $translations['html_btn_return']; ?></button>
-                </div>
+                </div> 
             </form>
         </div>
     </div>
@@ -129,7 +129,7 @@ use App\Library\FuncionesGlobales;
 <script>
     //  ENCAPSULACIMIENTO DE CODIGO
 var mod_tipo_usuario    = (function(){
-
+    let draw            = 0;
     //  URL
     const controller    = '/Tipousuarios';
     const url_index     = controller+"/index";
@@ -160,6 +160,7 @@ var mod_tipo_usuario    = (function(){
     // Función para inicializar o recargar la tabla
     // Función para inicializar o recargar la tabla
     function cargarTabla() {
+        draw    ++;
         if (!table) {
             table = new DataTable('#table_results', {
                 dom: 'lrtip',
@@ -171,12 +172,12 @@ var mod_tipo_usuario    = (function(){
                     url: url_index,
                     method: 'POST',
                     data: function (d) {
-                        d.pageSize = d.length == null || d.length == '' ? 1 : d.length;
-                        d.offset = d.start == null || d.start == '' ? 0 : d.start;
-                        d.draw = 1;
-                        d.accion = 'get_rows';
-                        d.clave = $("#input_clave").val();
-                        d.nombre = $("#input_nombre").val();
+                        d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                        d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                        d.draw      = draw;
+                        d.accion    = 'get_rows';
+                        d.clave     = $("#input_clave").val();
+                        d.nombre    = $("#input_nombre").val();
                     }
                 },
                 columns: [
@@ -236,6 +237,8 @@ var mod_tipo_usuario    = (function(){
                 }
             });
         });
+
+        showAlert('success','mensaje!');
     });
 
     //  FUNCION PARA MOSTRAR MODAL DE CREACION
@@ -316,6 +319,39 @@ var mod_tipo_usuario    = (function(){
             } else {
                 $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
             }
+
+            let permissions_list    = [];
+            $(modal_clone).find('.check_sublist:checked').each(function(){
+                permissions_list.push($(this).data('id'));
+            });
+
+            console.log('list');
+            console.log(permissions_list);
+
+            //  AJAX SAVE
+            $.ajax({
+                url         : url_create,
+                method      : 'POST',
+                dataType    : 'json',
+                data        : {
+                    clave   : $(modal_clone).find('#input_clave').val(),
+                    nombre  : $(modal_clone).find('#input_nombre').val(),
+                    descripcion     : $(modal_clone).find('#textarea_descripcion').val(),
+                    lista_permisos  : permissions_list
+                },
+                success     : function(data){
+                    console.log('success');
+                    console.log(data);
+                    $(modal_clone).modal('hide');
+                    showAlert('success',data);
+                    cargarTabla();
+                },
+                error     : function(error){
+                    console.log('error');
+                    console.log();
+                    showAlert('danger',error.responseText);
+                }
+            })
         });
 
         // Prevenir envío por defecto si el formulario es inválido

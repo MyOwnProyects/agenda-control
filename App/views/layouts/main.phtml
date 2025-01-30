@@ -11,14 +11,15 @@
     <!-- jQuery (CDN) -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-    <!--    DATATABLES  -->
+    <!-- DATATABLES -->
     <link rel="stylesheet" href="/assets/datatables/datatables.min.css">
     <script src="/assets/datatables/datatables.min.js"></script>
 
-    <!--    MATERIAL ICONS  -->
+    <!-- MATERIAL ICONS -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-
+    <!-- Estilos adicionales para la alerta -->
+    <link rel="stylesheet" href="/css/alerts.css">
     <?php
         // Obtén el despachador desde el contenedor de dependencias
         $dispatcher = $this->getDI()->get('dispatcher');
@@ -45,7 +46,34 @@
         <?= $this->getContent() ?>
     </div>
 
+    <!--    --- DIV PARA MOSTRAR MENSAJES    -->
+    <div id="alert-success" 
+        class="alert alert-success alert-fixed" 
+        role="alert" 
+        data-mdb-position="top-center"
+        style="display: none; min-width: 300px;">
+        <div class="text-center"> <!-- Contenedor para centrar el texto -->
+            A simple success alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+        </div>
+    </div>
+
     <!-- Bootstrap JS (CDN, incluye Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Incluir el archivo global.js -->
+    <script src="/js/FuncionesGlobales.js"></script>
+
+    <!-- Script para manejar la alerta -->
+    <script>
+        $(document).ready(function() {
+            $('#show-alert').click(function() {
+                console.log('click interno'); // Verifica que el clic se registra
+                $('#alert-success').fadeIn(); // Muestra la alerta
+                setTimeout(function() {
+                    $('#alert-success').fadeOut(); // Oculta la alerta después de 3 segundos
+                }, 3000); // 3000 milisegundos = 3 segundos
+            });
+        });
+    </script>
 </body>
 </html>
