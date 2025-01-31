@@ -136,6 +136,7 @@ var mod_tipo_usuario    = (function(){
     const url_index     = controller+"/index";
     const url_create    = controller+"/create";
     const url_delete    = controller+"/delete";
+    const url_edit      = controller+"/edit";
 
     //  PERMISOS
     const action_create = '<?php echo $create; ?>';
@@ -162,7 +163,7 @@ var mod_tipo_usuario    = (function(){
     // Función para inicializar o recargar la tabla
     // Función para inicializar o recargar la tabla
     function cargarTabla() {
-        //showBlockCargando();
+        
         draw    ++;
         if (!table) {
             table = new DataTable('#table_results', {
@@ -212,8 +213,6 @@ var mod_tipo_usuario    = (function(){
         } else {
             table.ajax.reload();
         }
-
-        //hideBlockCargando();
     }
 
     $(document).ready(function(){
@@ -235,7 +234,7 @@ var mod_tipo_usuario    = (function(){
                 success : function(data){
                     console.log('data');
                     console.log(data);
-                    show_create_modal(data);
+                    show_modal_data(data);
                 },
                 error   : function(error){
                     console.log('error');
@@ -246,7 +245,24 @@ var mod_tipo_usuario    = (function(){
 
         //  EVENTO BOTON EDITAR
         $("#table_results").on('click','.btn_edit',function(){
-            //showBlockCargando();
+            const id    = $(this).data('id');
+            $.ajax({
+                url     : url_index,
+                method  : 'POST',
+                data    :  {
+                    accion  : 'get_info_edit',
+                    id      : id
+                },
+                success : function(data){
+                    console.log('data');
+                    console.log(data);
+                    show_modal_data(data['permisos'],data['info']);
+                },
+                error   : function(error){
+                    console.log('error');
+                    console.log(error);
+                }
+            });
         });
 
         $("#table_results").on('click','.btn_delete',async function() {
@@ -280,9 +296,17 @@ var mod_tipo_usuario    = (function(){
     });
 
     //  FUNCION PARA MOSTRAR MODAL DE CREACION
-    function show_create_modal(data){
+    function show_modal_data(data,info = null){
+
         let modal_clone = $("#modal_create").clone();
-        console.log('dentro de funcion');
+
+        //  EN CASO DE QUE INFO VENGA CON DATA
+        if (info != null){
+            $(modal_clone).find('#input_clave').val(info['clave']);
+            $(modal_clone).find('#input_nombre').val(info['nombre']);
+            $(modal_clone).find('#input_descripcio').val(info['descripcion']);
+        }
+
         for(let i in data){
 
             let label_controlador   = data[i][0]['label_controlador'];
@@ -293,14 +317,24 @@ var mod_tipo_usuario    = (function(){
             
             //  SE RECORRE EL ARRAY PARA OBTENER CADA PERMISO DEL CONTROLADOR
             let permisos    = data[i];
-
+            let check_padre = false;
             for(let x in permisos){
                 let label_accion    = $("#template_sublist").clone().removeAttr('id').show();
 
                 $(label_accion).find('.span_accion').text(permisos[x]['label_accion']);
-                $(label_accion).find('input').data('id',permisos[x]['id'])
+                $(label_accion).find('.check_sublist').data('id',permisos[x]['id']);
+
+                if (info != null && typeof (info['permisos'][permisos[x]['id']]) != "undefined"){
+                    check_padre = true;
+                    $(label_accion).find('.check_sublist').prop('checked',true);
+                }
 
                 $(div_padre).find('.child-options').append(label_accion);
+            }
+
+            if (check_padre){
+                $(div_padre).find('.header_check').prop('checked',true);
+                $(div_padre).find('.div_label_accion').removeClass('hide');
             }
 
             $(modal_clone).find('.div_header_permisos').append(div_padre);
@@ -326,9 +360,7 @@ var mod_tipo_usuario    = (function(){
         $(modal_clone).on('click','.check_sublist',function(){
             let count_elements  = $(this).closest('.child-options').find('.check_sublist').length;
 
-            console.log('checked');
-            console.log($(this).closest('.child-options').find('.check_sublist:checked').length);
-            if ($(this).closest('.child-options').find('.check_sublist:checked').length == count_elements){
+            if ($(this).closest('.child-options').find('.check_sublist:checked').length > 0){
                 console.log('todos checked');
                 $(this).closest('.div_header').find('.header_check').prop('checked',true);
             }

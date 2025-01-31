@@ -64,6 +64,28 @@ class TipousuariosController extends BaseController
                 $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
             }
 
+            if ($accion == 'get_info_edit'){
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+                $arr_return = array(
+                    'permisos'  => array(),
+                    'info'      => array()
+                );
+
+                $_POST['get_permisos']  = 1;
+
+                $route  = $this->url_api.$this->rutas['ctpermisos']['show'];
+                $arr_return['permisos'] = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'fromcatalog'   => 1
+                ));
+
+                $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
+                $arr_return['info'] = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $arr_return['info'] = $arr_return['info'][0];
+
+                $result = $arr_return;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
