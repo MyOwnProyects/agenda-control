@@ -25,6 +25,7 @@ return [
     'html_action'           => 'Acci&oacute;n',
     'html_btn_save'         => 'Guardar',
     'html_btn_cancel'       => 'Cancelar',   
+    'html_status'           => 'Estatus',
 
     //  MENSAJES DE ERROR
     'html_error_access_key' => 'Por favor, ingrese una clave.',

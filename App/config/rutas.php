@@ -8,6 +8,7 @@ return [
     'cttipo_usuarios'   => array(
         'show'      => '/cttipo_usuarios/show',
         'create'    => '/cttipo_usuarios/create',
+        'change_estatus'    => '/cttipo_usuarios/change_estatus',
     ),
     'ctpermisos'   => array(
         'show'  => '/ctpermisos/show'
