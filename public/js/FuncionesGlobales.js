@@ -1,15 +1,43 @@
+function actionJsonError(error,btn = null){
+    let error_info  = error.status != 401 ? error.responseJSON : error.responseText;
+
+    let flag_message    = error_info.includes("message");
+    if (flag_message){
+        flag_message    = JSON.parse(error_info);
+        flag_message    = flag_message['message'];
+    } else {
+        flag_message    = error.responseText;
+    }
+    
+    if (error.status == 401){
+        
+        let msg = JSON.parse(error_info);
+        showAlert('danger',flag_message);
+        setTimeout(() => {
+            window.location.href = "/"+msg['route_error'];
+        }, (5000));
+    } else {
+        showAlert('danger',flag_message);
+        if (btn != null){
+            $(btn).prop('disabled',false);
+        }
+    }
+}
+
 /**
  * FUNCION PARA MOSTRAR MENSAJE DE ALERTA FLOTANTE
  * @param {string} type TIPO DE ALERTA
  * @param {String} message MENSAJE A MOSTRAR
  */
-function showAlert(type = 'success' , message, timer = 3000) {
+function showAlert(type = 'success' , message) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-fixed`;
     alertDiv.style.display = 'none';
     alertDiv.innerHTML = message;
 
     document.body.appendChild(alertDiv);
+
+    let timer   = type == 'danger' ? 7000 : 3000;
 
     $(alertDiv).fadeIn();
     setTimeout(() => {

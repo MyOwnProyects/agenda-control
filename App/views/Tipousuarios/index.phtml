@@ -86,8 +86,8 @@ use App\Library\FuncionesGlobales;
                 </div>
             </div>
             <div class="col-md-12">
-                <label for="textarea_description" class="col-form-label"><?php echo $translations['html_description']; ?></label>
-                <textarea class="form-control" id="textarea_description"></textarea>
+                <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
+                <textarea class="form-control" id="textarea_descripcion"></textarea>
             </div>
             <div class="container mt-5 col-md-12">
                 <!-- LISTA DE PERMISOS -->
@@ -136,7 +136,7 @@ var mod_tipo_usuario    = (function(){
     const url_index     = controller+"/index";
     const url_create    = controller+"/create";
     const url_delete    = controller+"/delete";
-    const url_edit      = controller+"/edit";
+    const url_update    = controller+"/update";
 
     //  PERMISOS
     const action_create = '<?php echo $create; ?>';
@@ -237,8 +237,7 @@ var mod_tipo_usuario    = (function(){
                     show_modal_data(data);
                 },
                 error   : function(error){
-                    console.log('error');
-                    console.log(error);
+                    actionJsonError(error);
                 }
             });
         });
@@ -246,6 +245,8 @@ var mod_tipo_usuario    = (function(){
         //  EVENTO BOTON EDITAR
         $("#table_results").on('click','.btn_edit',function(){
             const id    = $(this).data('id');
+            let btn     = $(this);
+            $(btn).prop('disabled',true);
             $.ajax({
                 url     : url_index,
                 method  : 'POST',
@@ -256,11 +257,11 @@ var mod_tipo_usuario    = (function(){
                 success : function(data){
                     console.log('data');
                     console.log(data);
+                    $(btn).prop('disabled',false);
                     show_modal_data(data['permisos'],data['info']);
                 },
                 error   : function(error){
-                    console.log('error');
-                    console.log(error);
+                    actionJsonError(error,btn);
                 }
             });
         });
@@ -271,6 +272,9 @@ var mod_tipo_usuario    = (function(){
             const activo    = $(this).data('activo');
             const msg       = activo == 1 ? 'borrar' : 'modificar';
             const respuesta = await window.modalConfirm('&iquest;Desea '+msg+' el registro?');
+            let btn         = $(this);
+
+            $(btn).prop('disabled',true);
 
             if (respuesta) {
                 $.ajax({
@@ -282,13 +286,12 @@ var mod_tipo_usuario    = (function(){
                     success : function(data){
                         console.log('data');
                         console.log(data);
+                        $(btn).prop('disabled',false);
                         showAlert('success',"Borrado exitoso!");
                         cargarTabla();
                     },
                     error   : function(error){
-                        console.log('error');
-                        console.log(error);
-                        showAlert('danger',error.responseText);
+                        actionJsonError(error,btn);
                     }
                 });
             }
@@ -304,7 +307,7 @@ var mod_tipo_usuario    = (function(){
         if (info != null){
             $(modal_clone).find('#input_clave').val(info['clave']);
             $(modal_clone).find('#input_nombre').val(info['nombre']);
-            $(modal_clone).find('#input_descripcio').val(info['descripcion']);
+            $(modal_clone).find('#textarea_descripcion').val(info['descripcion']);
         }
 
         for(let i in data){
@@ -400,30 +403,33 @@ var mod_tipo_usuario    = (function(){
             console.log('list');
             console.log(permissions_list);
 
+            let obj_info    = {
+                clave   : $(modal_clone).find('#input_clave').val(),
+                nombre  : $(modal_clone).find('#input_nombre').val(),
+                descripcion     : $(modal_clone).find('#textarea_descripcion').val(),
+                lista_permisos  : permissions_list
+            };
+
+            if (info !== null){
+                obj_info['id']  = info['id'];
+            }
+
+            console.log(obj_info);
+
             //  AJAX SAVE
             $.ajax({
-                url         : url_create,
+                url         : info == null ? url_create : url_update,
                 method      : 'POST',
                 dataType    : 'json',
-                data        : {
-                    clave   : $(modal_clone).find('#input_clave').val(),
-                    nombre  : $(modal_clone).find('#input_nombre').val(),
-                    descripcion     : $(modal_clone).find('#textarea_descripcion').val(),
-                    lista_permisos  : permissions_list
-                },
+                data        : obj_info,
                 success     : function(data){
-                    console.log('success');
-                    console.log(data);
                     $(btn).prop('disabled',false);
                     $(modal_clone).modal('hide');
                     showAlert('success',data);
                     cargarTabla();
                 },
                 error     : function(error){
-                    console.log('error');
-                    console.log(error);
-                    $(btn).prop('disabled',false);
-                    showAlert('danger',error.responseText);
+                    actionJsonError(error,btn);
                 }
             })
         });

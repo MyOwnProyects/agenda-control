@@ -57,14 +57,11 @@ $di->set(
     }
 );
 
-$di->set(
-    'dispatcher',
-    function () {
-        $dispatcher = new Phalcon\Mvc\Dispatcher();
-        $dispatcher->setDefaultNamespace('App\Controllers'); // Ajusta si usas namespaces
-        return $dispatcher;
-    }
-);
+$di->setShared('dispatcher', function () {
+    $dispatcher = new Phalcon\Mvc\Dispatcher();
+    $dispatcher->setDefaultNamespace('App\Controllers');
+    return $dispatcher;
+});
 
 $di->set('rutas',function(){
     return require APP_PATH.'/config/rutas.php';

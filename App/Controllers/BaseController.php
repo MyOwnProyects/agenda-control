@@ -9,8 +9,12 @@ class BaseController extends Controller
     public function beforeExecuteRoute()
     {
         // Excluir el controlador y la acción de login/index de la validación
-        $currentController  = $this->dispatcher->getControllerName();
-        $currentAction      = $this->dispatcher->getActionName();
+        $dispatcher = $this->getDI()->get('dispatcher');
+        $session    = $this->getDI()->get('session');
+        $request    = $this->getDI()->get('request');
+        $response   = $this->getDI()->get('response');
+        $currentController  = $dispatcher->getControllerName();
+        $currentAction      = $dispatcher->getActionName();
 
         if ($currentController === 'login') {
             return; // No verificar sesión en login/index
@@ -21,13 +25,13 @@ class BaseController extends Controller
         $route_error    = '';
 
         // Verificar si el usuario tiene sesión
-        if (!$this->session->has('clave')) {
-            $msg_error      = "Sin sesión activa";
+        if (!$session->has('clave')) {
+            $msg_error      = "Sin sesi&oacute;n activa! seras enviado nuevamente a la vista inicial para iniciar sesi&oacute;n";
             $route_error    = 'login/logout';
         } else {
             //  EN CASO DE QUE EXISTA SESION, SE VERIFICA SI EL USUARIOI
             //  TIENE LOS PERMISOS PARA REALIZAR LA ACCION
-            $permisos   = $this->session->get('permisos');
+            $permisos   = $session->get('permisos');
             $has_access = false;
             foreach($permisos as $permiso){
                 if ($permiso['controlador'] == $currentController &&
@@ -43,26 +47,26 @@ class BaseController extends Controller
         }
 
         if ($msg_error != ''){
-            if ($this->request->isAjax()) {
+            if ($request->isAjax()) {
                 // Responder con un error si es una solicitud AJAX
-                $this->response->setJsonContent([
+                $response->setJsonContent([
                     'status'        => 'error',
                     'message'       => $msg_error,
                     'route_error'   => $route_error
                 ]);
-                $this->response->setStatusCode(401, 'Unauthorized'); // Código HTTP 401
-                $this->response->send();
+                $response->setStatusCode(401, 'Unauthorized'); // Código HTTP 401
+                $response->send();
                 exit;
             } else {
                 // Redirigir a login/index si es una solicitud normal
-                $this->response->redirect($route_error);
-                $this->response->send();
+                $response->redirect($route_error);
+                $response->send();
                 exit;
             }
         } else {
             //  SECCION PARA INCLUIR LENGUAJE EN TODOS LOS CONTROLADORES
             // Define el idioma deseado (puedes obtenerlo de la sesión, navegador o configuración)
-            $language = $this->session->get('language', 'es'); // Idioma por defecto: español
+            $language = $session->get('language', 'es'); // Idioma por defecto: español
 
             // Ruta del archivo de idioma
             $languageFile = BASE_PATH . "/public/language/{$language}.php";

@@ -134,5 +134,23 @@ class TipousuariosController extends BaseController
             return $response;
         }
     }
+
+    public function updateAction(){
+        if ($this->request->isAjax()){
+            $route  = $this->url_api.$this->rutas['cttipo_usuarios']['update'];
+            $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+            $response = new Response();
+
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
+                return $response;
+            }
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+    }
     
 }

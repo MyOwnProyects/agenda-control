@@ -1,13 +1,13 @@
 /* ESTILO PARA MENSAJES DE ALERT EN SISTEMA */
 .alert-fixed {
     position: fixed;
-    top: 10px;
-    left: 50%; /* Centrar horizontalmente */
-    transform: translateX(-50%); /* Ajustar el centrado */
-    z-index: 1000;
-    display: none;
-    min-width: 300px; /* Ancho mínimo */
-    text-align: center; /* Centrar el texto */
+    top: 20px; /* Ajusta la posición vertical */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999; /* Asegura que esté sobre otros elementos */
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilos adicionales para el atributo data-mdb-position */
