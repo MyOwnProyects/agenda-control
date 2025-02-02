@@ -26,6 +26,8 @@ return [
     'html_btn_save'         => 'Guardar',
     'html_btn_cancel'       => 'Cancelar',   
     'html_status'           => 'Estatus',
+    'html_available'        => 'Disponible en agenda',
+    'html_permissions'      => 'Permisos',
 
     //  MENSAJES DE ERROR
     'html_error_access_key' => 'Por favor, ingrese una clave.',

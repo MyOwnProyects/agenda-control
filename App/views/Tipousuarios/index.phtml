@@ -35,7 +35,6 @@ use App\Library\FuncionesGlobales;
                 <div class="col-md-12 text-end">
                     <button type="button" class="btn btn-primary" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
                     <button type="button" class="btn btn-success" id="btnCrear"><?php echo $translations['html_new']; ?></button>
-                    <button type="button" class="btn btn-secondary"><?php echo $translations['html_btn_return']; ?></button>
                 </div> 
             </form>
         </div>
@@ -53,6 +52,7 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
                         <th><?php echo $translations['html_description']; ?></th>
+                        <th><?php echo $translations['html_available']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
@@ -87,10 +87,19 @@ use App\Library\FuncionesGlobales;
             </div>
             <div class="col-md-12">
                 <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
-                <textarea class="form-control" id="textarea_descripcion"></textarea>
+                <textarea rows="1" class="form-control" id="textarea_descripcion"></textarea>
+            </div>
+            <div class="form-check mt-5 col-md-12">
+                <input class="form-check-input" type="checkbox" value="" id="input_disponible">
+                <label class="form-check-label" for="input_disponible">
+                <?php echo $translations['html_available']; ?>
+                </label>
             </div>
             <div class="container mt-5 col-md-12">
                 <!-- LISTA DE PERMISOS -->
+                <label class="form-check-label" >
+                <?php echo $translations['html_permissions']; ?>
+                </label>
                 <div class="list-group div_header_permisos"></div>
             </div>
             <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
@@ -188,7 +197,8 @@ var mod_tipo_usuario    = (function(){
                     { data: 'clave' }, // Columna 1
                     { data: 'nombre' }, // Columna 2
                     { data: 'descripcion' }, // Columna 3
-                    { data: 'label_estatus' }, // Columna 4
+                    { data: 'label_disponible' }, // Columna 4
+                    { data: 'label_estatus' }, // Columna 5
                     {
                         data: null, 
                         className: "text-center", // Centra el contenido de la celda
@@ -312,6 +322,7 @@ var mod_tipo_usuario    = (function(){
             $(modal_clone).find('#input_clave').val(info['clave']);
             $(modal_clone).find('#input_nombre').val(info['nombre']);
             $(modal_clone).find('#textarea_descripcion').val(info['descripcion']);
+            $(modal_clone).find('#input_disponible').prop('checked',info['disponible_agenda'] == 1 ? true : false );
         }
 
         for(let i in data){
@@ -331,7 +342,7 @@ var mod_tipo_usuario    = (function(){
                 $(label_accion).find('.span_accion').text(permisos[x]['label_accion']);
                 $(label_accion).find('.check_sublist').data('id',permisos[x]['id']);
 
-                if (info != null && typeof (info['permisos'][permisos[x]['id']]) != "undefined"){
+                if (info != null && typeof(info['permisos']) != "undefined" &&typeof (info['permisos'][permisos[x]['id']]) != "undefined"){
                     check_padre = true;
                     $(label_accion).find('.check_sublist').prop('checked',true);
                 }
@@ -411,7 +422,8 @@ var mod_tipo_usuario    = (function(){
                 clave   : $(modal_clone).find('#input_clave').val(),
                 nombre  : $(modal_clone).find('#input_nombre').val(),
                 descripcion     : $(modal_clone).find('#textarea_descripcion').val(),
-                lista_permisos  : permissions_list
+                disponible_agenda   : $(modal_clone).find('#input_disponible').prop('checked') ? 1 : 0,
+                lista_permisos      : permissions_list
             };
 
             if (info !== null){
@@ -419,6 +431,7 @@ var mod_tipo_usuario    = (function(){
                 obj_info['clave_old']   = info['clave'];
                 obj_info['nombre_old']  = info['nombre'];
                 obj_info['descripcion_old'] = info['descripcion'];
+                obj_info['disponible_old']  = info['disponible_agenda'];
                 obj_info['permisos_old']    = info['permisos'];
             }
 

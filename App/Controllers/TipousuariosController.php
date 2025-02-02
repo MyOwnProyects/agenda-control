@@ -113,7 +113,8 @@ class TipousuariosController extends BaseController
                 return $response;
             }
 
-            FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el tipo usuario: '.$_POST['clave'].' con '.count($_POST['lista_permisos']).' permisos',$_POST);
+            $disponible = $_POST['disponible_agenda'] == true ? 'SI' : 'NO';
+            FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el tipo usuario: '.$_POST['clave'].'Disponible para agenda: '.$disponible.' con '.count($_POST['lista_permisos']).' permisos',$_POST);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
@@ -153,7 +154,9 @@ class TipousuariosController extends BaseController
                 return $response;
             }
 
-            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' permisos de '.count($_POST['permisos_old']).' a '.count($_POST['lista_permisos']),$_POST);
+            $disponible = $_POST['disponible_agenda'] == true ? 'SI' : 'NO';
+            $disponible_old = $_POST['disponible_old'] == true ? 'SI' : 'NO';
+            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' Disponible para citas A/D: '.$disponible_old.'/'.$disponible.' permisos de '.count($_POST['permisos_old']).' a '.count($_POST['lista_permisos']),$_POST);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');

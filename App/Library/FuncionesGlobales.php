@@ -123,7 +123,7 @@ class FuncionesGlobales{
         // Obtén el servicio de sesión
         $session = $di->get('session');
 
-        $arr_permisos   = $session->get('permisos');
+        $arr_permisos   = $session->has('permisos') ? $session->get('permisos') : array();
 
         foreach($arr_permisos as $permiso){
             if ($permiso['controlador'] == $controller && $permiso['accion'] == $action){
