@@ -1,27 +1,37 @@
 function actionJsonError(error,btn = null){
-    let error_info  = error.status != 401 ? error.responseJSON : error.responseText;
-
-    let flag_message    = error_info.includes("message");
-    if (flag_message){
-        flag_message    = JSON.parse(error_info);
-        flag_message    = flag_message['message'];
-    } else {
-        flag_message    = error.responseText;
-    }
+    try{
+        console.log('error');
+        console.log(error);
+        let error_info  = error.status != 401 ? error.responseJSON : error.responseText;
     
-    if (error.status == 401){
+        let flag_message    = error_info.includes("message");
+        if (flag_message){
+            flag_message    = JSON.parse(error_info);
+            flag_message    = flag_message['message'];
+        } else {
+            flag_message    = error.responseText;
+        }
         
-        let msg = JSON.parse(error_info);
-        showAlert('danger',flag_message);
-        setTimeout(() => {
-            window.location.href = "/"+msg['route_error'];
-        }, (5000));
-    } else {
-        showAlert('danger',flag_message);
+        if (error.status == 401){
+            
+            let msg = JSON.parse(error_info);
+            showAlert('danger',flag_message);
+            setTimeout(() => {
+                window.location.href = "/"+msg['route_error'];
+            }, (5000));
+        } else {
+            showAlert('danger',flag_message);
+            if (btn != null){
+                $(btn).prop('disabled',false);
+            }
+        }
+    }catch(err){
+        showAlert('danger','Error desconocido');
         if (btn != null){
             $(btn).prop('disabled',false);
         }
     }
+    
 }
 
 /**

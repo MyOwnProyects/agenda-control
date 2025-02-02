@@ -13,5 +13,8 @@ return [
     ),
     'ctpermisos'   => array(
         'show'  => '/ctpermisos/show'
+    ),
+    'tbbitacora_movimientos'   => array(
+        'create'  => '/tbbitacora_movimientos/create'
     )
 ];

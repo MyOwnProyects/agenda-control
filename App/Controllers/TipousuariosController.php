@@ -12,12 +12,14 @@ class TipousuariosController extends BaseController
 {
     protected $rutas;
     protected $url_api;
+    protected $bitacora;
 
     public function initialize(){
         $config         = $this->getDI();
         $this->rutas    = $config->get('rutas');
         $config         = $config->get('config');
         $this->url_api  = $config['BASEAPI'];
+        $this->bitacora = 'Tipousuarios';
     }
 
     public function IndexAction(){
@@ -111,6 +113,8 @@ class TipousuariosController extends BaseController
                 return $response;
             }
 
+            FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el tipo usuario: '.$_POST['clave'].' con '.count($_POST['lista_permisos']).' permisos',$_POST);
+
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
             return $response;
@@ -129,6 +133,8 @@ class TipousuariosController extends BaseController
                 return $response;
             }
 
+            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se mando '.$_POST['accion_bitacora'].' el tipo usuario: '.$_POST['clave'],$_POST);
+
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
             return $response;
@@ -146,6 +152,8 @@ class TipousuariosController extends BaseController
                 $response->setStatusCode(404, 'Error');
                 return $response;
             }
+
+            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' permisos de '.count($_POST['permisos_old']).' a '.count($_POST['lista_permisos']),$_POST);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');

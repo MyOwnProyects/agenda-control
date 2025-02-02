@@ -41,6 +41,19 @@ class FuncionesGlobales{
 
             $method = self::UpperString($method);
 
+            // Obtén el contenedor DI global
+            $di = Di::getDefault();
+
+            // Verifica si el servicio de sesión está disponible
+            if (!$di instanceof DiInterface || !$di->has('session')) {
+                return $flag_return;
+            }
+
+            // Obtén el servicio de sesión
+            $session = $di->get('session');
+
+            $params['usuario_solicitud']    = $session->get('clave');
+
             // Configurar cURL
             $ch = curl_init();
 
@@ -121,5 +134,65 @@ class FuncionesGlobales{
 
         return $flag_return;
 
+    }
+
+    /**
+     * FUNCION QUE CONSTRUYE LA DATA DEL CURL A GUARDAR 
+     * 
+     * @param   string  $controlador
+     * @param   string  $accion
+     * @param   string  $mensaje
+     * @param   array   $data  
+     * 
+     * @return boolean 
+     */
+    public static function saveBitacora($controlador,$accion,$mensaje,$data){
+        try{
+            //  VARIABLES OBLIGATORIAS
+            if (empty($controlador)){
+                return false;
+            }
+
+            if (empty($accion)){
+                return false;
+            }
+
+            if (empty($mensaje)){
+                return false;
+            }
+
+            //  IP DE LA SOLICITUD
+            $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
+
+            //  CONSTRUCCION DE LA RUTA
+            // OBTENER EL CONTENEDOR DE DEPENDENCIAS
+            // OBTENER EL CONTENEDOR DE DEPENDENCIAS
+            $di = Di::getDefault(); // Se usa en lugar de $this->getDI()
+
+            // OBTENER CONFIGURACIONES
+            $rutas = $di->get('rutas');
+            $config = $di->get('config');
+            $url_api = $config['BASEAPI'];
+
+
+            //  CONSTRUCCION DEL ARRAY
+            // $method,$route,$params = null,$headers = null
+
+            $arr_params = array(
+                'controlador'   => $controlador,
+                'accion'        => $accion,
+                'mensaje'       => $mensaje,
+                'data'          => $data,
+                'ip_cliente'    => $ipAddress
+            );
+
+            $captura    = self::RequestApi('POST',$url_api.$rutas['tbbitacora_movimientos']['create'],$arr_params);
+            
+        }catch (\Exception $e){
+            $aqui   = 1;
+        }
+
+        return true;
+        
     }
 }
