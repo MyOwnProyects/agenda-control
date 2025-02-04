@@ -52,7 +52,6 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
                         <th><?php echo $translations['html_description']; ?></th>
-                        <th><?php echo $translations['html_available']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
@@ -88,12 +87,6 @@ use App\Library\FuncionesGlobales;
             <div class="col-md-12">
                 <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
                 <textarea rows="1" class="form-control" id="textarea_descripcion"></textarea>
-            </div>
-            <div class="form-check mt-5 col-md-12">
-                <input class="form-check-input" type="checkbox" value="" id="input_disponible">
-                <label class="form-check-label" for="input_disponible">
-                <?php echo $translations['html_available']; ?>
-                </label>
             </div>
             <div class="container mt-5 col-md-12">
                 <!-- LISTA DE PERMISOS -->
@@ -197,7 +190,6 @@ var mod_tipo_usuario    = (function(){
                     { data: 'clave' }, // Columna 1
                     { data: 'nombre' }, // Columna 2
                     { data: 'descripcion' }, // Columna 3
-                    { data: 'label_disponible' }, // Columna 4
                     { data: 'label_estatus' }, // Columna 5
                     {
                         data: null, 
@@ -322,7 +314,6 @@ var mod_tipo_usuario    = (function(){
             $(modal_clone).find('#input_clave').val(info['clave']);
             $(modal_clone).find('#input_nombre').val(info['nombre']);
             $(modal_clone).find('#textarea_descripcion').val(info['descripcion']);
-            $(modal_clone).find('#input_disponible').prop('checked',info['disponible_agenda'] == 1 ? true : false );
         }
 
         for(let i in data){
@@ -422,7 +413,6 @@ var mod_tipo_usuario    = (function(){
                 clave   : $(modal_clone).find('#input_clave').val(),
                 nombre  : $(modal_clone).find('#input_nombre').val(),
                 descripcion     : $(modal_clone).find('#textarea_descripcion').val(),
-                disponible_agenda   : $(modal_clone).find('#input_disponible').prop('checked') ? 1 : 0,
                 lista_permisos      : permissions_list
             };
 
@@ -431,7 +421,6 @@ var mod_tipo_usuario    = (function(){
                 obj_info['clave_old']   = info['clave'];
                 obj_info['nombre_old']  = info['nombre'];
                 obj_info['descripcion_old'] = info['descripcion'];
-                obj_info['disponible_old']  = info['disponible_agenda'];
                 obj_info['permisos_old']    = info['permisos'];
             }
 

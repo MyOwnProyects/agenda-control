@@ -1,0 +1,490 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
+
+    .hide{
+        display: none;
+    }
+
+    .div_label_accion {
+        margin-bottom: 5px; /* Reduce el espacio vertical entre los elementos */
+        padding: 0; /* Opcional: elimina el relleno interno si es necesario */
+    }
+
+</style>
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_access_key']; ?></label>
+                    <input type="text" class="form-control" id="input_clave" placeholder="<?php echo $translations['html_title_access_key']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_user_type']; ?></label>
+                    <select id="select_tipo_usuario" class="form-select" aria-label="Default select example">
+                        <option></option>
+                        <?php foreach($arr_tipo_usuarios as $tipo_usuario): ?>
+                            <option value="<?php echo $tipo_usuario['id']; ?>"><?php echo $tipo_usuario['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-primary" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
+                    <button type="button" class="btn btn-success" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_access_key']; ?></th>
+                        <th><?php echo $translations['html_name']; ?></th>
+                        <th><?php echo $translations['html_user_type']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-lg" id="modal_create" tabindex="-1" aria-labelledby="label_modal_create" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_create"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-4">
+                    <label for="input_celular" class="col-form-label"><?php echo $translations['html_cellphone']; ?></label>
+                    <input type="text" id="input_celular" name="input_celular" class="form-control" maxLength="10" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_cellphone']; ?></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-4">
+                    <label for="input_primer_apellido" class="col-form-label"><?php echo $translations['html_first_lastname']; ?></label>
+                    <input type="text" class="form-control" id="input_primer_apellido" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_first_lastname']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_segundo_apellido" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
+                    <input type="text" class="form-control" id="input_segundo_apellido">
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-4">
+                    <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_correo_electronico" class="col-form-label"><?php echo $translations['html_email']; ?></label>
+                    <input type="text" class="form-control" id="input_correo_electronico">
+                    <div class="invalid-feedback"><?php echo $translations['html_error_email']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_tipo_usuario_modal" class="form-label"><?php echo $translations['html_user_type']; ?></label>
+                    <select id="select_tipo_usuario_modal" class="form-select" required>
+                        <option></option>
+                        <?php foreach($arr_tipo_usuarios as $tipo_usuario): ?>
+                            <option value="<?php echo $tipo_usuario['id']; ?>"><?php echo $tipo_usuario['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_user_type']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_contrasena" class="col-form-label"><?php echo $translations['html_password']; ?></label>
+                    <input type="password" class="form-control" id="input_contrasena" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_confirmar_contrasena" class="col-form-label"><?php echo $translations['html_confirm_password']; ?></label>
+                    <input type="password" class="form-control" id="input_confirmar_contrasena" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
+                </div>
+            </div>
+            <div class="container mt-3 col-md-12" style="overflow:scroll; height:150px;">
+                <!-- LISTA DE PERMISOS -->
+                <label class="form-check-label" >
+                <?php echo $translations['html_permissions']; ?>
+                </label>
+                <div class="list-group div_header_permisos"></div>
+            </div>
+            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="template_padre" style="display:none;">
+    <div class="d-flex align-items-center"> <!-- Flex para alinear elementos -->
+        <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
+        <input class="form-check-input me-1 header_check" type="checkbox" value="">
+        </label>
+        <span class="span_controlador" style="cursor: pointer;"></span> <!-- Texto alineado con el checkbox -->
+    </div>
+    <div class="ms-4 child-options"></div>
+</div>
+
+<label id="template_sublist" class="list-group-item hide div_label_accion" style="display:none;">
+    <input class="form-check-input check_sublist" type="checkbox" value="">
+    <span class="span_accion"></span>
+</label>
+
+<script>
+    let modulo_usuarios = (function(){
+        let draw            = 0;
+        //  URL
+        const controller    = '/Usuarios';
+        const url_index     = controller+"/index";
+        const url_create    = controller+"/create";
+        const url_delete    = controller+"/delete";
+        const url_update    = controller+"/update";
+
+        //  PERMISOS
+        const action_create = '<?php echo $create; ?>';
+        const action_update = '<?php echo $update; ?>';
+        const action_detele = '<?php echo $delete; ?>';
+
+        //  language
+        const tableTranslations = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            }
+        };
+
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
+        }
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
+        // Función para inicializar o recargar la tabla
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: tableTranslations,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.clave     = $("#input_clave").val();
+                            d.nombre    = $("#input_nombre").val();
+                            d.id_tipo_usuario   = $("#select_tipo_usuario").val()
+                        }
+                    },
+                    columns: [
+                        { data: 'clave' }, // Columna 1
+                        { data: 'nombre_completo' }, // Columna 1
+                        { data: 'nombre_tipo_usuario' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
+                                let btn_update  = action_update ? 
+                                '<button class="btn btn-warning btn-xs btn_edit" data-id="'+data['id']+'">' +
+                                    '<i class="material-icons">edit</i>'+
+                                '</button>' : '';
+
+                                let btn_delete  = action_update ? 
+                                '<button class="btn btn-danger btn-xs btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'">' +
+                                    '<i class="material-icons">delete</i>'+
+                                '</button>' : '';
+                                return btn_update + btn_delete;
+                            }
+                        }
+                    ]
+                });
+            } else {
+                table.ajax.reload();
+            }
+        }
+
+        $(document).ready(function() {
+            cargarTabla();
+
+            selectToSelect2($("#header_filters"),"select_tipo_usuario");
+
+
+            // Evento click del botón "Buscar"
+            $("#header_filters").on('click',"#btnBuscar",function() {
+                cargarTabla();
+            });
+
+            $("#header_filters").on('click',"#btnCrear",function() {
+                showModal();
+            });
+        });
+
+        function showModal(data = null,info = null){
+            let modal_clone = $("#modal_create").clone().show();
+
+            $(modal_clone).find('#select_tipo_usuario_modal').select2({
+                placeholder     : 'Seleccione una opción',
+                dropdownParent: $(modal_clone)
+            }).on('select2:select',function(){
+                const id    = $(this).val();
+                $.ajax({
+                    url     : url_index,
+                    method  : 'post',
+                    data    : {
+                        accion  : 'get_permisos_tipo_usuario',
+                        id      : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        show_permisos(modal_clone,data['permisos'],data['info']);
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+                    }
+                })
+            });
+
+            //  EVENTOS MODAL
+            $(modal_clone).on('click','.span_controlador',function(){
+                console.log($(this).closest('.div_header').find('.hide').length);
+                if ($(this).closest('.div_header').find('.hide').length > 0){
+                    $(this).closest('.div_header').find('.div_label_accion').removeClass('hide');
+                } else {
+                    $(this).closest('.div_header').find('.div_label_accion').addClass('hide');
+                }
+            });
+
+            //  EVENTO PARA CHECK
+            $(modal_clone).on('click','.header_check',function(){
+                let status_check    = $(this).prop('checked');
+
+                $(this).closest('.div_header').find('.check_sublist').prop('checked',status_check);
+            });
+
+            $(modal_clone).on('click','.check_sublist',function(){
+                let count_elements  = $(this).closest('.child-options').find('.check_sublist').length;
+
+                if ($(this).closest('.child-options').find('.check_sublist:checked').length > 0){
+                    console.log('todos checked');
+                    $(this).closest('.div_header').find('.header_check').prop('checked',true);
+                }
+
+                if ($(this).closest('.child-options').find('.check_sublist:checked').length == 0){
+                    console.log('ninguno checked');
+                    $(this).closest('.div_header').find('.header_check').prop('checked',false);
+                }
+            });
+
+            //  EVENTOS
+            $(modal_clone).on('keypress','#input_celular',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    // Si el formulario no es válido, muestra mensajes de error
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if ($(modal_clone).find('.check_sublist:checked').length == 0){
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['sin_permisos']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                } else {
+                    $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
+                }
+
+                //  VALIDAR ESTRUCTURA DE DATOS
+                if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
+                    console.log('pase');
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_celular']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                }
+
+                // VALIDAR CORREO
+                const emailField    = $(modal_clone).find('#input_correo_electronico').val();
+	
+                // Define our regular expression.
+                const validEmail    =  /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/;
+
+                // Using test we can check if the text match the pattern
+                if(emailField != '' && emailField != null && !validEmail.test(emailField) ){
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_email']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                }
+
+                if ($(modal_clone).find('#input_contrasena').val().length < 8){
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_length_contrasena']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                }
+
+                if ($(modal_clone).find('#input_contrasena').val() !== $(modal_clone).find('#input_confirmar_contrasena').val()){
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_contrasena']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                }
+
+                if (flag_error){
+                    return false;
+                }
+
+                console.log('pase');
+                let permissions_list    = [];
+                $(modal_clone).find('.check_sublist:checked').each(function(){
+                    permissions_list.push($(this).data('id'));
+                });
+
+                let obj_info    = {
+                    celular             : $(modal_clone).find('#input_celular').val(),
+                    primer_apellido     : $(modal_clone).find('#input_primer_apellido').val(),
+                    segundo_apellido    : $(modal_clone).find('#input_segundo_apellido').val(),
+                    nombre              : $(modal_clone).find('#input_nombre').val(),
+                    correo_electronico  : $(modal_clone).find('#input_correo_electronico').val(),
+                    id_tipo_usuario     : $(modal_clone).find('#select_tipo_usuario_modal').val(),
+                    contrasena          : $(modal_clone).find('#input_contrasena').val(),
+                    lista_permisos      : permissions_list,
+                    label_tipo_usuario  : $(modal_clone).find('#select_tipo_usuario_modal').find('option:selected').text()
+                };
+
+                console.log('obj_info');
+                console.log(obj_info);
+                //return false;
+
+                //  AJAX SAVE
+                $.ajax({
+                    url         : info == null ? url_create : url_update,
+                    method      : 'POST',
+                    dataType    : 'json',
+                    data        : obj_info,
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                        cargarTabla();
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        //  MUESTRA LA LISTA DE PERMISOS
+        function show_permisos(modal_clone,data,info){
+
+            for(let i in data){
+
+                let label_controlador   = data[i][0]['label_controlador'];
+                let class_controlador   = 'div_'+data[i][0]['controlador'];
+
+                let div_padre   = $("#template_padre").clone().removeAttr('id').addClass('div_header').attr('id',class_controlador).show();
+                $(div_padre).find('.span_controlador').text(label_controlador);
+                
+                //  SE RECORRE EL ARRAY PARA OBTENER CADA PERMISO DEL CONTROLADOR
+                let permisos    = data[i];
+                let check_padre = false;
+                for(let x in permisos){
+                    let label_accion    = $("#template_sublist").clone().removeAttr('id').show();
+
+                    $(label_accion).find('.span_accion').text(permisos[x]['label_accion']);
+                    $(label_accion).find('.check_sublist').data('id',permisos[x]['id']);
+
+                    if (info != null && typeof(info['permisos']) != "undefined" &&typeof (info['permisos'][permisos[x]['id']]) != "undefined"){
+                        check_padre = true;
+                        $(label_accion).find('.check_sublist').prop('checked',true);
+                    }
+
+                    $(div_padre).find('.child-options').append(label_accion);
+                }
+
+                if (check_padre){
+                    $(div_padre).find('.header_check').prop('checked',true);
+                    $(div_padre).find('.div_label_accion').removeClass('hide');
+                }
+
+                $(modal_clone).find('.div_header_permisos').append(div_padre);
+            }
+        }
+    })();
+</script>

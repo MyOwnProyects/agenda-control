@@ -111,3 +111,18 @@ $(document).ajaxStop(function () {
         hideBlockCargando();
     }, 500); // Pequeño retraso para evitar parpadeo
 });
+
+/**
+ * FUNCION QUE CONVIERTE LOS SELECT EN SELECT2
+ * 
+ * @param   {Element}   header  Elemento padre donde se encuentra el select2
+ * @param   {string}    find_element    Texto del id del select
+ * @param   {boolean}   allowClear      permite o no limpiar el combo, por defecto es true
+ * @param   {string}    placeholder     Texto a mostrar, por defecto ya tiene un valor   
+ */
+function selectToSelect2(header,find_element, allowClear = true , placeholder= 'Seleccione una opción'){
+    header.find("#"+find_element).select2({
+        placeholder : placeholder,
+        allowClear  : allowClear
+    });
+}
