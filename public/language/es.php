@@ -34,6 +34,9 @@ return [
     'html_email'            => 'Correo electronico',
     'html_password'         => 'Contrase&ntilde;a',
     'html_confirm_password' => 'Confirmar contrase&ntilde;a',
+    'html_edit_record'      => 'Editar registro',
+    'html_delete_record'    => 'Borrar registro',
+    'html_active_deactivate'    => 'Activar/desactivar registro',
 
     //  MENSAJES DE ERROR
     'html_error_access_key' => 'Ingrese una clave.',

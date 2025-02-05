@@ -62,6 +62,7 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
                         <th><?php echo $translations['html_user_type']; ?></th>
+                        <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -195,7 +196,10 @@ use App\Library\FuncionesGlobales;
                 last: "<?= $translations['paginate_last'] ?>",
                 next: "<?= $translations['paginate_next'] ?>",
                 previous: "<?= $translations['paginate_previous'] ?>"
-            }
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -239,6 +243,7 @@ use App\Library\FuncionesGlobales;
                         { data: 'clave' }, // Columna 1
                         { data: 'nombre_completo' }, // Columna 1
                         { data: 'nombre_tipo_usuario' }, // Columna 1
+                        { data: 'label_estatus' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -247,12 +252,17 @@ use App\Library\FuncionesGlobales;
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
                                 let btn_update  = action_update ? 
-                                '<button class="btn btn-warning btn-xs btn_edit" data-id="'+data['id']+'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+tableTranslations['title_update'] +'">' +
                                     '<i class="material-icons">edit</i>'+
-                                '</button>' : '';
+                                '</button>' +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+tableTranslations['title_change'] +'">' +
+                                    '<i class="material-icons">cached</i>'+
+                                '</button>'
+                                
+                                : '';
 
                                 let btn_delete  = action_update ? 
-                                '<button class="btn btn-danger btn-xs btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
                                     '<i class="material-icons">delete</i>'+
                                 '</button>' : '';
                                 return btn_update + btn_delete;
@@ -278,6 +288,32 @@ use App\Library\FuncionesGlobales;
 
             $("#header_filters").on('click',"#btnCrear",function() {
                 showModal();
+            });
+
+            //  EVENTO CAMBIAR ESTATUS
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_change_status',function(){
+                const id        = $(this).data('id');
+                const estatus   = $(this).data('estatus');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'change_status',
+                        id      : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        cargarTabla();
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
             });
         });
 

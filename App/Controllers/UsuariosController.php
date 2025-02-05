@@ -147,4 +147,42 @@ class UsuariosController extends BaseController
             return $response;
         }
     }
+
+    public function updateAction(){
+        if ($this->request->isAjax()){
+
+            $accion = $this->request->getPost('accion');
+
+            if ($this->request->hasPost('accion') && $this->request->getPost('accion') == 'change_status'){
+                $route  = $this->url_api.$this->rutas['ctusuarios']['change_status'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+            } else {
+                $route  = $this->url_api.$this->rutas['ctusuarios']['update'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' permisos de '.count($_POST['permisos_old']).' a '.count($_POST['lista_permisos']),$_POST);
+            }
+
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+    }
 }

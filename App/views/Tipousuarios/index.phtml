@@ -156,7 +156,10 @@ var mod_tipo_usuario    = (function(){
             last: "<?= $translations['paginate_last'] ?>",
             next: "<?= $translations['paginate_next'] ?>",
             previous: "<?= $translations['paginate_previous'] ?>"
-        }
+        },
+        title_update    : "<?= $translations['html_edit_record'] ?>",
+        title_delete    : "<?= $translations['html_delete_record'] ?>",
+        title_change    : "<?= $translations['html_active_deactivate'] ?>",
     };
 
     // Variable global para almacenar la instancia de DataTable
@@ -199,12 +202,12 @@ var mod_tipo_usuario    = (function(){
                             // `data` contiene el objeto completo de la fila
                             // Generamos un botón con un atributo dinámico para identificar la fila
                             let btn_update  = action_update ? 
-                            '<button class="btn btn-warning btn-xs btn_edit" data-id="'+data['id']+'">' +
+                            '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+tableTranslations['title_update'] +'">' +
                                 '<i class="material-icons">edit</i>'+
                             '</button>' : '';
 
                             let btn_delete  = action_update ? 
-                            '<button class="btn btn-danger btn-xs btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'">' +
+                            '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
                                 '<i class="material-icons">delete</i>'+
                             '</button>' : '';
                             return btn_update + btn_delete;
