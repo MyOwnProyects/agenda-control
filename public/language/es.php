@@ -37,6 +37,7 @@ return [
     'html_edit_record'      => 'Editar registro',
     'html_delete_record'    => 'Borrar registro',
     'html_active_deactivate'    => 'Activar/desactivar registro',
+    'html_confirm_delete'       => '&iquest;Desea borrar el registro?',
 
     //  MENSAJES DE ERROR
     'html_error_access_key' => 'Ingrese una clave.',

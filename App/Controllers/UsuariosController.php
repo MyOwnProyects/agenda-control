@@ -102,10 +102,15 @@ class UsuariosController extends BaseController
                     'fromcatalog'   => 1
                 ));
 
-                $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
-                $arr_return['info'] = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $route                  = $this->url_api.$this->rutas['ctusuarios']['show'];
+                $_POST['fromCatalog']   = 1;
+                $arr_return['info']     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
                 $arr_return['info'] = $arr_return['info'][0];
+
+                //  SE BUSCAN LOS PERMISOS ASIGNADOS AL USUARIO
+                $route              = $this->url_api.$this->rutas['ctusuarios']['get_info_usuario'];
+                $arr_return['info']['permisos'] = FuncionesGlobales::RequestApi('GET',$route,array("id_usuario" => $_POST['id']));
 
                 $result = $arr_return;
             }
@@ -153,7 +158,7 @@ class UsuariosController extends BaseController
 
             $accion = $this->request->getPost('accion');
 
-            if ($this->request->hasPost('accion') && $this->request->getPost('accion') == 'change_status'){
+            if (!empty($accion) && $this->request->getPost('accion') == 'change_status'){
                 $route  = $this->url_api.$this->rutas['ctusuarios']['change_status'];
                 $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
                 $response = new Response();
@@ -165,9 +170,11 @@ class UsuariosController extends BaseController
                 }
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
-            } else {
+            } 
+
+            if (!empty($accion) && $accion == 'save_edit'){
                 $route  = $this->url_api.$this->rutas['ctusuarios']['update'];
-                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST['obj_info']);
                 $response = new Response();
 
                 if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
@@ -175,10 +182,30 @@ class UsuariosController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
-
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' permisos de '.count($_POST['permisos_old']).' a '.count($_POST['lista_permisos']),$_POST);
+                $info   = $_POST['info'];
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se el usuario: Celular antiguo :'.$info['clave'].' por '.$_POST['obj_info']['clave'],$_POST);
             }
 
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+    }
+
+    public function deleteAction(){
+        if ($this->request->isAjax()){
+            $route  = $this->url_api.$this->rutas['ctusuarios']['delete'];
+            $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+            $response = new Response();
+
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
+                return $response;
+            }
+
+            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino el usuario '.$_POST['clave'],$_POST);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');

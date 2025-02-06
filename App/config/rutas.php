@@ -5,7 +5,9 @@ return [
         'show'              => "/ctusuarios/show",
         'get_info_usuario'  => "/ctusuarios/get_info_usuario",
         'create'            => "/ctusuarios/create",
-        'change_status'     => "/ctusuarios/change_status"
+        'change_status'     => "/ctusuarios/change_status",
+        'delete'            => "/ctusuarios/delete",
+        'update'            => "/ctusuarios/update",
     ],
     'cttipo_usuarios'   => array(
         'show'      => '/cttipo_usuarios/show',

@@ -14,7 +14,7 @@ class LoginController extends Controller
     protected $url_api;
 
     public function initialize(){
-        $config         = $this->di;
+        $config         = $this->getDI();
         $this->rutas    = $config->get('rutas');
         $config         = $config->get('config');
         $this->url_api  = $config['BASEAPI'];

@@ -33,8 +33,8 @@ use App\Library\FuncionesGlobales;
                     <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
                 </div>
                 <div class="col-md-12 text-end">
-                    <button type="button" class="btn btn-primary" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
-                    <button type="button" class="btn btn-success" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear"><?php echo $translations['html_new']; ?></button>
                 </div> 
             </form>
         </div>
@@ -86,9 +86,9 @@ use App\Library\FuncionesGlobales;
             </div>
             <div class="col-md-12">
                 <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
-                <textarea rows="1" class="form-control" id="textarea_descripcion"></textarea>
+                <textarea rows="2" class="form-control" id="textarea_descripcion"></textarea>
             </div>
-            <div class="container mt-5 col-md-12">
+            <div class="container mt-3 col-md-12" style="overflow:scroll; height:250px;">
                 <!-- LISTA DE PERMISOS -->
                 <label class="form-check-label" >
                 <?php echo $translations['html_permissions']; ?>
@@ -106,7 +106,7 @@ use App\Library\FuncionesGlobales;
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
         <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
       </div>
     </div>
@@ -143,7 +143,7 @@ var mod_tipo_usuario    = (function(){
     //  PERMISOS
     const action_create = '<?php echo $create; ?>';
     const action_update = '<?php echo $update; ?>';
-    const action_detele = '<?php echo $delete; ?>';
+    const action_delete = '<?php echo $delete; ?>';
 
     //  language
     const tableTranslations = {
@@ -206,7 +206,7 @@ var mod_tipo_usuario    = (function(){
                                 '<i class="material-icons">edit</i>'+
                             '</button>' : '';
 
-                            let btn_delete  = action_update ? 
+                            let btn_delete  = action_delete && (data['clave'] != 'PROF' && data['clave'] != 'PAC') ? 
                             '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
                                 '<i class="material-icons">delete</i>'+
                             '</button>' : '';
@@ -303,6 +303,8 @@ var mod_tipo_usuario    = (function(){
                         actionJsonError(error,btn);
                     }
                 });
+            } else {
+                $(btn).prop('disabled',false);
             }
         });
     });
@@ -317,6 +319,10 @@ var mod_tipo_usuario    = (function(){
             $(modal_clone).find('#input_clave').val(info['clave']);
             $(modal_clone).find('#input_nombre').val(info['nombre']);
             $(modal_clone).find('#textarea_descripcion').val(info['descripcion']);
+
+            if (info['clave'] == 'PROF' || info['clave'] == 'PAC'){
+                $(modal_clone).find('#input_clave').prop('disabled',true);
+            }
         }
 
         for(let i in data){

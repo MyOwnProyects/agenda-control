@@ -43,8 +43,8 @@ use App\Library\FuncionesGlobales;
                     </select>
                 </div>
                 <div class="col-md-12 text-end">
-                    <button type="button" class="btn btn-primary" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
-                    <button type="button" class="btn btn-success" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear"><?php echo $translations['html_new']; ?></button>
                 </div> 
             </form>
         </div>
@@ -118,12 +118,12 @@ use App\Library\FuncionesGlobales;
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_user_type']; ?></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 div_contrasena">
                     <label for="input_contrasena" class="col-form-label"><?php echo $translations['html_password']; ?></label>
                     <input type="password" class="form-control" id="input_contrasena" required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 div_contrasena">
                     <label for="input_confirmar_contrasena" class="col-form-label"><?php echo $translations['html_confirm_password']; ?></label>
                     <input type="password" class="form-control" id="input_confirmar_contrasena" required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
@@ -186,7 +186,7 @@ use App\Library\FuncionesGlobales;
         const action_detele = '<?php echo $delete; ?>';
 
         //  language
-        const tableTranslations = {
+        const translations  = {
             emptyTable: "<?= $translations['table_no_data'] ?>",
             info: "<?= $translations['showing_info'] ?>",
             infoEmpty: "<?= $translations['no_records'] ?>",
@@ -200,6 +200,7 @@ use App\Library\FuncionesGlobales;
             title_update    : "<?= $translations['html_edit_record'] ?>",
             title_delete    : "<?= $translations['html_delete_record'] ?>",
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>"
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -225,7 +226,7 @@ use App\Library\FuncionesGlobales;
                     paging: true,
                     info: true,
                     lengthChange: false,
-                    language: tableTranslations,
+                    language: translations,
                     ajax: {
                         url: url_index,
                         method: 'POST',
@@ -252,17 +253,17 @@ use App\Library\FuncionesGlobales;
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
                                 let btn_update  = action_update ? 
-                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+tableTranslations['title_update'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="material-icons">edit</i>'+
                                 '</button>' +
-                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+tableTranslations['title_change'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="material-icons">cached</i>'+
                                 '</button>'
                                 
                                 : '';
 
                                 let btn_delete  = action_update ? 
-                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="material-icons">delete</i>'+
                                 '</button>' : '';
                                 return btn_update + btn_delete;
@@ -308,7 +309,65 @@ use App\Library\FuncionesGlobales;
                         console.log('data');
                         console.log(data);
                         $(btn).prop('disabled',false);
+                        showAlert('success',"Edici&oacute;n exitoso!");
                         cargarTabla();
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $("#table_results").on('click','.btn_delete',async function() {
+
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+                let btn         = $(this);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_delete,
+                        method  : 'POST',
+                        data    : {
+                            id  : id,
+                            clave           : clave
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Borrado exitoso!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_edit',function(){
+                const id    = $(this).data('id');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_index,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'get_info_edit',
+                        id      : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        showModal(data['permisos'],data['info']);
                     },
                     error   : function(error){
                         actionJsonError(error,btn);
@@ -319,6 +378,21 @@ use App\Library\FuncionesGlobales;
 
         function showModal(data = null,info = null){
             let modal_clone = $("#modal_create").clone().show();
+
+            if (info != null){
+                //  SE LLENAN LOS DATOS
+                $(modal_clone).find('#input_celular').val(info['celular']);
+                $(modal_clone).find('#input_primer_apellido').val(info['primer_apellido']);
+                $(modal_clone).find('#input_segundo_apellido').val(info['segundo_apellido']);
+                $(modal_clone).find('#input_nombre').val(info['nombre']);
+                $(modal_clone).find('#input_correo_electronico').val(info['correo_electronico']);
+                $(modal_clone).find('.div_contrasena').hide();
+
+                $(modal_clone).find('#select_tipo_usuario_modal').val(info['id_tipo_usuario']).trigger('change');
+                $(modal_clone).find('#input_contrasena').removeAttr("required");
+                $(modal_clone).find('#input_confirmar_contrasena').removeAttr("required");
+                show_permisos(modal_clone,data,info);
+            }
 
             $(modal_clone).find('#select_tipo_usuario_modal').select2({
                 placeholder     : 'Seleccione una opción',
@@ -390,8 +464,9 @@ use App\Library\FuncionesGlobales;
 
                 const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
                 let flag_error  = false;
+                console.log('cloc');
+                console.log(form.checkValidity());
                 if (form.checkValidity() === false) {
-                    // Si el formulario no es válido, muestra mensajes de error
                     $(form).addClass('was-validated');
                     flag_error  = true;
                 } else {
@@ -408,7 +483,7 @@ use App\Library\FuncionesGlobales;
 
                 //  VALIDAR ESTRUCTURA DE DATOS
                 if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
-                    console.log('pase');
+                    console.log('pase1');
                     $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_celular']);
                     $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
                     return false;
@@ -427,18 +502,21 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-                if ($(modal_clone).find('#input_contrasena').val().length < 8){
-                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_length_contrasena']);
-                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
-                    return false;
-                }
+                if (info == null){
+                    if ($(modal_clone).find('#input_contrasena').val().length < 8){
+                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_length_contrasena']);
+                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        return false;
+                    }
 
-                if ($(modal_clone).find('#input_contrasena').val() !== $(modal_clone).find('#input_confirmar_contrasena').val()){
-                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_contrasena']);
-                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
-                    return false;
+                    if ($(modal_clone).find('#input_contrasena').val() !== $(modal_clone).find('#input_confirmar_contrasena').val()){
+                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_contrasena']);
+                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        return false;
+                    }
                 }
-
+                
+                console.log('aqui',flag_error);
                 if (flag_error){
                     return false;
                 }
@@ -458,7 +536,8 @@ use App\Library\FuncionesGlobales;
                     id_tipo_usuario     : $(modal_clone).find('#select_tipo_usuario_modal').val(),
                     contrasena          : $(modal_clone).find('#input_contrasena').val(),
                     lista_permisos      : permissions_list,
-                    label_tipo_usuario  : $(modal_clone).find('#select_tipo_usuario_modal').find('option:selected').text()
+                    label_tipo_usuario  : $(modal_clone).find('#select_tipo_usuario_modal').find('option:selected').text(),
+                    id                  : info != null ? info['id'] : null
                 };
 
                 console.log('obj_info');
@@ -470,7 +549,11 @@ use App\Library\FuncionesGlobales;
                     url         : info == null ? url_create : url_update,
                     method      : 'POST',
                     dataType    : 'json',
-                    data        : obj_info,
+                    data        : {
+                        obj_info    : obj_info,
+                        info        : info,
+                        accion      : 'save_edit'
+                    },
                     success     : function(data){
                         $(btn).prop('disabled',false);
                         $(modal_clone).modal('hide');
@@ -488,7 +571,7 @@ use App\Library\FuncionesGlobales;
 
         //  MUESTRA LA LISTA DE PERMISOS
         function show_permisos(modal_clone,data,info){
-
+            $(modal_clone).find('.div_header_permisos').html('');
             for(let i in data){
 
                 let label_controlador   = data[i][0]['label_controlador'];

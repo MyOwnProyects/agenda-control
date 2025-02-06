@@ -11,7 +11,7 @@
 }
 
 /* Estilos adicionales para el atributo data-mdb-position */
-[data-mdb-position="top-center"] {
+[data-mdb-position="top-right"] {
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
