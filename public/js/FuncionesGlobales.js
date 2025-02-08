@@ -126,3 +126,30 @@ function selectToSelect2(header,find_element, allowClear = true , placeholder= '
         allowClear  : allowClear
     });
 }
+
+function validarCantidadMonetaria(cantidad) {
+    console.log('cantidad');
+    console.log(cantidad); 
+    // Expresión regular para validar números enteros o con hasta dos decimales
+    const regex = /^\d+(\.\d{1,2})?$/;
+
+    // Si la cantidad es un número entero sin decimales, la convertimos a string
+    if (typeof cantidad === 'number' && Number.isInteger(cantidad)) {
+        cantidad = cantidad.toString();
+    }
+
+    // Verificar que la cantidad sea un string y que coincida con la expresión regular
+    if (typeof cantidad === 'string' && regex.test(cantidad)) {
+        const numero = parseFloat(cantidad);
+        // Verificar que no sea negativo
+        if (numero >= 0) {
+            return true;
+        }
+    } else if (typeof cantidad === 'number' && !isNaN(cantidad) && cantidad >= 0) {
+        // Verificar que no sea negativo y que sea un número
+        return true;
+    }
+
+    // Si no cumple con las condiciones, retornar false
+    return false;
+}

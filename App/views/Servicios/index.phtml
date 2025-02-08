@@ -1,0 +1,372 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
+
+    .hide{
+        display: none;
+    }
+
+    .div_label_accion {
+        margin-bottom: 5px; /* Reduce el espacio vertical entre los elementos */
+        padding: 0; /* Opcional: elimina el relleno interno si es necesario */
+    }
+
+</style>
+
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_access_key']; ?></label>
+                    <input type="text" class="form-control" id="input_clave" placeholder="<?php echo $translations['html_title_access_key']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_access_key']; ?></th>
+                        <th><?php echo $translations['html_name']; ?></th>
+                        <th><?php echo $translations['html_price']; ?></th>
+                        <th><?php echo $translations['html_duration']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_create" tabindex="-1" aria-labelledby="label_modal_create" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_create"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-6">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_access_key']; ?></label>
+                    <input type="text" class="form-control" id="input_clave" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_access_key']; ?></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-6">
+                    <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
+                <textarea rows="2" class="form-control" id="textarea_descripcion"></textarea>
+            </div>
+            <div class="row mb-3">
+                <!-- Campo Costo -->
+                <div class="col-md-6">
+                    <label for="input_price" class="col-form-label"><?php echo $translations['html_price']; ?></label>
+                    <input type="number" class="form-control" id="input_price" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_access_key']; ?></div>
+                </div>
+                <!-- Campo Duracion -->
+                <div class="col-md-6">
+                    <label for="input_duration" class="col-form-label"><?php echo $translations['html_duration']; ?></label>
+                    <input type="number" class="form-control" id="input_duration" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_duration']; ?></div>
+                </div>
+            </div>
+            
+            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    let module_servicios    = (function(){
+        let draw            = 0;
+        //  URL
+        const controller    = '/Servicios';
+        const url_index     = controller+"/index";
+        const url_create    = controller+"/create";
+        const url_delete    = controller+"/delete";
+        const url_update    = controller+"/update";
+
+        //  PERMISOS
+        const action_create = '<?php echo $create; ?>';
+        const action_update = '<?php echo $update; ?>';
+        const action_detele = '<?php echo $delete; ?>';
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>"
+        };
+
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            price   : "<?php echo $translations['html_error_price']; ?>"
+        }
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
+        // Función para inicializar o recargar la tabla
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.clave     = $("#input_clave").val();
+                            d.nombre    = $("#input_nombre").val();
+                        }
+                    },
+                    columns: [
+                        { data: 'clave' }, // Columna 1
+                        { data: 'nombre' }, // Columna 1
+                        { data: 'costo' }, // Columna 1
+                        { data: 'duracion_minutos' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
+                                let btn_update  = action_update ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
+                                    '<i class="material-icons">edit</i>'+
+                                '</button>' +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
+                                    '<i class="material-icons">cached</i>'+
+                                '</button>'
+                                
+                                : '';
+
+                                let btn_delete  = action_update ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['title_delete'] +'">' +
+                                    '<i class="material-icons">delete</i>'+
+                                '</button>' : '';
+                                return btn_update + btn_delete;
+                            }
+                        }
+                    ]
+                });
+            } else {
+                table.ajax.reload();
+            }
+        }
+
+        $(document).ready(function(){
+            cargarTabla();
+
+            // Evento click del botón "Buscar"
+            $("#header_filters").on('click',"#btnBuscar",function() {
+                cargarTabla();
+            });
+
+            $("#header_filters").on('click',"#btnCrear",function() {
+                showModal();
+            });
+
+            $("#table_results").on('click','.btn_delete',async function() {
+
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                const nombre    = $(this).data('nombre');
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+                let btn         = $(this);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_delete,
+                        method  : 'POST',
+                        data    : {
+                            id      : id,
+                            clave   : clave,
+                            nombre  : nombre
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Borrado exitoso!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_edit',function(){
+                const id    = $(this).data('id');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_index,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'get_info_edit',
+                        id      : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        showModal(data[0]);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+        });
+
+        function showModal(data = null){
+            let modal_clone = $("#modal_create").clone().show();
+
+            //  SU DATA TIENE VALOR, ESTA SE PINTA
+            if (data != null){
+                $(modal_clone).find('#input_clave').val(data['clave']);
+                $(modal_clone).find('#input_nombre').val(data['nombre']);
+                $(modal_clone).find('#textarea_descripcion').val(data['descripcion']);
+                $(modal_clone).find('#input_price').val(data['costo']);
+                $(modal_clone).find('#input_duration').val(data['duracion_minutos']);
+            }
+            
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                //  VALIDAR REGISTROS
+                if ($(modal_clone).find("#input_price").val() != '' && !validarCantidadMonetaria($(modal_clone).find("#input_price").val())){
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['price']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                }
+
+                let obj_info    = {
+                    clave   : $(modal_clone).find('#input_clave').val(),
+                    nombre  : $(modal_clone).find('#input_nombre').val(),
+                    descripcion : $(modal_clone).find('#textarea_descripcion').val(),
+                    costo       : $(modal_clone).find('#input_price').val(),
+                    duracion    : $(modal_clone).find('#input_duration').val(),
+                };
+
+                if (data != null){
+                    obj_info['id']              = data['id'];
+                    obj_info['clave_old']       = data['clave'];
+                    obj_info['nombre_old']      = data['nombre'];
+                    obj_info['costo_old']       = data['costo'];
+                    obj_info['duracion_old']    = data['duracion_minutos'];
+                }
+
+                console.log('obj_info');
+                console.log(obj_info);
+                //return false;
+
+                //  AJAX SAVE
+                $.ajax({
+                    url         : data == null ? url_create : url_update,
+                    method      : 'POST',
+                    dataType    : 'json',
+                    data        : obj_info,
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                        cargarTabla();
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            $(modal_clone).modal('show');
+        }
+    })();
+</script>

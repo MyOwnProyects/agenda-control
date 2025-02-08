@@ -20,5 +20,12 @@ return [
     ),
     'tbbitacora_movimientos'   => array(
         'create'  => '/tbbitacora_movimientos/create'
-    )
+    ),
+    'ctservicios'    => [
+        'show'              => "/ctservicios/show",
+        'create'            => "/ctservicios/create",
+        'delete'            => "/ctservicios/delete",
+        'update'            => "/ctservicios/update",
+    ]
+
 ];

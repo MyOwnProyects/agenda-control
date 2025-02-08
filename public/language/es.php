@@ -38,6 +38,9 @@ return [
     'html_delete_record'    => 'Borrar registro',
     'html_active_deactivate'    => 'Activar/desactivar registro',
     'html_confirm_delete'       => '&iquest;Desea borrar el registro?',
+    'html_price'                => 'Costo(Mex$)',
+    'html_duration'             => 'Duraci&oacute;n(Minutos)',
+
 
     //  MENSAJES DE ERROR
     'html_error_access_key' => 'Ingrese una clave.',
@@ -50,5 +53,7 @@ return [
     'html_error_second_password'    => 'Confirme la contrase&ntilde;a',
     'html_error_user_type'          => 'Seleccione un tipo de usuario',
     'html_error_different_password' => 'La contrase&ntilde;a no coincide',
-    'html_error_length_password'    => 'La contrase&ntilde;a debe de ser de al menos 8 digitos'
+    'html_error_length_password'    => 'La contrase&ntilde;a debe de ser de al menos 8 digitos',
+    'html_error_price'              => 'Ingrese un precio valido',
+    'html_error_duration'           => 'Ingrese una duraci&oacute;n',
 ];

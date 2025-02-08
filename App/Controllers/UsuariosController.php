@@ -183,7 +183,7 @@ class UsuariosController extends BaseController
                     return $response;
                 }
                 $info   = $_POST['info'];
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se el usuario: Celular antiguo :'.$info['clave'].' por '.$_POST['obj_info']['clave'],$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el usuario: Celular antiguo :'.$info['clave'].' por '.$_POST['obj_info']['clave'],$_POST);
             }
 
 
