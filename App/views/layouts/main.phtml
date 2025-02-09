@@ -36,6 +36,7 @@
     $tipo_usuarios  = \App\Library\FuncionesGlobales::HasAccess('Tipousuarios', 'index');
     $usuarios       = \App\Library\FuncionesGlobales::HasAccess('Usuarios', 'index');
     $servicios      = \App\Library\FuncionesGlobales::HasAccess('Servicios', 'index');
+    $profesionales  = \App\Library\FuncionesGlobales::HasAccess('Profesionales', 'index');
   ?>
   <?php
       // Obtén el despachador desde el contenedor de dependencias
@@ -117,7 +118,7 @@
   </symbol>
 </svg>
         <!-- Menú en la parte izquierda -->
-        <aside class="col-md-2 bg-light p-3">
+        <aside class="col-md-2 bg-light p-3 aside">
             <main>
               <div class="flex-shrink-0 p-3 bg-white" style="width: 280px;">
                 <a href="/Menu" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
@@ -131,7 +132,7 @@
                       Inicio
                     </a>
                   </li>
-                  <?php if ($tipo_usuarios || $usuarios || $servicios): ?>
+                  <?php if ($tipo_usuarios || $usuarios || $servicios || $profesionales): ?>
                   <li class="mb-1">
                     <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">
                     <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg>
@@ -139,6 +140,9 @@
                     </button>
                     <div class="collapse" id="dashboard-collapse">
                       <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <?php if($servicios): ?>
+                        <li><a href="/Profesionales/" class="link-dark rounded">Profesionales</a></li>
+                        <?php endif; ?>
                         <?php if($servicios): ?>
                         <li><a href="/Servicios/" class="link-dark rounded">Servicios</a></li>
                         <?php endif; ?>

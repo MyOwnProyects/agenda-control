@@ -40,6 +40,13 @@ return [
     'html_confirm_delete'       => '&iquest;Desea borrar el registro?',
     'html_price'                => 'Costo(Mex$)',
     'html_duration'             => 'Duraci&oacute;n(Minutos)',
+    'html_services'             => 'Servicios',
+    'html_general_data'         => 'Datos generales',
+    'html_address'              => 'Direcci&oacute;n',
+    'html_professional_title'   => 'Titulo profesional',
+    'html_professional_id'      => 'Cedula profesional',
+    'html_profile'              => 'Perfil',
+    'html_location'             => 'Locaci&oacute;n',
 
 
     //  MENSAJES DE ERROR

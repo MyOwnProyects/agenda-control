@@ -1,0 +1,188 @@
+<style>
+    /* Estilos específicos para create.phtml */
+    .create-container main {
+        display: block; /* Cambiado de flex a block */
+        height: auto; /* Cambiado de -webkit-fill-available a auto */
+        overflow: visible; /* Cambiado de overflow-x: auto y overflow-y: hidden a visible */
+    }
+
+    .create-container .datos_generales {
+        width: 100%; /* Asegura que ocupe todo el ancho */
+    }
+</style>
+<div class="create-container">
+    <div class="container">
+        <main>
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link a_datos_generales active" aria-current="page">Datos generales</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link a_perfil">Perfil</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="datos_generales">
+                        <h4 class="mb-3"><?php echo $translations['html_general_data']; ?></h4>
+                        <form id="form_datos_generales" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-sm-4">
+                                    <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_first_lastname']; ?></label>
+                                    <input type="text" class="form-control" id="input_primer_apellido" placeholder="" value="" required>
+                                    <div class="invalid-feedback">
+                                    <?php echo $translations['html_error_first_lastname']; ?>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <label for="input_segundo_apellido" class="form-label"><?php echo $translations['html_second_lastname']; ?></label>
+                                    <input type="text" class="form-control" id="input_segundo_apellido" placeholder="" value="">
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <label for="input_name" class="form-label"><?php echo $translations['html_name']; ?></label>
+                                    <input type="text" class="form-control" id="input_name" placeholder="" value="" required>
+                                    <div class="invalid-feedback">
+                                    <?php echo $translations['html_error_name']; ?>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
+                                    <input type="text" class="form-control" id="input_celular" placeholder="6622111111" required>
+                                    <div class="invalid-feedback">
+                                    <?php echo $translations['html_error_cellphone']; ?>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <label for="input_correo_electronico" class="form-label"><?php echo $translations['html_email']; ?></label>
+                                    <input type="email" class="form-control" id="input_correo_electronico" placeholder="you@example.com">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="input_direccion" class="form-label"><?php echo $translations['html_address']; ?></label>
+                                    <input type="text" class="form-control" id="input_direccion" placeholder="Calle 1 #12 Col: Olvares">
+                                    <div class="invalid-feedback">
+                                        Please enter your shipping address.
+                                    </div>
+                                </div>
+
+                                <div class="col-4">
+                                    <label for="input_titulo_profesional" class="form-label"><?php echo $translations['html_professional_title']; ?></label>
+                                    <input type="text" class="form-control" id="input_titulo_profesional" placeholder="Mtro">
+                                </div>
+
+                                <div class="col-4">
+                                    <label for="input_cedula_profesional" class="form-label"><?php echo $translations['html_professional_id']; ?></label>
+                                    <input type="text" class="form-control" id="input_cedula_profesional" placeholder="12345678">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="datos_perfil" style="display:none;">
+                        <h4 class="mb-3"><?php echo $translations['html_profile']; ?></h4>
+                        <form id="form_datos_generales" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
+                                    <input type="text" class="form-control" id="input_celular" placeholder="6622111111" disabled required>
+                                    <div class="invalid-feedback">
+                                    <?php echo $translations['html_error_cellphone']; ?>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <label for="input_perfil_correo_electronico" class="form-label"><?php echo $translations['html_email']; ?></label>
+                                    <input type="email" class="form-control" id="input_perfil_correo_electronico" placeholder="you@example.com" disabled>
+                                </div>
+
+                                <div class="col-4 div_contrasena">
+                                    <label for="input_contrasena" class="col-form-label"><?php echo $translations['html_password']; ?></label>
+                                    <input type="password" class="form-control" id="input_contrasena" required>
+                                    <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
+                                </div>
+                                <div class="col-4 div_contrasena">
+                                    <label for="input_confirmar_contrasena" class="col-form-label"><?php echo $translations['html_confirm_password']; ?></label>
+                                    <input type="password" class="form-control" id="input_confirmar_contrasena" required>
+                                    <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
+                                </div>
+
+                                <div class="container col-6" style="overflow:scroll; height:150px;">
+                                <!-- LISTA DE PERMISOS -->
+                                    <label class="form-check-label" >
+                                    <?php echo $translations['html_permissions']; ?>
+                                    </label>
+                                    <div class="list-group div_header_permisos"></div>
+                                </div>
+                                <div class="container col-6" style="overflow:scroll; height:150px;">
+                                <!-- LISTA DE LOCACIONES -->
+                                    <label class="form-check-label" >
+                                    <?php echo $translations['html_location']; ?>
+                                    </label>
+                                    <div class="list-group div_header_permisos"></div>
+                                </div>
+                                <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                    </svg>
+                                    <div id="msg_error">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    let module_create_professional  = (function(){
+        $(".create-container").on('click',".a_perfil",function(){
+            const form = $('.create-container').find('#form_datos_generales')[0]; // Obtén el elemento DOM
+            let flag_error  = false;
+            console.log('cloc');
+            console.log(form.checkValidity());
+            if (form.checkValidity() === false) {
+                $(form).addClass('was-validated');
+                //flag_error  = true;
+            } else {
+                $(form).removeClass('was-validated');
+            }
+
+            if (!flag_error){
+                console.log('pase');
+                $(".create-container").find('.datos_generales').hide();
+                $(".create-container").find('.datos_perfil').show();
+
+                $(".create-container").find('.a_datos_generales').removeClass('active');
+                $(".create-container").find('.a_perfil').addClass('active');
+            }
+        });
+
+        $(".create-container").on('click',".a_datos_generales",function(){
+            $(".create-container").find('.datos_generales').show();
+            $(".create-container").find('.datos_perfil').hide();
+
+            $(".create-container").find('.a_datos_generales').addClass('active');
+            $(".create-container").find('.a_perfil').removeClass('active');
+        });
+
+        //  EVENTOS
+        $(".create-container").on('keypress','#input_celular',function(e) {
+            if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+            return false;
+        })
+        .on("cut copy paste",function(e){
+            e.preventDefault();
+        });
+    })();
+</script>

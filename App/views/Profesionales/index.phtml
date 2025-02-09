@@ -1,0 +1,84 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
+
+    .hide{
+        display: none;
+    }
+
+    .div_label_accion {
+        margin-bottom: 5px; /* Reduce el espacio vertical entre los elementos */
+        padding: 0; /* Opcional: elimina el relleno interno si es necesario */
+    }
+
+</style>
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="input_clave" class="form-label"><?php echo $translations['html_access_key']; ?></label>
+                    <input type="text" class="form-control" id="input_clave" placeholder="<?php echo $translations['html_title_access_key']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="input_nombre" class="form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="select_servicios" class="form-label"><?php echo $translations['html_services']; ?></label>
+                    <select id="select_servicios" class="form-select" aria-label="Default select example">
+                        <option></option>
+                        <?php foreach($arr_servicios as $servicio): ?>
+                            <option value="<?php echo $servicio['id']; ?>"><?php echo $servicio['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_access_key']; ?></th>
+                        <th><?php echo $translations['html_name']; ?></th>
+                        <th><?php echo $translations['html_price']; ?></th>
+                        <th><?php echo $translations['html_duration']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let module_profesionale = (function(){
+        $(document).ready(function(){
+            selectToSelect2($("#header_filters"),"select_servicios");
+
+            $("#header_filters").on('click',"#btnCrear",function(){
+                window.location.href = '/Profesionales/create';
+            })
+        });
+    })();
+</script>
