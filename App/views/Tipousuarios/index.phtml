@@ -410,6 +410,10 @@ var mod_tipo_usuario    = (function(){
                 $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
             }
 
+            if (flag_error){
+                return false;
+            }
+
             let permissions_list    = [];
             $(modal_clone).find('.check_sublist:checked').each(function(){
                 permissions_list.push($(this).data('id'));

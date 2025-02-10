@@ -53,8 +53,6 @@ use App\Library\FuncionesGlobales;
                     <tr>
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
-                        <th><?php echo $translations['html_price']; ?></th>
-                        <th><?php echo $translations['html_duration']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -87,21 +85,36 @@ use App\Library\FuncionesGlobales;
                 </div>
             </div>
             <div class="col-md-12">
-                <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
-                <textarea rows="2" class="form-control" id="textarea_descripcion"></textarea>
+                <label for="input_direccion" class="col-form-label"><?php echo $translations['html_address']; ?></label>
+                <input type="text" class="form-control" id="input_direccion"></textarea>
             </div>
             <div class="row mb-3">
                 <!-- Campo Costo -->
                 <div class="col-md-6">
-                    <label for="input_price" class="col-form-label"><?php echo $translations['html_price']; ?></label>
-                    <input type="number" class="form-control" id="input_price" required>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_access_key']; ?></div>
+                    <label for="input_telefono" class="col-form-label"><?php echo $translations['html_phone']; ?></label>
+                    <input type="text" class="form-control num_telefonico" id="input_telefono" maxLength="10">
                 </div>
                 <!-- Campo Duracion -->
                 <div class="col-md-6">
-                    <label for="input_duration" class="col-form-label"><?php echo $translations['html_duration']; ?></label>
-                    <input type="number" class="form-control" id="input_duration" required>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_duration']; ?></div>
+                    <label for="input_celular" class="col-form-label"><?php echo $translations['html_cellphone']; ?></label>
+                    <input type="text" class="form-control num_telefonico" id="input_celular" maxLength="10">
+                </div>
+            </div>
+            <div class="container mt-3 col-md-12" style="overflow:scroll; height:150px;">
+                <!-- LISTA DE SERVICIOS -->
+                <label class="form-check-label" >
+                <?php echo $translations['html_services']; ?>
+                </label>
+                <div class="list-group div_header_servicios">
+                <?php foreach($arr_servicios as $servicio): ?>
+                <div class="d-flex align-items-center header_servicio id_check_<?php echo $servicio['id']; ?>"> <!-- Flex para alinear elementos -->
+                    <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
+                    <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $servicio['id']; ?>">
+                    </label>
+                    <span class="span_controlador" style="cursor: pointer;"><?php echo $servicio['nombre']; ?></span> <!-- Texto alineado con el checkbox -->
+                    <input type="number" class="form-control ms-auto input_costo" style="width: 120px;" value="<?php echo $servicio['costo']; ?>" data-duracion="<?php echo $servicio['duracion']; ?>" disabled required>
+                </div>
+                <?php endforeach; ?>
                 </div>
             </div>
             
@@ -126,7 +139,7 @@ use App\Library\FuncionesGlobales;
     let module_servicios    = (function(){
         let draw            = 0;
         //  URL
-        const controller    = '/Servicios';
+        const controller    = '/Locaciones';
         const url_index     = controller+"/index";
         const url_create    = controller+"/create";
         const url_delete    = controller+"/delete";
@@ -152,7 +165,8 @@ use App\Library\FuncionesGlobales;
             title_update    : "<?= $translations['html_edit_record'] ?>",
             title_delete    : "<?= $translations['html_delete_record'] ?>",
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
-            confirm_delete  : "<?= $translations['html_confirm_delete']?>"
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -190,8 +204,6 @@ use App\Library\FuncionesGlobales;
                     columns: [
                         { data: 'clave' }, // Columna 1
                         { data: 'nombre' }, // Columna 1
-                        { data: 'costo' }, // Columna 1
-                        { data: 'duracion_minutos' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -199,21 +211,22 @@ use App\Library\FuncionesGlobales;
                             render: function (data, type, row) {
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
+
+                                let btn_preview = 
+                                '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                    '<i class="material-icons">search</i>'+
+                                '</button>'
+
                                 let btn_update  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="material-icons">edit</i>'+
-                                '</button>' +
-                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
-                                    '<i class="material-icons">cached</i>'+
-                                '</button>'
-                                
-                                : '';
+                                '</button>' : '';
 
                                 let btn_delete  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="material-icons">delete</i>'+
                                 '</button>' : '';
-                                return btn_update + btn_delete;
+                                return btn_preview + btn_update + btn_delete;
                             }
                         }
                     ]
@@ -293,82 +306,162 @@ use App\Library\FuncionesGlobales;
                     }
                 });
             });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_preview',function(){
+                const id    = $(this).data('id');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_index,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'get_info_edit',
+                        id      : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        showModal(data[0],true);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
         });
 
-        function showModal(data = null){
+        function showModal(data = null,preview = null){
             let modal_clone = $("#modal_create").clone().show();
 
             //  SU DATA TIENE VALOR, ESTA SE PINTA
             if (data != null){
                 $(modal_clone).find('#input_clave').val(data['clave']);
                 $(modal_clone).find('#input_nombre').val(data['nombre']);
-                $(modal_clone).find('#textarea_descripcion').val(data['descripcion']);
-                $(modal_clone).find('#input_price').val(data['costo']);
-                $(modal_clone).find('#input_duration').val(data['duracion_minutos']);
+                $(modal_clone).find('#input_direccion').val(data['direccion']);
+                $(modal_clone).find('#input_telefono').val(data['telefono']);
+                $(modal_clone).find('#input_celular').val(data['celular']);
             }
+
+            //  EVENTO PARA CHECK
+            $(modal_clone).on('click','.header_check',function(){
+                let status_check    = $(this).prop('checked') == true ? false : true;
+
+                $(this).closest('.header_servicio').find('.input_costo').prop('disabled',status_check);
+            });
+
+            if (data != null && typeof data['servicios'] != undefined){
+                let servicios   = data['servicios'];
+
+                console.log('servicios');
+                console.log(servicios);
+
+                for(let i in servicios){
+                    console.log('for');
+                    console.log(servicios[i]);
+                    $(modal_clone).find('.id_check_'+servicios[i]['id_servicio']).find('.input_costo').val(servicios[i]['costo']).data('duracion',servicios[i]['duracion'])
+                    $(modal_clone).find('.id_check_'+servicios[i]['id_servicio']).find('.header_check').trigger('click');
+                }
+            }
+
+            //  EVENTOS
+            $(modal_clone).on('keypress','.num_telefonico',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
             
 
-            $(modal_clone).on('click','#btnSave',function(){
-                let btn =  $(this);
-                $(btn).prop('disable',true);
+            if (preview == null){
 
-                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
-                let flag_error  = false;
-                if (form.checkValidity() === false) {
-                    $(form).addClass('was-validated');
-                    flag_error  = true;
-                } else {
-                    $(form).removeClass('was-validated');
-                }
+            
+                $(modal_clone).on('click','#btnSave',function(){
+                    let btn =  $(this);
+                    $(btn).prop('disable',true);
 
-                //  VALIDAR REGISTROS
-                if ($(modal_clone).find("#input_price").val() != '' && !validarCantidadMonetaria($(modal_clone).find("#input_price").val())){
-                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['price']);
-                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
-                    return false;
-                }
-
-                if(flag_error){
-                    return false;
-                }
-
-                let obj_info    = {
-                    clave   : $(modal_clone).find('#input_clave').val(),
-                    nombre  : $(modal_clone).find('#input_nombre').val(),
-                    descripcion : $(modal_clone).find('#textarea_descripcion').val(),
-                    costo       : $(modal_clone).find('#input_price').val(),
-                    duracion    : $(modal_clone).find('#input_duration').val(),
-                };
-
-                if (data != null){
-                    obj_info['id']              = data['id'];
-                    obj_info['clave_old']       = data['clave'];
-                    obj_info['nombre_old']      = data['nombre'];
-                    obj_info['costo_old']       = data['costo'];
-                    obj_info['duracion_old']    = data['duracion_minutos'];
-                }
-
-                console.log('obj_info');
-                console.log(obj_info);
-                //return false;
-
-                //  AJAX SAVE
-                $.ajax({
-                    url         : data == null ? url_create : url_update,
-                    method      : 'POST',
-                    dataType    : 'json',
-                    data        : obj_info,
-                    success     : function(data){
-                        $(btn).prop('disabled',false);
-                        $(modal_clone).modal('hide');
-                        showAlert('success',data);
-                        cargarTabla();
-                    },
-                    error     : function(error){
-                        actionJsonError(error,btn);
+                    const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                    let flag_error  = false;
+                    if (form.checkValidity() === false) {
+                        $(form).addClass('was-validated');
+                        flag_error  = true;
+                    } else {
+                        $(form).removeClass('was-validated');
                     }
-                })
-            });
+
+                    let lista_servicios     = [];
+                    let flag_error_costo    = false;
+                    $(modal_clone).find('.header_check:checked').each(function(){
+                        
+                        if ($(this).closest('.header_servicio').find('.input_costo').val() == ''){
+                            flag_error_costo    = true;
+                            return false;
+                        }
+
+                        let id_servicio = $(this).val();
+                        let costo       = $(this).closest('.header_servicio').find('.input_costo').val();
+                        let duracion    = $(this).closest('.header_servicio').find('.input_costo').data('duracion');
+                        
+                        lista_servicios.push({
+                            id_servicio : id_servicio,
+                            costo       : costo,
+                            duracion    : duracion,
+                        });
+                    });
+
+                    if (flag_error_costo){
+                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['price']);
+                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        return false;
+                    }
+
+                    let obj_info    = {
+                        clave   : $(modal_clone).find('#input_clave').val(),
+                        nombre  : $(modal_clone).find('#input_nombre').val(),
+                        direccion   : $(modal_clone).find('#input_direccion').val(),
+                        telefono    : $(modal_clone).find('#input_telefono').val(),
+                        celular     : $(modal_clone).find('#input_celular').val(),
+                        lista_servicios : lista_servicios
+                    };
+
+                    if (data != null){
+                        obj_info['id']          = data['id'];
+                        obj_info['clave_old']   = data['clave'];
+                        obj_info['nombre_old']  = data['clave'];
+                        obj_info['servicios_old']   = data['servicios'];
+                    }
+
+                    console.log('obj_info');
+                    console.log(obj_info);
+                    //return false;
+
+                    //  AJAX SAVE
+                    $.ajax({
+                        url         : data == null ? url_create : url_update,
+                        method      : 'POST',
+                        dataType    : 'json',
+                        data        : obj_info,
+                        success     : function(data){
+                            $(btn).prop('disabled',false);
+                            $(modal_clone).modal('hide');
+                            showAlert('success',data);
+                            cargarTabla();
+                        },
+                        error     : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    })
+                });
+            }
+
+            if (preview != null){
+                $(modal_clone).find("#btnSave").remove();
+                $(modal_clone).find('.form-control').prop('disabled',true);
+                $(modal_clone).find('.form-check-input').prop('disabled',true);
+
+            }
 
             $(modal_clone).modal('show');
         }

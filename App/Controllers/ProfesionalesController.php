@@ -34,10 +34,32 @@ class ProfesionalesController extends BaseController
 
     public function createAction(){
 
+        if ($this->request->isAjax()){
+            $accion = $this->request->getPost('accion');
+            $result = array();
+            if ($accion == 'validateCelular'){
+                //  SE BUSCA EN LA TABLA DE USUARIOS SI EXISTE UN USUARIO CON EL TELEFONO REGISTRADO
+                $route  = $this->url_api.$this->rutas['ctusuarios']['show'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);  
+                $result = $result[0];          
+            }
+
+            $response = new Response();
+            $response->setJsonContent($result);
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+        
+        //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
         $route          = $this->url_api.$this->rutas['ctservicios']['show'];
         $arr_servicios  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
+        //  SE BUSCA LA INFORMACION DEL PERFIL DE PROFESIONAL
+        $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
+        $arr_tipo_usuario   = FuncionesGlobales::RequestApi('GET',$route,array('clave' => 'PROF'));
+
         $this->view->arr_servicios      = $arr_servicios;
+        $this->view->arr_tipo_usuario   = $arr_tipo_usuario[0];
         
     }
 }

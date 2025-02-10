@@ -26,6 +26,12 @@ return [
         'create'            => "/ctservicios/create",
         'delete'            => "/ctservicios/delete",
         'update'            => "/ctservicios/update",
+    ],
+    'ctlocaciones'  => [
+        'show'              => "/ctlocaciones/show",
+        'create'            => "/ctlocaciones/create",
+        'delete'            => "/ctlocaciones/delete",
+        'update'            => "/ctlocaciones/update",
     ]
 
 ];

@@ -9,6 +9,15 @@
     .create-container .datos_generales {
         width: 100%; /* Asegura que ocupe todo el ancho */
     }
+
+    .nav-link {
+        cursor: pointer;
+    }
+
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
 </style>
 <div class="create-container">
     <div class="container">
@@ -54,7 +63,7 @@
 
                                 <div class="col-6">
                                     <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
-                                    <input type="text" class="form-control" id="input_celular" placeholder="6622111111" required>
+                                    <input type="text" class="form-control" id="input_celular" placeholder="6622111111" required value="1234567890">
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_cellphone']; ?>
                                     </div>
@@ -89,38 +98,35 @@
                         <h4 class="mb-3"><?php echo $translations['html_profile']; ?></h4>
                         <form id="form_datos_generales" class="needs-validation" novalidate>
                             <div class="row g-3">
-                                <div class="col-6">
-                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
-                                    <input type="text" class="form-control" id="input_celular" placeholder="6622111111" disabled required>
+                                <div class="col-4">
+                                    <label for="input_perfil_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
+                                    <input type="text" class="form-control" id="input_perfil_celular" disabled required>
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_cellphone']; ?>
                                     </div>
                                 </div>
-
-                                <div class="col-6">
-                                    <label for="input_perfil_correo_electronico" class="form-label"><?php echo $translations['html_email']; ?></label>
-                                    <input type="email" class="form-control" id="input_perfil_correo_electronico" placeholder="you@example.com" disabled>
+                                <div class="col-4">
+                                    <label for="input_tipo_usuario" class="form-label"><?php echo $translations['html_user_type']; ?></label>
+                                    <input type="email" class="form-control" id="input_tipo_usuario" value="<?php echo $arr_tipo_usuario['nombre']; ?>" disabled>
                                 </div>
-
-                                <div class="col-4 div_contrasena">
-                                    <label for="input_contrasena" class="col-form-label"><?php echo $translations['html_password']; ?></label>
-                                    <input type="password" class="form-control" id="input_contrasena" required>
-                                    <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
-                                </div>
-                                <div class="col-4 div_contrasena">
-                                    <label for="input_confirmar_contrasena" class="col-form-label"><?php echo $translations['html_confirm_password']; ?></label>
-                                    <input type="password" class="form-control" id="input_confirmar_contrasena" required>
-                                    <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
-                                </div>
-
-                                <div class="container col-6" style="overflow:scroll; height:150px;">
-                                <!-- LISTA DE PERMISOS -->
+                                <div class="col-12"></div>
+                                <div class="container col-4" style="overflow:scroll; height:150px;">
+                                <!-- LISTA DE SERVICIOS -->
                                     <label class="form-check-label" >
-                                    <?php echo $translations['html_permissions']; ?>
+                                    <?php echo $translations['html_services']; ?>
                                     </label>
-                                    <div class="list-group div_header_permisos"></div>
+                                    <div class="list-group div_header_permisos">
+                                        <?php foreach($arr_servicios as $servicio): ?>
+                                        <div class="d-flex align-items-center"> <!-- Flex para alinear elementos -->
+                                            <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
+                                            <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $servicio['id']; ?>">
+                                            </label>
+                                            <span class="span_controlador" style="cursor: pointer;"><?php echo $servicio['nombre']; ?></span> <!-- Texto alineado con el checkbox -->
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
-                                <div class="container col-6" style="overflow:scroll; height:150px;">
+                                <div class="container col-4" style="overflow:scroll; height:150px;">
                                 <!-- LISTA DE LOCACIONES -->
                                     <label class="form-check-label" >
                                     <?php echo $translations['html_location']; ?>
@@ -146,43 +152,83 @@
 
 <script>
     let module_create_professional  = (function(){
-        $(".create-container").on('click',".a_perfil",function(){
-            const form = $('.create-container').find('#form_datos_generales')[0]; // Obtén el elemento DOM
-            let flag_error  = false;
-            console.log('cloc');
-            console.log(form.checkValidity());
-            if (form.checkValidity() === false) {
-                $(form).addClass('was-validated');
-                //flag_error  = true;
-            } else {
-                $(form).removeClass('was-validated');
-            }
+        //  URL
+        const controller    = '/Profesionales';
+        const url_index     = controller+"/index";
+        const url_create    = controller+"/create";
 
-            if (!flag_error){
-                console.log('pase');
-                $(".create-container").find('.datos_generales').hide();
-                $(".create-container").find('.datos_perfil').show();
+        //  BANDERA PARA SABEREL NUMERO QUE YA SE VALIDO
+        let celular_validado    = '';
 
-                $(".create-container").find('.a_datos_generales').removeClass('active');
-                $(".create-container").find('.a_perfil').addClass('active');
-            }
-        });
+        $(document).ready(function(){
+            //  EVENTO PARA CAMBIO A PESTAÑA DE PERFIL
+            $(".create-container").on('click',".a_perfil",function(){
+                const form = $('.create-container').find('#form_datos_generales')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                console.log('cloc');
+                console.log(form.checkValidity());
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    //flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
 
-        $(".create-container").on('click',".a_datos_generales",function(){
-            $(".create-container").find('.datos_generales').show();
-            $(".create-container").find('.datos_perfil').hide();
+                if (!flag_error){
+                    console.log('pase');
+                    $(".create-container").find('.datos_generales').hide();
+                    $(".create-container").find('.datos_perfil').show();
 
-            $(".create-container").find('.a_datos_generales').addClass('active');
-            $(".create-container").find('.a_perfil').removeClass('active');
-        });
+                    $(".create-container").find('.a_datos_generales').removeClass('active');
+                    $(".create-container").find('.a_perfil').addClass('active');
 
-        //  EVENTOS
-        $(".create-container").on('keypress','#input_celular',function(e) {
-            if(isNaN(this.value + String.fromCharCode(e.charCode))) 
-            return false;
-        })
-        .on("cut copy paste",function(e){
-            e.preventDefault();
+                    $("#input_perfil_celular").val($("#input_celular").val()); 
+
+                    //  SE BUSCA SI EL USUARIO TIENE UNA CUENTA DE USUARIO CREADA
+                    if ($("#input_celular").val() != celular_validado){
+                        celular_validado    = $("#input_celular").val();
+
+                        $.ajax({
+                            url     : url_create,
+                            method  : 'post',
+                            data    : {
+                                clave   : $("#input_celular").val(),
+                                accion  : 'validateCelular'
+                            },
+                            success : function(data){
+                                console.log('data');
+                                console.log(data);
+                                if (data && Object.keys(data).length > 0 && data['nombre_tipo_usuario']){
+                                    $("#input_tipo_usuario").val(data['nombre_tipo_usuario']);
+                                }
+                                
+                            },
+                            error   : function(error){
+                                actionJsonError(error,btn);
+                            }
+                        });
+                    }
+                    
+                }
+            });
+
+            //  EVENTO PARA CAMBIAR A PESTAÑA DE DATOS
+            $(".create-container").on('click',".a_datos_generales",function(){
+                $(".create-container").find('.datos_generales').show();
+                $(".create-container").find('.datos_perfil').hide();
+
+                $(".create-container").find('.a_datos_generales').addClass('active');
+                $(".create-container").find('.a_perfil').removeClass('active');
+            });
+
+            //  EVENTOS PARA IMPEDIR LETRAS EN IMPUT_CELULAR
+            $(".create-container").on('keypress','#input_celular',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
         });
     })();
 </script>

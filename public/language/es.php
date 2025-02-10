@@ -34,6 +34,7 @@ return [
     'html_email'            => 'Correo electronico',
     'html_password'         => 'Contrase&ntilde;a',
     'html_confirm_password' => 'Confirmar contrase&ntilde;a',
+    'html_preview_record'   => 'Vista previa',
     'html_edit_record'      => 'Editar registro',
     'html_delete_record'    => 'Borrar registro',
     'html_active_deactivate'    => 'Activar/desactivar registro',
@@ -47,6 +48,8 @@ return [
     'html_professional_id'      => 'Cedula profesional',
     'html_profile'              => 'Perfil',
     'html_location'             => 'Locaci&oacute;n',
+    'html_locations'            => 'Locaciones',
+    'html_phone'                => 'Tel&eacute;fono',
 
 
     //  MENSAJES DE ERROR
@@ -61,6 +64,6 @@ return [
     'html_error_user_type'          => 'Seleccione un tipo de usuario',
     'html_error_different_password' => 'La contrase&ntilde;a no coincide',
     'html_error_length_password'    => 'La contrase&ntilde;a debe de ser de al menos 8 digitos',
-    'html_error_price'              => 'Ingrese un precio valido',
+    'html_error_price'              => 'Ingrese un costo valido',
     'html_error_duration'           => 'Ingrese una duraci&oacute;n',
 ];

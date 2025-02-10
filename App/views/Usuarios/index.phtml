@@ -464,8 +464,6 @@ use App\Library\FuncionesGlobales;
 
                 const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
                 let flag_error  = false;
-                console.log('cloc');
-                console.log(form.checkValidity());
                 if (form.checkValidity() === false) {
                     $(form).addClass('was-validated');
                     flag_error  = true;
