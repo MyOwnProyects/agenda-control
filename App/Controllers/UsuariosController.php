@@ -27,7 +27,6 @@ class UsuariosController extends BaseController
             $accion = $this->request->getPost('accion', 'string');
             $result = array();
             if($accion == 'get_rows'){
-                $aqui   = 1;
 
                 $arr_return = array(
                     "draw"              => $this->request->getPost('draw'),
@@ -37,10 +36,11 @@ class UsuariosController extends BaseController
                 );
         
                 // SE REALIZA LA BUSQUEDA DEL COUNT
-                $route  = $this->url_api.$this->rutas['ctusuarios']['show'];
-                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $route          = $this->url_api.$this->rutas['ctusuarios']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
-                if (count($result) == 0){
+                if ($num_registros == 0){
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
@@ -48,11 +48,14 @@ class UsuariosController extends BaseController
                         "data"              => $result
                     );
                 }
+
+                $route  = $this->url_api.$this->rutas['ctusuarios']['show'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
                 $result = array(
                     "draw"              => $this->request->getPost('draw'),
-                    "recordsTotal"      => count($result),
-                    "recordsFiltered"   => 10,
+                    "recordsTotal"      => $num_registros,
+                    "recordsFiltered"   => $num_registros,
                     "data"              => $result
                 );
         
@@ -135,7 +138,7 @@ class UsuariosController extends BaseController
             $aqui   = 1;
 
             $route  = $this->url_api.$this->rutas['ctusuarios']['create'];
-            $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+            $result = FuncionesGlobales::RequestApi('POST',$route,$_POST['obj_info']);
             $response = new Response();
 
             if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
@@ -144,6 +147,7 @@ class UsuariosController extends BaseController
                 return $response;
             }
 
+            $_POST  = $_POST['obj_info'];
             $nombre = $_POST['primer_apellido'].' '.$_POST['segundo_apellido'].' '.$_POST['nombre'];
             FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el usuario: '.$nombre.' con numero de telefono: '.$_POST['celular'].' siendo tipo usuario: '.$_POST['label_tipo_usuario'].' con'.count($_POST['lista_permisos']).' permisos',$_POST);
 

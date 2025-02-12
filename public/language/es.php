@@ -50,6 +50,8 @@ return [
     'html_location'             => 'Locaci&oacute;n',
     'html_locations'            => 'Locaciones',
     'html_phone'                => 'Tel&eacute;fono',
+    'html_acount_already_exists'    => 'Ya existe una cuenta de usuario registrada con este numero, por lo cual se asignar&aacute; en automatico con la informaci&oacute;n de esta cuenta.',
+    'html_validate'                 => 'Validar',      
 
 
     //  MENSAJES DE ERROR
@@ -66,4 +68,7 @@ return [
     'html_error_length_password'    => 'La contrase&ntilde;a debe de ser de al menos 8 digitos',
     'html_error_price'              => 'Ingrese un costo valido',
     'html_error_duration'           => 'Ingrese una duraci&oacute;n',
+    'html_error_validate_cellphone' => 'Valida el n&uacute;mero de tel&eacute;fono ingresado',
+    'html_error_verify_general_data'    => 'Existen campos vacios o incorrectos en la secci&oacute;n de Datos generales',
+    'html_error_verify_cellphone_user'  => 'Ya existe un usuario creado con registro de profesional asignado'
 ];

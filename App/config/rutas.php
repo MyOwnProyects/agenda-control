@@ -8,6 +8,7 @@ return [
         'change_status'     => "/ctusuarios/change_status",
         'delete'            => "/ctusuarios/delete",
         'update'            => "/ctusuarios/update",
+        'count'             => "/ctusuarios/count"
     ],
     'cttipo_usuarios'   => array(
         'show'      => '/cttipo_usuarios/show',
@@ -32,6 +33,12 @@ return [
         'create'            => "/ctlocaciones/create",
         'delete'            => "/ctlocaciones/delete",
         'update'            => "/ctlocaciones/update",
+    ],
+    'ctprofesionales'   => [
+        'show'              => "/ctprofesionales/show",
+        'create'            => "/ctprofesionales/create",
+        'delete'            => "/ctprofesionales/delete",
+        'update'            => "/ctprofesionales/update",
     ]
 
 ];

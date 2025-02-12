@@ -153,3 +153,15 @@ function validarCantidadMonetaria(cantidad) {
     // Si no cumple con las condiciones, retornar false
     return false;
 }
+
+function validarEmail(emailField){
+    // Define our regular expression.
+    const validEmail    =  /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/;
+
+    // Using test we can check if the text match the pattern
+    if(emailField != '' && emailField != null && !validEmail.test(emailField) ){
+        return false;
+    }
+
+    return true;
+}

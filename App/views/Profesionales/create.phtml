@@ -1,13 +1,10 @@
 <style>
-    /* Estilos específicos para create.phtml */
+    
+/* Estilos específicos para create.phtml */
     .create-container main {
-        display: block; /* Cambiado de flex a block */
-        height: auto; /* Cambiado de -webkit-fill-available a auto */
-        overflow: visible; /* Cambiado de overflow-x: auto y overflow-y: hidden a visible */
-    }
-
-    .create-container .datos_generales {
-        width: 100%; /* Asegura que ocupe todo el ancho */
+        display: block;
+        height: auto;
+        overflow: visible;
     }
 
     .nav-link {
@@ -15,15 +12,24 @@
     }
 
     .list-group-item {
-      border: none; /* Elimina los bordes */
-      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+        border: none;
+        cursor: pointer;
     }
+
+    .form-check-input{
+        cursor: pointer;
+    }
+
+    .hide {
+        display: none;
+    }
+
 </style>
-<div class="create-container">
-    <div class="container">
+<div class="create-container container">
+    <div class="container-fluid"> <!-- Cambiado de container a container-fluid -->
         <main>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-12">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
                             <a class="nav-link a_datos_generales active" aria-current="page">Datos generales</a>
@@ -35,14 +41,32 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-12 p-3">
                     <div class="datos_generales">
                         <h4 class="mb-3"><?php echo $translations['html_general_data']; ?></h4>
+                        <div class="alert alert-success align-items-center alert_cuenta_creada" role="alert" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                            <div id="msg_error">
+                            <?php echo $translations['html_acount_already_exists']; ?>
+                            </div>
+                        </div>
                         <form id="form_datos_generales" class="needs-validation" novalidate>
                             <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="text" class="form-control" id="input_celular" placeholder="6622111111" required value="1234567891" style="width: 20%; margin-right: 10px;">
+                                        <button type="button" class="btn btn-primary" id="btnValidar"><?php echo $translations['html_validate']; ?></button>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        <?php echo $translations['html_error_cellphone']; ?>
+                                    </div>
+                                </div>
                                 <div class="col-sm-4">
                                     <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_first_lastname']; ?></label>
-                                    <input type="text" class="form-control" id="input_primer_apellido" placeholder="" value="" required>
+                                    <input type="text" class="form-control" id="input_primer_apellido" placeholder="" value="" required disabled>
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_first_lastname']; ?>
                                     </div>
@@ -50,33 +74,25 @@
 
                                 <div class="col-sm-4">
                                     <label for="input_segundo_apellido" class="form-label"><?php echo $translations['html_second_lastname']; ?></label>
-                                    <input type="text" class="form-control" id="input_segundo_apellido" placeholder="" value="">
+                                    <input type="text" class="form-control" id="input_segundo_apellido" placeholder="" value="" disabled>
                                 </div>
 
                                 <div class="col-sm-4">
-                                    <label for="input_name" class="form-label"><?php echo $translations['html_name']; ?></label>
-                                    <input type="text" class="form-control" id="input_name" placeholder="" value="" required>
+                                    <label for="input_nombre" class="form-label"><?php echo $translations['html_name']; ?></label>
+                                    <input type="text" class="form-control" id="input_nombre" placeholder="" value="" required disabled>
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_name']; ?>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
-                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
-                                    <input type="text" class="form-control" id="input_celular" placeholder="6622111111" required value="1234567890">
-                                    <div class="invalid-feedback">
-                                    <?php echo $translations['html_error_cellphone']; ?>
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
                                     <label for="input_correo_electronico" class="form-label"><?php echo $translations['html_email']; ?></label>
-                                    <input type="email" class="form-control" id="input_correo_electronico" placeholder="you@example.com">
+                                    <input type="email" class="form-control" id="input_correo_electronico" placeholder="you@example.com" disabled>
                                 </div>
 
                                 <div class="col-12">
                                     <label for="input_direccion" class="form-label"><?php echo $translations['html_address']; ?></label>
-                                    <input type="text" class="form-control" id="input_direccion" placeholder="Calle 1 #12 Col: Olvares">
+                                    <input type="text" class="form-control" id="input_direccion" placeholder="Calle 1 #12 Col: Olvares" disabled>
                                     <div class="invalid-feedback">
                                         Please enter your shipping address.
                                     </div>
@@ -84,22 +100,38 @@
 
                                 <div class="col-4">
                                     <label for="input_titulo_profesional" class="form-label"><?php echo $translations['html_professional_title']; ?></label>
-                                    <input type="text" class="form-control" id="input_titulo_profesional" placeholder="Mtro">
+                                    <input type="text" class="form-control" id="input_titulo_profesional" placeholder="Mtro" disabled required>
                                 </div>
 
                                 <div class="col-4">
                                     <label for="input_cedula_profesional" class="form-label"><?php echo $translations['html_professional_id']; ?></label>
-                                    <input type="text" class="form-control" id="input_cedula_profesional" placeholder="12345678">
+                                    <input type="text" class="form-control" id="input_cedula_profesional" placeholder="12345678" disabled>
+                                </div>
+                            </div>
+                            <div id="alert_error_datos_generales" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                </svg>
+                                <div id="msg_error">
+                                    
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="datos_perfil" style="display:none;">
                         <h4 class="mb-3"><?php echo $translations['html_profile']; ?></h4>
-                        <form id="form_datos_generales" class="needs-validation" novalidate>
+                        <div class="alert alert-success align-items-center alert_cuenta_creada" role="alert" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                            <div id="msg_error">
+                            <?php echo $translations['html_acount_already_exists']; ?>
+                            </div>
+                        </div>
+                        <form id="form_datos_perfil" class="needs-validation" novalidate>
                             <div class="row g-3">
                                 <div class="col-4">
-                                    <label for="input_perfil_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
+                                    <label for="input_perfil_celular" class="form-label"><?php echo $translations['html_access_key']; ?></label>
                                     <input type="text" class="form-control" id="input_perfil_celular" disabled required>
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_cellphone']; ?>
@@ -110,37 +142,56 @@
                                     <input type="email" class="form-control" id="input_tipo_usuario" value="<?php echo $arr_tipo_usuario['nombre']; ?>" disabled>
                                 </div>
                                 <div class="col-12"></div>
-                                <div class="container col-4" style="overflow:scroll; height:150px;">
+                                <div class="col-4">
+                                    <label for="input_perfil_contrasena" class="form-label"><?php echo $translations['html_password']; ?></label>
+                                    <input type="password" class="form-control" id="input_perfil_contrasena" required>
+                                    <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
+                                </div>
+                                <div class="col-4">
+                                    <label for="input_perfil_confirmar_contrasena" class="form-label"><?php echo $translations['html_confirm_password']; ?></label>
+                                    <input type="password" class="form-control" id="input_perfil_confirmar_contrasena" required>
+                                    <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
+                                </div>
+                                <div class="col-12"></div>
+                                <div class="container col-12" style="overflow:scroll; height:250px;margin-left: 0;">
                                 <!-- LISTA DE SERVICIOS -->
                                     <label class="form-check-label" >
-                                    <?php echo $translations['html_services']; ?>
+                                    <?php echo $translations['html_locations'].' / '.$translations['html_services']; ?>
                                     </label>
-                                    <div class="list-group div_header_permisos">
-                                        <?php foreach($arr_servicios as $servicio): ?>
-                                        <div class="d-flex align-items-center"> <!-- Flex para alinear elementos -->
-                                            <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
-                                            <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $servicio['id']; ?>">
-                                            </label>
-                                            <span class="span_controlador" style="cursor: pointer;"><?php echo $servicio['nombre']; ?></span> <!-- Texto alineado con el checkbox -->
-                                        </div>
+                                    <div class="list-group div_header_locaciones">
+                                        <?php foreach($arr_locaciones as $locacion): ?>
+                                            <div class="div_header">
+                                                <div class="d-flex align-items-center"> <!-- Flex para alinear elementos -->
+                                                        <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
+                                                        <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $locacion['id']; ?>">
+                                                        </label>
+                                                        <span class="span_controlador" style="cursor: pointer;"><?php echo $locacion['nombre']; ?></span> <!-- Texto alineado con el checkbox -->
+                                                    </div>
+                                                <div class="ms-4 child-options">
+                                                    <?php foreach($locacion['servicios'] as $servicio): ?>
+                                                        <label class="list-group-item hide div_label_accion">
+                                                            <input class="form-check-input check_sublist" type="checkbox" value="<?php echo $servicio['id_servicio']; ?>" data-idlocacion="<?php echo $locacion['id']; ?>">
+                                                            <span class="span_accion"><?php echo $servicio['nombre']; ?></span>
+                                                        </label>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
-                                <div class="container col-4" style="overflow:scroll; height:150px;">
-                                <!-- LISTA DE LOCACIONES -->
-                                    <label class="form-check-label" >
-                                    <?php echo $translations['html_location']; ?>
-                                    </label>
-                                    <div class="list-group div_header_permisos"></div>
+                            </div>
+                            <div id="alert_error_datos_perfil" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                </svg>
+                                <div id="msg_error">
+                                    
                                 </div>
-                                <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
-                                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                                    </svg>
-                                    <div id="msg_error">
-                                        
-                                    </div>
-                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="col-12" align="right">
+                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+                                <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
                             </div>
                         </form>
                     </div>
@@ -157,24 +208,129 @@
         const url_index     = controller+"/index";
         const url_create    = controller+"/create";
 
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena     : "<?php echo $translations['html_error_length_password']; ?>",
+            error_validate_cellphone    : "<?php echo $translations['html_error_validate_cellphone']; ?>",
+            error_verify_general_data   : "<?php echo $translations['html_error_verify_general_data']; ?>",
+            error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
+        }
+
+        const tipo_usuario_defeco   = "<?php echo $arr_tipo_usuario['nombre']; ?>";
+
         //  BANDERA PARA SABEREL NUMERO QUE YA SE VALIDO
         let celular_validado    = '';
 
         $(document).ready(function(){
+            //  BOTON PARA VALIDAR 
+            $(".create-container").on('click','#btnValidar',function(){
+                //  SE BUSCA SI EL USUARIO TIENE UNA CUENTA DE USUARIO CREADA
+                console.log('celular_validado');
+                console.log(celular_validado);
+
+                if ($('.create-container').find('#input_celular').val().length != 10){
+                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_celular']);
+                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
+                    return false;
+                } else {
+                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html();
+                    $('.create-container').find('#alert_error_datos_generales').removeClass('d-flex').hide();
+                }
+
+                if ($("#input_celular").val() != celular_validado){
+                    celular_validado    = $("#input_celular").val();
+
+                    $.ajax({
+                        url     : url_create,
+                        method  : 'post',
+                        data    : {
+                            clave   : $("#input_celular").val(),
+                            accion  : 'validateCelular'
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            if (data && Object.keys(data).length > 0 && data['nombre_tipo_usuario']){
+
+                                if (data['id_profesional'] != null && data['id_profesional'] != ''){
+                                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_verify_cellphone_user']);
+                                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
+                                    return false;
+                                }
+
+                                $('.create-container').find('#input_primer_apellido').val(data['primer_apellido']).prop('disabled',true);
+                                $('.create-container').find('#input_segundo_apellido').val(data['segundo_apellido']).prop('disabled',true);
+                                $('.create-container').find('#input_nombre').val(data['nombre']).prop('disabled',true);
+                                $('.create-container').find('#input_correo_electronico').val(data['correo_electronico']);
+                                $('.create-container').find('#input_direccion').val('').prop('disabled',false);
+                                $('.create-container').find('#input_titulo_profesional').val('').prop('disabled',false);
+                                $('.create-container').find('#input_cedula_profesional').val('').prop('disabled',false);
+                                $('.create-container').find('#input_perfil_contrasena').val('11111111').prop('disabled',true);
+                                $('.create-container').find('#input_perfil_confirmar_contrasena').val('11111111').prop('disabled',true);
+                                $("#input_tipo_usuario").val(data['nombre_tipo_usuario']);
+                                $('.create-container').find('.alert_cuenta_creada').addClass('d-flex').show();
+                            } else {
+                                $("#input_tipo_usuario").val(tipo_usuario_defeco);
+                                $('.create-container').find('#input_primer_apellido').val('').prop('disabled',false);
+                                $('.create-container').find('#input_segundo_apellido').val('').prop('disabled',false);
+                                $('.create-container').find('#input_nombre').val('').prop('disabled',false);
+                                $('.create-container').find('#input_correo_electronico').val('').prop('disabled',false);
+                                $('.create-container').find('#input_direccion').val('').prop('disabled',false);
+                                $('.create-container').find('#input_titulo_profesional').val('').prop('disabled',false);
+                                $('.create-container').find('#input_cedula_profesional').val('').prop('disabled',false);
+                                $('.create-container').find('#input_perfil_contrasena').val('').prop('disabled',false);
+                                $('.create-container').find('#input_perfil_confirmar_contrasena').val('').prop('disabled',false);
+                                $('.create-container').find('.alert_cuenta_creada').removeClass('d-flex').hide();
+                            }
+                            
+                        },
+                        error   : function(error){
+                            actionJsonError(error);
+                        }
+                    });
+                }
+            });
             //  EVENTO PARA CAMBIO A PESTAÑA DE PERFIL
             $(".create-container").on('click',".a_perfil",function(){
+                console.log('aqui click');
                 const form = $('.create-container').find('#form_datos_generales')[0]; // Obtén el elemento DOM
                 let flag_error  = false;
-                console.log('cloc');
-                console.log(form.checkValidity());
                 if (form.checkValidity() === false) {
                     $(form).addClass('was-validated');
-                    //flag_error  = true;
+                    flag_error  = true;
                 } else {
                     $(form).removeClass('was-validated');
                 }
 
+                if ($('.create-container').find('#input_celular').val().length != 10){
+                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_celular']);
+                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
+                    return false;
+                }
+
+                if (celular_validado == '' || $("#input_celular").val() != celular_validado){
+                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_validate_cellphone']);
+                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
+                    return false;
+                }
+
+                if ($('.create-container').find('#input_correo_electronico').val() != '' && !validarEmail($('.create-container').find('#input_correo_electronico').val())){
+                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_email']);
+                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
+                    return false;
+                }
+
+                console.log('flag_error');
+                console.log(flag_error);
                 if (!flag_error){
+
+                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html('');
+                    $('.create-container').find('#alert_error_datos_generales').removeClass('d-flex').hide();
+
                     console.log('pase');
                     $(".create-container").find('.datos_generales').hide();
                     $(".create-container").find('.datos_perfil').show();
@@ -183,31 +339,6 @@
                     $(".create-container").find('.a_perfil').addClass('active');
 
                     $("#input_perfil_celular").val($("#input_celular").val()); 
-
-                    //  SE BUSCA SI EL USUARIO TIENE UNA CUENTA DE USUARIO CREADA
-                    if ($("#input_celular").val() != celular_validado){
-                        celular_validado    = $("#input_celular").val();
-
-                        $.ajax({
-                            url     : url_create,
-                            method  : 'post',
-                            data    : {
-                                clave   : $("#input_celular").val(),
-                                accion  : 'validateCelular'
-                            },
-                            success : function(data){
-                                console.log('data');
-                                console.log(data);
-                                if (data && Object.keys(data).length > 0 && data['nombre_tipo_usuario']){
-                                    $("#input_tipo_usuario").val(data['nombre_tipo_usuario']);
-                                }
-                                
-                            },
-                            error   : function(error){
-                                actionJsonError(error,btn);
-                            }
-                        });
-                    }
                     
                 }
             });
@@ -228,6 +359,126 @@
             })
             .on("cut copy paste",function(e){
                 e.preventDefault();
+            });
+            //  EVENTOS MODAL
+            $(".create-container").on('click','.span_controlador',function(){
+                console.log($(this).closest('.div_header').find('.hide').length);
+                if ($(this).closest('.div_header').find('.hide').length > 0){
+                    $(this).closest('.div_header').find('.div_label_accion').removeClass('hide');
+                } else {
+                    $(this).closest('.div_header').find('.div_label_accion').addClass('hide');
+                }
+            });
+
+            //  EVENTO PARA CHECK
+            $(".create-container").on('click','.header_check',function(){
+                let status_check    = $(this).prop('checked');
+                $(this).closest('.div_header').find('.check_sublist').prop('checked',status_check);
+            });
+
+            $(".create-container").on('click','.check_sublist',function(){
+                let count_elements  = $(this).closest('.child-options').find('.check_sublist').length;
+
+                if ($(this).closest('.child-options').find('.check_sublist:checked').length > 0){
+                    $(this).closest('.div_header').find('.header_check').prop('checked',true);
+                }
+
+                if ($(this).closest('.child-options').find('.check_sublist:checked').length == 0){
+                    $(this).closest('.div_header').find('.header_check').prop('checked',false);
+                }
+            });
+
+            $(".create-container").on('click','#btnSave',function(){
+                let form = $('.create-container').find('#form_datos_generales')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    flag_error  = true;
+                }
+
+                if (flag_error){
+                    showAlert('danger',error_list['error_verify_general_data']);
+                    return false;
+                }
+
+                form = $('.create-container').find('#form_datos_perfil')[0]; // Obtén el elemento DOM
+                flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    return false;
+                }
+
+                if ($('.create-container').find('#input_perfil_contrasena').val().length < 8){
+                    //alert_error_datos_perfil
+                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html(error_list['error_length_contrasena']);
+                    $('.create-container').find('#alert_error_datos_perfil').addClass('d-flex').show();
+                    return false;
+                } else {
+                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html('');
+                    $('.create-container').find('#alert_error_datos_perfil').removeClass('d-flex').hide();
+                }
+
+                if ($('.create-container').find('#input_perfil_contrasena').val() != $('.create-container').find('#input_perfil_confirmar_contrasena').val()){
+                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html(error_list['error_contrasena']);
+                    $('.create-container').find('#alert_error_datos_perfil').addClass('d-flex').show();
+                    return false;
+                } else {
+                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html('');
+                    $('.create-container').find('#alert_error_datos_perfil').removeClass('d-flex').hide();
+                }
+
+                let lista_locaciones    = [];
+                $(".create-container").find('.check_sublist:checked').each(function(){
+                    let id_locacion = $(this).data('idlocacion');
+                    let id_servicio = $(this).val()
+                    lista_locaciones.push({
+                        id_locacion : id_locacion,
+                        id_servicio : id_servicio
+                    });
+                });
+
+                console.log('lista_locaciones');
+                console.log(lista_locaciones);
+
+                let obj_info    = {
+                    celular             : $(".create-container").find('#input_celular').val(),
+                    primer_apellido     : $(".create-container").find('#input_primer_apellido').val(),
+                    segundo_apellido    : $(".create-container").find('#input_segundo_apellido').val(),
+                    nombre              : $(".create-container").find('#input_nombre').val(),
+                    correo_electronico  : $(".create-container").find('#input_correo_electronico').val(),
+                    direccion           : $(".create-container").find('#input_direccion').val(),
+                    titulo_profesional  : $(".create-container").find('#input_titulo_profesional').val(),
+                    cedula_profesional  : $(".create-container").find('#input_cedula_profesional').val(),
+                    lista_locaciones    : lista_locaciones,
+                    accion              : 'create_record',
+                    label_tipo_usuario  : $("#input_tipo_usuario").val(),
+                    contrasena          : $(".create-container").find('#input_perfil_contrasena').val(),
+                }
+
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_create,
+                    method  : 'post',
+                    data    : obj_info,
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        showAlert('success',data);
+                        setTimeout(function() {
+                            window.location = "/Profesionales";
+                        }, 3000);
+                    },
+                    error : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
             });
         });
     })();
