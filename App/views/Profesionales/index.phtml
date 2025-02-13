@@ -61,8 +61,8 @@ use App\Library\FuncionesGlobales;
                     <tr>
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
-                        <th><?php echo $translations['html_price']; ?></th>
-                        <th><?php echo $translations['html_duration']; ?></th>
+                        <th><?php echo $translations['html_user_type']; ?></th>
+                        <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -73,12 +73,209 @@ use App\Library\FuncionesGlobales;
 
 <script>
     let module_profesionale = (function(){
+        let draw            = 1;
+        //  URL
+        const controller    = '/Profesionales';
+        const url_index     = controller+"/index";
+        const url_create    = controller+"/create";
+        const url_delete    = controller+"/delete";
+        const url_update    = controller+"/update";
+        const url_preview   = controller+"/preview";
+
+        //  PERMISOS
+        const action_create = '<?php echo $create; ?>';
+        const action_update = '<?php echo $update; ?>';
+        const action_detele = '<?php echo $delete; ?>';
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>"
+        };
+
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
+        }
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
         $(document).ready(function(){
+
+            cargarTabla();
+
             selectToSelect2($("#header_filters"),"select_servicios");
 
             $("#header_filters").on('click',"#btnCrear",function(){
                 window.location.href = '/Profesionales/create';
-            })
+            });
+
+            $("#table_results").on('click','.btn_delete',async function() {
+
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+                let btn         = $(this);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_delete,
+                        method  : 'POST',
+                        data    : {
+                            id  : id,
+                            clave           : clave
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Borrado exitoso!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_change_status',function(){
+                const id        = $(this).data('id');
+                const estatus   = $(this).data('estatus');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'change_status',
+                        id      : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        showAlert('success',"Edici&oacute;n exitoso!");
+                        cargarTabla();
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            // Evento click del botón "Buscar"
+            $("#header_filters").on('click',"#btnBuscar",function() {
+                cargarTabla();
+            });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_edit',function(){
+                const id        = $(this).data('id');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                window.location.href = '/Profesionales/update/'+id;
+            });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_preview',function(){
+                const id        = $(this).data('id');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                window.location.href = '/Profesionales/preview/'+id;
+            });
         });
+
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    serverSide: true,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.clave     = $("#input_clave").val();
+                            d.nombre    = $("#input_nombre").val();
+                            d.id_servicio   = $("#select_servicios").val()
+                        },
+                        dataSrc: function (json) {
+                            console.log("DataTables Response:", json); // <---- Depuración
+                            return json.data;
+                        }
+                    },
+                    columns: [
+                        { data: 'clave' }, // Columna 1
+                        { data: 'nombre_completo' }, // Columna 1
+                        { data: 'nombre_tipo_usuario' }, // Columna 1
+                        { data: 'label_estatus_usuario' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
+                                let btn_preview = url_preview ?
+                                '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                    '<i class="material-icons">search</i>'+
+                                '</button>' : '';
+                                
+                                let btn_update  = action_update ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
+                                    '<i class="material-icons">edit</i>'+
+                                '</button>' +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
+                                    '<i class="material-icons">cached</i>'+
+                                '</button>'
+                                
+                                : '';
+
+                                let btn_delete  = action_update ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
+                                    '<i class="material-icons">delete</i>'+
+                                '</button>' : '';
+                                return btn_preview + btn_update + btn_delete;
+                            }
+                        }
+                    ]
+                });
+            } else {
+                table.ajax.reload();
+            }
+        }
     })();
 </script>

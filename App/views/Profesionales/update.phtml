@@ -54,19 +54,9 @@
                         </div>
                         <form id="form_datos_generales" class="needs-validation" novalidate>
                             <div class="row g-3">
-                                <div class="col-12">
-                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
-                                    <div style="display: flex; align-items: center;">
-                                        <input type="text" class="form-control" id="input_celular" placeholder="6622111111" required value="1234567891" style="width: 20%; margin-right: 10px;">
-                                        <button type="button" class="btn btn-primary" id="btnValidar"><?php echo $translations['html_validate']; ?></button>
-                                    </div>
-                                    <div class="invalid-feedback">
-                                        <?php echo $translations['html_error_cellphone']; ?>
-                                    </div>
-                                </div>
                                 <div class="col-sm-4">
                                     <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_first_lastname']; ?></label>
-                                    <input type="text" class="form-control" id="input_primer_apellido" placeholder="" value="" required disabled>
+                                    <input type="text" class="form-control" id="input_primer_apellido" placeholder="" value="<?php echo $arr_info_profesional['primer_apellido']; ?>" required>
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_first_lastname']; ?>
                                     </div>
@@ -74,25 +64,33 @@
 
                                 <div class="col-sm-4">
                                     <label for="input_segundo_apellido" class="form-label"><?php echo $translations['html_second_lastname']; ?></label>
-                                    <input type="text" class="form-control" id="input_segundo_apellido" placeholder="" value="" disabled>
+                                    <input type="text" class="form-control" id="input_segundo_apellido" placeholder="" value="<?php echo $arr_info_profesional['segundo_apellido']; ?>">
                                 </div>
 
                                 <div class="col-sm-4">
                                     <label for="input_nombre" class="form-label"><?php echo $translations['html_name']; ?></label>
-                                    <input type="text" class="form-control" id="input_nombre" placeholder="" value="" required disabled>
+                                    <input type="text" class="form-control" id="input_nombre" placeholder="" value="<?php echo $arr_info_profesional['nombre']; ?>" required>
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_name']; ?>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
+                                    <label for="input_celular" class="form-label"><?php echo $translations['html_cellphone']; ?></label>
+                                    <input type="text" class="form-control" id="input_celular" placeholder="" value="<?php echo $arr_info_profesional['celular']; ?>" required>
+                                    <div class="invalid-feedback">
+                                    <?php echo $translations['html_error_cellphone']; ?>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
                                     <label for="input_correo_electronico" class="form-label"><?php echo $translations['html_email']; ?></label>
-                                    <input type="email" class="form-control" id="input_correo_electronico" placeholder="you@example.com" disabled>
+                                    <input type="email" class="form-control" id="input_correo_electronico" placeholder="you@example.com" value="<?php echo $arr_info_profesional['correo_electronico']; ?>">
                                 </div>
 
                                 <div class="col-12">
                                     <label for="input_direccion" class="form-label"><?php echo $translations['html_address']; ?></label>
-                                    <input type="text" class="form-control" id="input_direccion" placeholder="Calle 1 #12 Col: Olvares" disabled>
+                                    <input type="text" class="form-control" id="input_direccion" placeholder="Calle 1 #12 Col: Olvares" value="<?php echo $arr_info_profesional['direccion']; ?>">
                                     <div class="invalid-feedback">
                                         Please enter your shipping address.
                                     </div>
@@ -100,12 +98,12 @@
 
                                 <div class="col-4">
                                     <label for="input_titulo_profesional" class="form-label"><?php echo $translations['html_professional_title']; ?></label>
-                                    <input type="text" class="form-control" id="input_titulo_profesional" placeholder="Mtro" disabled required>
+                                    <input type="text" class="form-control" id="input_titulo_profesional" placeholder="Mtro" required value="<?php echo $arr_info_profesional['titulo']; ?>">
                                 </div>
 
                                 <div class="col-4">
                                     <label for="input_cedula_profesional" class="form-label"><?php echo $translations['html_professional_id']; ?></label>
-                                    <input type="text" class="form-control" id="input_cedula_profesional" placeholder="12345678" disabled>
+                                    <input type="text" class="form-control" id="input_cedula_profesional" placeholder="12345678" value="<?php echo $arr_info_profesional['cedula_profesional']; ?>">
                                 </div>
                             </div>
                             <div id="alert_error_datos_generales" class="alert alert-danger align-items-center" role="alert" style="display:none;">
@@ -136,7 +134,7 @@
                             <div class="row g-3">
                                 <div class="col-4">
                                     <label for="input_perfil_celular" class="form-label"><?php echo $translations['html_access_key']; ?></label>
-                                    <input type="text" class="form-control" id="input_perfil_celular" disabled required>
+                                    <input type="text" class="form-control" id="input_perfil_celular" disabled required value="<?php echo $arr_info_profesional['clave']; ?>">
                                     <div class="invalid-feedback">
                                     <?php echo $translations['html_error_cellphone']; ?>
                                     </div>
@@ -144,17 +142,6 @@
                                 <div class="col-4">
                                     <label for="input_tipo_usuario" class="form-label"><?php echo $translations['html_user_type']; ?></label>
                                     <input type="email" class="form-control" id="input_tipo_usuario" value="<?php echo $arr_tipo_usuario['nombre']; ?>" disabled>
-                                </div>
-                                <div class="col-12"></div>
-                                <div class="col-4">
-                                    <label for="input_perfil_contrasena" class="form-label"><?php echo $translations['html_password']; ?></label>
-                                    <input type="password" class="form-control" id="input_perfil_contrasena" required>
-                                    <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
-                                </div>
-                                <div class="col-4">
-                                    <label for="input_perfil_confirmar_contrasena" class="form-label"><?php echo $translations['html_confirm_password']; ?></label>
-                                    <input type="password" class="form-control" id="input_perfil_confirmar_contrasena" required>
-                                    <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
                                 </div>
                                 <div class="col-12"></div>
                                 <div class="container col-12" style="overflow:scroll; height:250px;margin-left: 0;">
@@ -167,14 +154,14 @@
                                             <div class="div_header">
                                                 <div class="d-flex align-items-center"> <!-- Flex para alinear elementos -->
                                                         <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
-                                                        <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $locacion['id']; ?>">
+                                                        <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $locacion['id']; ?>" <?php echo isset($arr_info_profesional['locaciones_servicios'][$locacion['id']]) ? 'checked' : ''; ?>>
                                                         </label>
                                                         <span class="span_controlador" style="cursor: pointer;"><?php echo $locacion['nombre']; ?></span> <!-- Texto alineado con el checkbox -->
                                                     </div>
                                                 <div class="ms-4 child-options">
                                                     <?php foreach($locacion['servicios'] as $servicio): ?>
-                                                        <label class="list-group-item hide div_label_accion">
-                                                            <input class="form-check-input check_sublist" type="checkbox" value="<?php echo $servicio['id_servicio']; ?>" data-idlocacion="<?php echo $locacion['id']; ?>">
+                                                        <label class="list-group-item <?php echo !isset($arr_info_profesional['locaciones_servicios'][$locacion['id']]) ? 'hide' : ''; ?> div_label_accion">
+                                                            <input class="form-check-input check_sublist" type="checkbox" value="<?php echo $servicio['id_servicio']; ?>" data-idlocacion="<?php echo $locacion['id']; ?>" <?php echo isset($arr_info_profesional['locaciones_servicios'][$locacion['id']][$servicio['id_servicio']]) ? 'checked' : ''; ?>>
                                                             <span class="span_accion"><?php echo $servicio['nombre']; ?></span>
                                                         </label>
                                                     <?php endforeach; ?>
@@ -194,7 +181,7 @@
                             </div>
                             <hr class="my-4">
                             <div class="col-12" align="right">
-                                <button type="button" class="btn btn-outline-dark btnReturn" ><?php echo $translations['html_btn_cancel']; ?></button>
+                                <button type="button" class="btn btn-outline-dark btnReturn"><?php echo $translations['html_btn_return']; ?></button>
                                 <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
                             </div>
                         </form>
@@ -207,10 +194,14 @@
 
 <script>
     let module_create_professional  = (function(){
+
+        //  ID A EDITAR
+        const id    = "<?php echo $id; ?>";
+
         //  URL
         const controller    = '/Profesionales';
         const url_index     = controller+"/index";
-        const url_create    = controller+"/create";
+        const url_update    = controller+"/update";
 
         //  LISTA DE ERRORES EN MODAL
         const error_list = {
@@ -230,74 +221,7 @@
         let celular_validado    = '';
 
         $(document).ready(function(){
-            //  BOTON PARA VALIDAR 
-            $(".create-container").on('click','#btnValidar',function(){
-                //  SE BUSCA SI EL USUARIO TIENE UNA CUENTA DE USUARIO CREADA
-                console.log('celular_validado');
-                console.log(celular_validado);
-
-                if ($('.create-container').find('#input_celular').val() != '' && $('.create-container').find('#input_celular').val().length != 10){
-                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_celular']);
-                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html();
-                    $('.create-container').find('#alert_error_datos_generales').removeClass('d-flex').hide();
-                }
-
-                if ($("#input_celular").val() != celular_validado){
-                    celular_validado    = $("#input_celular").val();
-
-                    $.ajax({
-                        url     : url_create,
-                        method  : 'post',
-                        data    : {
-                            clave   : $("#input_celular").val(),
-                            accion  : 'validateCelular'
-                        },
-                        success : function(data){
-                            console.log('data');
-                            console.log(data);
-                            if (data && Object.keys(data).length > 0 && data['nombre_tipo_usuario']){
-
-                                if (data['id_profesional'] != null && data['id_profesional'] != ''){
-                                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_verify_cellphone_user']);
-                                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
-                                    return false;
-                                }
-
-                                $('.create-container').find('#input_primer_apellido').val(data['primer_apellido']).prop('disabled',true);
-                                $('.create-container').find('#input_segundo_apellido').val(data['segundo_apellido']).prop('disabled',true);
-                                $('.create-container').find('#input_nombre').val(data['nombre']).prop('disabled',true);
-                                $('.create-container').find('#input_correo_electronico').val(data['correo_electronico']);
-                                $('.create-container').find('#input_direccion').val('').prop('disabled',false);
-                                $('.create-container').find('#input_titulo_profesional').val('').prop('disabled',false);
-                                $('.create-container').find('#input_cedula_profesional').val('').prop('disabled',false);
-                                $('.create-container').find('#input_perfil_contrasena').val('11111111').prop('disabled',true);
-                                $('.create-container').find('#input_perfil_confirmar_contrasena').val('11111111').prop('disabled',true);
-                                $("#input_tipo_usuario").val(data['nombre_tipo_usuario']);
-                                $('.create-container').find('.alert_cuenta_creada').addClass('d-flex').show();
-                            } else {
-                                $("#input_tipo_usuario").val(tipo_usuario_defeco);
-                                $('.create-container').find('#input_primer_apellido').val('').prop('disabled',false);
-                                $('.create-container').find('#input_segundo_apellido').val('').prop('disabled',false);
-                                $('.create-container').find('#input_nombre').val('').prop('disabled',false);
-                                $('.create-container').find('#input_correo_electronico').val('').prop('disabled',false);
-                                $('.create-container').find('#input_direccion').val('').prop('disabled',false);
-                                $('.create-container').find('#input_titulo_profesional').val('').prop('disabled',false);
-                                $('.create-container').find('#input_cedula_profesional').val('').prop('disabled',false);
-                                $('.create-container').find('#input_perfil_contrasena').val('').prop('disabled',false);
-                                $('.create-container').find('#input_perfil_confirmar_contrasena').val('').prop('disabled',false);
-                                $('.create-container').find('.alert_cuenta_creada').removeClass('d-flex').hide();
-                            }
-                            
-                        },
-                        error   : function(error){
-                            actionJsonError(error);
-                        }
-                    });
-                }
-            });
+            
             //  EVENTO PARA CAMBIO A PESTAÑA DE PERFIL
             $(".create-container").on('click',".a_perfil",function(){
                 console.log('aqui click');
@@ -312,12 +236,6 @@
 
                 if ($('.create-container').find('#input_celular').val() != '' && $('.create-container').find('#input_celular').val().length != 10){
                     $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_celular']);
-                    $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
-                    return false;
-                }
-
-                if (celular_validado == '' || $("#input_celular").val() != celular_validado){
-                    $('.create-container').find('#alert_error_datos_generales').find('#msg_error').html(error_list['error_validate_cellphone']);
                     $('.create-container').find('#alert_error_datos_generales').addClass('d-flex').show();
                     return false;
                 }
@@ -341,8 +259,6 @@
 
                     $(".create-container").find('.a_datos_generales').removeClass('active');
                     $(".create-container").find('.a_perfil').addClass('active');
-
-                    $("#input_perfil_celular").val($("#input_celular").val()); 
                     
                 }
             });
@@ -392,6 +308,7 @@
                 }
             });
 
+            //
             $(".create-container").on('click',".btnReturn",function(){
                 window.location = "/Profesionales";
             });
@@ -421,25 +338,6 @@
                     return false;
                 }
 
-                if ($('.create-container').find('#input_perfil_contrasena').val().length < 8){
-                    //alert_error_datos_perfil
-                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html(error_list['error_length_contrasena']);
-                    $('.create-container').find('#alert_error_datos_perfil').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html('');
-                    $('.create-container').find('#alert_error_datos_perfil').removeClass('d-flex').hide();
-                }
-
-                if ($('.create-container').find('#input_perfil_contrasena').val() != $('.create-container').find('#input_perfil_confirmar_contrasena').val()){
-                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html(error_list['error_contrasena']);
-                    $('.create-container').find('#alert_error_datos_perfil').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $('.create-container').find('#alert_error_datos_perfil').find('#msg_error').html('');
-                    $('.create-container').find('#alert_error_datos_perfil').removeClass('d-flex').hide();
-                }
-
                 let lista_locaciones    = [];
                 $(".create-container").find('.check_sublist:checked').each(function(){
                     let id_locacion = $(this).data('idlocacion');
@@ -454,6 +352,7 @@
                 console.log(lista_locaciones);
 
                 let obj_info    = {
+                    id                  : id,
                     celular             : $(".create-container").find('#input_celular').val(),
                     primer_apellido     : $(".create-container").find('#input_primer_apellido').val(),
                     segundo_apellido    : $(".create-container").find('#input_segundo_apellido').val(),
@@ -465,14 +364,14 @@
                     lista_locaciones    : lista_locaciones,
                     accion              : 'create_record',
                     label_tipo_usuario  : $("#input_tipo_usuario").val(),
-                    contrasena          : $(".create-container").find('#input_perfil_contrasena').val(),
+                    accion              : 'save_edit'
                 }
 
                 let btn = $(this);
                 $(btn).prop('disabled',true);
 
                 $.ajax({
-                    url     : url_create,
+                    url     : url_update,
                     method  : 'post',
                     data    : obj_info,
                     success : function(data){

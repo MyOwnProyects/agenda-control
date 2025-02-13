@@ -35,10 +35,12 @@ return [
         'update'            => "/ctlocaciones/update",
     ],
     'ctprofesionales'   => [
-        'show'              => "/ctprofesionales/show",
-        'create'            => "/ctprofesionales/create",
-        'delete'            => "/ctprofesionales/delete",
-        'update'            => "/ctprofesionales/update",
+        'show'      => "/ctprofesionales/show",
+        'create'    => "/ctprofesionales/create",
+        'delete'    => "/ctprofesionales/delete",
+        'update'    => "/ctprofesionales/update",
+        'count'     => "/ctprofesionales/count",
+        'change_status'     => "/ctprofesionales/change_status",
     ]
 
 ];

@@ -23,6 +23,50 @@ class ProfesionalesController extends BaseController
 
     public function IndexAction(){
 
+        if ($this->request->isAjax()){
+            $accion = $this->request->getPost('accion', 'string');
+            $result = array();
+            if($accion == 'get_rows'){
+
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 10,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['ctprofesionales']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if ($num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 10,
+                        "data"              => $result
+                    );
+                }
+
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                $result = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => $num_registros,
+                    "recordsFiltered"   => $num_registros,
+                    "data"              => $result
+                );
+        
+            }
+
+            $response = new Response();
+            $response->setJsonContent($result);
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+
         $route          = $this->url_api.$this->rutas['ctservicios']['show'];
         $arr_servicios  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
@@ -30,6 +74,7 @@ class ProfesionalesController extends BaseController
         $this->view->create = FuncionesGlobales::HasAccess("Profesionales","create");
         $this->view->update = FuncionesGlobales::HasAccess("Profesionales","update");
         $this->view->delete = FuncionesGlobales::HasAccess("Profesionales","delete");
+        $this->view->preview    = FuncionesGlobales::HasAccess("Profesionales","preview");
     }
 
     public function createAction(){
@@ -85,5 +130,154 @@ class ProfesionalesController extends BaseController
         $this->view->arr_locaciones     = $arr_locaciones;
         $this->view->arr_tipo_usuario   = $arr_tipo_usuario[0];
         
+    }
+
+    public function deleteAction(){
+        if ($this->request->isAjax()){
+            $route  = $this->url_api.$this->rutas['ctprofesionales']['delete'];
+            $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+            $response = new Response();
+
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
+                return $response;
+            }
+
+            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino el profesional '.$_POST['clave'],$_POST);
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+    }
+
+    public function updateAction($id = null){
+        if ($this->request->isAjax()){
+
+            $accion = $this->request->getPost('accion');
+
+            if (!empty($accion) && $this->request->getPost('accion') == 'change_status'){
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['change_status'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+            } 
+
+            if (!empty($accion) && $accion == 'save_edit'){
+
+                $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id' => $id,
+                    'get_locaciones'    => 1
+                ));
+
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['update'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                $info   = $arr_info_profesional[0];
+                $arr_save   = array(
+                    'data_old'  => $info,
+                    'new_data'  => $_POST
+                );
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el profesional: Celular antiguo :'.$info['clave'].' por '.$_POST['clave'],$arr_save);
+            }
+
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+
+        if (!is_numeric($id)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
+        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('get_servicios' => 1));
+
+        //  SE BUSCA LA INFORMACION DEL PERFIL DE PROFESIONAL
+        $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
+        $arr_tipo_usuario   = FuncionesGlobales::RequestApi('GET',$route,array('clave' => 'PROF'));
+
+        $this->view->arr_locaciones     = $arr_locaciones;
+        $this->view->arr_tipo_usuario   = $arr_tipo_usuario[0];
+
+        //  SE BUSCA LA INFORMACION DEL PROFESIONAL
+        $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+        $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id' => $id,
+            'get_locaciones'    => 1
+        ));
+
+        if (!is_array($arr_info_profesional) || count($arr_info_profesional) == 0){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        $this->view->id = $id;
+        $this->view->arr_info_profesional       = $arr_info_profesional[0];
+
+    }
+
+    public function previewAction($id = null){
+        if (!is_numeric($id)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
+        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('get_servicios' => 1));
+
+        //  SE BUSCA LA INFORMACION DEL PERFIL DE PROFESIONAL
+        $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
+        $arr_tipo_usuario   = FuncionesGlobales::RequestApi('GET',$route,array('clave' => 'PROF'));
+
+        $this->view->arr_locaciones     = $arr_locaciones;
+        $this->view->arr_tipo_usuario   = $arr_tipo_usuario[0];
+
+        //  SE BUSCA LA INFORMACION DEL PROFESIONAL
+        $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+        $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id' => $id,
+            'get_locaciones'    => 1
+        ));
+
+        if (!is_array($arr_info_profesional) || count($arr_info_profesional) == 0){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        $this->view->id = $id;
+        $this->view->arr_info_profesional       = $arr_info_profesional[0];
+
     }
 }
