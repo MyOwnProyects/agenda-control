@@ -196,8 +196,8 @@
     let module_create_professional  = (function(){
 
         //  ID A EDITAR
-        const id    = "<?php echo $id; ?>";
-
+        const id            = "<?php echo $id; ?>";
+        const current_clave = "<?php echo $arr_info_profesional['clave']; ?>";
         //  URL
         const controller    = '/Profesionales';
         const url_index     = controller+"/index";
@@ -364,7 +364,8 @@
                     lista_locaciones    : lista_locaciones,
                     accion              : 'create_record',
                     label_tipo_usuario  : $("#input_tipo_usuario").val(),
-                    accion              : 'save_edit'
+                    accion              : 'save_edit',
+                    current_clave       : current_clave
                 }
 
                 let btn = $(this);

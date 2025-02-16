@@ -27,7 +27,7 @@ return [
     'html_btn_cancel'       => 'Cancelar',   
     'html_status'           => 'Estatus',
     'html_permissions'      => 'Permisos',
-    'html_user_type'        => 'Tipo de usuario',
+    'html_user_type'        => 'Perfil de usuario',
     'html_cellphone'        => 'Celular',
     'html_first_lastname'   => 'Primer apellido',
     'html_second_lastname'  => 'Segundo apellido',
@@ -51,7 +51,12 @@ return [
     'html_locations'            => 'Locaciones',
     'html_phone'                => 'Tel&eacute;fono',
     'html_acount_already_exists'    => 'Ya existe una cuenta de usuario registrada con este numero, por lo cual se asignar&aacute; en automatico con la informaci&oacute;n de esta cuenta.',
-    'html_validate'                 => 'Validar',      
+    'html_validate'                 => 'Validar',    
+    'html_title_professionals'      => 'Profesionales',  
+    'html_title_user_type'          => 'Perfil de usuarios',
+    'html_title_users'              => 'Usuarios',   
+    'html_title_my_account'         => 'Mi cuenta',
+    'html_title_patients'           => 'Pacientes',
 
 
     //  MENSAJES DE ERROR
@@ -63,7 +68,7 @@ return [
     'html_error_first_lastname'     => 'Ingrese el primer apellido',
     'html_error_password'           => 'Ingrese una contrase&ntilde;a',
     'html_error_second_password'    => 'Confirme la contrase&ntilde;a',
-    'html_error_user_type'          => 'Seleccione un tipo de usuario',
+    'html_error_user_type'          => 'Seleccione un perfil de usuario',
     'html_error_different_password' => 'La contrase&ntilde;a no coincide',
     'html_error_length_password'    => 'La contrase&ntilde;a debe de ser de al menos 8 digitos',
     'html_error_price'              => 'Ingrese un costo valido',

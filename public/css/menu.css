@@ -51,6 +51,11 @@ main {
     border-radius: 0;
 }
 
+.nav-link:hover{
+    color: #fff;
+    background-color: #0d6efd;
+}
+
 .btn-toggle {
     display: inline-flex;
     align-items: center;

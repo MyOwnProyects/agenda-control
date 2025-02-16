@@ -193,7 +193,7 @@ class ProfesionalesController extends BaseController
                     'data_old'  => $info,
                     'new_data'  => $_POST
                 );
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el profesional: Celular antiguo :'.$info['clave'].' por '.$_POST['clave'],$arr_save);
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el profesional: '.$_POST['current_clave'],$arr_save);
             }
 
 
