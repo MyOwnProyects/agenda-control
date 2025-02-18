@@ -37,7 +37,8 @@
 
             // Validar los campos (ejemplo simple)
             if (username === '' || password === '') {
-                alert('Por favor, ingrese todos los campos.');
+                showAlert('danger','Por favor, ingrese todos los campos.');
+                $(btn).prop('disabled',false);
                 return;
             }
 

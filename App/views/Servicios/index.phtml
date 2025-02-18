@@ -35,8 +35,14 @@ use App\Library\FuncionesGlobales;
                     <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
                 </div>
                 <div class="col-md-12 text-end">
-                    <button type="button" class="btn btn-outline-dark" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
-                    <button type="button" class="btn btn-outline-dark" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
+                        <i class="bi bi-plus-lg"></i> 
+                        <?php echo $translations['html_new']; ?>
+                    </button>
                 </div> 
             </form>
         </div>
@@ -175,6 +181,7 @@ use App\Library\FuncionesGlobales;
                     info: true,
                     lengthChange: false,
                     language: translations,
+                    serverSide: true,
                     ajax: {
                         url: url_index,
                         method: 'POST',
@@ -197,21 +204,22 @@ use App\Library\FuncionesGlobales;
                             className: "text-center", // Centra el contenido de la celda
                             orderable: false, // Desactiva el ordenamiento para esta columna
                             render: function (data, type, row) {
+                                draw    ++;
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
                                 let btn_update  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
-                                    '<i class="material-icons">edit</i>'+
+                                    '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
-                                    '<i class="material-icons">cached</i>'+
+                                    '<i class="bi bi-arrow-repeat"></i>'+
                                 '</button>'
                                 
                                 : '';
 
                                 let btn_delete  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['title_delete'] +'">' +
-                                    '<i class="material-icons">delete</i>'+
+                                    '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
                                 return btn_update + btn_delete;
                             }
@@ -219,6 +227,7 @@ use App\Library\FuncionesGlobales;
                     ]
                 });
             } else {
+                draw    ++;
                 table.ajax.reload();
             }
         }

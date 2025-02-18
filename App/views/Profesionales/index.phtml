@@ -43,8 +43,14 @@ use App\Library\FuncionesGlobales;
                     </select>
                 </div>
                 <div class="col-md-12 text-end">
-                    <button type="button" class="btn btn-outline-dark" id="btnBuscar"><?php echo $translations['html_btn_search']; ?></button>
-                    <button type="button" class="btn btn-outline-dark" id="btnCrear"><?php echo $translations['html_new']; ?></button>
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
+                        <i class="bi bi-plus-lg"></i> 
+                        <?php echo $translations['html_new']; ?>
+                    </button>
                 </div> 
             </form>
         </div>
@@ -211,6 +217,7 @@ use App\Library\FuncionesGlobales;
 
         // Función para inicializar o recargar la tabla
         function cargarTabla() {
+            draw    ++;
             if (!table) {
                 table = new DataTable('#table_results', {
                     dom: 'lrtip',
@@ -251,22 +258,22 @@ use App\Library\FuncionesGlobales;
                                 // Generamos un botón con un atributo dinámico para identificar la fila
                                 let btn_preview = url_preview ?
                                 '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
-                                    '<i class="material-icons">search</i>'+
+                                    '<i class="bi bi-search"></i> '+
                                 '</button>' : '';
                                 
                                 let btn_update  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
-                                    '<i class="material-icons">edit</i>'+
+                                    '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
-                                    '<i class="material-icons">cached</i>'+
+                                    '<i class="bi bi-arrow-repeat"></i>'+
                                 '</button>'
                                 
                                 : '';
 
                                 let btn_delete  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
-                                    '<i class="material-icons">delete</i>'+
+                                    '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
                                 return btn_preview + btn_update + btn_delete;
                             }
@@ -274,6 +281,7 @@ use App\Library\FuncionesGlobales;
                     ]
                 });
             } else {
+                draw    ++;
                 table.ajax.reload();
             }
         }

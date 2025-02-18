@@ -15,24 +15,29 @@ return [
         'create'    => '/cttipo_usuarios/create',
         'change_estatus'    => '/cttipo_usuarios/change_estatus',
         'update'            => '/cttipo_usuarios/update',
+        'count'             => "/cttipo_usuarios/count"
     ),
     'ctpermisos'   => array(
         'show'  => '/ctpermisos/show'
     ),
     'tbbitacora_movimientos'   => array(
-        'create'  => '/tbbitacora_movimientos/create'
+        'create'    => '/tbbitacora_movimientos/create',
+        'count'     => "/tbbitacora_movimientos/count",
+        'show'      => "/tbbitacora_movimientos/count"
     ),
     'ctservicios'    => [
         'show'              => "/ctservicios/show",
         'create'            => "/ctservicios/create",
         'delete'            => "/ctservicios/delete",
         'update'            => "/ctservicios/update",
+        'count'             => "/ctservicios/count"
     ],
     'ctlocaciones'  => [
         'show'              => "/ctlocaciones/show",
         'create'            => "/ctlocaciones/create",
         'delete'            => "/ctlocaciones/delete",
         'update'            => "/ctlocaciones/update",
+        'count'             => "/ctlocaciones/count"
     ],
     'ctprofesionales'   => [
         'show'      => "/ctprofesionales/show",
@@ -41,6 +46,14 @@ return [
         'update'    => "/ctprofesionales/update",
         'count'     => "/ctprofesionales/count",
         'change_status'     => "/ctprofesionales/change_status",
+    ],
+    'ctpacientes'   => [
+        'show'      => "/ctpacientes/show",
+        'create'    => "/ctpacientes/create",
+        'delete'    => "/ctpacientes/delete",
+        'update'    => "/ctpacientes/update",
+        'count'     => "/ctpacientes/count",
+        'change_status'     => "/ctpacientes/change_status"
     ]
 
 ];

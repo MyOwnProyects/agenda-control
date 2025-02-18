@@ -28,8 +28,6 @@ class TipousuariosController extends BaseController
             $accion = $this->request->getPost('accion', 'string');
             $result = array();
             if($accion == 'get_rows'){
-                $aqui   = 1;
-
                 $arr_return = array(
                     "draw"              => $this->request->getPost('draw'),
                     "recordsTotal"      => 0,
@@ -38,10 +36,11 @@ class TipousuariosController extends BaseController
                 );
         
                 // SE REALIZA LA BUSQUEDA DEL COUNT
-                $route  = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
-                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $route          = $this->url_api.$this->rutas['cttipo_usuarios']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
-                if (count($result) == 0){
+                if ($num_registros == 0){
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
@@ -49,11 +48,14 @@ class TipousuariosController extends BaseController
                         "data"              => $result
                     );
                 }
+
+                $route  = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
                 $result = array(
                     "draw"              => $this->request->getPost('draw'),
-                    "recordsTotal"      => count($result),
-                    "recordsFiltered"   => 10,
+                    "recordsTotal"      => $num_registros,
+                    "recordsFiltered"   => $num_registros,
                     "data"              => $result
                 );
         
