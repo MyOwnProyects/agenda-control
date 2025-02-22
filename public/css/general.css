@@ -5,3 +5,7 @@ body {
 textarea {
     resize: none;
 }
+
+.fix-padding {
+  padding-top: 6px;
+}

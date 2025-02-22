@@ -1,9 +1,9 @@
 /* ESTILO PARA MENSAJES DE ALERT EN SISTEMA */
+/* ESTILO PARA MENSAJES DE ALERTA EN SISTEMA */
 .alert-fixed {
     position: fixed;
     top: 20px; /* Ajusta la posición vertical */
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px; /* Coloca el elemento en el lado derecho */
     z-index: 9999; /* Asegura que esté sobre otros elementos */
     padding: 15px;
     border-radius: 5px;
@@ -13,6 +13,7 @@
 /* Estilos adicionales para el atributo data-mdb-position */
 [data-mdb-position="top-right"] {
     top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px; /* Coloca el elemento en el lado derecho */
+    left: auto; /* Anula el valor de left */
+    transform: none; /* Elimina la transformación */
 }

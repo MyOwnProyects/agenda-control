@@ -7,6 +7,7 @@ use Phalcon\Http\Request;  // Asegúrate de importar la clase Request
 use Phalcon\Http\Response; // Asegúrate de importar la clase Response
 use App\Library\FuncionesGlobales;
 
+
 class PacientesController extends BaseController
 {
     protected $rutas;
@@ -59,6 +60,21 @@ class PacientesController extends BaseController
                     "data"              => $result
                 );
         
+            }
+
+            if ($accion == 'get_services'){
+                $result = array(
+                    'all_services'  => array(),
+                    'info_paciente' => array()
+                );
+
+                $route                  = $this->url_api.$this->rutas['ctservicios']['show'];
+                $result['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion_registro']));
+            }
+
+            if ($accion == 'get_profesionales'){
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
             }
 
             $response = new Response();
