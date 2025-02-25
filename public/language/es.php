@@ -80,6 +80,8 @@ return [
     'html_add_service'              => 'Agregar servicio',
     'html_title_add_hour'           => 'Agregar Horario',
     'html_title_delete_hour'        => 'Borrar horario',
+    'html_delete_service'           => 'Borrar S.',
+    'html_title_delete_service'     => 'Borrar servicio',
 
 
     //  MENSAJES DE ERROR
@@ -103,4 +105,7 @@ return [
     'html_error_starting_hour'          => 'Ingresa una hora de inicio',
     'html_error_ending_hour'            => 'Ingresa una hora de termino',
     'html_error_day'                    => 'Selecciona un d&iacute;a',
+    'html_error_service'                => 'Seleccione un servicio',
+    'html_error_professional'           => 'Seleccione un profesional',
+    'html_error_spliced'                => 'Existen horas empalmadas para el d&iacute;a: ',
 ];

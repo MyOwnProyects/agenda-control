@@ -53,7 +53,9 @@ return [
         'delete'    => "/ctpacientes/delete",
         'update'    => "/ctpacientes/update",
         'count'     => "/ctpacientes/count",
-        'change_status'     => "/ctpacientes/change_status"
+        'change_status'     => "/ctpacientes/change_status",
+        'save_program_date' => "/ctpacientes/save_program_date",
+        'get_program_date'  => "/ctpacientes/get_program_date",
     ]
 
 ];

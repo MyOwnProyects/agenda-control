@@ -70,6 +70,13 @@ class PacientesController extends BaseController
 
                 $route                  = $this->url_api.$this->rutas['ctservicios']['show'];
                 $result['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion_registro']));
+
+                //  SE BUSCAN LOS REGISTROS DEL PACIENTE
+                $route                      = $this->url_api.$this->rutas['ctpacientes']['get_program_date'];
+                $result['info_paciente']    = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_paciente'   => $_POST['id_paciente'],
+                    'id_locacion'   => $_POST['id_locacion']
+                ));
             }
 
             if ($accion == 'get_profesionales'){
@@ -120,6 +127,38 @@ class PacientesController extends BaseController
 
                 $nombre     = $_POST['primer_apellido'].' '.$_POST['segundo_apellido'].' '.$_POST['nombre'];
                 FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el paciente para registro rapido: '.$nombre.' con numero de telefono: '.$_POST['celular'].' en la locación: '.$_POST['label_locacion'] ,$_POST);
+
+                $response->setJsonContent('Captura exitosa');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+        }
+    }
+
+    public function updateAction(){
+        if ($this->request->isAjax()){
+            $accion = $this->request->getPost('accion');
+            $result = array();
+
+            if($accion == 'save_program_date'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_program_date'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'   => $_POST['id_paciente'],
+                    'id_locacion'   => $_POST['id_locacion'],
+                    'obj_info'      => $_POST['obj_info']
+                )); 
+                
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $nombre     = $_POST['nombre_completo'];
+                $servicios  = count($_POST['obj_info']);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CITA PROGRAMADA','Se creo/modifico el registro de citas programadas para el paciente: '.$nombre.' el cual tendrá '.$servicios.' servicios programados',$_POST);
 
                 $response->setJsonContent('Captura exitosa');
                 $response->setStatusCode(200, 'OK');

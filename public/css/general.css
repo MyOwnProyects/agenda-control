@@ -9,3 +9,7 @@ textarea {
 .fix-padding {
   padding-top: 6px;
 }
+
+#table_results th{
+  text-align: center;
+}
