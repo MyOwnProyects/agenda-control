@@ -108,4 +108,5 @@ return [
     'html_error_service'                => 'Seleccione un servicio',
     'html_error_professional'           => 'Seleccione un profesional',
     'html_error_spliced'                => 'Existen horas empalmadas para el d&iacute;a: ',
+    'html_error_less_one_location'      => 'Seleccione al menos una locaci&oacute;n',
 ];

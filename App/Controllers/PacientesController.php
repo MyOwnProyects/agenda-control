@@ -32,7 +32,7 @@ class PacientesController extends BaseController
                 $arr_return = array(
                     "draw"              => $this->request->getPost('draw'),
                     "recordsTotal"      => 0,
-                    "recordsFiltered"   => 10,
+                    "recordsFiltered"   => 0,
                     "data"              => array()
                 );
         
@@ -45,7 +45,7 @@ class PacientesController extends BaseController
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
-                        "recordsFiltered"   => 10,
+                        "recordsFiltered"   => 0,
                         "data"              => $result
                     );
                 }
@@ -96,7 +96,8 @@ class PacientesController extends BaseController
         $this->view->arr_servicios      = $arr_servicios;
 
         //SE BUSCAS LAS LOCACIONES EXISTENTES
-        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $_POST['onlyallowed']   = 1;
         $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         //unset($arr_locaciones[1]);
         $this->view->arr_locaciones = $arr_locaciones;

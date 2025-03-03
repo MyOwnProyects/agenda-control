@@ -63,7 +63,7 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <div class="col-md-4">
                     <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
-                    <select id="select_locaciones" class="form-select" aria-label="Default select example">
+                    <select id="select_locaciones" class="form-select select_locaciones" aria-label="Default select example">
                         <option></option>
                         <?php foreach($arr_locaciones as $locacion): ?>
                             <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
@@ -581,6 +581,7 @@ use App\Library\FuncionesGlobales;
                     success : function(data){
                         console.log('data');
                         console.log(data);
+                        cargarTabla();
                         showAlert('success','Captura exitosa!');
                         $(modal_clone).modal('hide');
                     },

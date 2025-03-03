@@ -87,7 +87,7 @@ class LoginController extends Controller
                 );         
                 $request    = FuncionesGlobales::RequestApi('GET',$route,$params);
 
-                $this->session->set("permisos",$request);
+                $this->session->set("permisos",$request['permisos']);
 
                 $response->setStatusCode(200, "OK");
                 $response->setJsonContent([

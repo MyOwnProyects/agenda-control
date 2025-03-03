@@ -135,12 +135,31 @@ use App\Library\FuncionesGlobales;
                     <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
                 </div>
             </div>
-            <div class="container mt-3 col-md-12" style="overflow:scroll; height:150px;">
-                <!-- LISTA DE PERMISOS -->
-                <label class="form-check-label" >
-                <?php echo $translations['html_permissions']; ?>
-                </label>
-                <div class="list-group div_header_permisos"></div>
+            <div class="row col-md-12">
+                <div class="container mt-3 col-md-6" style="overflow:scroll; height:150px;">
+                    <!-- LISTA DE PERMISOS -->
+                    <label class="form-check-label" >
+                    <?php echo $translations['html_permissions']; ?>
+                    </label>
+                    <div class="list-group div_header_permisos"></div>
+                </div>
+                <div class="container mt-3 col-md-6" style="overflow:scroll; height:150px;">
+                    <!-- LISTA DE SERVICIOS -->
+                    <label class="form-check-label" >
+                    <?php echo $translations['html_locations']; ?>
+                    </label>
+                    <div class="list-group div_header_locaciones">
+                    <?php foreach($arr_locaciones as $locacion): ?>
+                    <div class="d-flex align-items-center header_locacion id_check_<?php echo $locacion['id']; ?>"> <!-- Flex para alinear elementos -->
+                        <label class="list-group-item parent-option mb-0 me-2"> <!-- Espaciado entre checkbox y texto -->
+                        <input class="form-check-input me-1 header_check" type="checkbox" value="<?php echo $locacion['id']; ?>" data-id="<?php echo $locacion['id']; ?>">
+                        </label>
+                        <span class="span_controlador" style="cursor: pointer;"><?php echo $locacion['nombre']; ?></span> <!-- Texto alineado con el checkbox -->
+                        
+                    </div>
+                    <?php endforeach; ?>
+                    </div>
+                </div>
             </div>
             <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -217,6 +236,7 @@ use App\Library\FuncionesGlobales;
             error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
             error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
             error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
+            error_less_one_location : "<?php echo $translations['html_error_less_one_location']; ?>",
         }
 
         // Variable global para almacenar la instancia de DataTable
@@ -434,6 +454,11 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#input_contrasena').removeAttr("required");
                 $(modal_clone).find('#input_confirmar_contrasena').removeAttr("required");
                 show_permisos(modal_clone,data,info);
+
+                //  SE SELECCIONAN LAS UBICACIONES ASIGNADAS
+                for(let i in info['locaciones']){
+                    $(modal_clone).find('.id_check_'+i).find('.header_check').prop('checked',true).trigger('change');
+                }
             }
 
             $(modal_clone).find('#select_tipo_usuario_modal').select2({
@@ -514,8 +539,16 @@ use App\Library\FuncionesGlobales;
                         $(form).removeClass('was-validated');
                     }
 
-                    if ($(modal_clone).find('.check_sublist:checked').length == 0){
+                    if ($(modal_clone).find('.div_header_permisos').find('.check_sublist:checked').length == 0){
                         $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['sin_permisos']);
+                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        return false;
+                    } else {
+                        $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
+                    }
+
+                    if ($(modal_clone).find('.div_header_locaciones').find('.header_check:checked').length == 0){
+                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_less_one_location']);
                         $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
                         return false;
                     } else {
@@ -556,16 +589,19 @@ use App\Library\FuncionesGlobales;
                             return false;
                         }
                     }
-                    
-                    console.log('aqui',flag_error);
+
                     if (flag_error){
                         return false;
                     }
 
-                    console.log('pase');
                     let permissions_list    = [];
-                    $(modal_clone).find('.check_sublist:checked').each(function(){
+                    $(modal_clone).find('.div_header_permisos').find('.check_sublist:checked').each(function(){
                         permissions_list.push($(this).data('id'));
+                    });
+
+                    let locations_list  = [];
+                    $(modal_clone).find('.div_header_locaciones').find('.header_check:checked').each(function(){
+                        locations_list.push($(this).data('id'));
                     });
 
                     let obj_info    = {
@@ -577,6 +613,7 @@ use App\Library\FuncionesGlobales;
                         id_tipo_usuario     : $(modal_clone).find('#select_tipo_usuario_modal').val(),
                         contrasena          : $(modal_clone).find('#input_contrasena').val(),
                         lista_permisos      : permissions_list,
+                        lista_locaciones    : locations_list,
                         label_tipo_usuario  : $(modal_clone).find('#select_tipo_usuario_modal').find('option:selected').text(),
                         id                  : info != null ? info['id'] : null
                     };

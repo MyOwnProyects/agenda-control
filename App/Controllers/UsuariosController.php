@@ -112,8 +112,10 @@ class UsuariosController extends BaseController
                 $arr_return['info'] = $arr_return['info'][0];
 
                 //  SE BUSCAN LOS PERMISOS ASIGNADOS AL USUARIO
-                $route              = $this->url_api.$this->rutas['ctusuarios']['get_info_usuario'];
-                $arr_return['info']['permisos'] = FuncionesGlobales::RequestApi('GET',$route,array("id_usuario" => $_POST['id']));
+                $route      = $this->url_api.$this->rutas['ctusuarios']['get_info_usuario'];
+                $request    = FuncionesGlobales::RequestApi('GET',$route,array("id_usuario" => $_POST['id']));
+                $arr_return['info']['permisos']     = $request['permisos'];
+                $arr_return['info']['locaciones']   = $request['locaciones'];
 
                 $result = $arr_return;
             }
@@ -127,7 +129,12 @@ class UsuariosController extends BaseController
         $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
         $arr_tipo_usuarios  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
+        //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
+        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array());
+
         $this->view->arr_tipo_usuarios  = $arr_tipo_usuarios; 
+        $this->view->arr_locaciones     = $arr_locaciones; 
         $this->view->create = FuncionesGlobales::HasAccess("Usuarios","create");
         $this->view->update = FuncionesGlobales::HasAccess("Usuarios","update");
         $this->view->delete = FuncionesGlobales::HasAccess("Usuarios","delete");
