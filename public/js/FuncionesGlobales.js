@@ -165,3 +165,15 @@ function validarEmail(emailField){
 
     return true;
 }
+
+// Función para convertir HH:MM a objeto Date
+function convertirHoraATiempo(hora) {
+    if (hora == null || hora == ''){
+        return hora;
+    }
+    let fechaActual         = new Date();
+    let [horas, minutos]    = hora.split(':');
+    let fechaHora           = new Date(fechaActual);
+    fechaHora.setHours(horas, minutos, 0, 0); // Establecer horas y minutos, segundos y milisegundos a 0
+    return fechaHora;
+}

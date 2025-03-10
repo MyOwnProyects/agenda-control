@@ -16,6 +16,25 @@ use App\Library\FuncionesGlobales;
         padding: 0; /* Opcional: elimina el relleno interno si es necesario */
     }
 
+    .div_check {
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da; /* Color del borde */
+        border-radius: 0.375rem; /* Bordes redondeados */
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        max-width: calc(100% - 1px); /* Reduce el ancho en 1px */
+        cursor: pointer;
+    }
+
+    .hide {
+        display:none;
+    }
+
 </style>
 
 <div class="container mt-4">
@@ -124,7 +143,7 @@ use App\Library\FuncionesGlobales;
                 </div>
             </div>
             
-            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                 </svg>
@@ -141,9 +160,82 @@ use App\Library\FuncionesGlobales;
     </div>
   </div>
 </div>
+
+<div class="modal fade modal-lg" id="modal_opening_hours" tabindex="-1" aria-labelledby="label_modal_opening_hours" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_opening_hours"><?php echo $translations['html_up_opening_hours']; ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row">
+                <div class="col-md-6 fix-padding">
+                    <label for="btn_add_service" class="form-label"><?php echo $translations['html_title_add_hour']; ?></label>
+                    <button type="button" id="btn_add_hours" class="btn btn-outline-dark btn_add_hours"><i class="bi bi-plus"></i></button>
+                </div>
+            </div>
+            <div class="row col-12 align-items-center">
+                <div class="col-2">
+                    <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
+                </div>
+                <div class="col-2">
+                    <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
+                </div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_monday']; ?></label></div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thuesday']; ?></label></div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_wednesday']; ?></label></div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thursday']; ?></label></div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_friday']; ?></label></div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_saturday']; ?></label></div>
+                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_sunday']; ?></label></div>
+                <div class="col-1">Acci&oacute;n</div>
+            </div>
+            <div class="row rows_table">
+                
+            </div>
+            
+            <div id="alert_error" class="alert alert-danger align-items-center m-2" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="template_horas" class="row col-12 hide div_header_hours" style="padding-top:5px;">
+    <div class="col-2">
+        <input type="time" step="60" class="form-control input_hora_inicio" required>
+        <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
+    </div>
+    <div class="col-2">
+        <input type="time" step="60" class="form-control input_hora_termino" required>
+        <div class="invalid-feedback"><?php echo $translations['html_error_ending_hour']; ?></div>
+    </div>
+    <div class="col-1 rounded border div_check dia_1" data-dia="1"></div>
+    <div class="col-1 rounded border div_check dia_2" data-dia="2"></div>
+    <div class="col-1 rounded border div_check dia_3" data-dia="3"></div>
+    <div class="col-1 rounded border div_check dia_4" data-dia="4"></div>
+    <div class="col-1 rounded border div_check dia_5" data-dia="5"></div>
+    <div class="col-1 rounded border div_check dia_6" data-dia="6"></div>
+    <div class="col-1 rounded border div_check dia_7" data-dia="7"></div>
+    <div class="col-1"><button type="button" class="btn btn-outline-danger btn_delete_hours">X</button></div>
+</div>
 <script>
     let module_servicios    = (function(){
         let draw            = 0;
+        let count_hours     = 0;
         //  URL
         const controller    = '/Locaciones';
         const url_index     = controller+"/index";
@@ -154,7 +246,7 @@ use App\Library\FuncionesGlobales;
         //  PERMISOS
         const action_create = '<?php echo $create; ?>';
         const action_update = '<?php echo $update; ?>';
-        const action_detele = '<?php echo $delete; ?>';
+        const action_delete = '<?php echo $delete; ?>';
 
         //  language
         const translations  = {
@@ -173,11 +265,16 @@ use App\Library\FuncionesGlobales;
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
             title_preview   : "<?= $translations['html_preview_record'] ?>",
             confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            opening_hours   : "<?= $translations['html_opening_hours']?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
         const error_list = {
-            price   : "<?php echo $translations['html_error_price']; ?>"
+            price   : "<?php echo $translations['html_error_price']; ?>",
+            error_less_one_opening_hour : "<?php echo $translations['html_error_less_one_opening_hour']; ?>",
+            error_opening_hours         : "<?php echo $translations['html_error_opening_hours']; ?>",
+            error_empty_days            : "<?php echo $translations['html_error_empty_days']; ?>",
+            error_minus_ending_date     : "<?php echo $translations['html_error_minus_ending_date']; ?>",
         }
 
         // Variable global para almacenar la instancia de DataTable
@@ -229,9 +326,12 @@ use App\Library\FuncionesGlobales;
                                 let btn_update  = action_update ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
+                                '</button>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_opening_hours" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['opening_hours'] +'">' +
+                                    '<i class="bi bi-calendar2-event"></i>'+
                                 '</button>' : '';
 
-                                let btn_delete  = action_update ? 
+                                let btn_delete  = action_delete ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
@@ -310,6 +410,32 @@ use App\Library\FuncionesGlobales;
                         console.log(data);
                         $(btn).prop('disabled',false);
                         showModal(data[0]);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_opening_hours',function(){
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                const nombre    = $(this).data('nombre');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    :  {
+                        accion      : 'get_opening_hours',
+                        id_locacion : id
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        showModalOpeningHours(data,id,clave,nombre);
                     },
                     error   : function(error){
                         actionJsonError(error,btn);
@@ -422,8 +548,8 @@ use App\Library\FuncionesGlobales;
                     });
 
                     if (flag_error_costo){
-                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['price']);
-                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['price']);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
                         return false;
                     }
 
@@ -472,6 +598,193 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.form-check-input').prop('disabled',true);
 
             }
+
+            $(modal_clone).modal('show');
+        }
+
+        function showModalOpeningHours(data,id_locacion,clave,nombre){
+            let modal_clone = $("#modal_opening_hours").clone().show();
+
+            $(modal_clone).find('#label_modal_opening_hours').text($(modal_clone).find('#label_modal_opening_hours').text() +': '+nombre);
+            console.log('data func');
+            console.log(data);
+            if (data == null || data == '' || data.length == 0){
+                let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                $(modal_clone).find('.rows_table').append(row_clone);
+                count_hours ++;
+            } else {
+                for(let i in data){
+                    let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                    $(row_clone).find('.input_hora_inicio').val(data[i]['hora_inicio']);
+                    $(row_clone).find('.input_hora_termino').val(data[i]['hora_termino']);
+
+                    let dias    = data[i]['dias'];
+
+                    for(let x in dias){
+                        console.log(dias[x]['dia']);
+                        $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
+                    }
+
+                    $(modal_clone).find('.rows_table').append(row_clone);
+                    count_hours ++;
+                }
+            }
+
+            //  EVENTO PARA AGREGAR DIV DE HORAS
+            $(modal_clone).on('click','.btn_add_hours',function(){
+                let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                $(modal_clone).find('.rows_table').append(row_clone);
+                count_hours ++;
+            });
+
+            //  EVENTO PARA BORRAR DIV DE HORAS
+            $(modal_clone).on('click','.btn_delete_hours',function(){
+                $(this).closest('.div_header_hours').remove();
+            });
+
+            //  EVENTOS PARA EFECTO HOVER
+            $(modal_clone).on('mouseenter', '.div_check', function() {
+                if($(this).hasClass('selected')){
+                    return false;
+                }
+                $(this).addClass('bg-primary');
+            });
+
+            $(modal_clone).on('mouseleave', '.div_check', function() {
+                if($(this).hasClass('selected')){
+                    return false;
+                }
+                $(this).removeClass('bg-primary');
+            });
+
+            //  EVENTO PARA SELECCIONAR UN DIA
+            $(modal_clone).on('click','.div_check',function(){
+                if ($(this).hasClass('selected')){
+                    $(this).removeClass('selected').removeClass('bg-primary');
+                } else {
+                    $(this).addClass('selected').addClass('bg-primary');
+                }
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    $(btn).prop('disable',false);
+                    return false;
+                }
+
+                let obj_info    = [];
+                let index       = 0;
+                try{
+                    $(modal_clone).find('.div_header_hours').each(function(){
+
+                        obj_info[index] = new Object();
+                        obj_info[index]['hora_inicio']  = $(this).find('.input_hora_inicio').val();
+                        obj_info[index]['hora_termino'] = $(this).find('.input_hora_termino').val();
+                        obj_info[index]['dias']         = [];
+
+                        let id_header   = $(this).attr('id');
+                        let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
+                        let hora_termino_header = convertirHoraATiempo($(this).find('.input_hora_termino').val());
+
+                        if (hora_termino_header <= hora_inicio_header){
+                            throw 'error_minus_ending_date';
+                        }
+                        //  SE BUSCAN LOS DIAS SELECCIONADOS
+                        $(this).find('.selected').each(function(){
+                            let dia_selected    = $(this).data('dia');
+                            console.log('dia_selected');
+                            console.log(dia_selected);
+                            console.log('busqueda');
+                            console.log('.dia_'+dia_selected);
+                            console.log($(modal_clone).find('.dia_'+dia_selected).length);
+
+                            //  SE BUSCAN LOS ROWS CUYO DIA SELECCIONADO SEA IGUAL
+                            $(modal_clone).find('.dia_'+dia_selected).each(function(){
+                                console.log('check id');
+                                console.log($(this).closest('.div_header_hours').attr('id'));
+                                console.log(id_header);
+                                if ($(this).closest('.div_header_hours').attr('id') == id_header){
+                                    return true;
+                                }
+
+                                if (!$(this).hasClass('selected')){
+                                    return false;
+                                }
+
+                                let hora_inicio     = convertirHoraATiempo($(this).closest('.div_header_hours').find('.input_hora_inicio').val());
+                                let hora_termino    = convertirHoraATiempo($(this).closest('.div_header_hours').find('.input_hora_termino').val());
+
+                                //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
+                                console.log('hora_inicio_header >= hora_inicio');
+                                console.log(hora_inicio_header >= hora_inicio,hora_inicio);
+                                if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+                                    console.log('empalmado hora_inicio_header');
+                                    throw 'error_opening_hours';
+                                }
+
+                                //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
+                                if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                                    console.log('empalmado hora termino');
+                                    throw 'error_opening_hours';
+                                }
+                            });
+
+                            obj_info[index]['dias'].push($(this).data('dia'));
+                        });
+
+                        if (obj_info[index]['dias'].length == 0){
+                            throw 'error_empty_days';
+                        }
+
+                        index ++;
+                    });
+
+                }catch(err){
+                    let msg_error   = error_list[err];
+                    if (msg_error == 'error_empty_days') console.log('aqui'); msg_error += (index + 1);
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(msg_error);
+                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                    return false;
+                }
+
+                $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
+
+                console.log('obj_info');
+                console.log(obj_info);
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_opening_hours',
+                        obj_info    : obj_info,
+                        id_locacion : id_locacion,
+                        clave       : clave,
+                        nombre      : nombre
+                    },
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
 
             $(modal_clone).modal('show');
         }

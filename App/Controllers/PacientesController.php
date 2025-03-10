@@ -99,8 +99,21 @@ class PacientesController extends BaseController
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
         $_POST['onlyallowed']   = 1;
         $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-        //unset($arr_locaciones[1]);
         $this->view->arr_locaciones = $arr_locaciones;
+
+        //  SE BUSCA VARIABLE DEL SISTEMA dias_programacion_citas
+        $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
+        $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(
+            'clave' => 'dias_programacion_citas'
+        ));
+
+        if (!is_array($dias_programacion_citas)){
+            $dias_programacion_citas    = 31;
+        } else {
+            $dias_programacion_citas    = $dias_programacion_citas[0]['valor'];
+        }
+
+        $this->view->dias_programacion_citas    = $dias_programacion_citas;
 
         $this->view->create = FuncionesGlobales::HasAccess("Pacientes","create");
         $this->view->update = FuncionesGlobales::HasAccess("Pacientes","update");
@@ -146,7 +159,10 @@ class PacientesController extends BaseController
                 $result = FuncionesGlobales::RequestApi('POST',$route,array(
                     'id_paciente'   => $_POST['id_paciente'],
                     'id_locacion'   => $_POST['id_locacion'],
-                    'obj_info'      => $_POST['obj_info']
+                    'obj_info'      => $_POST['obj_info'],
+                    'generar_citas' => $_POST['generar_citas'],
+                    'fecha_inicio'  => $_POST['fecha_inicio'],
+                    'fecha_termino' => $_POST['fecha_termino'],
                 )); 
                 
                 $response = new Response();
@@ -159,7 +175,13 @@ class PacientesController extends BaseController
 
                 $nombre     = $_POST['nombre_completo'];
                 $servicios  = count($_POST['obj_info']);
-                FuncionesGlobales::saveBitacora($this->bitacora,'CITA PROGRAMADA','Se creo/modifico el registro de citas programadas para el paciente: '.$nombre.' el cual tendrá '.$servicios.' servicios programados',$_POST);
+                $msg_generar_citas  = '';
+
+                if ($_POST['generar_citas']){
+                    $msg_generar_citas  = ', y se programaron citas desde el ' . $_POST['fecha_inicio'].' Al '.$_POST['fecha_termino'];
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CITA PROGRAMADA','Se creo/modifico el registro de citas programadas para el paciente: '.$nombre.' el cual tendrá '.$servicios.' servicios programados'.$msg_generar_citas,$_POST);
 
                 $response->setJsonContent('Captura exitosa');
                 $response->setStatusCode(200, 'OK');

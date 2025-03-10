@@ -37,7 +37,9 @@ return [
         'create'            => "/ctlocaciones/create",
         'delete'            => "/ctlocaciones/delete",
         'update'            => "/ctlocaciones/update",
-        'count'             => "/ctlocaciones/count"
+        'count'             => "/ctlocaciones/count",
+        'get_opening_hours' => "/ctlocaciones/get_opening_hours",
+        'save_opening_hours'    => "/ctlocaciones/save_opening_hours",
     ],
     'ctprofesionales'   => [
         'show'      => "/ctprofesionales/show",
@@ -56,6 +58,9 @@ return [
         'change_status'     => "/ctpacientes/change_status",
         'save_program_date' => "/ctpacientes/save_program_date",
         'get_program_date'  => "/ctpacientes/get_program_date",
-    ]
+    ],
+    'ctvariables_sistema'   => array(
+        'show'  => '/ctvariables_sistema/show'
+    ),
 
 ];

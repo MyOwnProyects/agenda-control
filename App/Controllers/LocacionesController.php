@@ -136,6 +136,43 @@ class LocacionesController extends BaseController
     public function updateAction(){
         if ($this->request->isAjax()){
 
+            $accion = $_POST['accion'] ?? null;
+
+            //  RUTA PARA GUARDAR EL HORARIO DE ATENCION
+            if ($accion == 'save_opening_hours'){
+                $route  = $this->url_api.$this->rutas['ctlocaciones']['save_opening_hours'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se CREO/MODIFICO el horario de atención de la locacion: Clave :'.$_POST['clave'].' - '.$_POST['nombre'],$_POST['obj_info']);
+
+                $response->setJsonContent('Captura exitosa');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_opening_hours'){
+                $route  = $this->url_api.$this->rutas['ctlocaciones']['get_opening_hours'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $route  = $this->url_api.$this->rutas['ctlocaciones']['update'];
             $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
             $response = new Response();

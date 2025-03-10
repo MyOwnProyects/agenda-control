@@ -23,8 +23,13 @@ use App\Library\FuncionesGlobales;
     }
 
     .div_append_service {
-        height: 350px;
+        height: 320px;
         overflow: scroll;
+    }
+
+    .form-check-input {
+        transform: scale(1.5); /* Aumenta el tamaño del switch */
+        width: 5rem; /* Ajusta el ancho del switch */
     }
 
 </style>
@@ -121,22 +126,46 @@ use App\Library\FuncionesGlobales;
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3 div_header_citas">
-                <div class="col-md-6 fix-padding">
-                    <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
-                    <select class="form-select select_locaciones" aria-label="Default select example" <?php echo count($arr_locaciones) == 1 ? 'disabled' : ''; ?> required>
-                        <option></option>
-                        <?php foreach($arr_locaciones as $locacion): ?>
-                            <option value="<?php echo $locacion['id']; ?>" <?php echo count($arr_locaciones) == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
-                </div> 
-                <div class="col-md-6 fix-padding">
-                    <label for="btn_add_service" class="form-label"><?php echo $translations['html_add_service']; ?></label> <br> 
-                    <button type="button" id="btn_add_service" class="btn btn-outline-dark btn_add_service"><i class="bi bi-plus"></i></button>
+                <div class="row">
+                    <div class="col-md-6 fix-padding">
+                        <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
+                        <select class="form-select select_locaciones" aria-label="Default select example" <?php echo count($arr_locaciones) == 1 ? 'disabled' : ''; ?> required>
+                            <option></option>
+                            <?php foreach($arr_locaciones as $locacion): ?>
+                                <option value="<?php echo $locacion['id']; ?>" <?php echo count($arr_locaciones) == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                    </div> 
+                    <div class="col-md-6 fix-padding">
+                        <label for="btn_add_service" class="form-label"><?php echo $translations['html_add_service']; ?></label> <br> 
+                        <button type="button" id="btn_add_service" class="btn btn-outline-dark btn_add_service"><i class="bi bi-plus"></i></button>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-md-4 d-flex flex-column">
+                        <label class="form-check-label mb-1" for="input_generar_citas">
+                            <?php echo $translations['html_generate_dates']; ?>
+                        </label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input input_generar_citas" type="checkbox" id="input_generar_citas">
+                        </div>
+                    </div>
+
+                    <!-- Columna de la fecha de inicio -->
+                    <div class="col-md-4" style="padding-right:5px;">
+                        <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
+                        <input type="date" class="form-control input_fecha_inicio input_date" disabled required min="<?= date('Y-m-d'); ?>">
+                    </div>
+
+                    <!-- Columna de la fecha de término -->
+                    <div class="col-md-4" style="padding-right:5px;">
+                        <label for="input_fecha_termino" class="col-form-label"><?php echo $translations['html_ending_date']; ?></label>
+                        <input type="date" class="form-control input_fecha_termino input_date" disabled required min="<?= date('Y-m-d'); ?>">
+                    </div>
                 </div>
                 <!-- Modificación aquí: agregar align-items-center -->
-                <div class="div_append_service"></div>
+                <div class="div_append_service" style="padding-top:15px"></div>
             </div>
             <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -295,7 +324,10 @@ use App\Library\FuncionesGlobales;
         //  PERMISOS
         const action_create = '<?php echo $create; ?>';
         const action_update = '<?php echo $update; ?>';
-        const action_detele = '<?php echo $delete; ?>';
+        const action_delete = '<?php echo $delete; ?>';
+
+        //  DIAS DEFAULT PARA PROGRAMAR CITAS
+        const dias_programacion_citas   = '<?php echo $dias_programacion_citas; ?>';
 
         //  language
         const translations  = {
@@ -386,6 +418,35 @@ use App\Library\FuncionesGlobales;
         function show_modal_program_date(all_services,id_locacion_registro,id_paciente,nombre_completo,info_paciente = null){
             let modal_clone = $("#modal_program_date").clone().show();
 
+            $(modal_clone).on('click','#input_generar_citas',function(){
+                let status_check    = $(this).prop('checked');
+
+                $(modal_clone).find('.input_date').prop('disabled',status_check ? false : true).val('');
+            });
+
+            $(modal_clone).on('change','.input_fecha_inicio',function(){
+                // Cadena de texto con la fecha en formato DD/MM/YYYY
+                const fechaStr = $(this).val();
+
+                // Dividir la cadena en día, mes y año
+                const [anio, mes, dia] = fechaStr.split('-');
+
+                // Crear un objeto Date (los meses en JavaScript son base 0, por eso restamos 1 al mes)
+                const fecha = new Date(anio, mes - 1, dia);
+
+                // Sumar 31 días
+                fecha.setDate(fecha.getDate() + parseInt(dias_programacion_citas));
+                let [nuevo_dia, nuevo_mes, nuevo_anio]  = fecha.toLocaleDateString().split('/');
+                nuevo_mes   = nuevo_mes.length == 1 ? '0'+nuevo_mes : nuevo_mes;
+                nuevo_dia   = nuevo_dia.length == 1 ? '0'+nuevo_dia : nuevo_dia;
+                
+
+                // Mostrar la nueva fecha en formato local
+                $(modal_clone).find('.input_fecha_termino').val(nuevo_anio+'-'+nuevo_mes+'-'+nuevo_dia);
+            });
+
+            $(modal_clone).find('#input_generar_citas').prop('checked',false).trigger('change');
+
             $(modal_clone).find('.select_locaciones').select2({
                 placeholder: 'Seleccione una opción',
                 dropdownParent: $(modal_clone),
@@ -395,8 +456,6 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('.select_locaciones').val(id_locacion_registro).trigger('change');
             $(modal_clone).find('.select_locaciones').prop('disabled',true);
 
-            console.log('info_paciente');
-            console.log(info_paciente);
             if (info_paciente == null || info_paciente == ''){
                 add_template_service(modal_clone,all_services,id_locacion_registro);
             } else {
@@ -480,6 +539,7 @@ use App\Library\FuncionesGlobales;
                 }
 
                 if (flag_error){
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
@@ -533,6 +593,7 @@ use App\Library\FuncionesGlobales;
                 });
 
                 if (flag_empalmados){
+                    $(btn).prop('disabled',false);
                     $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_spliced']+ dia_empalmado);
                     $(modal_clone).find('#alert_error').addClass('d-flex').show();
                     return false;
@@ -576,7 +637,10 @@ use App\Library\FuncionesGlobales;
                         accion      : 'save_program_date',
                         nombre_completo : nombre_completo,
                         id_paciente     : id_paciente,
-                        id_locacion     : $(modal_clone).find('.select_locaciones').val()
+                        id_locacion     : $(modal_clone).find('.select_locaciones').val(),
+                        generar_citas   : $(modal_clone).find('.input_generar_citas').is(':checked'),
+                        fecha_inicio    : $(modal_clone).find('.input_fecha_inicio').val(),
+                        fecha_termino   : $(modal_clone).find('.input_fecha_termino').val(),
                     },
                     success : function(data){
                         console.log('data');
@@ -586,6 +650,7 @@ use App\Library\FuncionesGlobales;
                         $(modal_clone).modal('hide');
                     },
                     error : function(error){
+                        $(btn).prop('disabled',false);
                         console.log('error');
                         console.log(error);
                         actionJsonError(error,btn);
@@ -625,15 +690,6 @@ use App\Library\FuncionesGlobales;
                     console.log(error);
                 }
             });
-        }
-
-        // Función para convertir HH:MM a objeto Date
-        function convertirHoraATiempo(hora) {
-            let fechaActual         = new Date();
-            let [horas, minutos]    = hora.split(':');
-            let fechaHora           = new Date(fechaActual);
-            fechaHora.setHours(horas, minutos, 0, 0); // Establecer horas y minutos, segundos y milisegundos a 0
-            return fechaHora;
         }
 
         function add_template_service(modal_clone,all_services,id_locacion_registro,info_paciente = null){
@@ -784,7 +840,7 @@ use App\Library\FuncionesGlobales;
                                 
                                 : '';
 
-                                let btn_delete  = action_update ? 
+                                let btn_delete  = action_delete ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';

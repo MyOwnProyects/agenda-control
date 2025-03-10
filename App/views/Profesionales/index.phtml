@@ -91,7 +91,7 @@ use App\Library\FuncionesGlobales;
         //  PERMISOS
         const action_create = '<?php echo $create; ?>';
         const action_update = '<?php echo $update; ?>';
-        const action_detele = '<?php echo $delete; ?>';
+        const action_delete = '<?php echo $delete; ?>';
 
         //  language
         const translations  = {
@@ -272,7 +272,7 @@ use App\Library\FuncionesGlobales;
                                 
                                 : '';
 
-                                let btn_delete  = action_update ? 
+                                let btn_delete  = btn_delete ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';

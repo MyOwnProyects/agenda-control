@@ -82,6 +82,18 @@ return [
     'html_title_delete_hour'        => 'Borrar horario',
     'html_delete_service'           => 'Borrar S.',
     'html_title_delete_service'     => 'Borrar servicio',
+    'html_generate_dates'           => 'Generar citas',
+    'html_starting_date'            => 'Fecha inicio',
+    'html_ending_date'              => 'Fecha termino',
+    'html_opening_hours'            => 'Horario de atenci&oacute;n',
+    'html_up_opening_hours'         => 'HORARIO DE ATENCI&Oacute;N',
+    'html_abre_monday'              => 'Lun',
+    'html_abre_thuesday'            => 'Mar',
+    'html_abre_wednesday'           => 'Mie',
+    'html_abre_thursday'            => 'Jue',
+    'html_abre_friday'              => 'Vie',
+    'html_abre_saturday'            => 'Sab',
+    'html_abre_sunday'              => 'Dom',
 
 
     //  MENSAJES DE ERROR
@@ -109,4 +121,8 @@ return [
     'html_error_professional'           => 'Seleccione un profesional',
     'html_error_spliced'                => 'Existen horas empalmadas para el d&iacute;a: ',
     'html_error_less_one_location'      => 'Seleccione al menos una locaci&oacute;n',
+    'html_error_less_one_opening_hour'  => 'Ingrese al menos un horario de atenci&oacute;n',
+    'html_error_empty_days'             => 'Seleccione al menos un d&iacute;a en el registro: ',
+    'html_error_opening_hours'          => 'Existen regitros cuyos fechas de inicio y termino se entrelazan con el d&iacute;a seleccionado',
+    'html_error_minus_ending_date'      => 'La hora de termino es menor o igal a la hora de inicio',
 ];
