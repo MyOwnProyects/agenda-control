@@ -754,7 +754,7 @@ use App\Library\FuncionesGlobales;
 
                 }catch(err){
                     let msg_error   = error_list[err];
-                    if (msg_error == 'error_empty_days') console.log('aqui'); msg_error += (index + 1);
+                    if (err == 'error_empty_days') console.log('aqui'); msg_error += ' registro: '+(index + 1);
                     $(modal_clone).find('#alert_error').find('#msg_error').html(msg_error);
                     $(modal_clone).find('#alert_error').addClass('d-flex').show();
                     return false;

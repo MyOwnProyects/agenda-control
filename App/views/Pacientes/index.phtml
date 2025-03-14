@@ -405,8 +405,10 @@ use App\Library\FuncionesGlobales;
                         show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente']);
                     },
                     error   : function(error){
+                        $(btn).prop('disabled',false);
                         console.log('error');
                         console.log(error);
+                        actionJsonError(error,btn);
                     }
                 })
 

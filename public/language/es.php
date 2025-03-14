@@ -94,6 +94,8 @@ return [
     'html_abre_friday'              => 'Vie',
     'html_abre_saturday'            => 'Sab',
     'html_abre_sunday'              => 'Dom',
+    'html_schedule_availability'    => 'Disponibilidad de horario',
+    'html_opennig_hours_locations'  => 'Horario de atencion de la locaci&oacute;n',
 
 
     //  MENSAJES DE ERROR
@@ -124,5 +126,6 @@ return [
     'html_error_less_one_opening_hour'  => 'Ingrese al menos un horario de atenci&oacute;n',
     'html_error_empty_days'             => 'Seleccione al menos un d&iacute;a en el registro: ',
     'html_error_opening_hours'          => 'Existen regitros cuyos fechas de inicio y termino se entrelazan con el d&iacute;a seleccionado',
-    'html_error_minus_ending_date'      => 'La hora de termino es menor o igal a la hora de inicio',
+    'html_error_minus_ending_date'      => 'La hora de termino es menor o igual a la hora de inicio',
+    'html_error_range_allowed'          => 'El horario del profesional esta fuera de rango del horario de atenci&oacute;n de la locaci&oacute;n',
 ];

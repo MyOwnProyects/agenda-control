@@ -13,3 +13,8 @@ textarea {
 #table_results th{
   text-align: center;
 }
+
+.modal-body {
+  max-height: 75vh;
+  overflow-y: auto;
+} 

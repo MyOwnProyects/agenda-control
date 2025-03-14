@@ -38,8 +38,8 @@ return [
         'delete'            => "/ctlocaciones/delete",
         'update'            => "/ctlocaciones/update",
         'count'             => "/ctlocaciones/count",
-        'get_opening_hours' => "/ctlocaciones/get_opening_hours",
-        'save_opening_hours'    => "/ctlocaciones/save_opening_hours",
+        'get_opening_hours'     => "/tbhorarios_atencion/get_opening_hours",
+        'save_opening_hours'    => "/tbhorarios_atencion/save_opening_hours",
     ],
     'ctprofesionales'   => [
         'show'      => "/ctprofesionales/show",
@@ -47,8 +47,14 @@ return [
         'delete'    => "/ctprofesionales/delete",
         'update'    => "/ctprofesionales/update",
         'count'     => "/ctprofesionales/count",
-        'change_status'     => "/ctprofesionales/change_status",
+        'change_status'                 => "/ctprofesionales/change_status",
+        'get_schedule_availability'     => '/ctprofesionales/get_schedule_availability',
+        'save_schedule_availability'    => '/ctprofesionales/save_schedule_availability',
     ],
+    'tbhorarios_atencion'   => array(
+        'get_opening_hours'     => '/tbhorarios_atencion/get_opening_hours',
+        'save_opening_hours'    => '/tbhorarios_atencion/save_opening_hours',
+    ),
     'ctpacientes'   => [
         'show'      => "/ctpacientes/show",
         'create'    => "/ctpacientes/create",

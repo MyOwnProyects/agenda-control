@@ -50,6 +50,7 @@ class ProfesionalesController extends BaseController
                 }
 
                 $route  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $_POST['location_allower']  = 1;
                 $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
                 $result = array(
@@ -176,7 +177,8 @@ class ProfesionalesController extends BaseController
                 $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
                 $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
                     'id' => $id,
-                    'get_locaciones'    => 1
+                    'get_locaciones'    => 1,
+                    'location_allower'  => 1,
                 ));
 
                 $route  = $this->url_api.$this->rutas['ctprofesionales']['update'];
@@ -196,6 +198,73 @@ class ProfesionalesController extends BaseController
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el profesional: '.$_POST['current_clave'],$arr_save);
             }
 
+            //  RUTA PARA GUARDAR EL HORARIO DE ATENCION
+            if ($accion == 'save_opening_hours'){
+                $route  = $this->url_api.$this->rutas['ctlocaciones']['save_opening_hours'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se CREO/MODIFICO el horario de atención de la locacion: Clave :'.$_POST['clave'].' - '.$_POST['nombre'],$_POST['obj_info']);
+
+                $response->setJsonContent('Captura exitosa');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_opening_hours'){
+                $arr_return = array(
+                    'locacion'      => array(),
+                    'profesional'   => array()
+                );
+                $route  = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($result) == 0){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : 'Locaci&oacute;n sin horario de atenci&oacute;n asignado');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $arr_return['locacion'] = $result;
+
+                $route  = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : 'Locaci&oacute;n sin horario de atenci&oacute;n asignado');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $arr_return['profesional']  = $result;
+
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_locaciones'){
+                $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id'                => $_POST['id'],
+                    'location_allower'  => 1,
+                    'only_locations'    => 1
+                ));
+
+                $response = new Response();
+                $response->setJsonContent($arr_info_profesional[0]['locaciones']);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
@@ -212,7 +281,7 @@ class ProfesionalesController extends BaseController
 
         //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
         $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
-        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('get_servicios' => 1));
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('get_servicios' => 1,'onlyallowed' => 1));
 
         //  SE BUSCA LA INFORMACION DEL PERFIL DE PROFESIONAL
         $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];
@@ -225,7 +294,8 @@ class ProfesionalesController extends BaseController
         $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
         $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
             'id' => $id,
-            'get_locaciones'    => 1
+            'get_locaciones'    => 1,
+            'location_allower'  => 1
         ));
 
         if (!is_array($arr_info_profesional) || count($arr_info_profesional) == 0){
@@ -265,7 +335,8 @@ class ProfesionalesController extends BaseController
         $route                  = $this->url_api.$this->rutas['ctprofesionales']['show'];
         $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
             'id' => $id,
-            'get_locaciones'    => 1
+            'get_locaciones'    => 1,
+            'location_allower'  => 1
         ));
 
         if (!is_array($arr_info_profesional) || count($arr_info_profesional) == 0){

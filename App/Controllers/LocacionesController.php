@@ -158,7 +158,7 @@ class LocacionesController extends BaseController
             }
 
             if ($accion == 'get_opening_hours'){
-                $route  = $this->url_api.$this->rutas['ctlocaciones']['get_opening_hours'];
+                $route  = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
                 $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
                 $response = new Response();
     
