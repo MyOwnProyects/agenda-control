@@ -40,6 +40,7 @@ return [
     'html_delete_record'        => 'Borrar registro',
     'html_active_deactivate'    => 'Activar/desactivar registro',
     'html_confirm_delete'       => '&iquest;Desea borrar el registro?',
+    'html_confirm_update'       => '&iquest;Desea activar/desactivar el registro?',
     'html_price'                => 'Costo(Mex$)',
     'html_duration'             => 'Duraci&oacute;n(Minutos)',
     'html_ab_duration'          => 'Duraci&oacute;n',

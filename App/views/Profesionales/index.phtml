@@ -233,6 +233,7 @@ use App\Library\FuncionesGlobales;
             title_preview   : "<?= $translations['html_preview_record'] ?>",
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
             confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>",
             schedule_availability   : "<?= $translations['html_schedule_availability']?>",
         };
 
@@ -296,29 +297,38 @@ use App\Library\FuncionesGlobales;
             });
 
             //  EVENTO BOTON EDITAR
-            $("#table_results").on('click','.btn_change_status',function(){
+            $("#table_results").on('click','.btn_change_status',async function(){
                 const id        = $(this).data('id');
                 const estatus   = $(this).data('estatus');
                 let btn     = $(this);
                 $(btn).prop('disabled',true);
-                $.ajax({
-                    url     : url_update,
-                    method  : 'POST',
-                    data    :  {
-                        accion  : 'change_status',
-                        id      : id
-                    },
-                    success : function(data){
-                        console.log('data');
-                        console.log(data);
-                        $(btn).prop('disabled',false);
-                        showAlert('success',"Edici&oacute;n exitoso!");
-                        cargarTabla();
-                    },
-                    error   : function(error){
-                        actionJsonError(error,btn);
-                    }
-                });
+
+                const respuesta = await window.modalConfirm(translations['confirm_update']);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_update,
+                        method  : 'POST',
+                        data    :  {
+                            accion  : 'change_status',
+                            id      : id
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Edici&oacute;n exitoso!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
             });
 
             // Evento click del botón "Buscar"
@@ -343,8 +353,10 @@ use App\Library\FuncionesGlobales;
             });
 
             $("#table_results").on('click','.btn_schedule_availability',function(){
-                const id    = $(this).data('id');
-                let btn     = $(this);
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                const nombre    = $(this).data('nombre');
+                let btn         = $(this);
                 $(btn).prop('disabled',true);
                 $.ajax({
                     url     : url_update,
@@ -357,7 +369,7 @@ use App\Library\FuncionesGlobales;
                         console.log('data');
                         console.log(data);
                         $(btn).prop('disabled',false);
-                        showModalScheduleAvailability(data,id);
+                        showModalScheduleAvailability(data,id,clave,nombre);
                         
                     },
                     error   : function(error){
@@ -418,7 +430,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
-                                '<button class="btn btn-outline-dark btn-sm btn_schedule_availability" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['schedule_availability'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_schedule_availability" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+(data['primer_apellido']+' '+data['segundo_apellido']+' '+data['nombre'])+'" title="'+translations['schedule_availability'] +'">' +
                                     '<i class="bi bi-calendar2-event"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
@@ -442,7 +454,7 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function showModalScheduleAvailability(locaciones,id_profesional){
+        function showModalScheduleAvailability(locaciones,id_profesional,clave,nombre){
 
             let modal_clone = $("#modal_schedule_availability").clone().show();
 
@@ -471,6 +483,8 @@ use App\Library\FuncionesGlobales;
                     success : function(data){
                         console.log('data');
                         console.log(data);
+                        $(modal_clone).find('.rows_table_locaciones').html('');
+                        $(modal_clone).find('.rows_table').html('');
                         let horario_locacion    = data['locacion'];
                         for(let i in horario_locacion){
                             let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours_locaciones').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
@@ -481,7 +495,6 @@ use App\Library\FuncionesGlobales;
                             let dias    = horario_locacion[i]['dias'];
 
                             for(let x in dias){
-                                console.log(dias[x]['dia']);
                                 $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
                             }
 
@@ -494,6 +507,23 @@ use App\Library\FuncionesGlobales;
                             let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
                             $(modal_clone).find('.rows_table').append(row_clone);
                             count_hours ++;
+                        } else {
+                            let profesional = data['profesional'];
+                            for(let i in profesional){
+                                let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                                $(row_clone).find('.input_hora_inicio').val(horario_locacion[i]['hora_inicio']);
+                                $(row_clone).find('.input_hora_termino').val(horario_locacion[i]['hora_termino']);
+
+                                let dias    = profesional[i]['dias'];
+
+                                for(let x in dias){
+                                    $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
+                                }
+
+                                $(row_clone).find('.div_check').removeClass('div_check');
+                                $(modal_clone).find('.rows_table').append(row_clone);
+                                count_hours ++;
+                            }
                         }
 
                         $(modal_clone).find('.btn_add_hours').prop('disabled',false);
@@ -578,12 +608,6 @@ use App\Library\FuncionesGlobales;
                         let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
                         let hora_termino_header = convertirHoraATiempo($(this).find('.input_hora_termino').val());
 
-                        console.log('hora_inicio_header');
-                        console.log(hora_inicio_header);
-                        console.log('hora_termino_header');
-                        console.log(hora_termino_header);
-                        console.log('------------');
-
                         if (hora_termino_header <= hora_inicio_header){
                             throw 'error_minus_ending_date';
                         }
@@ -639,12 +663,6 @@ use App\Library\FuncionesGlobales;
                             let hora_inicio_locacion    = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
                             let hora_termino_locacion   = convertirHoraATiempo($(this).find('.input_hora_termino').val());
 
-                            console.log('hora_inicio_locacion');
-                            console.log(hora_inicio_locacion);
-                            console.log('hora_termino_locacion');
-                            console.log(hora_termino_locacion);
-                            console.log('------------');
-
                             if (hora_inicio_header < hora_inicio_locacion || hora_inicio_header > hora_termino_locacion){
                                 console.log('__1');
                                 console.log('hora_inicio_header < hora_inicio_locacion',hora_inicio_header < hora_inicio_locacion);
@@ -695,6 +713,28 @@ use App\Library\FuncionesGlobales;
 
                 console.log('obj_info');
                 console.log(obj_info);
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_opening_hours',
+                        obj_info    : obj_info,
+                        id_locacion : $(modal_clone).find('#select_locaciones').val(),
+                        locacion        :$(modal_clone).find('#select_locaciones').find('option:selected').text(),
+                        id_profesional  : id_profesional,
+                        clave           : clave,
+                        nombre          : nombre
+                    },
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
 
             });
 

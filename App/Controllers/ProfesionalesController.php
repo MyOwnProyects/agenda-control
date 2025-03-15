@@ -200,17 +200,17 @@ class ProfesionalesController extends BaseController
 
             //  RUTA PARA GUARDAR EL HORARIO DE ATENCION
             if ($accion == 'save_opening_hours'){
-                $route  = $this->url_api.$this->rutas['ctlocaciones']['save_opening_hours'];
+                $route  = $this->url_api.$this->rutas['tbhorarios_atencion']['save_opening_hours'];
                 $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                
                 $response = new Response();
-    
                 if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
                     $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se CREO/MODIFICO el horario de atención de la locacion: Clave :'.$_POST['clave'].' - '.$_POST['nombre'],$_POST['obj_info']);
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se CREO/MODIFICO el horario de atención del profesional: Clave :'.$_POST['clave'].' - '.$_POST['nombre'].' para la locación: '.$_POST['locacion'],$_POST['obj_info']);
 
                 $response->setJsonContent('Captura exitosa');
                 $response->setStatusCode(200, 'OK');
