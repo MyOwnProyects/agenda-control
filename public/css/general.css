@@ -1,20 +1,24 @@
 html,
 body {
-  height: 100%;
+  height: 100%; /* Asegura que el html y body ocupen el 100% de la altura */
+  min-height: 100vh; /* Establece el mínimo alto como el 100% del viewport height */
+  margin: 0; /* Elimina márgenes predeterminados */
+  padding: 0; /* Elimina rellenos predeterminados */
 }
+
 textarea {
-    resize: none;
+  resize: none;
 }
 
 .fix-padding {
   padding-top: 6px;
 }
 
-#table_results th{
+#table_results th {
   text-align: center;
 }
 
 .modal-body {
   max-height: 75vh;
   overflow-y: auto;
-} 
+}

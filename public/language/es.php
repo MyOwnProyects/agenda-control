@@ -97,6 +97,7 @@ return [
     'html_abre_sunday'              => 'Dom',
     'html_schedule_availability'    => 'Disponibilidad de horario',
     'html_opennig_hours_locations'  => 'Horario de atencion de la locaci&oacute;n',
+    'html_agenda'                   => 'Agenda',
 
 
     //  MENSAJES DE ERROR
