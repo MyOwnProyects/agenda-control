@@ -122,7 +122,7 @@ class ProfesionalesController extends BaseController
         
         //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
         $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
-        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('get_servicios' => 1));
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('get_servicios' => 1,'onlyallowed' => 1));
 
         //  SE BUSCA LA INFORMACION DEL PERFIL DE PROFESIONAL
         $route              = $this->url_api.$this->rutas['cttipo_usuarios']['show'];

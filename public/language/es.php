@@ -98,6 +98,12 @@ return [
     'html_schedule_availability'    => 'Disponibilidad de horario',
     'html_opennig_hours_locations'  => 'Horario de atencion de la locaci&oacute;n',
     'html_agenda'                   => 'Agenda',
+    'html_month'                    => 'Mes',
+    'html_week'                     => 'Semana',
+    'html_today'                    => 'Hoy',
+    'html_day'                      => 'D&iacute;a',
+    'html_agenda_opening'           => 'Apertura de agenda',
+    'html_limit_date'               => 'Fecha limite',
 
 
     //  MENSAJES DE ERROR
@@ -130,4 +136,6 @@ return [
     'html_error_opening_hours'          => 'Existen regitros cuyos fechas de inicio y termino se entrelazan con el d&iacute;a seleccionado',
     'html_error_minus_ending_date'      => 'La hora de termino es menor o igual a la hora de inicio',
     'html_error_range_allowed'          => 'El horario del profesional esta fuera de rango del horario de atenci&oacute;n de la locaci&oacute;n',
+    'html_error_starting_date'          => 'Ingresa la fecha de inicio',
+    'html_error_range_date'             => 'Rango fechas invalido',
 ];

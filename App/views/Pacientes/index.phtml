@@ -325,6 +325,7 @@ use App\Library\FuncionesGlobales;
         const action_create = '<?php echo $create; ?>';
         const action_update = '<?php echo $update; ?>';
         const action_delete = '<?php echo $delete; ?>';
+        const action_schedule_appointments  = '<?php echo $schedule_appointments; ?>';
 
         //  DIAS DEFAULT PARA PROGRAMAR CITAS
         const dias_programacion_citas   = '<?php echo $dias_programacion_citas; ?>';
@@ -388,43 +389,50 @@ use App\Library\FuncionesGlobales;
             //  EVENTO BOTON EDITAR
             $("#table_results").on('click','.btn_program_date',function(){
                 const id                    = $(this).data('id');
-                const id_locacion_registro  = $(this).data('idlocacionregistro');
-                const nombre_completo       = $(this).data('nombrecompleto');
-                let btn     = $(this);
-                $(btn).prop('disabled',true);
 
-                $.ajax({
-                    url     : url_index,
-                    method  : 'post',
-                    data    : {
-                        accion                  : 'get_services',
-                        id_locacion_registro    : id_locacion_registro,
-                        id_paciente             : id
-                    },
-                    success : function(data){
-                        show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente']);
-                    },
-                    error   : function(error){
-                        $(btn).prop('disabled',false);
-                        console.log('error');
-                        console.log(error);
-                        actionJsonError(error,btn);
-                    }
-                })
+                window.location.href = '/Pacientes/scheduleappointments?id='+id;
 
-                $(btn).prop('disabled',false);
+                // const id_locacion_registro  = $(this).data('idlocacionregistro');
+                // const nombre_completo       = $(this).data('nombrecompleto');
+                // let btn     = $(this);
+                // $(btn).prop('disabled',true);
+
+                // $.ajax({
+                //     url     : url_index,
+                //     method  : 'post',
+                //     data    : {
+                //         accion                  : 'get_services',
+                //         id_locacion_registro    : id_locacion_registro,
+                //         id_paciente             : id
+                //     },
+                //     success : function(data){
+                //         show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente'],data['info_agenda']);
+                //     },
+                //     error   : function(error){
+                //         $(btn).prop('disabled',false);
+                //         console.log('error');
+                //         console.log(error);
+                //         actionJsonError(error,btn);
+                //     }
+                // })
+
+                // $(btn).prop('disabled',false);
                 
             }); 
         });
 
-        function show_modal_program_date(all_services,id_locacion_registro,id_paciente,nombre_completo,info_paciente = null){
+        function show_modal_program_date(all_services,id_locacion_registro,id_paciente,nombre_completo,info_paciente = null,info_agenda){
             let modal_clone = $("#modal_program_date").clone().show();
 
-            $(modal_clone).on('click','#input_generar_citas',function(){
-                let status_check    = $(this).prop('checked');
+            if (info_agenda['has_record'] != 1){
+                $(modal_clone).find('#input_generar_citas').prop('disabled',true);
+            } else {
+                $(modal_clone).on('click','#input_generar_citas',function(){
+                    let status_check    = $(this).prop('checked');
 
-                $(modal_clone).find('.input_date').prop('disabled',status_check ? false : true).val('');
-            });
+                    $(modal_clone).find('.input_date').prop('disabled',status_check ? false : true).val('');
+                });
+            }
 
             $(modal_clone).on('change','.input_fecha_inicio',function(){
                 // Cadena de texto con la fecha en formato DD/MM/YYYY
@@ -640,9 +648,9 @@ use App\Library\FuncionesGlobales;
                         nombre_completo : nombre_completo,
                         id_paciente     : id_paciente,
                         id_locacion     : $(modal_clone).find('.select_locaciones').val(),
-                        generar_citas   : $(modal_clone).find('.input_generar_citas').is(':checked'),
-                        fecha_inicio    : $(modal_clone).find('.input_fecha_inicio').val(),
-                        fecha_termino   : $(modal_clone).find('.input_fecha_termino').val(),
+                        generar_citas   : info_agenda['has_record'] != 1 ? 0 : $(modal_clone).find('.input_generar_citas').is(':checked'),
+                        fecha_inicio    : info_agenda['has_record'] != 1 ? null : $(modal_clone).find('.input_fecha_inicio').val(),
+                        fecha_termino   : info_agenda['has_record'] != 1 ? null : $(modal_clone).find('.input_fecha_termino').val(),
                     },
                     success : function(data){
                         console.log('data');
@@ -833,20 +841,23 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
-                                '<button class="btn btn-outline-dark btn-sm btn_program_date" data-id="'+data['id']+'" data-idlocacionregistro="'+data['id_locacion_registro']+'" data-nombrecompleto="'+data['nombre_completo']+'" title="'+translations['schedule_appointments'] +'">' +
-                                    '<i class="bi bi-calendar2-check"></i>'+
-                                '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
                                 '</button>'
                                 
                                 : '';
 
+                                let btn_schedule_appointment    = action_schedule_appointments ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_program_date" data-id="'+data['id']+'" data-idlocacionregistro="'+data['id_locacion_registro']+'" data-nombrecompleto="'+data['nombre_completo']+'" title="'+translations['schedule_appointments'] +'">' +
+                                    '<i class="bi bi-calendar2-check"></i>'+
+                                '</button>'
+                                : '';
+
                                 let btn_delete  = action_delete ? 
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
-                                return btn_preview + btn_update + btn_delete;
+                                return btn_preview + btn_update + btn_schedule_appointment + btn_delete;
                             }
                         }
                     ]

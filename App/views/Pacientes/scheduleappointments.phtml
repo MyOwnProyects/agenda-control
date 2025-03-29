@@ -1,0 +1,434 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .div_header_filters .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px;
+    }
+    .div_header_filters .navigation .left-section {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacio entre los botones */
+        width: 400px; /* Ancho fijo para left-section */
+    }
+    .div_header_filters .navigation .right-section {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacio entre los botones */
+    }
+    .div_header_filters .navigation button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .div_header_filters .filters {
+        display: flex;
+        gap: 20px; /* Espacio entre los select */
+        margin: 20px;
+    }
+    .div_header_filters .filters select {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    /*  ESTILO PARA DIV DE SEMANAS  */
+    .div_header_week_container .week-container {
+        display: grid;
+        grid-template-columns: repeat(8, 120px);
+        grid-auto-rows: 70px;
+        gap: 1px;
+        background-color: #f0f0f0;
+        padding: 1px;
+        position: relative;
+        width: fit-content; /* Ajusta el ancho al contenido */
+        margin: 0 auto; /* Centra el contenedor */
+    }
+
+    .div_header_week_container .grid-item {
+        background-color: white;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        box-sizing: border-box;
+    }
+    .div_header_week_container .grid-item.header {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    .div_header_week_container .grid-item.hour {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    .div_header_week_container .floating-box {
+        position: absolute;
+        background-color: rgba(0, 123, 255, 0.3);
+        border: 2px solid #007bff;
+        box-sizing: border-box;
+        pointer-events: none;
+        cursor: pointer;
+    }
+
+    /* Clase para bg-danger */
+    .div_header_week_container .floating-box.bg-danger {
+        background-color: rgba(220, 53, 69, 0.3); /* Color peligro (semi-transparente) */
+        border-color: #dc3545; /* Color danger para el borde */
+    }
+
+    /* Clase para bg-success */
+    .div_header_week_container .floating-box.bg-success {
+        background-color: rgba(40, 167, 69, 0.3); /* Color éxito (semi-transparente) */
+        border-color: #28a745; /* Color success para el borde */
+    }
+
+    /* Clase para bg-info */
+    .div_header_week_container .floating-box.bg-info {
+        background-color: rgba(23, 162, 184, 0.3); /* Color informativo (semi-transparente) */
+        border-color: #17a2b8; /* Color info para el borde */
+    }
+
+    /* Clase para bg-secondary */
+    .div_header_week_container .floating-box.bg-secondary {
+        background-color: rgba(108, 117, 125, 0.3); /* Color gris (semi-transparente) */
+        border-color: #6c757d; /* Color secondary para el borde */
+    }
+
+    /* Clase para bg-dark */
+    .div_header_week_container .floating-box.bg-dark {
+        background-color: rgba(52, 58, 64, 0.3); /* Color gris oscuro (semi-transparente) */
+        border-color: #343a40; /* Color dark para el borde */
+    }
+
+    .div_header_week_container .grid-hours:hover {
+        border: 1px solid #007bff; /* Borde azul de Bootstrap al hacer hover */
+    }
+</style>
+<div class="container div_header_filters col-12">
+    <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
+</div>
+
+<div class="container col-12">
+    <button id="btn_create" type="button" class="btn btn-outline-dark"><?php echo $translations['html_agenda_opening']; ?></button>
+</div>
+
+<div id="div_header_week_container" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
+    <div class="week-container">
+        <div class="grid-item header"></div>
+        <div class="grid-item header">Lunes</div>
+        <div class="grid-item header">Martes</div>
+        <div class="grid-item header">Miércoles</div>
+        <div class="grid-item header">Jueves</div>
+        <div class="grid-item header">Viernes</div>
+        <div class="grid-item header">Sábado</div>
+        <div class="grid-item header">Domingo</div>
+    </div>
+</div>
+
+<div class="modal fade modal-xl" id="modal_save_class" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_agenda_opening']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_agenda_opening" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-4">
+                    <label for="select_locaciones_modal" class="col-form-label"><?php echo $translations['html_location']; ?></label>
+                    <select id="select_locaciones_modal" class="select_locaciones_modal" required>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_services']; ?></label>
+                    <select id="select_servicios_modal" class="select_servicios_modal" required disabled>
+                        <option value=""></option>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_profesionales_modal" class="col-form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales_modal" class="select_profesionales_modal" required disabled>
+                        <option value=""></option>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>
+                <div class="col-md-3">
+                    <label for="select_dias" class="col-form-label"><?php echo $translations['html_day']; ?></label>
+                    <select id="select_dias" class="form-select select_dias" aria-label="Default select example" required>
+                        <option></option>
+                        <option value="1"><?php echo $translations['html_monday']; ?></option>
+                        <option value="2"><?php echo $translations['html_thuesday']; ?></option>
+                        <option value="3"><?php echo $translations['html_wednesday']; ?></option>
+                        <option value="4"><?php echo $translations['html_thursday']; ?></option>
+                        <option value="5"><?php echo $translations['html_friday']; ?></option>
+                        <option value="6"><?php echo $translations['html_saturday']; ?></option>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>
+                <div class="col-md-3" style="padding-right:5px;">
+                    <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
+                    <input type="time" step="60" class="form-control input_hora_inicio" disabled required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
+                </div>
+                <div class="col-md-3 fix-padding" align="center">
+                    <label for="span_duracion" class="form-label" style="width:100%" title="<?php echo $translations['html_duration']; ?>"><?php echo $translations['html_ab_duration']; ?></label>
+                    <span class="span_duracion"></span>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-3" style="padding-right:5px;">
+                    <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
+                    <input type="time" step="60" class="form-control input_hora_termino" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_ending_hour']; ?></div>
+                </div>
+            </div>
+            <div class="row col-md-12">
+                <div id="div_header_week_container_modal" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
+                    <div class="week-container">
+                        <div class="grid-item header"></div>
+                        <div class="grid-item header">Lunes</div>
+                        <div class="grid-item header">Martes</div>
+                        <div class="grid-item header">Miércoles</div>
+                        <div class="grid-item header">Jueves</div>
+                        <div class="grid-item header">Viernes</div>
+                        <div class="grid-item header">Sábado</div>
+                        <div class="grid-item header">Domingo</div>
+                    </div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let module_schedule_appointments    = (function(){
+    //  URL
+    const controller                = '/Pacientes';
+    const url_scheduleappointments  = controller+"/scheduleappointments";
+
+    const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado","Domingo"];
+    let min_hora_inicio = "<?php echo $min_hora_inicio; ?>"
+    let max_hora_inicio = "<?php echo $max_hora_inicio; ?>"
+    let horas = [];
+
+    let eventos = <?= $rangos_no_incluidos ?>;
+
+    function crearCuadroFlotante(evento,background,$weekContainer) {
+        const { start, end, day } = evento;
+        const dayIndex = diasSemana.indexOf(day) + 1;
+
+        const startHourIndex = horas.findIndex(hora => hora.startsWith(start.split(":")[0]));
+        const endHourIndex = horas.findIndex(hora => hora.startsWith(end.split(":")[0]));
+
+        const startOffset = parseFloat(start.split(":")[1]) / 60;
+        const endOffset = parseFloat(end.split(":")[1]) / 60;
+
+        const cellHeight = 70;
+        const cellWidth = 120;
+        const borderSize = 1;
+
+        const top = ((startHourIndex + startOffset) * (cellHeight + borderSize)) + 72;
+        const height = (((endHourIndex - startHourIndex) + (endOffset - startOffset)) * cellHeight + ((endHourIndex - startHourIndex) * borderSize));
+
+        const left = ((dayIndex) * (cellWidth + borderSize)) + 2;
+        const width = cellWidth;
+
+        const $floatingBox = $('<div class="floating-box '+background+'"></div>').css({
+            top: `${top}px`,
+            left: `${left}px`,
+            width: `${width - borderSize}px`,
+            height: `${height - borderSize}px`,
+        });
+
+        $weekContainer.append($floatingBox);
+    }
+
+    
+
+    function show_hours($weekContainer,min_hora_inicio,max_hora_inicio){
+        horas   = [];
+        for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
+            horas.push(`${i.toString().padStart(2, '0')}:00`);
+        }
+
+        //
+
+        horas.forEach(hora => {
+            $weekContainer.append(`<div class="grid-item hour">${hora}</div>`);
+            for (let i = 0; i < 7; i++) {
+                let dia = parseInt(i) + parseInt(1);
+                $weekContainer.append('<div class="grid-item grid-hours" data-dia="'+dia+'" data-horainicio="'+hora+'"></div>');
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        //  CONVERTIR LOS COMBOS EN SELECT2
+        selectToSelect2($(".div_header_filters"),"select_locaciones");
+        selectToSelect2($(".div_header_filters"),"select_servicios");
+        selectToSelect2($(".div_header_filters"),"select_profesionales");
+
+        const $weekContainer = $("#div_header_week_container").find(".week-container");
+        show_hours($weekContainer,min_hora_inicio,max_hora_inicio);
+        eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer));
+
+        $("#btn_create").on('click',function(){
+            let modal_clone = $("#modal_save_class").clone().show();
+            let min_hora_inicio_modal   = '';
+            let max_hora_inicio_modal   = '';
+
+            $(modal_clone).find('#select_locaciones_modal').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            }).on('select2:select',function(){
+                if ($(this).val() != null){
+                    const id_locacion   = $(this).val();
+                    $.ajax({
+                        url     : url_scheduleappointments,
+                        method  : 'post',
+                        data    : {
+                            accion      : 'get_info_locacion',
+                            id_locacion : id_locacion
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            show_calendar(modal_clone,data,id_locacion);
+                        },
+                        error   : function(error){
+                            console.log('error');
+                            console.log(error);
+                        }
+                    });
+                }
+            });
+
+            $(modal_clone).find('#select_servicios_modal').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            }).on('select2:select',function(){
+                const   id_servicio = $(this).val();
+                $.ajax({
+                    url     : url_scheduleappointments,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'get_profesionales',
+                        id_locacion : $(modal_clone).find("#select_locaciones_modal").val(),
+                        id_servicio : id_servicio
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+
+                        let option  = '<option></option>';
+                        for(let i in data){
+                            option  += '<option value="'+data[i]['id'] +'">'+data[i]['nombre_completo']+'</option>';
+                        }
+
+                        console.log('option');
+                        console.log(option);
+
+                        $(modal_clone).find('#select_profesionales_modal').find('option').remove();
+                        $(modal_clone).find('#select_profesionales_modal').append(option);
+                        $(modal_clone).find('#select_profesionales_modal').prop('disabled',false);
+                        //$(modal_clone).find('.input_hora_inicio').prop('disabled',false);
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+                    }
+                });
+            });
+
+            $(modal_clone).find('#select_profesionales_modal').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            }).on('select2:select',function(){
+                const id_profesional    = $(this).val();
+                const min_hora_inicio   = $(this).data('minhora');
+                const max_hora_inicio   = $(this).data('maxhora');
+                $.ajax({
+                    url     : url_scheduleappointments,
+                    method  : 'post',
+                    data    : {
+                        accion  : 'get_horario_profesional',
+                        id_locacion     : $(modal_clone).find("#select_locaciones_modal").val(),
+                        id_profesional  : id_profesional,
+                        min_hora_inicio : min_hora_inicio,
+                        max_hora_inicio : max_hora_inicio
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                    },
+                    error : function(error){
+                        console.log('error');
+                        console.log(error);
+                    }
+                })
+            });
+
+            $(modal_clone).find('#select_dias').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            });
+
+            $(modal_clone).modal('show');
+        });
+    });
+
+    function show_calendar(modal_clone,data,id_locacion){
+        const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
+        show_hours($weekContainer,data['min_hora_inicio'],data['max_hora_inicio']);
+        eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer));
+
+        $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
+        $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
+
+        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
+        $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
+
+        $(modal_clone).find('#select_servicios_modal').find('option').remove();
+        $(modal_clone).find('#select_servicios_modal').append('<option></option>');
+
+        for(let i in data['all_services']){
+            let service = data['all_services'][i];
+
+            let option  = '<option value="'+service["id"]+'">'+service["nombre"]+'</option>'
+            $(modal_clone).find('#select_servicios_modal').append(option);
+
+        }
+
+        $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
+    }
+})();
+</script>

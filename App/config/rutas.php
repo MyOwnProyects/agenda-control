@@ -68,5 +68,9 @@ return [
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
     ),
+    'tbapertura_agenda' => array(
+        'show'  => '/tbapertura_agenda/show',
+        'save'  => '/tbapertura_agenda/save',
+    ),
 
 ];
