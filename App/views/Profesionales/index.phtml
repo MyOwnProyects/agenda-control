@@ -511,8 +511,8 @@ use App\Library\FuncionesGlobales;
                             let profesional = data['profesional'];
                             for(let i in profesional){
                                 let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
-                                $(row_clone).find('.input_hora_inicio').val(horario_locacion[i]['hora_inicio']);
-                                $(row_clone).find('.input_hora_termino').val(horario_locacion[i]['hora_termino']);
+                                $(row_clone).find('.input_hora_inicio').val(profesional[i]['hora_inicio']);
+                                $(row_clone).find('.input_hora_termino').val(profesional[i]['hora_termino']);
 
                                 let dias    = profesional[i]['dias'];
 

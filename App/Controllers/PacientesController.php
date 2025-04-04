@@ -230,6 +230,13 @@ class PacientesController extends BaseController
                 $route                      = $this->url_api.$this->rutas['ctservicios']['show'];
                 $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $info_paciente['id_locacion_registro']));
 
+                $response = new Response();
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($arr_return['all_services']) == 0){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
                 $response->setJsonContent($arr_return);
                 $response->setStatusCode(200, 'OK');
                 return $response;
@@ -255,6 +262,13 @@ class PacientesController extends BaseController
                     'id_locacion'           => $_POST['id_locacion'],
                     'id_profesional'        => $_POST['id_profesional'],
                 ));
+
+                $response = new Response();
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion_profesional) == 0){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
 
                 $hora_cierre    = (INT) $_POST['max_hora_inicio'] + 1;
                 $hora_cierre    = $hora_cierre.':00';

@@ -392,31 +392,31 @@ use App\Library\FuncionesGlobales;
 
                 window.location.href = '/Pacientes/scheduleappointments?id='+id;
 
-                // const id_locacion_registro  = $(this).data('idlocacionregistro');
-                // const nombre_completo       = $(this).data('nombrecompleto');
-                // let btn     = $(this);
-                // $(btn).prop('disabled',true);
+                const id_locacion_registro  = $(this).data('idlocacionregistro');
+                const nombre_completo       = $(this).data('nombrecompleto');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
 
-                // $.ajax({
-                //     url     : url_index,
-                //     method  : 'post',
-                //     data    : {
-                //         accion                  : 'get_services',
-                //         id_locacion_registro    : id_locacion_registro,
-                //         id_paciente             : id
-                //     },
-                //     success : function(data){
-                //         show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente'],data['info_agenda']);
-                //     },
-                //     error   : function(error){
-                //         $(btn).prop('disabled',false);
-                //         console.log('error');
-                //         console.log(error);
-                //         actionJsonError(error,btn);
-                //     }
-                // })
+                $.ajax({
+                    url     : url_index,
+                    method  : 'post',
+                    data    : {
+                        accion                  : 'get_services',
+                        id_locacion_registro    : id_locacion_registro,
+                        id_paciente             : id
+                    },
+                    success : function(data){
+                        show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente'],data['info_agenda']);
+                    },
+                    error   : function(error){
+                        $(btn).prop('disabled',false);
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                })
 
-                // $(btn).prop('disabled',false);
+                $(btn).prop('disabled',false);
                 
             }); 
         });

@@ -24,6 +24,7 @@ return [
     'html_new'                  => 'Nuevo',
     'html_description'          => 'Descripci&oacute;n',
     'html_action'               => 'Acci&oacute;n',
+    'html_options'              => 'Opciones',
     'html_btn_save'             => 'Guardar',
     'html_btn_cancel'           => 'Cancelar',   
     'html_status'               => 'Estatus',
@@ -104,6 +105,8 @@ return [
     'html_day'                      => 'D&iacute;a',
     'html_agenda_opening'           => 'Apertura de agenda',
     'html_limit_date'               => 'Fecha limite',
+    'html_add_appoitments'          => 'Agregar citas',
+    'html_add_appoinment'           => 'Agregar cita',
 
 
     //  MENSAJES DE ERROR

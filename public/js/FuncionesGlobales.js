@@ -62,29 +62,55 @@ function showAlert(type = 'success' , message) {
  */
 function modalConfirm(message) {
     return new Promise((resolve) => {
-        // Mostrar el modal
-        $('#confirmModal').find('#message').html(message);
-        $('#confirmModal').modal('show');
+        const confirmModal = $('#confirmModal');
+
+        // Ajustar el z-index dinámico antes de mostrar el modal
+        confirmModal.on('show.bs.modal', function () {
+            const modals = $('.modal.show'); // Buscar todos los modales visibles
+            if (modals.length > 0) {
+                // Encontrar el z-index más alto entre los modales visibles
+                const highestZIndex = Math.max(...modals.map(function () {
+                    return parseInt($(this).css('zIndex'), 10) || 1050; // 1050 es el z-index base de Bootstrap
+                }).get());
+
+                // Ajustar el z-index del modal de confirmación
+                confirmModal.css('zIndex', highestZIndex + 10);
+
+                // Ajustar el backdrop para que quede detrás del modal de confirmación
+                $('.modal-backdrop').css('zIndex', highestZIndex + 5);
+            }
+        });
+
+        confirmModal.on('hidden.bs.modal', function () {
+            // Restaurar el z-index al valor predeterminado al cerrar el modal
+            confirmModal.css('zIndex', '');
+            $('.modal-backdrop').css('zIndex', '');
+        });
+
+        // Mostrar el mensaje y el modal
+        confirmModal.find('#message').html(message);
+        confirmModal.modal('show');
 
         // Escuchar clic en "Aceptar"
-        $('#confirmDelete').one('click', function() {
-            $('#confirmModal').modal('hide');
+        $('#confirmDelete').one('click', function () {
+            confirmModal.modal('hide');
             resolve(true); // Devuelve true si se acepta
         });
 
         // Escuchar clic en "Cancelar"
-        $('#cancelDelete').one('click', function() {
-            $('#confirmModal').modal('hide');
+        $('#cancelDelete').one('click', function () {
+            confirmModal.modal('hide');
             resolve(false); // Devuelve false si se cancela
         });
 
-        // Escuchar clic en "Cancelar"
-        $('#cancelDeleteX').one('click', function() {
-            $('#confirmModal').modal('hide');
+        // Escuchar clic en "Cancelar" (botón "X")
+        $('#cancelDeleteX').one('click', function () {
+            confirmModal.modal('hide');
             resolve(false); // Devuelve false si se cancela
         });
     });
 }
+
 
 /**
  * FUNCION PARA MOSTRAR VENTANA DE CARGANDO
