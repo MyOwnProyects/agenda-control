@@ -36,8 +36,9 @@ class AgendaController extends BaseController
             }
 
             if ($accion == 'save_agenda_opening'){
-                $route  = $this->url_api.$this->rutas['tbapertura_agenda']['save'];
-                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $obj_info   = $_POST['obj_info'];
+                $route      = $this->url_api.$this->rutas['tbapertura_agenda']['save'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$obj_info);
 
                 $response = new Response();
 
@@ -47,9 +48,9 @@ class AgendaController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$_POST['clave'].' - '.$_POST['nombre'].' con '.$lista_servicios.' servicios',$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
 
-                $response->setJsonContent('Captura exitosa');
+                $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }

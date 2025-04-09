@@ -64,6 +64,7 @@ return [
         'change_status'     => "/ctpacientes/change_status",
         'save_program_date' => "/ctpacientes/save_program_date",
         'get_program_date'  => "/ctpacientes/get_program_date",
+        'delete_program_date'   => "/ctpacientes/delete_program_date",
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'

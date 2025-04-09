@@ -347,6 +347,8 @@ use App\Library\FuncionesGlobales;
             title_preview   : "<?= $translations['html_preview_record'] ?>",
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
             confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            deactivate_patient      : "<?= $translations['html_deactivate_patient']?>",
+            activate_patient        : "<?= $translations['html_activate_patient']?>",
             schedule_appointments   : "<?= $translations['html_schedule_appointments']?>",
             monday: "<?php echo $translations['html_monday'];     ?>",
             thuesday: "<?php echo $translations['html_thuesday'];   ?>",
@@ -388,37 +390,81 @@ use App\Library\FuncionesGlobales;
             //  EVENTO PARA PROGRAMAR UNA CITA
             //  EVENTO BOTON EDITAR
             $("#table_results").on('click','.btn_program_date',function(){
+
+                let status  = $(this).closest('.text-center').find('.btn_change_status').data('estatus');
+
+                if (status != 1){
+                    showAlert('El paciente debe de estar activo para poder asignarle un horario de citas.');
+                    return false;
+                }
+
                 const id                    = $(this).data('id');
 
                 window.location.href = '/Pacientes/scheduleappointments?id='+id;
 
-                const id_locacion_registro  = $(this).data('idlocacionregistro');
-                const nombre_completo       = $(this).data('nombrecompleto');
-                let btn     = $(this);
-                $(btn).prop('disabled',true);
+                // const id_locacion_registro  = $(this).data('idlocacionregistro');
+                // const nombre_completo       = $(this).data('nombrecompleto');
+                // let btn     = $(this);
+                // $(btn).prop('disabled',true);
 
-                $.ajax({
-                    url     : url_index,
-                    method  : 'post',
-                    data    : {
-                        accion                  : 'get_services',
-                        id_locacion_registro    : id_locacion_registro,
-                        id_paciente             : id
-                    },
-                    success : function(data){
-                        show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente'],data['info_agenda']);
-                    },
-                    error   : function(error){
-                        $(btn).prop('disabled',false);
-                        console.log('error');
-                        console.log(error);
-                        actionJsonError(error,btn);
-                    }
-                })
+                // $.ajax({
+                //     url     : url_index,
+                //     method  : 'post',
+                //     data    : {
+                //         accion                  : 'get_services',
+                //         id_locacion_registro    : id_locacion_registro,
+                //         id_paciente             : id
+                //     },
+                //     success : function(data){
+                //         show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente'],data['info_agenda']);
+                //     },
+                //     error   : function(error){
+                //         $(btn).prop('disabled',false);
+                //         console.log('error');
+                //         console.log(error);
+                //         actionJsonError(error,btn);
+                //     }
+                // })
 
-                $(btn).prop('disabled',false);
+                // $(btn).prop('disabled',false);
                 
             }); 
+
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_change_status',async function(){
+                const id        = $(this).data('id');
+                const estatus   = $(this).data('estatus');
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                
+                let msg = estatus == 1 ? translations['deactivate_patient'] : translations['activate_patient'];
+                const respuesta = await window.modalConfirm(msg);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_update,
+                        method  : 'POST',
+                        data    :  {
+                            accion  : 'change_status',
+                            id      : id
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Edici&oacute;n exitoso!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
         });
 
         function show_modal_program_date(all_services,id_locacion_registro,id_paciente,nombre_completo,info_paciente = null,info_agenda){
@@ -857,7 +903,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
-                                return btn_preview + btn_update + btn_schedule_appointment + btn_delete;
+                                return btn_preview + btn_schedule_appointment +  btn_update + btn_delete;
                             }
                         }
                     ]

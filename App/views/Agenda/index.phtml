@@ -912,24 +912,27 @@ use App\Library\FuncionesGlobales;
                     id_locacion     : $(modal_clone).find('#select_locaciones_modal').val(),
                     nombre_locacion : $(modal_clone).find('#select_locaciones_modal').find('option:selected').text(),
                     fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
-                    fecha_limite    : $(modal_clone).find('#input_fecha_termino').val(),
+                    fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
                 };
 
                 console.log('obj_info');
                 console.log(obj_info);
-                return false;
+                //return false;
 
                 //  AJAX SAVE
                 $.ajax({
-                    url         : data == null ? url_create : url_update,
+                    url         : url_index,
                     method      : 'POST',
                     dataType    : 'json',
-                    data        : obj_info,
+                    data        : {
+                        accion      : 'save_agenda_opening',
+                        obj_info    : obj_info
+                    },
                     success     : function(data){
                         $(btn).prop('disabled',false);
                         $(modal_clone).modal('hide');
                         showAlert('success',data);
-                        cargarTabla();
+                        
                     },
                     error     : function(error){
                         actionJsonError(error,btn);

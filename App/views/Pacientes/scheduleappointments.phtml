@@ -117,6 +117,82 @@ use App\Library\FuncionesGlobales;
         overflow: scroll;
         max-height: 150px;
     }
+
+    .div_header_week_container .floating-box span {
+        display: block; /* Forzar a los spans a ocupar líneas independientes */
+        width: 100%; /* Ajustar al ancho del contenedor */
+        color: #fff; /* Texto en blanco */
+        text-align: center; /* Centrar el texto */
+        font-size: 14px; /* Tamaño inicial del texto */
+        line-height: 1.2; /* Espaciado entre líneas */
+        white-space: nowrap; /* Impedir que el texto se divida en varias líneas */
+        overflow: hidden; /* Ocultar texto que exceda el contenedor */
+        text-overflow: ellipsis; /* Mostrar "..." si el texto excede */
+    }
+
+    /* Reducción dinámica del tamaño del texto si es necesario */
+    .div_header_week_container .floating-box span {
+        font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
+    }
+
+    .info-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 1);
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      display: none;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+
+    #infoBox {
+      font-family: Arial, sans-serif;
+    }
+
+    #infoBox .event-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #infoBox .event-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    #infoBox .icon-button {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      color: #6c757d;
+      cursor: pointer;
+    }
+
+    #infoBox .event-detail {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    #infoBox .event-icon {
+      margin-right: 8px;
+    }
+
+    #infoBox .dot {
+      height: 12px;
+      width: 12px;
+      background-color: #2196f3;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
 </style>
 <div class="container div_header_filters col-12">
     <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
@@ -127,7 +203,7 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <div id="div_header_week_container" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
-    <div class="week-container">
+    <div class="week-container div_principal">
         <div class="grid-item header"></div>
         <div class="grid-item header">Lunes</div>
         <div class="grid-item header">Martes</div>
@@ -147,7 +223,7 @@ use App\Library\FuncionesGlobales;
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
-        <form id="form_modal_agenda_opening" class="needs-validation" novalidate>
+        <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3">
                 <!-- Campo Clave -->
                 <div class="col-md-4">
@@ -248,8 +324,66 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
+<!-- Caja emergente -->
+<div id="infoBox" class="info-box">
+    <div class="event-header mb-2">
+        <div class="d-flex align-items-center">
+        <span class="dot"></span>
+        <span id="servicio" class="event-title"></span>
+        </div>
+        <div>
+        <button class="icon-button" title="Editar"><i class="bi bi-pencil-fill"></i></button>
+        <button class="icon-button btn_delete" title="Eliminar"><i class="bi bi-trash3-fill"></i></button>
+        <button id="closeModal" type="button" class="btn-close" ></button>
+        </div>
+    </div>
+
+    <div class="event-detail mb-2">
+      <span id="dia"></span> • <span id="horario"></span>
+    </div>
+
+    <div class="event-detail mb-1 d-flex align-items-center">
+        <i class="bi bi-clock"></i>&nbsp<span id="duracion"></span>
+    </div>
+
+    <div class="event-detail d-flex align-items-center">
+        <i class="bi bi-person-fill"></i>&nbsp<span id="profesional"></span>
+    </div>
+</div>
+<!-- Caja emergente -->
+<!-- <div id="" class="" style="display:none;">
+    <div class="event-header mb-2">
+      <div class="d-flex align-items-center">
+        <span class="dot"></span>
+        <span class="event-title">Prueba</span>
+      </div>
+      <div>
+        <button class="icon-button" title="Editar">✏️</button>
+        <button class="icon-button" title="Eliminar">🗑️</button>
+        <button class="icon-button" title="Correo">✉️</button>
+        <button class="icon-button" title="Más">⋮</button>
+        <button class="icon-button" title="Cerrar">❌</button>
+      </div>
+    </div>
+
+    <div class="event-detail mb-2">
+      <span id="dia"></span> • <span id="horario"></span>
+    </div>
+
+    <div class="event-detail mb-1 d-flex align-items-center">
+      <span class="event-icon">🔔</span><span id="duracion"></span> minutos
+    </div>
+
+    <div class="event-detail d-flex align-items-center">
+      <span class="event-icon">📅</span><span id="profesional"></span>
+    </div>
+  </div> -->
+
 <script>
 let module_schedule_appointments    = (function(){
+    //  INFO PACIENTE
+    const id_paciente       = "<?= $id_paciente; ?>";
+    const nombre_completo   = "<?= $nombre_completo; ?>";
     //  URL
     const controller                = '/Pacientes';
     const url_scheduleappointments  = controller+"/scheduleappointments";
@@ -281,7 +415,11 @@ let module_schedule_appointments    = (function(){
     let max_hora_inicio = "<?php echo $max_hora_inicio; ?>"
     let horas = [];
 
-    let eventos = <?= $rangos_no_incluidos ?>;
+    let eventos         = <?= $rangos_no_incluidos ?>;
+    let citas_paciente  = <?= $citas_paciente ?>;
+
+    console.log('citas_paciente');
+    console.log(citas_paciente);
 
     function crearCuadroFlotante(evento,background,$weekContainer,tipo_flot,id_horario_cita = '') {
 
@@ -289,18 +427,24 @@ let module_schedule_appointments    = (function(){
             $($weekContainer).find('#'+id_horario_cita).remove();
         }
 
-        let { start, end, day } = evento;
+        let { start, end, day, duracion = null,id_cita_programada_servicio_horario = null,servicio = null,profesional = null } = evento;
+        console.log('evento');
+        console.log(evento);
         const dayIndex  = diasSemana.indexOf(day) + 1;
-        const duracion  = $($weekContainer).closest("#form_modal_agenda_opening").find('#select_servicios_modal').find('option:selected').data('duracionminutos');
+        const duracion_minutos  = duracion == null ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos') : duracion;
         console.log('start',start);
         console.log('end',end);
         console.log('dayIndex',dayIndex);
-        console.log('duracion',duracion);
+        console.log('duracion_minutos',duracion_minutos);
 
         //  ANTES DE CONTINUAR SE DEBE DE VERIFICAR QUE NO EXISTA
         //  NINGUN TIPO DE EMPALMADO ENTRE NINGUN CUADRO FLOTANTE
         //TODO VERIFICAR QUE LAS HORAS NO SE EXCEDAN DEL HORARIO DE ATENCION DEL LOCAL
+        let span_info   = '';
         if (tipo_flot == 'flot_cita'){
+            if ($($weekContainer).hasClass('div_principal')){
+                span_info   = '<span>'+servicio+'</span><span>'+start + '-' + end+'</span>'
+            }
             let existe_horario_disponinle  = false;
             $($weekContainer).find('.dia_'+dayIndex).each(function(){
                 let flag_empalmados     = verificarEmpalmado($weekContainer,dayIndex,start,end);
@@ -313,7 +457,7 @@ let module_schedule_appointments    = (function(){
                     const fecha = new Date();
                     fecha.setHours(horas);
                     fecha.setMinutes(minutos);
-                    fecha.setMinutes(fecha.getMinutes() + duracion);
+                    fecha.setMinutes(fecha.getMinutes() + duracion_minutos);
 
                     // Obtener la nueva hora en formato "HH:MM"
                     end = `${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
@@ -365,18 +509,30 @@ let module_schedule_appointments    = (function(){
             //  DE LA CITA
             if (flag_fuera_rango){
                 showAlert('danger','Fechas fuera de rango del horario de atenci&oacute;n');
-                $($weekContainer).closest('#form_modal_agenda_opening').find(".header_row#"+id_horario_cita).remove();
-                $($weekContainer).closest('#form_modal_agenda_opening').find('#btn_add_appoitment').trigger('click');
+                $($weekContainer).closest('#form_modal_create').find(".header_row#"+id_horario_cita).remove();
+                $($weekContainer).closest('#form_modal_create').find('#btn_add_appoitment').trigger('click');
                 return false;
             }
             
             if (id_horario_cita != ''){
-                $($weekContainer).closest('#form_modal_agenda_opening').find(".header_row#"+id_horario_cita).find('.input_hora_inicio').val(start);
-                $($weekContainer).closest('#form_modal_agenda_opening').find(".header_row#"+id_horario_cita).find('.input_hora_termino').val(end);
+                $($weekContainer).closest('#form_modal_create').find(".header_row#"+id_horario_cita).find('.input_hora_inicio').val(start);
+                $($weekContainer).closest('#form_modal_create').find(".header_row#"+id_horario_cita).find('.input_hora_termino').val(end);
             }
         }
 
-        
+        if (tipo_flot == 'flot_locacion'){
+            span_info   = '<span>Horario no disponible</span>';
+        }
+
+        if (tipo_flot == 'flot_profesional'){
+            if (background == 'bg-secondary'){
+                span_info   = '<span>Profesional no disponible</span>';
+            }
+
+            if (background == 'bg-success'){
+                span_info   = '<span>Ocupado</span>';
+            }
+        }
         
 
         const startHourIndex = horas.findIndex(hora => hora.startsWith(start.split(":")[0]));
@@ -395,7 +551,8 @@ let module_schedule_appointments    = (function(){
         const left = ((dayIndex) * (cellWidth + borderSize)) + 2;
         const width = cellWidth;
 
-        const $floatingBox = $('<div id="'+id_horario_cita+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" data-dia="'+dayIndex+'" data-horainicio="'+start+'" data-horatermino="'+end+'"></div>').css({
+
+        const $floatingBox = $('<div id="'+id_horario_cita+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" data-dia="'+dayIndex+'" data-dialabel="'+day+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-servicio="'+servicio+'" data-profesional="'+profesional+'" data-idcitaprogramadaserviciohorario="'+id_cita_programada_servicio_horario+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
             left: `${left}px`,
             width: `${width - borderSize}px`,
@@ -483,13 +640,79 @@ let module_schedule_appointments    = (function(){
         const $weekContainer = $("#div_header_week_container").find(".week-container");
         show_hours($weekContainer,min_hora_inicio,max_hora_inicio);
         eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_locacion'));
+        citas_paciente.forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_cita'));
+
 
         $("#btn_create").on('click',function(){
             show_modal_citas();
         });
+
+        const $floatingBox = $(".flot_cita");
+        const $infoBox = $("#infoBox");
+        const $closeModal = $("#closeModal");
+
+        // Mostrar el modal al pasar el mouse sobre el .flot_cita
+        $("#div_header_week_container").on("click",'.flot_cita',function () {
+            let horario = $(this).data('horainicio')+' Hrs. - '+$(this).data('horatermino')+' Hrs.';
+            $infoBox.find("#profesional").text($(this).data('profesional'));
+            $infoBox.find("#servicio").text($(this).data('servicio'));
+            $infoBox.find("#duracion").text($(this).data('duracion')+' Minutos');
+            $infoBox.find("#dia").text($(this).data('dialabel'));
+            $infoBox.find("#horario").text(horario);
+            $infoBox.find(".icon-button").data('idcitaprogramadaserviciohorario',$(this).data('idcitaprogramadaserviciohorario'));
+            $infoBox.css("display", "block"); // Mostrar el modal
+        });
+
+        // Ocultar el modal al hacer clic en el botón de cerrar
+        $closeModal.on("click", function () {
+            $infoBox.css("display", "none"); // Ocultar el modal
+        });
+
+        $("#infoBox").on('click','.btn_delete',async function(){
+            const btn   = $(this);
+            const id_cita_programada_servicio_horario   = $(this).data('idcitaprogramadaserviciohorario');
+            const respuesta = await window.modalConfirm(translations['confirm_delete']);
+            if (respuesta){
+                $.ajax({
+                    url     : url_scheduleappointments,
+                    method  : 'post',
+                    data    : {
+                        accion : 'delete_program_date',
+                        id_cita_programada_servicio_horario : id_cita_programada_servicio_horario,
+                        nombre_completo : nombre_completo
+                    },
+                    success : function(data){
+                        console.log('data aqui');
+                        console.log(data);
+                        $("#div_header_week_container").find(".week-container").find('.flot_cita').each(function(){
+                            console.log('if each');
+                            console.log($(this).data('idcitaprogramadaserviciohorario') == id_cita_programada_servicio_horario);
+                            console.log($(this).data('idcitaprogramadaserviciohorario'));
+                            console.log(id_cita_programada_servicio_horario);
+                            if ($(this).data('idcitaprogramadaserviciohorario') == id_cita_programada_servicio_horario){
+                                $(this).remove();
+                                return false;
+                            }
+                        });
+                        showAlert('success','Borrado exitoso!');
+                        $("#closeModal").trigger('click');
+                    }, 
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            }
+        });
+
+        $(".div_principal").on('click','.grid-hours',function(){
+            const dia           = $(this).data('dia');
+            const hora_inicio   = $(this).data('horainicio');
+
+            show_modal_citas(null,dia,hora_inicio);
+        });
     });
 
-    function show_modal_citas(id_cita_programada = null){
+    function show_modal_citas(id_cita_programada = null,dia_default = null,hora_default = null){
         let modal_clone = $("#modal_save_class").clone().show();
         let min_hora_inicio_modal   = '';
         let max_hora_inicio_modal   = '';
@@ -617,17 +840,49 @@ let module_schedule_appointments    = (function(){
                 },
                 success : function(eventos){
 
+                    $(modal_clone).find('.btn_delete_hour').each(function(){
+                        if ($(this).closest('.header_row').hasClass('carga_default')){
+                            return true;
+                        }
+                        let id_template_cita    = $(this).closest('.header_row').attr('id');
+                        if ($(modal_clone).find(".floating-box#"+id_template_cita).length > 0){
+                            $(modal_clone).find(".floating-box#"+id_template_cita).remove();
+                            $(this).closest('.header_row').remove();
+                        }
+
+                        if ($(modal_clone).find('.header_row').length == 0){
+                            $(modal_clone).find('#btn_add_appoitment').trigger('click');
+                        }
+                    });
+
                     const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
                     $(modal_clone).find('.flot_profesional').remove();
-                    eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_profesional'));
+                    eventos['rango_no_disponible'].forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_profesional'));
+                    eventos['citas_paciente'].forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_profesional'));
 
                     $(modal_clone).find('.hide').removeClass('hide');
+
+                    if (dia_default != null && hora_default != null){
+                        modal_click_grid_hours(modal_clone,dia_default,hora_default,true);
+                    }
                 },
                 error : function(error){
                     console.log('error');
                     console.log(error);
                     $(modal_clone).find('.flot_profesional').remove();
                     $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
+
+                    $(modal_clone).find('.btn_delete_hour').each(function(){
+                        let id_template_cita    = $(this).closest('.header_row').attr('id');
+                        if ($(modal_clone).find(".floating-box#"+id_template_cita).length > 0){
+                            $(modal_clone).find(".floating-box#"+id_template_cita).remove();
+                            $(this).closest('.header_row').remove();
+                        }
+
+                        if ($(modal_clone).find('.header_row').length == 0){
+                            $(modal_clone).find('#btn_add_appoitment').trigger('click');
+                        }
+                    });
                 }
             })
         });
@@ -685,51 +940,192 @@ let module_schedule_appointments    = (function(){
             console.log('id cambio',$(this).attr('id'));
         });
 
-        $(modal_clone).on('click','.grid-hours',async function(){
+        $(modal_clone).on('click','.grid-hours',function(){
             const dia           = $(this).data('dia');
             const hora_inicio   = $(this).data('horainicio');
 
-            //  SE BUSCA QUE LA HORA INICIO + DURACION ENCAJE EN LA HORA DISPONIBLE
-            //  DEL DIA SELECCIONADO
+            modal_click_grid_hours(modal_clone,dia,hora_inicio);
+            
+        });
 
-            //  SE BUSCA DE CADA REGISTRODE CITA 
-            //  SI YA EXISTE UN ELEMENTO FLOTANTE CREADO
-            let id_template_cita    = null;
+        $(modal_clone).on('click','#btnSave',function(){
+            let btn = $(this);
+            $(btn).prop('disabled',true);
+            const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+            let flag_error  = false;
+            if (form.checkValidity() === false) {
+                $(form).addClass('was-validated');
+                flag_error  = true;
+            } else {
+                $(form).removeClass('was-validated');
+            }
+
+            if (flag_error){
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS
+            let flag_empalmados = false;
+            let dia_empalmado   = '';
             $(modal_clone).find('.header_row').each(function(){
-                let id_horario_cita = $(this).attr('id');
+                const id_header         = $(this).attr('id');
+                console.log('id_header');
+                console.log(id_header);
+                const day_header        = $(this).find('.select_dias').val();
+                let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
+                let hora_termino_header = convertirHoraATiempo($(this).find('.input_hora_termino').val());
+                dia_empalmado           = $(this).find('.select_dias').find('option:selected').text();
 
-                if ($(modal_clone).find('.week-container').find('#'+id_horario_cita).length == 0){
-                    id_template_cita    = id_horario_cita;
-                }
+                $(modal_clone).find('.header_row').each(function(){
+                    //  NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID O SI ES DIFERENTE DIA
+                    console.log('$(this).attr("id")');
+                    console.log($(this).attr('id'));
+                    if (id_header == $(this).attr('id')){
+                        return true;
+                    }
+
+                    if (day_header != $(this).find('.select_dias').val()){
+                        return true;
+                    }
+
+                    let hora_inicio     = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
+                    let hora_termino    = convertirHoraATiempo($(this).find('.input_hora_termino').val());
+
+                    //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
+                    console.log('hora_inicio_header >= hora_inicio');
+                    console.log(hora_inicio_header >= hora_inicio,hora_inicio);
+                    if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+                        console.log('empalmado hora_inicio_header');
+                        flag_empalmados = true;
+                        return false;
+                    }
+
+                    //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
+                    if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                        console.log('empalmado hora termino');
+                        flag_empalmados = true;
+                        return false;
+                    }
+
+                    if (flag_empalmados){
+                        return false;
+                    }
+                });
             });
 
-            //  SI ID_TEMPLATE_CITA <> NULL SIGNIFICA QUE HAY UN 
-            //  ELEMENTO CITA VACIO Y SE AGREGA EN AUTOMATICO LA INFO
-            let template_cita;
-            if (id_template_cita != null){
-                template_cita   = $(modal_clone).find(".header_row#"+id_template_cita);
+            if (flag_empalmados){
+                $(btn).prop('disabled',false);
+                $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_spliced']+ dia_empalmado);
+                $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                return false;
             } else {
-                //  SI ID_TEMPLATE_CITA ES NULL SIGNIFICA QUE
-                //  NO HAY UN TEMPLATE DE CITAS DISPONIBLE, POR LO CUAL SE
-                //  DEBE DE PREGUNTAR SI SE DESEA AGREGAR UNA NUEVA CITA
-                $(modal_clone).find("#btn_add_appoitment").trigger('click');
-                id_template_cita    = 'id_horario_cita_'+count_id_citas;
-                template_cita       = $(modal_clone).find(".header_row#"+id_template_cita);
+                $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
             }
 
-            $(template_cita).find('.select_dias').val((diasSemana.indexOf(dia) + 1)).trigger('change');
-            $(template_cita).find('.input_hora_inicio').val(hora_inicio);
-            change_input_hora_inicio($(template_cita).find('.input_hora_inicio'),false);
-            let obj_evento  = {
-                start   : $(template_cita).find('.input_hora_inicio').val(),
-                end     : $(template_cita).find('.input_hora_termino').val(),
-                day     : dia
-            }
-            crearCuadroFlotante(obj_evento,'bg-info',$(modal_clone).find("#div_header_week_container_modal").find(".week-container"),'flot_cita',id_template_cita);
-            
-        })
+            let obj_info        = {};
+            let count_services  = 0;
+            obj_info[count_services]    = {};
+            obj_info[count_services]['id_servicio']         = $(modal_clone).find('.select_servicios_modal').val();
+            obj_info[count_services]['label_servicio']      = $(modal_clone).find('.select_servicios_modal').find('option:selected').text();
+            obj_info[count_services]['id_profesional']      = $(modal_clone).find('.select_profesionales_modal').val();
+            obj_info[count_services]['label_profesional']   = $(modal_clone).find('.select_profesionales_modal').find('option:selected').text();
+
+            let count_horarios  = 0;
+            obj_info[count_services]['horarios']    = {};
+
+            $(modal_clone).find('.header_row').each(function(){
+                obj_info[count_services]['horarios'][count_horarios]    = {
+                    dia             : $(this).find('.select_dias').val(),
+                    hora_inicio     : $(this).find('.input_hora_inicio').val(),
+                    hora_termino    : $(this).find('.input_hora_termino').val(),
+                };
+
+                count_horarios  ++;
+            });
+
+            console.log('obj_info');
+            console.log(obj_info);
+            //return false;
+
+            $.ajax({
+                url         : url_scheduleappointments,
+                method      : 'post',
+                data        : {
+                    obj_info    : obj_info,
+                    accion      : 'save_program_date',
+                    nombre_completo : nombre_completo,
+                    id_paciente     : id_paciente,
+                    id_locacion     : $(modal_clone).find('.select_locaciones_modal').val()
+                },
+                success : function(data){
+                    console.log('data');
+                    console.log(data);
+                    showAlert('success','Captura exitosa!');
+                    $(modal_clone).modal('hide');
+                    const $weekContainer = $("#div_header_week_container").find(".week-container");
+                    $($weekContainer).find('.flot_cita').remove();
+                    data.forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_cita'));
+                },
+                error : function(error){
+                    $(btn).prop('disabled',false);
+                    console.log('error');
+                    console.log(error);
+                    actionJsonError(error,btn);
+                }
+            });
+        });
 
         $(modal_clone).modal('show');
+    }
+
+    function click_grid_hours(div_header,element){
+
+    }
+
+    function modal_click_grid_hours(modal_clone,dia,hora_inicio,carga_default = null){
+        console.log('carga_default',carga_default);
+        //  SE BUSCA QUE LA HORA INICIO + DURACION ENCAJE EN LA HORA DISPONIBLE
+        //  DEL DIA SELECCIONADO
+
+        //  SE BUSCA DE CADA REGISTRODE CITA 
+        //  SI YA EXISTE UN ELEMENTO FLOTANTE CREADO
+        let id_template_cita    = null;
+        $(modal_clone).find('.header_row').each(function(){
+            let id_horario_cita = $(this).attr('id');
+
+            if ($(modal_clone).find('.week-container').find('#'+id_horario_cita).length == 0){
+                id_template_cita    = id_horario_cita;
+            }
+        });
+
+        //  SI ID_TEMPLATE_CITA <> NULL SIGNIFICA QUE HAY UN 
+        //  ELEMENTO CITA VACIO Y SE AGREGA EN AUTOMATICO LA INFO
+        let template_cita;
+        if (id_template_cita != null){
+            template_cita   = $(modal_clone).find(".header_row#"+id_template_cita);
+            if (carga_default != null){
+                console.log('aqui default');
+                $(template_cita).addClass('carga_default');
+            }
+        } else {
+            //  SI ID_TEMPLATE_CITA ES NULL SIGNIFICA QUE
+            //  NO HAY UN TEMPLATE DE CITAS DISPONIBLE, POR LO CUAL SE
+            //  DEBE DE PREGUNTAR SI SE DESEA AGREGAR UNA NUEVA CITA
+            $(modal_clone).find("#btn_add_appoitment").trigger('click');
+            id_template_cita    = 'id_horario_cita_'+count_id_citas;
+            template_cita       = $(modal_clone).find(".header_row#"+id_template_cita);
+        }
+
+        $(template_cita).find('.select_dias').val((diasSemana.indexOf(dia) + 1)).trigger('change');
+        $(template_cita).find('.input_hora_inicio').val(hora_inicio);
+        change_input_hora_inicio($(template_cita).find('.input_hora_inicio'),false);
+        let obj_evento  = {
+            start   : $(template_cita).find('.input_hora_inicio').val(),
+            end     : $(template_cita).find('.input_hora_termino').val(),
+            day     : dia
+        }
+        crearCuadroFlotante(obj_evento,'bg-info',$(modal_clone).find("#div_header_week_container_modal").find(".week-container"),'flot_cita',id_template_cita);
     }
 
     function show_calendar(modal_clone,data,id_locacion){
@@ -761,7 +1157,7 @@ let module_schedule_appointments    = (function(){
         // String de hora
         let horaString  = $(element).val();
         let dia         = $(element).closest('.header_row').find('.select_dias').val();
-        const duracion  = $(element).closest('#form_modal_agenda_opening').find('.select_servicios_modal').find('option:selected').data('duracionminutos');
+        const duracion  = $(element).closest('#form_modal_create').find('.select_servicios_modal').find('option:selected').data('duracionminutos');
 
         // Validar que el string de hora tenga el formato correcto
         if (!/^\d{1,2}:\d{2}$/.test(horaString)) {
@@ -805,7 +1201,7 @@ let module_schedule_appointments    = (function(){
                 end     : nuevaHora,
                 day     : diasSemana[dia - 1]
             }
-            crearCuadroFlotante(obj_evento,'bg-info',$(element).closest("#form_modal_agenda_opening").find(".week-container"),'flot_cita',$(element).closest('.header_row').attr('id'));
+            crearCuadroFlotante(obj_evento,'bg-info',$(element).closest("#form_modal_create").find(".week-container"),'flot_cita',$(element).closest('.header_row').attr('id'));
         }
     }
 })();

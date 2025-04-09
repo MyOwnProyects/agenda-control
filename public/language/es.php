@@ -107,6 +107,8 @@ return [
     'html_limit_date'               => 'Fecha limite',
     'html_add_appoitments'          => 'Agregar citas',
     'html_add_appoinment'           => 'Agregar cita',
+    'html_deactivate_patient'       => '&iquest; Desea dar de BAJA a este paciente?, se cancelaran sus citas agendadas y se perderan los espacios de sus citas programadas.',
+    'html_activate_patient'         => '&iquest; Desea dar de ALTA a este paciente?, El paciente pasará a estar disponible para la programación de citas.',
 
 
     //  MENSAJES DE ERROR
