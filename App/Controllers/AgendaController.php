@@ -54,6 +54,15 @@ class AgendaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'get_info_locacion'){
+                $arr_return = $this->get_info_by_location();
+
+                $response = new Response();
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }     
 
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
@@ -75,6 +84,41 @@ class AgendaController extends BaseController
         }
 
         $this->view->dias_programacion_citas    = $dias_programacion_citas;
+    }
+
+    function get_info_by_location(){
+        $arr_return = array(
+            'horario_atencion'  => array()
+        );
+        $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+        $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+
+        $response = new Response();
+
+        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion) == 0){
+            $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+            $response->setStatusCode(404, 'Error');
+            return $response;
+        }
+
+        $arr_return['horario_atencion'] = $horario_atencion;
+
+        $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
+
+        $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
+        $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
+        $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
+        $tmp_json   = json_encode($arr_return['rangos_no_incluidos']);
+
+        //  INFORMACION DE LOS SERVICIOS
+        $route                      = $this->url_api.$this->rutas['ctservicios']['show'];
+        $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+
+
+        $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
+        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+
+        return $arr_return;
     }
     
 }

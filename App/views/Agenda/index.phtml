@@ -87,6 +87,7 @@ use App\Library\FuncionesGlobales;
     }
 
     /*  ESTILO PARA DIV DE SEMANAS  */
+    /*  ESTILO PARA DIV DE SEMANAS  */
     .div_header_week_container .week-container {
         display: grid;
         grid-template-columns: repeat(8, 120px);
@@ -121,12 +122,129 @@ use App\Library\FuncionesGlobales;
         background-color: rgba(0, 123, 255, 0.3);
         border: 2px solid #007bff;
         box-sizing: border-box;
-        pointer-events: none;
+        pointer-events: auto;
         cursor: pointer;
     }
+
+    /* Clase para bg-danger */
+    .div_header_week_container .floating-box.bg-danger {
+        background-color: rgba(220, 53, 69, 0.3); /* Color peligro (semi-transparente) */
+        border-color: #dc3545; /* Color danger para el borde */
+    }
+
+    /* Clase para bg-success */
+    .div_header_week_container .floating-box.bg-success {
+        background-color: rgba(40, 167, 69, 0.3); /* Color éxito (semi-transparente) */
+        border-color: #28a745; /* Color success para el borde */
+    }
+
+    /* Clase para bg-info */
+    .div_header_week_container .floating-box.bg-info {
+        background-color: rgba(23, 162, 184, 0.3); /* Color informativo (semi-transparente) */
+        border-color: #17a2b8; /* Color info para el borde */
+    }
+
+    /* Clase para bg-secondary */
+    .div_header_week_container .floating-box.bg-secondary {
+        background-color: rgba(108, 117, 125, 0.3); /* Color gris (semi-transparente) */
+        border-color: #6c757d; /* Color secondary para el borde */
+    }
+
+    /* Clase para bg-dark */
+    .div_header_week_container .floating-box.bg-dark {
+        background-color: rgba(52, 58, 64, 0.3); /* Color gris oscuro (semi-transparente) */
+        border-color: #343a40; /* Color dark para el borde */
+    }
+
     .div_header_week_container .grid-hours:hover {
         border: 1px solid #007bff; /* Borde azul de Bootstrap al hacer hover */
     }
+
+    .hide {
+        display:none;
+    }
+
+    .div_header_citas {
+        min-height: 50px;
+        overflow: scroll;
+        max-height: 150px;
+    }
+
+    .div_header_week_container .floating-box span {
+        display: block; /* Forzar a los spans a ocupar líneas independientes */
+        width: 100%; /* Ajustar al ancho del contenedor */
+        color: #fff; /* Texto en blanco */
+        text-align: center; /* Centrar el texto */
+        font-size: 14px; /* Tamaño inicial del texto */
+        line-height: 1.2; /* Espaciado entre líneas */
+        white-space: nowrap; /* Impedir que el texto se divida en varias líneas */
+        overflow: hidden; /* Ocultar texto que exceda el contenedor */
+        text-overflow: ellipsis; /* Mostrar "..." si el texto excede */
+    }
+
+    /* Reducción dinámica del tamaño del texto si es necesario */
+    .div_header_week_container .floating-box span {
+        font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
+    }
+
+    .info-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 1);
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      display: none;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+
+    #infoBox {
+      font-family: Arial, sans-serif;
+    }
+
+    #infoBox .event-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #infoBox .event-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    #infoBox .icon-button {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      color: #6c757d;
+      cursor: pointer;
+    }
+
+    #infoBox .event-detail {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    #infoBox .event-icon {
+      margin-right: 8px;
+    }
+
+    #infoBox .dot {
+      height: 12px;
+      width: 12px;
+      background-color: #2196f3;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
 
     .hide_container{
         display: none!important;
@@ -256,7 +374,7 @@ use App\Library\FuncionesGlobales;
     <?php endif; ?>
 
         <!-- Sección de navegación -->
-    <div class="navigation">
+    <div class="navigation hide_container">
         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
         <div class="left-section">
             <button id="btn-mes-anterior" class="btn btn-secondary"><<<</button>
@@ -277,7 +395,7 @@ use App\Library\FuncionesGlobales;
         </div>
     </div>
 </div>
-<div class="container div_header_days_container container-calendar col-12">
+<div class="container div_header_days_container container-calendar hide_container col-12">
     <!-- Agenda -->
     <div class="agenda-container" id="agenda-container">
         <!-- Header -->
@@ -420,7 +538,7 @@ use App\Library\FuncionesGlobales;
     ];
 
     // Array de horas (de 9:00 a 19:00)
-    const horas = [];
+    let horas = [];
     for (let i = 10; i <= 19; i++) {
         horas.push(`${i.toString().padStart(2, '0')}:00`);
     }
@@ -683,10 +801,48 @@ use App\Library\FuncionesGlobales;
     $(document).ready(function () {
 
         //  CONVERTIR LOS COMBOS EN SELECT2
-        selectToSelect2($(".div_header_filters"),"select_locaciones");
+        //selectToSelect2($(".div_header_filters"),"select_locaciones");
         selectToSelect2($(".div_header_filters"),"select_servicios");
         selectToSelect2($(".div_header_filters"),"select_profesionales");
         selectToSelect2($(".div_header_filters"),"select_pacientes");
+
+        $(".filters").find('#select_locaciones').select2({
+            placeholder: 'Seleccione una opción',
+            allowClear : false,
+            width: '50px'
+        }).on('select2:select',function(){
+            if ($(this).val() != null){
+                const id_locacion   = $(this).val();
+                $.ajax({
+                    url     : url_index,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'get_info_locacion',
+                        id_locacion : id_locacion
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        // $(modal_clone).find('.floating-box').remove();
+                        show_calendar(data,id_locacion);
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+
+                        $(modal_clone).find('.grid-hours').remove();
+                        $(modal_clone).find('.hour').remove();
+                        $(modal_clone).find('.floating-box').remove();
+
+                        $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
+                        $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
+
+                        $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
+                        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
+                    }
+                });
+            }
+        });
 
         // Encapsulación de eventos dentro de .div_header_days_container
         const daysContainer = $(".div_header_days_container");
@@ -942,5 +1098,57 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).modal('show');
         });
+
+        //  FUNCTION PARA MOSTRAR INFORMACION AL SELECCIONAR UNA LOCACION
+        function show_calendar(modal_clone,data,id_locacion){
+            const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
+            show_hours($weekContainer,data['min_hora_inicio'],data['max_hora_inicio']);
+            eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_locacion'));
+
+            $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
+            $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
+
+            $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
+            $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
+
+            $(modal_clone).find('#select_servicios_modal').find('option').remove();
+            $(modal_clone).find('#select_servicios_modal').append('<option></option>');
+
+            for(let i in data['all_services']){
+                let service = data['all_services'][i];
+
+                let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'">'+service["nombre"]+'</option>'
+                $(modal_clone).find('#select_servicios_modal').append(option);
+
+            }
+
+            $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
+        }
+
+        function show_hours($weekContainer,min_hora_inicio,max_hora_inicio){
+            horas   = [];
+            for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
+                horas.push(`${i.toString().padStart(2, '0')}:00`);
+            }
+
+            //
+
+            horas.forEach(hora => {
+                $weekContainer.append(`<div class="grid-item hour">${hora}</div>`);
+                for (let i = 0; i < 7; i++) {
+                    let dia = diasSemana[i];
+                    $weekContainer.append('<div class="grid-item grid-hours" data-dia="'+dia+'" data-horainicio="'+hora+'"></div>');
+                }
+            });
+
+            // $($weekContainer).on('click','.grid-hours',function(){
+            //     const dia           = $(this).data('dia');
+            //     const hora_inicio   = $(this).data('horasinicio');
+
+            //     //  SE BUSCA DE CADA REGISTRODE CITA 
+            //     //  SI YA EXISTE UN ELEMENTO FLOTANTE CREADO
+            //     $($weekContainer)
+            // })
+        }
     });
 </script>

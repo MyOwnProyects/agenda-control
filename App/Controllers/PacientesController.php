@@ -319,6 +319,7 @@ class PacientesController extends BaseController
                     'generar_citas' => $_POST['generar_citas'],
                     'fecha_inicio'  => $_POST['fecha_inicio'],
                     'fecha_termino' => $_POST['fecha_termino'],
+                    'id_cita_programada_servicio_horario'   => $_POST['id_cita_programada_servicio_horario'] ?? null
                 )); 
                 
                 $response = new Response();
