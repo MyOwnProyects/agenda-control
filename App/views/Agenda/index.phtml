@@ -30,17 +30,44 @@ use App\Library\FuncionesGlobales;
         padding: 10px;
         border-right: 1px solid #ddd;
         position: relative; /* Necesario para posicionar el div flotante */
-        transition: border-color 0.3s ease; /* Transición suave para el hover */
+        /*transition: border-color 0.3s ease;  Transición suave para el hover */
     }
     .div_header_days_container .agenda-service:last-child {
         border-right: none;
     }
-    .div_header_days_container .agenda-hours:hover {
-        border: 1px solid #007bff; /* Borde azul de Bootstrap al hacer hover */
+    .div_header_days_container .agenda-hours:hover:not(.no-hover-effect) {
+        border: 1px solid #007bff; 
     }
     .div_header_days_container .agenda-header {
         font-weight: bold;
         background-color: #e9ecef;
+    }
+    .div_header_days_container .evento-flotante {
+        position: absolute;
+        background-color: rgba(0, 123, 255, 0.2);
+        border: 1px solid #007bff;
+        width: 100%; /* CAMBIO: usar todo el ancho */
+        left: 0; /* CAMBIO: alinear a la izquierda */
+        z-index: 10;
+        box-sizing: border-box;
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .div_header_days_container .evento-flotante span {
+        color: #fff;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-right: 8px; /* Espacio entre spans */
+    }
+
+    /* Reducción dinámica del tamaño del texto si es necesario */
+    .div_header_days_container .evento-flotante span {
+        font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
     }
     .div_header_filters .navigation {
         display: flex;
@@ -75,18 +102,7 @@ use App\Library\FuncionesGlobales;
         border: 1px solid #ddd;
         border-radius: 5px;
     }
-    .div_header_days_container .evento-flotante {
-        position: absolute;
-        background-color: rgba(0, 123, 255, 0.2); /* Color de fondo con transparencia */
-        border: 1px solid #007bff; /* Borde azul */
-        border-radius: 5px;
-        width: calc(100% - 20px); /* Ancho del evento (ajustado al padding) */
-        left: 10px; /* Ajuste para el padding */
-        z-index: 10; /* Asegura que esté por encima de otros elementos */
-        box-sizing: border-box; /* Incluye el padding y el borde en el ancho */
-    }
-
-    /*  ESTILO PARA DIV DE SEMANAS  */
+    
     /*  ESTILO PARA DIV DE SEMANAS  */
     .div_header_week_container .week-container {
         display: grid;
@@ -374,7 +390,7 @@ use App\Library\FuncionesGlobales;
     <?php endif; ?>
 
         <!-- Sección de navegación -->
-    <div class="navigation hide_container">
+    <div class="navigation">
         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
         <div class="left-section">
             <button id="btn-mes-anterior" class="btn btn-secondary"><<<</button>
@@ -395,40 +411,42 @@ use App\Library\FuncionesGlobales;
         </div>
     </div>
 </div>
-<div class="container div_header_days_container container-calendar hide_container col-12">
-    <!-- Agenda -->
-    <div class="agenda-container" id="agenda-container">
-        <!-- Header -->
-        <div class="agenda-row agenda-header" id="agenda-header">
-            <div class="agenda-time">Hora</div>
-            <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+<div id="div_header_agenda">
+    <div class="container div_header_days_container container-calendar hide_container col-12">
+        <!-- Agenda -->
+        <div class="agenda-container" id="agenda-container">
+            <!-- Header -->
+            <div class="agenda-row agenda-header" id="agenda-header">
+                <div class="agenda-time">Hora</div>
+                <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+            </div>
+            <!-- Las filas de horas se generarán dinámicamente aquí -->
         </div>
-        <!-- Las filas de horas se generarán dinámicamente aquí -->
     </div>
-</div>
-<div class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
-    <div class="week-container">
-        <div class="grid-item header"></div>
-        <div class="grid-item header">Lunes</div>
-        <div class="grid-item header">Martes</div>
-        <div class="grid-item header">Miércoles</div>
-        <div class="grid-item header">Jueves</div>
-        <div class="grid-item header">Viernes</div>
-        <div class="grid-item header">Sábado</div>
-        <div class="grid-item header">Domingo</div>
+    <div id ="div_header_week_container" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
+        <div class="week-container div_principal">
+            <div class="grid-item header"></div>
+            <div class="grid-item header">Lunes</div>
+            <div class="grid-item header">Martes</div>
+            <div class="grid-item header">Miércoles</div>
+            <div class="grid-item header">Jueves</div>
+            <div class="grid-item header">Viernes</div>
+            <div class="grid-item header">Sábado</div>
+            <div class="grid-item header">Domingo</div>
+        </div>
     </div>
-</div>
-<div class=" div_header_month_container hide_container container-calendar col-12">
-    <div class="days">
-        <div class="day">Dom</div>
-        <div class="day">Lun</div>
-        <div class="day">Mar</div>
-        <div class="day">Mié</div>
-        <div class="day">Jue</div>
-        <div class="day">Vie</div>
-        <div class="day">Sáb</div>
+    <div class=" div_header_month_container hide_container container-calendar col-12">
+        <div class="days">
+            <div class="day">Dom</div>
+            <div class="day">Lun</div>
+            <div class="day">Mar</div>
+            <div class="day">Mié</div>
+            <div class="day">Jue</div>
+            <div class="day">Vie</div>
+            <div class="day">Sáb</div>
+        </div>
+        <div class="calendar_month_dates" id="calendar_month_dates"></div>
     </div>
-    <div class="calendar_month_dates" id="calendar_month_dates"></div>
 </div>
 
 <div class="modal fade" id="modal_agenda_opening" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
@@ -481,10 +499,141 @@ use App\Library\FuncionesGlobales;
     </div>
   </div>
 </div>
+
+<!-- Caja emergente -->
+<div id="infoBox" class="info-box">
+    <div class="event-header mb-2">
+        <div class="d-flex align-items-center">
+        <span class="dot"></span>
+        <span id="servicio" class="event-title"></span>
+        </div>
+        <div>
+        <button class="icon-button btn_edit" title="Agregar/Quitar Servicios"><i class="bi bi-pencil-fill"></i></button>
+        <button class="icon-button btn_asistencia" title=""></button>
+        <button class="icon-button btn_reagendar" title="Re-agendar"><i class="bi bi-calendar-day"></i></button>
+        <button class="icon-button btn_cancelar" title="Cancelar"><i class="bi bi-calendar-x"></i></button>
+        <button id="closeModal" type="button" class="btn" ><i class="bi bi-x"></i></button>
+        </div>
+    </div>
+
+    <div class="event-detail mb-2">
+      <span id="dia"></span> • <span id="horario"></span>
+    </div>
+
+    <div class="event-detail mb-1 d-flex align-items-center">
+        <i class="bi bi-clock"></i>&nbsp<span id="duracion"></span>
+    </div>
+
+    <div class="event-detail d-flex align-items-center">
+        <i class="bi bi-person-fill"></i>&nbsp<span id="profesional"></span>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_cancelar_cita" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_cancelar_cita"><?php echo FuncionesGlobales::UpperString($translations['html_cancel_appointment']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_reason_cancellation']; ?></label>
+                    <select id="select_motivo_cancelacion">
+                        <option></option>
+                        <?php foreach($motivos_cancelacion_cita as $motivo): ?>
+                            <option value="<?php echo $motivo['id']; ?>"><?php echo $motivo['nombre']; ?></option>
+                        <?php  endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
+                </div>
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_observations']; ?></label>
+                    
+                    <textarea row="2" id="textarea_observaciones_cancelacion" class="form-control"></textarea>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_asistencia" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_asistencia"><?php echo FuncionesGlobales::UpperString($translations['html_attendance_status']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_asistencia" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-12">
+                    <label for="label_estatus_actual" class="col-form-label"><?php echo $translations['html_current_status']; ?>: </label>
+                    <label id="label_estatus_actual" class="col-form-label"></label>
+                </div>
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_new_status']; ?></label>
+                    <select id="select_asistencia" required>
+                        <option></option>
+                        <option id="estatus_1" value="1">ASISTENCIA</option>
+                        <option id="estatus_2" value="2">RETARDO</option>
+                        <option id="estatus_0" value="0">FALTA</option>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_attendance_status']; ?></div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
     //  URL
     const controller    = '/Agenda';
     const url_index     = controller+"/index";
+
+    //  CODIGO PARA CALENDARIO POR SEMANA
+    const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+    //  HORARIO INHABIL POR SEMANA
+    let horario_no_disponible   = {};
+
+    //  CITAS AGENDADAS POR SEMANA
+    let citas_agendadas = {};
+
+    //  LISTA PROFESIONALES POR LOCACION
+    let profesionales   = {};
 
     //  language
     const translations  = {
@@ -523,58 +672,74 @@ use App\Library\FuncionesGlobales;
         error_range_date        : "<?php echo $translations['html_error_range_date']; ?>",
     }
 
+    let count_id_citas  = 0;
+
     //  dias_programacion_citas
-    const   dias_programacion_citas = <?php echo $dias_programacion_citas; ?>
+    const dias_programacion_citas = <?php echo $dias_programacion_citas; ?>
 
     const markedDays    = [14, 25]; 
     let cierre_agenda   = new Date(2025, 3, 30); // Año, Mes (0-indexed), Día
-
-
-    // Array de profesionales (sincronizado con la tabla)
-    const profesionales = [
-        { id: "1", nombre: "Dr. Juan Pérez" },
-        { id: "2", nombre: "Dra. María Gómez" },
-        { id: "3", nombre: "Dr. Carlos López" }
-    ];
+    console.log('cierre_agenda',cierre_agenda);
 
     // Array de horas (de 9:00 a 19:00)
     let horas = [];
-    for (let i = 10; i <= 19; i++) {
-        horas.push(`${i.toString().padStart(2, '0')}:00`);
-    }
 
     // Array de eventos (ejemplo para cada doctor)
-    const eventos = [
-        { profesional: "Dr. Juan Pérez", inicio: "10:00", fin: "11:00", descripcion: "Consulta con Paciente 1" },
-        { profesional: "Dra. María Gómez", inicio: "11:00", fin: "12:00", descripcion: "Consulta con Paciente 2" },
-        { profesional: "Dr. Carlos López", inicio: "17:25", fin: "17:55", descripcion: "Consulta con Paciente 3" }
-    ];
+    // const eventos = [
+    //     { profesional: "Dr. Juan Pérez", inicio: "10:00", fin: "11:00", descripcion: "Consulta con Paciente 1" },
+    //     { profesional: "Dra. María Gómez", inicio: "11:00", fin: "12:00", descripcion: "Consulta con Paciente 2" },
+    //     { profesional: "Dr. Carlos López", inicio: "17:25", fin: "17:55", descripcion: "Consulta con Paciente 3" }
+    // ];
 
     // Variables para manejar la fecha
     let fechaActual = new Date();
 
+    let rango_semana_actual = {
+        'fecha_inicio'  : '',
+        'fecha_termino' : ''
+    };
+
     // Función para formatear la fecha como "Día, DD/MM/AAAA"
     function formatearFecha(fecha) {
         const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-        return fecha.toLocaleDateString('es-ES', opciones);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+        const partes = fechaFormateada.split(', ');
+        
+        function capitalizarPrimeraLetra(texto) {
+            return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+        }
+
+        if (partes.length > 1) {
+            // Si la fecha incluye coma (formato "día, fecha")
+            return capitalizarPrimeraLetra(partes[0]) + ', ' + partes[1];
+        } else {
+            // Si no hay coma, convertir la primera palabra (asumiendo que es el día)
+            const palabras = fechaFormateada.split(' ');
+            palabras[0] = capitalizarPrimeraLetra(palabras[0]);
+            return palabras.join(' ');
+        }
     }
+
 
     // Función para actualizar la fecha mostrada
     function actualizarFecha() {
         $(".div_header_filters #fecha-actual").text(formatearFecha(fechaActual));
-    }
 
-    // Función para generar las columnas de profesionales en la agenda
-    function generarColumnasProfesionales() {
-        const agendaHeader = $(".div_header_days_container #agenda-header");
+        if (rango_semana_actual.fecha_inicio != ''){
+            //  SE VERIFICA QUE LA NUEVA FECHA 
+            let fechaInicio = new Date(rango_semana_actual.fecha_inicio + 'T00:00:00');
+            let fechaTermino = new Date(rango_semana_actual.fecha_termino + 'T23:59:59');
 
-        // Generar las columnas en el header
-        profesionales.forEach(profesional => {
-            const columna = $("<div>")
-                .addClass("agenda-service")
-                .text(profesional.nombre);
-            agendaHeader.append(columna);
-        });
+            // Ahora verificamos si fechaActual está dentro del rango
+            if (fechaActual >= fechaInicio && fechaActual <= fechaTermino) {
+                $(".div_header_days_container").find('.evento-flotante').remove();
+                horario_no_disponible.forEach(rango => cuadroFlotantesDiario(rango,'bg-secondary','no_disponible'));
+                citas_agendadas.forEach(rango => cuadroFlotantesDiario(rango,'bg-success','flot_cita',null));
+            } else {
+                get_all_appointments($("#select_locaciones"));
+            }
+        }
+        
     }
 
     // Función para generar las filas de horas
@@ -582,7 +747,7 @@ use App\Library\FuncionesGlobales;
         const agendaContainer = $(".div_header_days_container #agenda-container");
 
         horas.forEach((hora, index) => {
-            const fila = $("<div>").addClass("agenda-row");
+            const fila = $("<div>").addClass("agenda-row").addClass('row_info');
 
             // Columna de la hora
             const columnaHora = $("<div>")
@@ -607,32 +772,95 @@ use App\Library\FuncionesGlobales;
         return h * 60 + m;
     }
 
-    // Función para generar los eventos flotantes
-    function generarEventosFlotantes() {
-        eventos.forEach(evento => {
-            // Convertir las horas de inicio y fin a minutos
-            const inicioMinutos = convertirHoraAMinutos(evento.inicio);
-            const finMinutos = convertirHoraAMinutos(evento.fin);
+    // Función para generar los eventos flotantes PARA CALENDARIO POR DIA
+    function cuadroFlotantesDiario(evento,background,tipo_cuadro,mensaje = null) {
+        let fecha_actual    = formatearFecha(fechaActual);
+        fecha_actual        = fecha_actual.split(",");
 
-            // Encontrar la fila correspondiente a la hora de inicio
-            const filaInicio = $(`.div_header_days_container .agenda-time:contains('${evento.inicio.split(":")[0].padStart(2, '0')}:00')`).closest(".agenda-row");
-            if (filaInicio.length) {
+        const dayIndex          = diasSemana.indexOf(fecha_actual[0]) + 1;
+        const eventoDayIndex    = isNaN(evento.day) ? diasSemana.indexOf(evento.day) + 1 : evento.day;
+        const profesional       = evento.nombre_profesional;
+
+        if (eventoDayIndex != dayIndex){
+            return false;
+        }
+
+        // Convertir las horas de inicio y fin a minutos
+        const inicioMinutos = convertirHoraAMinutos(evento.start);
+        let end = evento.end.split(":");
+        let finMinutos  = '';
+        if (end[1] == '59'){
+            finMinutos  = convertirHoraAMinutos(sumarUnMinuto(evento.end));
+        } else {
+            finMinutos = convertirHoraAMinutos(evento.end);
+        }
+        
+        //  MENSAJE A MOSTRAR
+        if (tipo_cuadro == 'no_disponible'){
+            mensaje = '<span>Horario no disponible</span>';
+        } else {
+            mensaje = '<span>'+evento.nombre_completo+'</span><span>'+evento.start + '-' + evento.end+'</span>'
+        }
+
+        // Encontrar la fila correspondiente a la hora de inicio
+        const filaInicio = $(`.div_header_days_container .agenda-time:contains('${evento.start.split(":")[0].padStart(2, '0')}:00')`).closest(".agenda-row");
+        if (filaInicio.length) {
+            let alturaPorHora   = 0; // Cada hora ocupa 100% de altura
+            let alturaPorMinuto = 0; // Altura por minuto
+            let top             = 0; // Posición vertical
+            let altura          = 0; // Altura del evento
+            let columnaProfesional  = '';
+            if (profesional == null){
+                columnaProfesional = filaInicio.find(".agenda-service").eq(0);
+
+                // Calcular la posición y altura del evento
+                alturaPorHora = 100; // Cada hora ocupa 100% de altura
+                alturaPorMinuto = alturaPorHora / 60; // Altura por minuto
+
+                top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
+                altura = ((finMinutos - inicioMinutos) * alturaPorMinuto) + ((((finMinutos - inicioMinutos) * (alturaPorMinuto)) / 100) *2 ); // Altura del evento
+
+                width = $("#agenda-header").find(".agenda-service").length * 100;
+
+                // // Crear el evento flotante
+                const eventoDiv = $("<div>")
+                    .addClass("evento-flotante")
+                    .addClass(background)
+                    .addClass(tipo_cuadro)
+                    .html(mensaje)
+                    .css({
+                        top: `${top}%`, // Posición vertical
+                        height: `${altura}%`, // Altura del evento
+                        width : `${width}%`
+                    });
+                columnaProfesional.append(eventoDiv);
+            } else {
                 // Encontrar la columna correspondiente al profesional
-                const profesionalIndex = profesionales.findIndex(p => p.nombre === evento.profesional);
+                const profesionalIndex = profesionales.findIndex(p => p.id === evento.id_profesional);
                 if (profesionalIndex !== -1) {
-                    const columnaProfesional = filaInicio.find(".agenda-service").eq(profesionalIndex);
+                    columnaProfesional = filaInicio.find(".agenda-service").eq(profesionalIndex);
 
                     // Calcular la posición y altura del evento
-                    const alturaPorHora = 100; // Cada hora ocupa 100% de altura
-                    const alturaPorMinuto = alturaPorHora / 60; // Altura por minuto
+                    alturaPorHora = 100; // Cada hora ocupa 100% de altura
+                    alturaPorMinuto = alturaPorHora / 60; // Altura por minuto
 
-                    const top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
-                    const altura = (finMinutos - inicioMinutos) * alturaPorMinuto; // Altura del evento
+                    top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
+                    altura = (finMinutos - inicioMinutos) * alturaPorMinuto; // Altura del evento
 
                     // Crear el evento flotante
                     const eventoDiv = $("<div>")
                         .addClass("evento-flotante")
-                        .text(evento.descripcion)
+                        .addClass(background)
+                        .addClass(tipo_cuadro)
+                        .data('idagendacita',evento.id_agenda_cita)
+                        .data('profesional',profesional)
+                        .data('paciente',evento.nombre_completo)
+                        .data('dialabel',diasSemana[dayIndex - 1])
+                        .data('duracion',evento.duracion)
+                        .data('horainicio',evento.start)
+                        .data('horatermino',evento.end)
+                        .data('asistencia',evento.asistencia)
+                        .html(mensaje)
                         .css({
                             top: `${top}%`, // Posición vertical
                             height: `${altura}%`, // Altura del evento
@@ -640,7 +868,20 @@ use App\Library\FuncionesGlobales;
                     columnaProfesional.append(eventoDiv);
                 }
             }
-        });
+        }
+    }
+
+    function sumarUnMinuto(horaStr) {
+        const [horas, minutos] = horaStr.split(':').map(Number);
+        const fecha = new Date();
+        fecha.setHours(horas);
+        fecha.setMinutes(minutos + 1);
+        fecha.setSeconds(0);
+
+        const horasFormateadas = fecha.getHours().toString().padStart(2, '0');
+        const minutosFormateados = fecha.getMinutes().toString().padStart(2, '0');
+
+        return `${horasFormateadas}:${minutosFormateados}`;
     }
 
     // Función para cambiar el día (anterior o siguiente)
@@ -666,9 +907,11 @@ use App\Library\FuncionesGlobales;
         actualizarFecha();
         
         if (new_month !== last_month) {
-            console.log('nuevo mes');
-            renderCalendar();
+            renderCalendarMes();
         }
+
+        //  AL CAMBIAR EL DIA ACTUAL, SE BUSCA LAS CITAS TANTO DE
+        //  ESE DIA COMO DEL RANGO DE SEMANA
     }
 
     function cambiarSemana(semanas) {
@@ -683,7 +926,7 @@ use App\Library\FuncionesGlobales;
 
         fechaActual = nuevaFecha;
         actualizarFecha();
-        renderCalendar();
+        renderCalendarMes();
     }
 
     // Función para cambiar de mes
@@ -699,31 +942,40 @@ use App\Library\FuncionesGlobales;
 
         fechaActual = nuevaFecha;
         actualizarFecha();
-        renderCalendar();
+        renderCalendarMes();
     }
 
     // Función para volver al día actual
     function irAFechaActual() {
         fechaActual = new Date(); // Reiniciar a la fecha de hoy
         actualizarFecha();
-        renderCalendar();
+        renderCalendarMes();
     }
 
 
     //  funcion para renderizar calendario por mes  
-    function renderCalendar() {
-        const year = fechaActual.getFullYear();
+    function renderCalendarMes() {
+        const $calendarContainer = $('.div_header_month_container');
+        const $monthYear = $calendarContainer.find('#monthYear');
+        const $dates = $calendarContainer.find('#calendar_month_dates');
+        const $prevMonthButton = $calendarContainer.find('#prevMonth');
+        const $nextMonthButton = $calendarContainer.find('#nextMonth');
+        const year  = fechaActual.getFullYear();
         const month = fechaActual.getMonth();
         const today = new Date();
 
-        $(".div_header_month_container #monthYear").text(`${fechaActual.toLocaleString('es', { month: 'long' })} ${year}`);
-        $(".div_header_month_container #calendar_month_dates").empty();
+        //$monthYear.text(`${currentDate.toLocaleString('es', { month: 'long' })} ${year}`);
+        $dates.empty();
 
-        const firstDayOfMonth = new Date(year, month, 1).getDay();
-        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        const startingDay = firstDayOfMonth.getDay();
         const prevMonthLastDay = new Date(year, month, 0).getDate();
+        
 
-        for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+        // Días del mes anterior
+        for (let i = startingDay - 1; i >= 0; i--) {
             let day = prevMonthLastDay - i;
             let classList = "other-month";
             if (new Date(year, month - 1, day).getDay() === 0) classList += " disabled";
@@ -732,28 +984,47 @@ use App\Library\FuncionesGlobales;
             
             if (create_date > cierre_agenda) continue; // No agregar días después del cierre
 
-            $(".div_header_month_container #calendar_month_dates").append(`<div class="${classList}" data-day="${year}-${rellenar_fecha(month - 1)}-${rellenar_fecha(day)}">${day}</div>`);
+            $(".div_header_month_container #calendar_month_dates").append(`<div class="${classList}" data-day="${year}-${rellenar_fecha(month)}-${rellenar_fecha(day)}">${day}</div>`);
         }
 
-        for (let i = 1; i <= lastDayOfMonth; i++) {
-            let classList = "";
-            let create_date = new Date(year, month, i);
-
-            if (create_date > cierre_agenda) continue; // No agregar días después del cierre
-
+        // Días del mes actual
+        for (let i = 1; i <= daysInMonth; i++) {
+            const $dateElement = $('<div>').text(i);
+            const dayOfWeek = new Date(year, month, i).getDay();
+            let classList   = '';
             if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
-                classList += "current-day";
+                classList   += 'current-day ';
             }
-            if (markedDays.includes(i)) {
-                classList += " marked-day";
+
+            if (dayOfWeek === 0) {
+                classList   +=  'disabled ';
             }
-            if (create_date.getDay() === 0) {
-                classList += " disabled";
-            }
-            classList   += ' div_month_day';
-            
-            $(".div_header_month_container #calendar_month_dates").append(`<div class="${classList}" data-day="${year}-${rellenar_fecha(month)}-${rellenar_fecha(i)}">${i}</div>`);
+
+            classList   += 'div_month_day';
+
+            $(".div_header_month_container #calendar_month_dates").append(`<div class="${classList}" data-day="${year}-${rellenar_fecha(month + 1)}-${rellenar_fecha(i)}">${i}</div>`);
+
+            // Marcar días especiales si quieres
+            // if (markedDays.includes(i)) {
+            //   $dateElement.addClass('marked-day');
+            // }
         }
+
+        // Días del mes siguiente
+        const totalCells = 35;
+        const remainingCells = totalCells - (startingDay + daysInMonth);
+        for (let i = 1; i <= remainingCells; i++) {
+            const dayOfWeek = new Date(year, month + 1, i).getDay();
+            const $dateElement = $('<div>').text(i).addClass('other-month');
+            if (dayOfWeek === 0) {
+                $dateElement.addClass('disabled');
+            }
+            $dateElement.addClass('div_month_day');
+            $dateElement.data('day',year+'-'+(month + 2)+'-'+i);
+            $dates.append($dateElement);
+        }
+
+        
     }
 
 
@@ -767,7 +1038,7 @@ use App\Library\FuncionesGlobales;
         return num_return;
     }
 
-    function obtenerRangoSemana(fecha) {
+    function get_rango_semana(fecha) {
         // Crear un objeto Date a partir de la fecha proporcionada
         const fechaObj = new Date(fecha);
         
@@ -790,12 +1061,477 @@ use App\Library\FuncionesGlobales;
             return `${año}-${mes}-${dia}`;
         };
         
+        // return {
+        //     fecha_inicio    : formatoFecha(lunes),
+        //     fecha_termino   : formatoFecha(domingo)
+        // };
+
+        rango_semana_actual['fecha_inicio']     = formatoFecha(lunes);
+        rango_semana_actual['fecha_termino']    = formatoFecha(domingo);
+    }
+
+    //  FUNCTION PARA MOSTRAR INFORMACION AL SELECCIONAR UNA LOCACION
+    function show_calendar(modal_clone,data,id_locacion){
+        let min_hora_inicio = parseInt(data['min_hora_inicio']);
+        let max_hora_inicio = parseInt(data['max_hora_inicio']);
+        profesionales       = data['all_professionals'];
+
+        let tmp_cierre_fecha    = data['cierre_agenda']['last_fecha_limite'];
+        tmp_cierre_fecha    = data['cierre_agenda']['last_fecha_limite'].split('-');
+        cierre_agenda   = new Date(tmp_cierre_fecha[0],tmp_cierre_fecha[1],tmp_cierre_fecha[2]);
+
+        horas   = [];
+        for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
+            horas.push(`${i.toString().padStart(2, '0')}:00`);
+        }
+
+        const $weekContainer = $(modal_clone);
+        show_hours($weekContainer,data['min_hora_inicio'],data['max_hora_inicio'],profesionales);
+        horario_no_disponible   = data['rangos_no_incluidos'];
+
+        console.log(horario_no_disponible);
+
+        horario_no_disponible.forEach(evento => cuadroFlotantesSemana(evento,'bg-secondary',$weekContainer.find(".week-container"),'flot_locacion'));
+        horario_no_disponible.forEach(rango => cuadroFlotantesDiario(rango,'bg-secondary','no_disponible'));
+
+        //  SE PINTAN LAS CITAS DE TODA LA SEMANA
+        citas_agendadas = {};
+        citas_agendadas = data['citas_agendadas'];
+        citas_agendadas.forEach(evento => cuadroFlotantesSemana(evento,'bg-success',$weekContainer.find(".week-container"),'flot_cita'));
+        citas_agendadas.forEach(rango => cuadroFlotantesDiario(rango,'bg-success','flot_cita',null));
+
+        $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
+        $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
+
+        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
+        $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
+
+        $(modal_clone).find('#select_servicios_modal').find('option').remove();
+        $(modal_clone).find('#select_servicios_modal').append('<option></option>');
+
+        for(let i in data['all_services']){
+            let service = data['all_services'][i];
+
+            let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'">'+service["nombre"]+'</option>'
+            $(modal_clone).find('#select_servicios_modal').append(option);
+
+        }
+
+        $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
+
+        if (!$(".div_header_days_container").is(':visible') && 
+            !$("#div_header_week_container").is(':visible') &&
+            !$(".div_header_month_container").is(':visible')){
+                $("#btn-dia").trigger('click');
+            }
+    }
+
+    //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
+    function get_all_appointments(element){
+        $(".div_header_days_container").find('.evento-flotante').remove();
+        $(".div_header_week_container").find('.flot_cita').remove();
+        get_rango_semana(fechaActual);
+        const id_locacion   = $(element).val();
+        $.ajax({
+            url     : url_index,
+            method  : 'post',
+            data    : {
+                accion          : 'get_info_locacion',
+                id_locacion     : id_locacion,
+                rango_fechas    : rango_semana_actual
+            },
+            success : function(data){
+                console.log('data');
+                console.log(data);
+                // $(modal_clone).find('.floating-box').remove();
+                show_calendar($("#div_header_agenda"),data,id_locacion);
+            },
+            error   : function(error){
+                console.log('error');
+                console.log(error);
+
+                $(modal_clone).find('.grid-hours').remove();
+                $(modal_clone).find('.hour').remove();
+                $(modal_clone).find('.floating-box').remove();
+
+                $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
+                $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
+
+                $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
+                $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
+            }
+        });
+    }
+
+    function show_hours(header_agenda,min_hora_inicio,max_hora_inicio,profesionales){
+        //  CONTENEDOR DE LA AGENDA POR SEMANA
+        let $weekContainer  = header_agenda.find(".week-container");
+        $weekContainer.find('.hour').remove();
+        $weekContainer.find('.grid-hours').remove();
+
+        //  CONTENEDOR DE LA AGENDA POR DIA
+        let agendaContainer = $(header_agenda).find("#agenda-container");
+        $(agendaContainer).find('.row_info').remove();
+        $(agendaContainer).find('#agenda-header').find('.agenda-service').remove();
+
+        horas   = [];
+        for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
+            horas.push(`${i.toString().padStart(2, '0')}:00`);
+        }
+
+        //  PARA EL CONTENEDOR DE AGENDA POR DIA
+        let row_fila        = '';
+        let agendaHeader    = $(".div_header_days_container #agenda-header");
+        profesionales.forEach(profesional => {
+            row_fila    += `<div class="agenda-service agenda-hours"></div>`;
+
+            const columna = $("<div>")
+                .addClass("agenda-service")
+                .text(profesional.nombre_completo);
+            agendaHeader.append(columna);
+        });
+
+        horas.forEach((hora, index) => {
+            $weekContainer.append(`<div class="grid-item hour">${hora}</div>`);
+            for (let i = 0; i < 7; i++) {
+                let dia = diasSemana[i];
+                $weekContainer.append('<div class="grid-item grid-hours" data-dia="'+dia+'" data-horainicio="'+hora+'"></div>');
+            }
+
+            const fila = $("<div>").addClass("agenda-row").addClass('row_info');
+
+            // Columna de la hora
+            const columnaHora = $("<div>")
+                .addClass("agenda-time")
+                .text(hora);
+            fila.append(columnaHora);
+
+            fila.append(row_fila);
+
+            // Añadir la fila al contenedor
+            agendaContainer.append(fila);
+        });
+    }
+
+    function cuadroFlotantesSemana(evento,background,$weekContainer,tipo_flot,id_horario_cita = '') {
+        
+        console.log('id_horario_cita',id_horario_cita);
+        if (id_horario_cita != ''){
+            $($weekContainer).find('#'+id_horario_cita).remove();
+        }
+
+        let { start, end, day, duracion = null,id_agenda_cita = null,nombre_completo = null,nombre_profesional = null } = evento;
+
+        console.log('nombre_completo');
+        console.log(nombre_completo);
+        console.log('nombre_profesional',nombre_profesional);
+
+        const dayIndex  = isNaN(day) ? diasSemana.indexOf(day) + 1 : day;
+        const duracion_minutos  = duracion == null ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos') : duracion;
+        if (id_agenda_cita != null){
+            console.log('id_agenda_cita',id_agenda_cita);
+        }
+
+        if ( (id_horario_cita != null && id_agenda_cita != null) && id_horario_cita == id_agenda_cita){
+            return true;
+        }
+        
+        //  ANTES DE CONTINUAR SE DEBE DE VERIFICAR QUE NO EXISTA
+        //  NINGUN TIPO DE EMPALMADO ENTRE NINGUN CUADRO FLOTANTE
+        //TODO VERIFICAR QUE LAS HORAS NO SE EXCEDAN DEL HORARIO DE ATENCION DEL LOCAL
+        let span_info       = '';
+        let data_paciente   = '';
+        if (tipo_flot == 'flot_cita'){
+            if ($($weekContainer).hasClass('div_principal')){
+                span_info   = '<span>'+nombre_completo+'</span><span>'+start + '-' + end+'</span>'
+            }
+            let existe_horario_disponinle  = false;
+            $($weekContainer).find('.dia_'+dayIndex).each(function(){
+                let flag_empalmados     = verificarEmpalmado($weekContainer,dayIndex,start,end);
+                if (flag_empalmados['flag_empalmados']){
+                    start   = flag_empalmados['hora_termino_empalmado'];
+                    const [horas, minutos] = start.split(':').map(Number);
+                    // Crear un objeto Date con la fecha actual y la hora extraída
+                    const fecha = new Date();
+                    fecha.setHours(horas);
+                    fecha.setMinutes(minutos);
+                    fecha.setMinutes(fecha.getMinutes() + duracion_minutos);
+
+                    // Obtener la nueva hora en formato "HH:MM"
+                    end = `${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+                } else {
+                    existe_horario_disponinle   = true;
+                    return false;
+                }
+            });
+            
+            if (!existe_horario_disponinle){
+                console.log('alert stop');
+            }
+
+            //  SE VERIFICA QUE LA HORA DE INICIO Y TERMINO NO ESTEN FUERA
+            //  DEL RANGO DEL HORARIO DE ATENCION
+            //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
+
+            let hora_inicio         = '';
+            let hora_termino        = '';
+
+            let tmp_first_row   = true;
+            $($weekContainer).find('.hour').each(function(){
+                if (tmp_first_row){
+                    hora_inicio     = $(this).text();
+                    tmp_first_row   = false;
+                }
+
+                hora_termino    = $(this).text();
+            })
+
+            let hora_inicio_header  = convertirHoraATiempo(start);
+            let hora_termino_header = convertirHoraATiempo(end);
+            hora_inicio             = convertirHoraATiempo(hora_inicio);
+            hora_termino            = convertirHoraATiempo(hora_termino);
+            
+            let flag_fuera_rango    = false;
+            if (hora_inicio_header >= hora_termino || hora_inicio_header < hora_inicio){
+                flag_fuera_rango    = true;
+            }
+
+            if (hora_termino_header < hora_inicio || hora_termino_header > hora_termino){
+                flag_fuera_rango    = true;
+            }
+
+            //  SI EXISTE FUERA DE RANGO, SE ELIMINA EL FLOTANTE Y EL CONTENEDOR
+            //  DE LA CITA
+            if (flag_fuera_rango){
+                showAlert('danger','Fechas fuera de rango del horario de atenci&oacute;n');
+                $($weekContainer).closest('#form_modal_create').find(".header_row#"+id_horario_cita).remove();
+                $($weekContainer).closest('#form_modal_create').find(".floating-box#"+id_horario_cita).remove();
+                $($weekContainer).closest('#form_modal_create').find('#btn_add_appoitment').trigger('click');
+                return false;
+            }
+            
+            if (id_horario_cita != ''){
+                $($weekContainer).closest('#form_modal_create').find(".header_row#"+id_horario_cita).find('.input_hora_inicio').val(start);
+                $($weekContainer).closest('#form_modal_create').find(".header_row#"+id_horario_cita).find('.input_hora_termino').val(end);
+            }
+
+            //  se construye string de las datas a mostrar
+            data_paciente   = ' data-paciente="'+evento.nombre_completo+'" data-asistencia="'+evento.asistencia+'"';
+        }
+
+        if (tipo_flot == 'flot_locacion'){
+            span_info   = '<span>Horario no disponible</span>';
+        }
+
+        if (tipo_flot == 'flot_profesional'){
+            if (background == 'bg-secondary'){
+                span_info   = '<span>Profesional no disponible</span>';
+            }
+
+            if (background == 'bg-success'){
+                span_info   = '<span>Ocupado</span>';
+            }
+        }
+        
+
+        const startHourIndex = horas.findIndex(hora => hora.startsWith(start.split(":")[0]));
+        const endHourIndex = horas.findIndex(hora => hora.startsWith(end.split(":")[0]));
+
+        const startOffset = parseFloat(start.split(":")[1]) / 60;
+        const endOffset = parseFloat(end.split(":")[1]) / 60;
+
+        const cellHeight = 70;
+        const cellWidth = 120;
+        const borderSize = 1;
+
+        const top = ((startHourIndex + startOffset) * (cellHeight + borderSize)) + 72;
+        const height = (((endHourIndex - startHourIndex) + (endOffset - startOffset)) * cellHeight + ((endHourIndex - startHourIndex) * borderSize));
+
+        const left = ((dayIndex) * (cellWidth + borderSize)) + 2;
+        const width = cellWidth;
+        let id_floating = id_agenda_cita == null ? 'id_horario_cita_'+(count_id_citas) : 'id_horario_cita_'+id_agenda_cita;
+
+        if (tipo_flot == 'flot_locacion' || tipo_flot == 'flot_profesional'){
+            id_floating = '';
+        }
+        console.log('span info');
+        console.log(span_info);
+        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" '+data_paciente+' data-dia="'+dayIndex+'" data-dialabel="'+(diasSemana[day - 1])+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-profesional="'+nombre_profesional+'" data-idagendacita="'+id_agenda_cita+'">'+span_info+'</span></div>').css({
+            top: `${top}px`,
+            left: `${left}px`,
+            width: `${width - borderSize}px`,
+            height: `${height - borderSize}px`,
+        });
+
+        $weekContainer.append($floatingBox);
+    }
+
+    function verificarEmpalmado($weekContainer,dayIndex,start,end){
+        let hora_inicio_header  = convertirHoraATiempo(start);
+        let hora_termino_header = convertirHoraATiempo(end);
+        let flag_empalmados         = false;
+        let hora_termino_empalmado  = '';
+        $($weekContainer).find('.dia_'+dayIndex).each(function(){
+            console.log('-----------    dentro del foreach  ---------------');
+            let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
+            let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
+            
+
+            //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
+            if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+                console.log('empalmado hora_inicio_header');
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
+            //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
+            if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                console.log('empalmado hora termino');
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
+            //  EXISTE UN EMPALMADO POR LO CUAL SE DEBE DE RECALCULAR 
+            //  LA HORA INICIO Y TERMINO 
+            
+            if (flag_empalmados){
+                return false;
+            }
+        });
+
         return {
-            inicioSemana: formatoFecha(lunes),
-            finSemana: formatoFecha(domingo)
+            flag_empalmados : flag_empalmados,
+            hora_termino_empalmado  : hora_termino_empalmado
         };
     }
 
+    function show_modal_cancelar_cita(element){
+        let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
+        let id_agenda_cita  = $(element).data('idagendacita');
+
+        $(modal_clone).on('click','#btnSave',function(){
+            let btn = $(this);
+            $(btn).prop('disabled',true);
+            const form = $(modal_clone).find('#form_modal_cancelar_cita')[0]; // Obtén el elemento DOM
+            let flag_error  = false;
+            if (form.checkValidity() === false) {
+                $(form).addClass('was-validated');
+                flag_error  = true;
+            } else {
+                $(form).removeClass('was-validated');
+            }
+
+            if (flag_error){
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                dataType    : 'json',
+                data        : {
+                    accion          : 'cancelar_cita',
+                    id_agenda_cita  : id_agenda_cita,
+                    id_motivo_cancelacion       : $(modal_clone).find("#select_motivo_cancelacion").val(),
+                    observaciones_cancelacion   : $(modal_clone).find("#textarea_observaciones_cancelacion").val(),
+                    id_agenda_cita              : $(element).data('idagendacita')
+                },
+                success     : function(data){
+                    $(modal_clone).modal('hide');
+                    showAlert('success','Cita cancelada');
+
+                    $(".flot_cita").each(function(){
+                        if ($(this).data('idagendacita') == id_agenda_cita){
+                            $(this).remove();
+                        }
+                    });
+
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                },
+                error     : function(error){
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                }
+            });
+        });
+
+        $(modal_clone).find('#select_motivo_cancelacion').select2({
+            placeholder: 'Seleccione una opción',
+            dropdownParent: $(modal_clone),
+            width: '50px'
+        });
+
+        $(modal_clone).modal('show');
+    }
+
+    function show_modal_asistencia(element){
+        let estatus_actual  = $(element).data('asistencia');
+        let id_agenda_cita  = $(element).data('idagendacita');
+        let modal_clone = $("#modal_asistencia").clone().show();
+
+        let estatus_asistencia  = {
+            '1' : 'ASISTENCIA',
+            '2' : 'RETARDO',
+            '0' : 'FALTA' 
+        }
+
+        $(modal_clone).find('#select_asistencia').find('option').prop('disabled',false);
+        $(modal_clone).find('#select_asistencia').find('#estatus_'+estatus_actual).prop('disabled',true);
+        $(modal_clone).find('#label_estatus_actual').text(estatus_asistencia[estatus_actual]);
+
+        $(modal_clone).find('#select_asistencia').select2({
+            placeholder: 'Seleccione una opción',
+            dropdownParent: $(modal_clone),
+            width: '50px'
+        });
+
+        $(modal_clone).on('click','#btnSave',function(){
+            let btn = $(this);
+            $(btn).prop('disabled',true);
+            const form = $(modal_clone).find('#form_modal_asistencia')[0]; // Obtén el elemento DOM
+            let flag_error  = false;
+            if (form.checkValidity() === false) {
+                $(form).addClass('was-validated');
+                flag_error  = true;
+            } else {
+                $(form).removeClass('was-validated');
+            }
+
+            if (flag_error){
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                dataType    : 'json',
+                data        : {
+                    accion          : 'modificar_asistencia',
+                    id_agenda_cita  : id_agenda_cita,
+                    estatus_asistencia_actual   : estatus_actual,
+                    nuevo_estatus_asistencia    : $(modal_clone).find("#select_asistencia").val()
+                },
+                success     : function(data){
+                    $(".flot_cita").each(function(){
+                        if ($(this).data('idagendacita') == id_agenda_cita){
+                            $(this).data('asistencia',$(modal_clone).find("#select_asistencia").val());
+                        }
+                    });
+
+                    $(modal_clone).modal('hide');
+                    showAlert('success','Asistencia modificada!');
+                },
+                error     : function(error){
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                }
+            });
+        });
+
+        $(modal_clone).modal('show');
+    }
 
     // Inicializar la agenda
     $(document).ready(function () {
@@ -811,41 +1547,21 @@ use App\Library\FuncionesGlobales;
             allowClear : false,
             width: '50px'
         }).on('select2:select',function(){
+            
             if ($(this).val() != null){
-                const id_locacion   = $(this).val();
-                $.ajax({
-                    url     : url_index,
-                    method  : 'post',
-                    data    : {
-                        accion      : 'get_info_locacion',
-                        id_locacion : id_locacion
-                    },
-                    success : function(data){
-                        console.log('data');
-                        console.log(data);
-                        // $(modal_clone).find('.floating-box').remove();
-                        show_calendar(data,id_locacion);
-                    },
-                    error   : function(error){
-                        console.log('error');
-                        console.log(error);
-
-                        $(modal_clone).find('.grid-hours').remove();
-                        $(modal_clone).find('.hour').remove();
-                        $(modal_clone).find('.floating-box').remove();
-
-                        $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
-                        $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
-
-                        $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
-                        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
-                    }
-                });
+                get_all_appointments($(this));
             }
         });
 
         // Encapsulación de eventos dentro de .div_header_days_container
-        const daysContainer = $(".div_header_days_container");
+        $('.div_header_days_container').on('mouseenter','.evento-flotante',function() {
+            $('.agenda-hours').addClass('no-hover-effect');
+        });
+
+        $('.div_header_days_container').on('mouseleave','.evento-flotante', function() {
+            $('.agenda-hours').removeClass('no-hover-effect');
+        });
+
         const divHeaderFilters = $(".div_header_filters");
 
         // Eventos para los botones de navegación
@@ -885,82 +1601,27 @@ use App\Library\FuncionesGlobales;
         // Eventos para los select de Servicios y Pacientes
         divHeaderFilters.find("#select-servicios").on("change", function () {
             const servicioSeleccionado = $(this).val();
-            console.log("Servicio seleccionado:", servicioSeleccionado);
             // Aquí puedes implementar la lógica para filtrar por servicio
         });
 
         divHeaderFilters.find("#select-pacientes").on("change", function () {
             const pacienteSeleccionado = $(this).val();
-            console.log("Paciente seleccionado:", pacienteSeleccionado);
             // Aquí puedes implementar la lógica para filtrar por paciente
         });
 
-        // Generar la agenda
-        generarColumnasProfesionales(); // Generar columnas de profesionales
-        generarFilasHoras(); // Generar filas de horas
-        generarEventosFlotantes(); // Generar eventos flotantes
         actualizarFecha(); // Mostrar la fecha actual al cargar la página
-
-        //  CODIGO PARA CALENDARIO POR SEMANA
-        const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
         //const horas = ["15:00", "16:00", "17:00", "18:00", "19:00"];
         const $weekContainer = $(".div_header_week_container .week-container");
 
-        horas.forEach(hora => {
-            $weekContainer.append(`<div class="grid-item hour">${hora}</div>`);
-            for (let i = 0; i < 7; i++) {
-                $weekContainer.append('<div class="grid-item grid-hours"></div>');
-            }
-        });
-
-        const eventos = [
-            { start: "15:30", end: "17:30", day: "Martes" },
-            { start: "17:30", end: "19:30", day: "Martes" },
-            { start: "16:00", end: "17:00", day: "Jueves" },
-            { start: "18:00", end: "19:00", day: "Viernes" }
-        ];
-
-        function crearCuadroFlotante(evento) {
-            const { start, end, day } = evento;
-            const dayIndex = diasSemana.indexOf(day);
-
-            const startHourIndex = horas.findIndex(hora => hora.startsWith(start.split(":")[0]));
-            const endHourIndex = horas.findIndex(hora => hora.startsWith(end.split(":")[0]));
-
-            const startOffset = parseFloat(start.split(":")[1]) / 60;
-            const endOffset = parseFloat(end.split(":")[1]) / 60;
-
-            const cellHeight = 70;
-            const cellWidth = 120;
-            const borderSize = 1;
-
-            const top = ((startHourIndex + startOffset) * (cellHeight + borderSize)) + 72;
-            const height = (((endHourIndex - startHourIndex) + (endOffset - startOffset)) * cellHeight + ((endHourIndex - startHourIndex) * borderSize));
-
-            const left = ((dayIndex) * (cellWidth + borderSize)) + 2;
-            const width = cellWidth;
-
-            const $floatingBox = $('<div class="floating-box"></div>').css({
-                top: `${top}px`,
-                left: `${left}px`,
-                width: `${width - borderSize}px`,
-                height: `${height - borderSize}px`,
-            });
-
-            $weekContainer.append($floatingBox);
-        }
-
-        eventos.forEach(evento => crearCuadroFlotante(evento));
-
         $(".div_header_month_container #prevMonth").on("click", function() {
             fechaActual.setMonth(fechaActual.getMonth() - 1);
-            renderCalendar();
+            renderCalendarMes();
         });
 
         $(".div_header_month_container #nextMonth").on("click", function() {
             fechaActual.setMonth(fechaActual.getMonth() + 1);
-            renderCalendar();
+            renderCalendarMes();
         });
 
         $(".div_header_month_container").on('click', '.div_month_day', function () {
@@ -978,7 +1639,7 @@ use App\Library\FuncionesGlobales;
         });
 
 
-        renderCalendar();
+        renderCalendarMes();
 
         //  EVENTOS PARA APERTURA DE AGENDA
         $("#btn_agenda_opening").on('click',function(){
@@ -1099,56 +1760,83 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         });
 
-        //  FUNCTION PARA MOSTRAR INFORMACION AL SELECCIONAR UNA LOCACION
-        function show_calendar(modal_clone,data,id_locacion){
-            const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
-            show_hours($weekContainer,data['min_hora_inicio'],data['max_hora_inicio']);
-            eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_locacion'));
+        const $floatingBox = $(".flot_cita");
+        const $infoBox = $("#infoBox");
+        const $closeModal = $("#closeModal");
+        // Mostrar el modal al pasar el mouse sobre el .flot_cita
+        $("#div_header_week_container").on("click",'.flot_cita',function () {
+            show_info_cita($(this));
+        });
 
-            $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
-            $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
+        $(".div_header_days_container").on("click",'.flot_cita',function () {
+            show_info_cita($(this));
+        });
 
-            $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
-            $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
+        $("#infoBox").on('click','.btn_edit',function(){
+            const dia           = $(this).data('dia');
+            const hora_inicio   = $(this).data('horainicio');
+            const id_agenda_cita    = $(this).data('idagendacita');
 
-            $(modal_clone).find('#select_servicios_modal').find('option').remove();
-            $(modal_clone).find('#select_servicios_modal').append('<option></option>');
+            console.log('id_agenda_cita',id_agenda_cita);
 
-            for(let i in data['all_services']){
-                let service = data['all_services'][i];
+            // show_modal_citas(id_cita_programada_servicio_horario,dia,hora_inicio);
+            // $("#closeModal").trigger('click');
+        });
 
-                let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'">'+service["nombre"]+'</option>'
-                $(modal_clone).find('#select_servicios_modal').append(option);
+        $("#infoBox").on('click','.btn_reagendar',function(){
+            const dia           = $(this).data('dia');
+            const hora_inicio   = $(this).data('horainicio');
+            const id_agenda_cita    = $(this).data('idagendacita');
 
-            }
+            console.log('id_agenda_cita',id_agenda_cita);
 
-            $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
-        }
+            // show_modal_citas(id_cita_programada_servicio_horario,dia,hora_inicio);
+            // $("#closeModal").trigger('click');
+        });
 
-        function show_hours($weekContainer,min_hora_inicio,max_hora_inicio){
-            horas   = [];
-            for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
-                horas.push(`${i.toString().padStart(2, '0')}:00`);
-            }
+        $("#infoBox").on('click','.btn_cancelar',function(){
+            console.log($(this).data('idagendacita'));
+            show_modal_cancelar_cita($(this));
+            $("#closeModal").trigger('click');
+        });
 
-            //
+        $("#infoBox").on('click','.btn_asistencia',function(){
+            console.log($(this).data('asistencia'));
+            show_modal_asistencia($(this));
+            $("#closeModal").trigger('click');
+        });
 
-            horas.forEach(hora => {
-                $weekContainer.append(`<div class="grid-item hour">${hora}</div>`);
-                for (let i = 0; i < 7; i++) {
-                    let dia = diasSemana[i];
-                    $weekContainer.append('<div class="grid-item grid-hours" data-dia="'+dia+'" data-horainicio="'+hora+'"></div>');
-                }
-            });
-
-            // $($weekContainer).on('click','.grid-hours',function(){
-            //     const dia           = $(this).data('dia');
-            //     const hora_inicio   = $(this).data('horasinicio');
-
-            //     //  SE BUSCA DE CADA REGISTRODE CITA 
-            //     //  SI YA EXISTE UN ELEMENTO FLOTANTE CREADO
-            //     $($weekContainer)
-            // })
-        }
+        // Ocultar el modal al hacer clic en el botón de cerrar
+        $("#closeModal").on("click", function () {
+            $infoBox.css("display", "none"); // Ocultar el modal
+        });
     });
+
+    function show_info_cita(element){
+        let horario = $(element).data('horainicio')+' Hrs. - '+$(element).data('horatermino')+' Hrs.';
+        $("#infoBox").find("#profesional").text($(element).data('profesional'));
+        $("#infoBox").find("#servicio").text($(element).data('paciente'));
+        $("#infoBox").find("#duracion").text($(element).data('duracion')+' Minutos');
+        $("#infoBox").find("#dia").text($(element).data('dialabel'));
+        $("#infoBox").find("#horario").text(horario);
+
+        if ($(element).data('asistencia') == 1){
+            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Asistencia').append('<i class="bi bi-person-check-fill"></i>');
+        }  
+        
+        if ($(element).data('asistencia') == 2){
+            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Retardo').append('<i class="bi bi-person-fill-exclamation"></i>');
+        }
+
+        if ($(element).data('asistencia') == 0){
+            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Falta').append('<i class="bi bi-person-dash-fill"></i>');
+        }
+
+        $("#infoBox").find(".icon-button")
+            .data('idagendacita',$(element).data('idagendacita'))
+            .data('dia',$(element).data('dialabel'))
+            .data('asistencia',$(element).data('asistencia'))
+            .data('horainicio',$(element).data('horainicio'));
+        $("#infoBox").css("display", "block"); // Mostrar el modal
+    }
 </script>

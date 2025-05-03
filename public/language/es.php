@@ -109,6 +109,12 @@ return [
     'html_add_appoinment'           => 'Agregar cita',
     'html_deactivate_patient'       => '&iquest; Desea dar de BAJA a este paciente?, se cancelaran sus citas agendadas y se perderan los espacios de sus citas programadas.',
     'html_activate_patient'         => '&iquest; Desea dar de ALTA a este paciente?, El paciente pasará a estar disponible para la programación de citas.',
+    'html_cancel_appointment'       => 'Cancelar cita',
+    'html_reason_cancellation'      => 'Motivo de cancelaci&oacute;n',
+    'html_observations'             => 'Observaciones',
+    'html_attendance_status'        => 'Estatus de asistencia',
+    'html_new_status'               => 'Nuevo estatus',
+    'html_current_status'           => 'Estatus actual',
 
 
     //  MENSAJES DE ERROR
@@ -143,4 +149,6 @@ return [
     'html_error_range_allowed'          => 'El horario del profesional esta fuera de rango del horario de atenci&oacute;n de la locaci&oacute;n',
     'html_error_starting_date'          => 'Ingresa la fecha de inicio',
     'html_error_range_date'             => 'Rango fechas invalido',
+    'html_error_reason_cancellation'    => 'Ingrese un motivo de cancelaci&oacute;n',
+    'html_error_attendance_status'      => 'Especifique el estatus de la asistencia'
 ];

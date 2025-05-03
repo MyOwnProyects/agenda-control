@@ -89,13 +89,12 @@
     }
     .div_header_days_container .evento-flotante {
         position: absolute;
-        background-color: rgba(0, 123, 255, 0.2); /* Color de fondo con transparencia */
-        border: 1px solid #007bff; /* Borde azul */
-        border-radius: 5px;
-        width: calc(100% - 20px); /* Ancho del evento (ajustado al padding) */
-        left: 10px; /* Ajuste para el padding */
-        z-index: 10; /* Asegura que esté por encima de otros elementos */
-        box-sizing: border-box; /* Incluye el padding y el borde en el ancho */
+        background-color: rgba(0, 123, 255, 0.2);
+        border: 1px solid #007bff;
+        width: 100%; /* CAMBIO: usar todo el ancho */
+        left: 0; /* CAMBIO: alinear a la izquierda */
+        z-index: 10;
+        box-sizing: border-box;
     }
 
     /*  ESTILO PARA DIV DE SEMANAS  */

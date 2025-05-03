@@ -27,7 +27,7 @@ class AgendaController extends BaseController
 
             if ($accion == 'get_date'){
                 $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
-                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $arr_info           = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
                 $response = new Response();
                 $response->setJsonContent($arr_info);
@@ -63,6 +63,44 @@ class AgendaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'cancelar_cita'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['cancelar_cita'];
+                $result     = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+
+                $response->setJsonContent('Cancelacion exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'modificar_asistencia'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['modificar_asistencia'];
+                $result     = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+
+                $response->setJsonContent('Cancelacion exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }     
 
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
@@ -84,6 +122,12 @@ class AgendaController extends BaseController
         }
 
         $this->view->dias_programacion_citas    = $dias_programacion_citas;
+
+        //  MOTIVOS PARA CANCELAR UNA CITA
+        $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
+        $motivos_cancelacion_cita   = FuncionesGlobales::RequestApi('GET',$route);
+
+        $this->view->motivos_cancelacion_cita   = $motivos_cancelacion_cita;
     }
 
     function get_info_by_location(){
@@ -108,16 +152,24 @@ class AgendaController extends BaseController
         $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
         $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
         $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
-        $tmp_json   = json_encode($arr_return['rangos_no_incluidos']);
+
+        //  SE BUSCA LA ULTIMA FECHA DISPONIBLE ANTES DEL CIERRE DE AGENDA
+        $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
+        $arr_return['cierre_agenda']    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
         //  INFORMACION DE LOS SERVICIOS
         $route                      = $this->url_api.$this->rutas['ctservicios']['show'];
         $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
 
-
+        // INFORMACION DE LOS PROFESIONALES
         $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
         $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
 
+        //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
+        $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+        $_POST['activa']                = 1;
+        $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
         return $arr_return;
     }
     

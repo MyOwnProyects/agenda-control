@@ -73,5 +73,13 @@ return [
         'show'  => '/tbapertura_agenda/show',
         'save'  => '/tbapertura_agenda/save',
     ),
+    'tbagenda_citas' => array(
+        'show'          => '/tbagenda_citas/show',
+        'cancelar_cita' => '/tbagenda_citas/cancelar_cita',
+        'modificar_asistencia'  => '/tbagenda_citas/modificar_asistencia'
+    ),
+    'ctmotivos_cancelacion_cita'    => array(
+        'show'  => '/ctmotivos_cancelacion_cita/show'
+    ),
 
 ];
