@@ -195,11 +195,12 @@ use App\Library\FuncionesGlobales;
 
 </style>
 <div class="container div_header_filters col-12">
-    <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
+    <h1 class="text-center my-4"><?php echo $translations['html_appointment_scheduling']; ?></h1>
 </div>
 
 <div class="container col-12">
     <button id="btn_create" type="button" class="btn btn-outline-dark"><?php echo $translations['html_add_appoitments']; ?></button>
+    <button id="btn_agenda_opening" type="button" class="btn btn-outline-dark"><?php echo $translations['html_generate_dates']; ?></button>
 </div>
 
 <div id="div_header_week_container" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
@@ -324,6 +325,58 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
+<div class="modal fade" id="modal_agenda_opening" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_generate_dates']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_agenda_opening" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-6">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_location']; ?></label>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones_modal" class="select_locaciones_modal" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?> required>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-6">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_inicio" disabled required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="input_fecha_termino" class="col-form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_termino" disabled required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Caja emergente -->
 <div id="infoBox" class="info-box">
     <div class="event-header mb-2">
@@ -342,11 +395,15 @@ use App\Library\FuncionesGlobales;
       <span id="dia"></span> • <span id="horario"></span>
     </div>
 
-    <div class="event-detail mb-1 d-flex align-items-center">
+    <div class="event-detail mb-1 d-flex align-items-center" title="Locaci&oacute;n">
+        <i class="bi bi-building"></i>&nbsp<span id="nombre_locacion"></span>
+    </div>
+
+    <div class="event-detail mb-1 d-flex align-items-center" title="Duraci&oacute;n">
         <i class="bi bi-clock"></i>&nbsp<span id="duracion"></span>
     </div>
 
-    <div class="event-detail d-flex align-items-center">
+    <div class="event-detail d-flex align-items-center" title="Profesional">
         <i class="bi bi-person-fill"></i>&nbsp<span id="profesional"></span>
     </div>
 </div>
@@ -427,7 +484,7 @@ let module_schedule_appointments    = (function(){
             $($weekContainer).find('#'+id_horario_cita).remove();
         }
 
-        let { start, end, day, duracion = null,id_cita_programada_servicio_horario = null,servicio = null,profesional = null } = evento;
+        let { start, end, day, duracion = null,id_cita_programada_servicio_horario = null,servicio = null,nombre_locacion = null,profesional = null } = evento;
         const dayIndex  = diasSemana.indexOf(day) + 1;
         const duracion_minutos  = duracion == null ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos') : duracion;
         if (id_cita_programada_servicio_horario != null){
@@ -553,7 +610,7 @@ let module_schedule_appointments    = (function(){
             id_floating = '';
         }
 
-        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" data-dia="'+dayIndex+'" data-dialabel="'+day+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-servicio="'+servicio+'" data-profesional="'+profesional+'" data-idcitaprogramadaserviciohorario="'+id_cita_programada_servicio_horario+'">'+span_info+'</span></div>').css({
+        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" data-dia="'+dayIndex+'" data-dialabel="'+day+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-servicio="'+servicio+'" data-profesional="'+profesional+'" data-nombrelocacion="'+nombre_locacion+'" data-idcitaprogramadaserviciohorario="'+id_cita_programada_servicio_horario+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
             left: `${left}px`,
             width: `${width - borderSize}px`,
@@ -639,6 +696,109 @@ let module_schedule_appointments    = (function(){
             show_modal_citas();
         });
 
+        //  EVENTOS PARA APERTURA DE AGENDA
+        $("#btn_agenda_opening").on('click',function(){
+            let modal_clone = $("#modal_agenda_opening").clone().show();
+
+            // Aplica select2 solo al nuevo select
+            $(modal_clone).find('.select_locaciones_modal').select2({
+                placeholder : 'Seleccione una opción',
+                allowClear  : false,
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            }).on('select2:select',function(){
+                const id_locacion   = $(this).val();
+                $.ajax({
+                    url     : url_scheduleappointments,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'get_date',
+                        id_locacion : id_locacion
+                    },
+                    success     : function(data){
+                        console.log('data');
+                        console.log(data);
+
+                        $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['fecha_actual']).attr('max',data['last_fecha_limite']).val(data['fecha_actual']).trigger('change');
+                        $(modal_clone).find('#input_fecha_termino').attr('min' , data['fecha_actual']).data('fecha',data['last_fecha_limite']).val(data['last_fecha_limite']).prop('disabled',true);
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            if ($(modal_clone).find('.select_locaciones_modal').val() != null && $(modal_clone).find('.select_locaciones_modal').val() != ''){
+                $(modal_clone).find('.select_locaciones_modal').trigger('select2:select');
+            }
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_agenda_opening')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                let fecha_inicio    = $(modal_clone).find('#input_fecha_inicio').val();
+                let fecha_termino   = $(modal_clone).find('#input_fecha_termino').data('fecha');
+
+                // Convertir las cadenas a objetos Date
+                fecha_inicio    = new Date(fecha_inicio);
+                fecha_termino   = new Date(fecha_termino);
+
+                //  VALIDAR REGISTROS
+                if (fecha_inicio > fecha_termino){
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_range_date']);
+                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                    return false;
+                }
+
+                if(flag_error){
+                    return false;
+                }
+
+                let obj_info    = {
+                    id_locacion     : $(modal_clone).find('#select_locaciones_modal').val(),
+                    nombre_locacion : $(modal_clone).find('#select_locaciones_modal').find('option:selected').text(),
+                    fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
+                    fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
+                    id_paciente     : id_paciente
+                };
+
+                console.log('obj_info');
+                console.log(obj_info);
+                //return false;
+
+                //  AJAX SAVE
+                $.ajax({
+                    url         : url_scheduleappointments,
+                    method      : 'POST',
+                    dataType    : 'json',
+                    data        : {
+                        accion      : 'save_generate_agenda',
+                        obj_info    : obj_info
+                    },
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                        
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            $(modal_clone).modal('show');
+        });
+
         const $floatingBox = $(".flot_cita");
         const $infoBox = $("#infoBox");
         const $closeModal = $("#closeModal");
@@ -648,6 +808,7 @@ let module_schedule_appointments    = (function(){
             let horario = $(this).data('horainicio')+' Hrs. - '+$(this).data('horatermino')+' Hrs.';
             $infoBox.find("#profesional").text($(this).data('profesional'));
             $infoBox.find("#servicio").text($(this).data('servicio'));
+            $infoBox.find("#nombre_locacion").text($(this).data('nombrelocacion'));
             $infoBox.find("#duracion").text($(this).data('duracion')+' Minutos');
             $infoBox.find("#dia").text($(this).data('dialabel'));
             $infoBox.find("#horario").text(horario);

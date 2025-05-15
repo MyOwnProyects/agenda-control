@@ -62,6 +62,7 @@ return [
     'html_title_users'              => 'Usuarios',   
     'html_title_my_account'         => 'Mi cuenta',
     'html_title_patients'           => 'Pacientes',
+    'html_title_patient'            => 'Paciente',
     'html_assigned_services'        => 'Servicios asignados',
     'html_assigned_schedule'        => 'Horario asignado',
     'html_express_new_record'       => 'Registro express',
@@ -115,6 +116,7 @@ return [
     'html_attendance_status'        => 'Estatus de asistencia',
     'html_new_status'               => 'Nuevo estatus',
     'html_current_status'           => 'Estatus actual',
+    'html_appointment_scheduling'  => 'Programaci&oacute;n de citas',
 
 
     //  MENSAJES DE ERROR

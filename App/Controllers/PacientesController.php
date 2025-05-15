@@ -220,6 +220,36 @@ class PacientesController extends BaseController
         if ($this->request->isAjax()){
             $accion = $this->request->getPost('accion');
 
+            if ($accion == 'get_date'){
+                $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
+                $arr_info           = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'save_generate_agenda'){
+                $obj_info   = $_POST['obj_info'];
+                $route      = $this->url_api.$this->rutas['tbapertura_agenda']['save'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$obj_info);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la programacion de citas para el usuario con identificador: '.$obj_info['id_paciente'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
+
+                $response->setJsonContent('Apertura de agenda exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             if ($accion == 'get_info_locacion'){
                 $arr_return = array(
                     'horario_atencion'  => array()
@@ -414,7 +444,7 @@ class PacientesController extends BaseController
         // HORARIO DE ATENCION PLANTEL
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
         $_POST['onlyallowed']   = 1;
-        $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,array());
+        $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         $this->view->arr_locaciones = $arr_locaciones;
         $aqui   = 1;
 
@@ -457,6 +487,7 @@ class PacientesController extends BaseController
                     'duracion'      => $info_citas['duracion'],
                     'id_cita_programada_servicio'           => $id_cita_programada_servicio,
                     'id_cita_programada_servicio_horario'   => $horario['id_cita_programada_servicio_horario'],
+                    'nombre_locacion'                       => $info_citas['nombre_locacion']
                 );
             }
         }
