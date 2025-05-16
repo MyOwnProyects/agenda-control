@@ -4,6 +4,7 @@ body {
   min-height: 100vh; /* Establece el mínimo alto como el 100% del viewport height */
   margin: 0; /* Elimina márgenes predeterminados */
   padding: 0; /* Elimina rellenos predeterminados */
+  background-color: #f8f9fa !important;
 }
 
 textarea {

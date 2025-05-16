@@ -224,7 +224,7 @@
             error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
         }
 
-        const tipo_usuario_defeco   = "<?php echo $arr_tipo_usuario['nombre']; ?>";
+        const tipo_usuario_defecto  = "<?php echo $arr_tipo_usuario['nombre']; ?>";
 
         //  BANDERA PARA SABEREL NUMERO QUE YA SE VALIDO
         let celular_validado    = '';
@@ -278,7 +278,7 @@
                                 $("#input_tipo_usuario").val(data['nombre_tipo_usuario']);
                                 $('.create-container').find('.alert_cuenta_creada').addClass('d-flex').show();
                             } else {
-                                $("#input_tipo_usuario").val(tipo_usuario_defeco);
+                                $("#input_tipo_usuario").val(tipo_usuario_defecto);
                                 $('.create-container').find('#input_primer_apellido').val('').prop('disabled',false);
                                 $('.create-container').find('#input_segundo_apellido').val('').prop('disabled',false);
                                 $('.create-container').find('#input_nombre').val('').prop('disabled',false);

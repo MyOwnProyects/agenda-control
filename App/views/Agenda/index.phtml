@@ -1273,15 +1273,17 @@ use App\Library\FuncionesGlobales;
                 console.log('error');
                 console.log(error);
 
-                $(modal_clone).find('.grid-hours').remove();
-                $(modal_clone).find('.hour').remove();
-                $(modal_clone).find('.floating-box').remove();
+                showAlert('danger',error.responseText);
 
-                $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
-                $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
+                $(".div_header_filters").find('.grid-hours').remove();
+                $(".div_header_filters").find('.hour').remove();
+                $(".div_header_filters").find('.floating-box').remove();
 
-                $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
-                $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
+                $(".div_header_filters").find('#select_servicios_modal').val(null).trigger('change');
+                $(".div_header_filters").find('#select_servicios_modal').prop('disabled',true).find('option').remove();
+
+                $(".div_header_filters").find('#select_profesionales_modal').val(null).trigger('change');
+                $(".div_header_filters").find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
             }
         });
     }

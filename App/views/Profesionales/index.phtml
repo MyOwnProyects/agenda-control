@@ -454,6 +454,75 @@ use App\Library\FuncionesGlobales;
             }
         }
 
+        function ajax_seach_horario_atencion(modal_clone,id_profesional){
+            let value   = $(modal_clone).find("#select_locaciones").val();
+            //  AJAX PARA BUSCAR LOS HORARIOS DE ATENCION
+            $.ajax({
+                url     : url_update,
+                method  : 'post',
+                data    : {
+                    id_locacion     : value,
+                    id_profesional  : id_profesional,
+                    accion          : 'get_opening_hours'
+                },
+                success : function(data){
+                    console.log('data');
+                    console.log(data);
+                    $(modal_clone).find('.rows_table_locaciones').html('');
+                    $(modal_clone).find('.rows_table').html('');
+                    let horario_locacion    = data['locacion'];
+                    for(let i in horario_locacion){
+                        let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours_locaciones').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                        $(row_clone).find('.input_hora_inicio').val(horario_locacion[i]['hora_inicio']).prop('disabled',true);
+                        $(row_clone).find('.input_hora_termino').val(horario_locacion[i]['hora_termino']).prop('disabled',true);
+                        $(row_clone).find('.btn_delete_hours').hide();
+
+                        let dias    = horario_locacion[i]['dias'];
+
+                        for(let x in dias){
+                            $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
+                        }
+
+                        $(row_clone).find('.div_check').removeClass('div_check');
+                        $(modal_clone).find('.rows_table_locaciones').append(row_clone);
+                        count_hours ++;
+                    }
+
+                    if (data['profesional'].length == 0){
+                        let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                        $(modal_clone).find('.rows_table').append(row_clone);
+                        count_hours ++;
+                    } else {
+                        let profesional = data['profesional'];
+                        for(let i in profesional){
+                            let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                            $(row_clone).find('.input_hora_inicio').val(profesional[i]['hora_inicio']);
+                            $(row_clone).find('.input_hora_termino').val(profesional[i]['hora_termino']);
+
+                            let dias    = profesional[i]['dias'];
+
+                            for(let x in dias){
+                                $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
+                            }
+
+                            $(row_clone).find('.div_check').removeClass('div_check');
+                            $(modal_clone).find('.rows_table').append(row_clone);
+                            count_hours ++;
+                        }
+                    }
+
+                    $(modal_clone).find('.btn_add_hours').prop('disabled',false);
+
+                },
+                error   : function(error){
+                    console.log('error');
+                    console.log(error);
+                    actionJsonError(error);
+                    $(modal_clone).modal('hide');
+                }
+            });
+        }
+
         function showModalScheduleAvailability(locaciones,id_profesional,clave,nombre){
 
             let modal_clone = $("#modal_schedule_availability").clone().show();
@@ -470,74 +539,14 @@ use App\Library\FuncionesGlobales;
                 dropdownParent: $(modal_clone),
                 width: '50px'
             }).on('select2:select',function(){
-                let value   = $(this).val();
-                //  AJAX PARA BUSCAR LOS HORARIOS DE ATENCION
-                $.ajax({
-                    url     : url_update,
-                    method  : 'post',
-                    data    : {
-                        id_locacion     : value,
-                        id_profesional  : id_profesional,
-                        accion          : 'get_opening_hours'
-                    },
-                    success : function(data){
-                        console.log('data');
-                        console.log(data);
-                        $(modal_clone).find('.rows_table_locaciones').html('');
-                        $(modal_clone).find('.rows_table').html('');
-                        let horario_locacion    = data['locacion'];
-                        for(let i in horario_locacion){
-                            let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours_locaciones').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
-                            $(row_clone).find('.input_hora_inicio').val(horario_locacion[i]['hora_inicio']).prop('disabled',true);
-                            $(row_clone).find('.input_hora_termino').val(horario_locacion[i]['hora_termino']).prop('disabled',true);
-                            $(row_clone).find('.btn_delete_hours').hide();
-
-                            let dias    = horario_locacion[i]['dias'];
-
-                            for(let x in dias){
-                                $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
-                            }
-
-                            $(row_clone).find('.div_check').removeClass('div_check');
-                            $(modal_clone).find('.rows_table_locaciones').append(row_clone);
-                            count_hours ++;
-                        }
-
-                        if (data['profesional'].length == 0){
-                            let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
-                            $(modal_clone).find('.rows_table').append(row_clone);
-                            count_hours ++;
-                        } else {
-                            let profesional = data['profesional'];
-                            for(let i in profesional){
-                                let row_clone   = $("#template_horas").clone().removeClass('div_header_hours').addClass('div_header_hours').removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
-                                $(row_clone).find('.input_hora_inicio').val(profesional[i]['hora_inicio']);
-                                $(row_clone).find('.input_hora_termino').val(profesional[i]['hora_termino']);
-
-                                let dias    = profesional[i]['dias'];
-
-                                for(let x in dias){
-                                    $(row_clone).find('.dia_'+dias[x]['dia']).addClass('selected').addClass('bg-primary');
-                                }
-
-                                $(row_clone).find('.div_check').removeClass('div_check');
-                                $(modal_clone).find('.rows_table').append(row_clone);
-                                count_hours ++;
-                            }
-                        }
-
-                        $(modal_clone).find('.btn_add_hours').prop('disabled',false);
-
-                    },
-                    error   : function(error){
-                        console.log('error');
-                        console.log(error);
-                        actionJsonError(error);
-                        $(modal_clone).modal('hide');
-                    }
-                });
-
+                ajax_seach_horario_atencion(modal_clone,id_profesional);
             });
+
+            if (Object.keys(locaciones).length == 1){
+                $(modal_clone).find('.select_locaciones').val(locaciones[0]['id']).trigger('change');
+                $(modal_clone).find('.select_locaciones').prop('disabled',true);
+                ajax_seach_horario_atencion(modal_clone,id_profesional);
+            }
 
             //  EVENTO PARA AGREGAR DIV DE HORAS
             $(modal_clone).on('click','.btn_add_hours',function(){

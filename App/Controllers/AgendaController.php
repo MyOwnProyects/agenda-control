@@ -68,6 +68,13 @@ class AgendaController extends BaseController
             if ($accion == 'get_info_locacion'){
                 $arr_return = $this->get_info_by_location();
 
+                if (!is_array($arr_return)){
+                    $response = new Response();
+                    $response->setJsonContent($arr_return);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
                 //  SE RECORREN TODOS LOS PROFESIONALES PARA 
                 //  BUSCAR SU HORARIO DE ATENCION
                 $route  = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
@@ -215,9 +222,7 @@ class AgendaController extends BaseController
         $response = new Response();
 
         if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion) == 0){
-            $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
-            $response->setStatusCode(404, 'Error');
-            return $response;
+            return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
         }
 
         $arr_return['horario_atencion'] = $horario_atencion;
