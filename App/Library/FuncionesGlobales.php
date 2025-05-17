@@ -329,24 +329,15 @@ class FuncionesGlobales{
         return $rangos_no_incluidos;
     }
 
-    public static function obtenerRangosNoDisponiblesPorDia($horariosLocacion, $horariosProfesional,$hora_cierre) {
-        // Inicializar los días de la semana
+    public static function obtenerRangosNoDisponiblesPorDia($horariosLocacion, $horariosProfesional, $hora_cierre) {
         $diasSemana = [
-            1 => "Lunes",
-            2 => "Martes",
-            3 => "Miércoles",
-            4 => "Jueves",
-            5 => "Viernes",
-            6 => "Sábado",
-            7 => "Domingo"
+            1 => "Lunes", 2 => "Martes", 3 => "Miércoles", 4 => "Jueves",
+            5 => "Viernes", 6 => "Sábado", 7 => "Domingo"
         ];
-    
-        // Resultado donde se almacenarán los rangos no disponibles
+
         $rangosNoDisponibles = [];
-    
-        // Iterar por los días de la semana
+
         foreach ($diasSemana as $numeroDia => $nombreDia) {
-            // Obtener los rangos de horas para la locación en este día
             $horasLocacion = [];
             foreach ($horariosLocacion as $horario) {
                 foreach ($horario['dias'] as $dia) {
@@ -358,8 +349,7 @@ class FuncionesGlobales{
                     }
                 }
             }
-    
-            // Obtener los rangos de horas para el profesional en este día
+
             $horasProfesional = [];
             foreach ($horariosProfesional as $horario) {
                 foreach ($horario['dias'] as $dia) {
@@ -371,76 +361,60 @@ class FuncionesGlobales{
                     }
                 }
             }
-    
-            // Calcular los rangos no disponibles
+
             foreach ($horasLocacion as $rangoLocacion) {
                 $horaActual = $rangoLocacion['start'];
                 while ($horaActual < $rangoLocacion['end']) {
                     $esCubierta = false;
-    
+                    $limiteRango = $rangoLocacion['end'];
+
                     foreach ($horasProfesional as $rangoProfesional) {
                         if ($horaActual >= $rangoProfesional['start'] && $horaActual < $rangoProfesional['end']) {
                             $esCubierta = true;
                             break;
                         }
+                        if ($rangoProfesional['start'] > $horaActual && $rangoProfesional['start'] < $limiteRango) {
+                            $limiteRango = $rangoProfesional['start'];
+                        }
                     }
-    
-                    // Si la hora actual no está cubierta, calcular el rango faltante
+
                     if (!$esCubierta) {
                         $start = date('H:i', $horaActual);
-                        $horaActual += 3600; // Avanzar en intervalos de 1 hora
-                        $tmp_end    = date('H:i', $horaActual);
-                        $end = $hora_cierre == $tmp_end ? date('H:i', $horaActual - 1) : date('H:i', $horaActual); // Restar 1 segundo al final del rango
-                        $rangosNoDisponibles[] = [
-                            "start" => $start,
-                            "end" => $end,
-                            "day" => $nombreDia
-                        ];
+                        $horaActual = $limiteRango; // Detenerse en el inicio del rango del profesional
+                        $end = ($hora_cierre == date('H:i', $horaActual)) ? date('H:i', $horaActual - 1) : date('H:i', $horaActual);
+                        $rangosNoDisponibles[] = ["start" => $start, "end" => $end, "day" => $nombreDia];
                     } else {
-                        $horaActual += 3600; // Avanzar 1 hora si está cubierta
+                        $horaActual += 300; // Avanzar en intervalos de 5 minutos
                     }
                 }
             }
         }
 
-        // Decodificar el JSON si los horarios están en formato JSON
-        $horarios = $rangosNoDisponibles;
-
-        // Resultado donde se almacenarán los horarios agrupados
         $horariosAgrupados = [];
-
-        // Agrupar por día
         $horariosPorDia = [];
-        foreach ($horarios as $horario) {
+
+        foreach ($rangosNoDisponibles as $horario) {
             $horariosPorDia[$horario['day']][] = $horario;
         }
 
-        // Procesar cada día
         foreach ($horariosPorDia as $dia => $horariosDelDia) {
-            // Ordenar los horarios del día por la hora de inicio
-            usort($horariosDelDia, function ($a, $b) {
-                return strtotime($a['start']) - strtotime($b['start']);
-            });
-
-            // Combinar horarios consecutivos
+            usort($horariosDelDia, fn($a, $b) => strtotime($a['start']) - strtotime($b['start']));
             $horarioActual = $horariosDelDia[0];
+
             for ($i = 1; $i < count($horariosDelDia); $i++) {
                 $siguienteHorario = $horariosDelDia[$i];
-
-                // Si el fin del horario actual coincide o es consecutivo con el inicio del siguiente, los combinamos
                 if (strtotime($horarioActual['end']) + 1 >= strtotime($siguienteHorario['start'])) {
-                    $horarioActual['end'] = $siguienteHorario['end']; // Extender el final del rango
+                    $horarioActual['end'] = $siguienteHorario['end'];
                 } else {
-                    // Si no son consecutivos, guardamos el horario actual y comenzamos un nuevo rango
                     $horariosAgrupados[] = $horarioActual;
                     $horarioActual = $siguienteHorario;
                 }
             }
 
-            // Agregar el último rango procesado
             $horariosAgrupados[] = $horarioActual;
         }
-    
+
         return $horariosAgrupados;
     }
+
 }

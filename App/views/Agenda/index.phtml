@@ -877,6 +877,7 @@ use App\Library\FuncionesGlobales;
 
         // Convertir las horas de inicio y fin a minutos
         const inicioMinutos = convertirHoraAMinutos(evento.start);
+        console.log('inicioMinutos',inicioMinutos,evento.start);
         let end = evento.end.split(":");
         let finMinutos  = '';
         if (end[1] == '59'){
@@ -909,10 +910,7 @@ use App\Library\FuncionesGlobales;
 
                 top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
                 altura = ((finMinutos - inicioMinutos) * alturaPorMinuto) + ((((finMinutos - inicioMinutos) * (alturaPorMinuto)) / 100) *2 ); // Altura del evento
-
-                console.log('altura 1',altura);
                 altura  = altura + (Math.floor(altura / 100) * 2);
-                console.log('altura 2',altura);
 
                 width = $("#agenda-header").find(".agenda-service").length * 100;
 
@@ -939,11 +937,10 @@ use App\Library\FuncionesGlobales;
                     alturaPorMinuto = alturaPorHora / 60; // Altura por minuto
 
                     top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
-                    altura = (finMinutos - inicioMinutos) * alturaPorMinuto; // Altura del evento
-
-                    console.log('altura 1',altura);
+                    console.log('top',top);
+                    console.log('calculo top',inicioMinutos,(inicioMinutos % 60),alturaPorMinuto);
+                    altura  = (finMinutos - inicioMinutos) * alturaPorMinuto; // Altura del evento
                     altura  = altura + (Math.floor(altura / 100) * 2);
-                    console.log('altura 2',altura);
 
                     // Crear el evento flotante
                     const eventoDiv = $("<div>")
@@ -1359,23 +1356,15 @@ use App\Library\FuncionesGlobales;
     }
 
     function cuadroFlotantesSemana(evento,background,$weekContainer,tipo_flot,id_horario_cita = '') {
-        
-        console.log('id_horario_cita',id_horario_cita);
+    
         if (id_horario_cita != ''){
             $($weekContainer).find('#'+id_horario_cita).remove();
         }
 
         let { start, end, day, duracion = null,id_agenda_cita = null,nombre_completo = null,nombre_profesional = null } = evento;
 
-        console.log('nombre_completo');
-        console.log(nombre_completo);
-        console.log('nombre_profesional',nombre_profesional);
-
         const dayIndex  = isNaN(day) ? diasSemana.indexOf(day) + 1 : day;
         const duracion_minutos  = duracion == null ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos') : duracion;
-        if (id_agenda_cita != null){
-            console.log('id_agenda_cita',id_agenda_cita);
-        }
 
         if ( (id_horario_cita != null && id_agenda_cita != null) && id_horario_cita == id_agenda_cita){
             return true;
@@ -1499,8 +1488,7 @@ use App\Library\FuncionesGlobales;
         if (tipo_flot == 'flot_locacion' || tipo_flot == 'flot_profesional'){
             id_floating = '';
         }
-        console.log('span info');
-        console.log(span_info);
+
         const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" '+data_paciente+' data-dia="'+dayIndex+'" data-dialabel="'+(diasSemana[day - 1])+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-profesional="'+nombre_profesional+'" data-idagendacita="'+id_agenda_cita+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
             left: `${left}px`,
@@ -1517,14 +1505,12 @@ use App\Library\FuncionesGlobales;
         let flag_empalmados         = false;
         let hora_termino_empalmado  = '';
         $($weekContainer).find('.dia_'+dayIndex).each(function(){
-            console.log('-----------    dentro del foreach  ---------------');
             let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
             let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
             
 
             //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
             if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
-                console.log('empalmado hora_inicio_header');
                 flag_empalmados         = true;
                 hora_termino_empalmado  = $(this).data('horatermino');
                 return false;
@@ -1532,7 +1518,6 @@ use App\Library\FuncionesGlobales;
 
             //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
             if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
-                console.log('empalmado hora termino');
                 flag_empalmados         = true;
                 hora_termino_empalmado  = $(this).data('horatermino');
                 return false;
@@ -1892,8 +1877,7 @@ use App\Library\FuncionesGlobales;
                     end     : hora_termino,
                     day     : diasSemana[dia - 1]
                 }
-                console.log('crear div');
-                console.log(obj_evento);
+
                 crearCuadroFlotante(obj_evento,'bg-info',$(modal_clone).find(".week-container"),'flot_cita',$(this).closest('.header_row').attr('id'));
             }
         });
@@ -1951,8 +1935,6 @@ use App\Library\FuncionesGlobales;
             let dia_empalmado   = '';
             $(modal_clone).find('.header_row').each(function(){
                 const id_header         = $(this).attr('id');
-                console.log('id_header');
-                console.log(id_header);
                 const day_header        = $(this).find('.select_dias').val();
                 let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
                 let hora_termino_header = convertirHoraATiempo($(this).find('.input_hora_termino').val());
@@ -1960,8 +1942,6 @@ use App\Library\FuncionesGlobales;
 
                 $(modal_clone).find('.header_row').each(function(){
                     //  NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID O SI ES DIFERENTE DIA
-                    console.log('$(this).attr("id")');
-                    console.log($(this).attr('id'));
                     if (id_header == $(this).attr('id')){
                         return true;
                     }
@@ -1974,17 +1954,13 @@ use App\Library\FuncionesGlobales;
                     let hora_termino    = convertirHoraATiempo($(this).find('.input_hora_termino').val());
 
                     //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-                    console.log('hora_inicio_header >= hora_inicio');
-                    console.log(hora_inicio_header >= hora_inicio,hora_inicio);
                     if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
-                        console.log('empalmado hora_inicio_header');
                         flag_empalmados = true;
                         return false;
                     }
 
                     //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
                     if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
-                        console.log('empalmado hora termino');
                         flag_empalmados = true;
                         return false;
                     }
@@ -2312,8 +2288,11 @@ use App\Library\FuncionesGlobales;
             // console.log('aqui');
             // console.log(dia,hora_inicio);
 
+            if ($(this).hasClass('no-hover-effect')){
+                return false;
+            }
+
             // show_modal_citas(null,dia,hora_inicio);
-            console.log('fechaActual',fechaActual);
             let anio    = fechaActual.getFullYear();
             let mes     = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
             let dia     = String(fechaActual.getDate()).padStart(2, '0');
@@ -2322,6 +2301,7 @@ use App\Library\FuncionesGlobales;
             let fechaFormateada = `${anio}-${mes}-${dia}`;
 
             const id_profesional    = $(this).data('idprofesional');
+            console.log('id_profesional',id_profesional);
             $.ajax({
                 url     : url_index,
                 method  : 'post',
@@ -2416,13 +2396,11 @@ use App\Library\FuncionesGlobales;
         });
 
         $("#infoBox").on('click','.btn_cancelar',function(){
-            console.log($(this).data('idagendacita'));
             show_modal_cancelar_cita($(this));
             $("#closeModal").trigger('click');
         });
 
         $("#infoBox").on('click','.btn_asistencia',function(){
-            console.log($(this).data('asistencia'));
             show_modal_asistencia($(this));
             $("#closeModal").trigger('click');
         });
