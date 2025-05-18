@@ -25,6 +25,7 @@ return [
     'html_description'          => 'Descripci&oacute;n',
     'html_action'               => 'Acci&oacute;n',
     'html_options'              => 'Opciones',
+    'html_option'               => 'Opci&oacute;n',
     'html_btn_save'             => 'Guardar',
     'html_btn_cancel'           => 'Cancelar',   
     'html_status'               => 'Estatus',
@@ -46,6 +47,7 @@ return [
     'html_duration'             => 'Duraci&oacute;n(Minutos)',
     'html_ab_duration'          => 'Duraci&oacute;n',
     'html_services'             => 'Servicios',
+    'html_service'              => 'Servicio',
     'html_general_data'         => 'Datos generales',
     'html_address'              => 'Direcci&oacute;n',
     'html_professional_title'   => 'Titulo profesional',
@@ -116,7 +118,9 @@ return [
     'html_attendance_status'        => 'Estatus de asistencia',
     'html_new_status'               => 'Nuevo estatus',
     'html_current_status'           => 'Estatus actual',
-    'html_appointment_scheduling'  => 'Programaci&oacute;n de citas',
+    'html_appointment_scheduling'   => 'Programaci&oacute;n de citas',
+    'html_schedule_an_appointment'  => 'Agendar cita',
+    'html_totals'                   => 'Totales',
 
 
     //  MENSAJES DE ERROR

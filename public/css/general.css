@@ -23,3 +23,8 @@ textarea {
   max-height: 75vh;
   overflow-y: auto;
 }
+
+.modal-header {
+   color: #ffffff !important;
+   background-color: #212529 !important;
+}

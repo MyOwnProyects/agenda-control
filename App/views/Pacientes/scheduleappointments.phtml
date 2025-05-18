@@ -220,7 +220,7 @@ use App\Library\FuncionesGlobales;
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_agenda_opening']); ?></h5>
+        <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_add_appoitments']); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
@@ -229,10 +229,10 @@ use App\Library\FuncionesGlobales;
                 <!-- Campo Clave -->
                 <div class="col-md-4">
                     <label for="select_locaciones_modal" class="col-form-label"><?php echo $translations['html_location']; ?></label>
-                    <select id="select_locaciones_modal" class="select_locaciones_modal" required>
+                    <select id="select_locaciones_modal" class="select_locaciones_modal" <?php echo count($arr_locaciones) == 1 ? 'disabled' : ''; ?> required>
                         <option value=""></option>
                         <?php foreach($arr_locaciones as $locacion): ?>
-                            <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo count($arr_locaciones) == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
@@ -877,6 +877,41 @@ let module_schedule_appointments    = (function(){
         });
     });
 
+    function search_info_location_modal(modal_clone,id_locacion){
+        $.ajax({
+            url     : url_scheduleappointments,
+            method  : 'post',
+            data    : {
+                accion      : 'get_info_locacion',
+                id_locacion : id_locacion
+            },
+            success : function(data){
+                console.log('data');
+                console.log(data);
+                $(modal_clone).find('.floating-box').remove();
+                show_calendar(modal_clone,data,id_locacion);
+            },
+            error   : function(error){
+                console.log('error');
+                console.log(error);
+
+                $(modal_clone).find('.grid-hours').remove();
+                $(modal_clone).find('.hour').remove();
+                $(modal_clone).find('.floating-box').remove();
+
+                $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
+                $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
+
+                $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
+                $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
+
+                $(modal_clone).find('.div_add_appointment').addClass('hide');
+                $(modal_clone).find('.header_row').remove();
+                $(modal_clone).find('#div_header_week_container_modal').closest('.row').addClass('hide');
+            }
+        });
+    }
+
     function show_modal_citas(id_cita_programada = null,dia_default = null,hora_default = null){
         let modal_clone = $("#modal_save_class").clone().show();
         let min_hora_inicio_modal   = '';
@@ -926,40 +961,13 @@ let module_schedule_appointments    = (function(){
         }).on('select2:select',function(){
             if ($(this).val() != null){
                 const id_locacion   = $(this).val();
-                $.ajax({
-                    url     : url_scheduleappointments,
-                    method  : 'post',
-                    data    : {
-                        accion      : 'get_info_locacion',
-                        id_locacion : id_locacion
-                    },
-                    success : function(data){
-                        console.log('data');
-                        console.log(data);
-                        $(modal_clone).find('.floating-box').remove();
-                        show_calendar(modal_clone,data,id_locacion);
-                    },
-                    error   : function(error){
-                        console.log('error');
-                        console.log(error);
-
-                        $(modal_clone).find('.grid-hours').remove();
-                        $(modal_clone).find('.hour').remove();
-                        $(modal_clone).find('.floating-box').remove();
-
-                        $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
-                        $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
-
-                        $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
-                        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
-
-                        $(modal_clone).find('.div_add_appointment').addClass('hide');
-                        $(modal_clone).find('.header_row').remove();
-                        $(modal_clone).find('#div_header_week_container_modal').closest('.row').addClass('hide');
-                    }
-                });
+                search_info_location_modal(modal_clone,id_locacion);
             }
         });
+
+        if ($(modal_clone).find('#select_locaciones_modal').val() != null && $(modal_clone).find('#select_locaciones_modal').val() != null != ''){
+            search_info_location_modal(modal_clone,$(modal_clone).find('#select_locaciones_modal').val());
+        }
 
         $(modal_clone).find('#select_servicios_modal').select2({
             placeholder: 'Seleccione una opción',

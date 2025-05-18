@@ -178,6 +178,16 @@ class AgendaController extends BaseController
                     )
                 ));
 
+                //  SE BUSCAN LOS SERVICIOS QUE DA EL PROFESIONAL EN EL LOCAL INDICADO
+                $route      = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $servicios  = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_locacion'   => $_POST['id_locacion'],
+                    'id'            => $_POST['id_profesional'],
+                    'get_servicios' => true
+                ));
+
+                $result['servicios']    = $servicios[0]['locacion_servicios'];
+
                 $response = new Response();
                 $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');
