@@ -455,7 +455,7 @@ use App\Library\FuncionesGlobales;
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_agenda_opening']); ?></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_agenda_opening" class="needs-validation" novalidate>
@@ -535,7 +535,7 @@ use App\Library\FuncionesGlobales;
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="label_modal_cancelar_cita"><?php echo FuncionesGlobales::UpperString($translations['html_cancel_appointment']); ?></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
@@ -581,7 +581,7 @@ use App\Library\FuncionesGlobales;
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="label_modal_asistencia"><?php echo FuncionesGlobales::UpperString($translations['html_attendance_status']); ?></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_asistencia" class="needs-validation" novalidate>
@@ -625,7 +625,7 @@ use App\Library\FuncionesGlobales;
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_schedule_an_appointment']); ?></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
@@ -659,7 +659,7 @@ use App\Library\FuncionesGlobales;
                 </div>
             </div>
             <div class="row col-md-12">
-                <div class="col-md-6 hide" style="max-height: 75vh;overflow-y: auto;">
+                <div class="col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div class="container div_header_days_container container-calendar hide_container col-12">
                         <!-- Agenda -->
                         <div class="agenda-container" id="agenda-container">
@@ -672,7 +672,7 @@ use App\Library\FuncionesGlobales;
                         </div>
                     </div>
                 </div>
-                <div class="div_header_citas col-md-6 hide" style="max-height: 75vh;overflow-y: auto;">
+                <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
                         <div class="col-md-4" style="padding-right:5px;">
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
@@ -687,7 +687,7 @@ use App\Library\FuncionesGlobales;
                         </div>
                         <div class="col-md-4 d-flex flex-column align-items-center" align="center">
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_options']; ?></label>
-                            <button type="button" class="btn btn-outline-dark btn_delete_hour"><?php echo $translations['html_add_service']; ?></button>
+                            <button type="button" class="btn btn-outline-dark btn_add_service"><?php echo $translations['html_add_service']; ?></button>
                         </div>
                     </div>
                     <div class="row div_header_labels">
@@ -705,35 +705,16 @@ use App\Library\FuncionesGlobales;
                         </div>
                     </div>
                     <div class="row div_header_servicios">
-                        <div class="row">
-                            <div class="col-md-3" style="padding-right:5px;">
-                                <select class="select_servicios_modal">
-                                    <option></option>
-                                </select>
-                                <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
-                            </div>
-                            <div class="col-md-3" style="padding-right:5px;">
-                                <input type="number" class="form-control duracion" />
-                                <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
-                            </div>
-                            <div class="col-md-3" style="padding-right:5px;">
-                                <input type="number" class="form-control costo" />
-                                <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
-                            </div>
-                            <div class="col-md-3" style="padding-right:5px;" align="center">
-                                <button type="button" class="btn btn-outline-dark btn_delete_hour btn-close"></button>
-                            </div>
-                        </div>
                     </div>
                     <div class="row div_header_total border-top" align="center">
                         <div class="col-md-3" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_totals']; ?>:</label>
                         </div>
                         <div class="col-md-3" style="padding-right:5px;">
-                            <label class="col-form-label">45 min</label>
+                            <label class="col-form-label"><span id="total_duracion">0</span> min</label>
                         </div>
                         <div class="col-md-3" style="padding-right:5px;">
-                            <label class="col-form-label">$500</label>
+                            <label class="col-form-label total_costo">$<span id ="total_costo">0</span></label>
                         </div>
                         <div class="col-md-3" style="padding-right:5px;">
                             
@@ -776,7 +757,7 @@ use App\Library\FuncionesGlobales;
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
     <div class="col-md-3" style="padding-right:5px;" align="center">
-        <button type="button" class="btn btn-outline-dark btn_delete_hour btn-close"></button>
+        <button type="button" class="btn btn-outline-dark btn_delete_servicio btn-close"></button>
     </div>
 </div>
 
@@ -982,6 +963,8 @@ use App\Library\FuncionesGlobales;
                     .addClass("evento-flotante")
                     .addClass(background)
                     .addClass(tipo_cuadro)
+                    .data('horainicio',evento.start)
+                    .data('horatermino',evento.end)
                     .html(mensaje)
                     .css({
                         top: `${top}%`, // Posición vertical
@@ -1029,11 +1012,16 @@ use App\Library\FuncionesGlobales;
         }
     }
 
-    function sumarUnMinuto(horaStr) {
+    function sumarUnMinuto(horaStr,min = null) {
         const [horas, minutos] = horaStr.split(':').map(Number);
         const fecha = new Date();
         fecha.setHours(horas);
-        fecha.setMinutes(minutos + 1);
+        if (min == null){
+            fecha.setMinutes(minutos + 1);
+        } else {
+            fecha.setMinutes(minutos + min);
+        }
+        
         fecha.setSeconds(0);
 
         const horasFormateadas = fecha.getHours().toString().padStart(2, '0');
@@ -1286,17 +1274,6 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
         $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
 
-        // $(modal_clone).find('#select_servicios_modal').find('option').remove();
-        // $(modal_clone).find('#select_servicios_modal').append('<option></option>');
-
-        // for(let i in data['all_services']){
-        //     let service = data['all_services'][i];
-
-        //     let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'">'+service["nombre"]+'</option>'
-        //     $(modal_clone).find('#select_servicios_modal').append(option);
-
-        // }
-
         $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
 
         if (!$(".div_header_days_container").is(':visible') && 
@@ -1348,7 +1325,7 @@ use App\Library\FuncionesGlobales;
         });
     }
 
-    function show_hours(header_agenda,div_days,min_hora_inicio,max_hora_inicio,profesionales,horario_no_disponible = null){
+    function show_hours(header_agenda,div_days,min_hora_inicio,max_hora_inicio,profesionales,horario_no_disponible_prof = null){
         //  CONTENEDOR DE LA AGENDA POR SEMANA
         let $weekContainer  = header_agenda.find(".week-container");
         $weekContainer.find('.hour').remove();
@@ -1406,7 +1383,8 @@ use App\Library\FuncionesGlobales;
             agendaContainer.append(fila);
         });
 
-        if (horario_no_disponible){
+        if (horario_no_disponible_prof){
+            horario_no_disponible_prof.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-secondary','no_disponible',null,true));
             horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-secondary','no_disponible',null,true));
         }
     }
@@ -1566,44 +1544,6 @@ use App\Library\FuncionesGlobales;
         $weekContainer.append($floatingBox);
     }
 
-    function verificarEmpalmado($weekContainer,dayIndex,start,end){
-        let hora_inicio_header  = convertirHoraATiempo(start);
-        let hora_termino_header = convertirHoraATiempo(end);
-        let flag_empalmados         = false;
-        let hora_termino_empalmado  = '';
-        $($weekContainer).find('.dia_'+dayIndex).each(function(){
-            let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
-            let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
-            
-
-            //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-            if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
-                flag_empalmados         = true;
-                hora_termino_empalmado  = $(this).data('horatermino');
-                return false;
-            }
-
-            //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
-            if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
-                flag_empalmados         = true;
-                hora_termino_empalmado  = $(this).data('horatermino');
-                return false;
-            }
-
-            //  EXISTE UN EMPALMADO POR LO CUAL SE DEBE DE RECALCULAR 
-            //  LA HORA INICIO Y TERMINO 
-            
-            if (flag_empalmados){
-                return false;
-            }
-        });
-
-        return {
-            flag_empalmados : flag_empalmados,
-            hora_termino_empalmado  : hora_termino_empalmado
-        };
-    }
-
     function show_modal_cancelar_cita(element){
         let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
         let id_agenda_cita  = $(element).data('idagendacita');
@@ -1730,10 +1670,156 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).modal('show');
     }
 
+    //  CALCULA EL TOTAL DE DURACION Y COSTO POR CITA
+    function calcula_totales(modal_clone){
+        //  TOTALES
+        let total_duracion  = 0;
+        let total_costo     = 0;
+
+        $(modal_clone).find('.header_servicio').each(function(){
+            let val_duracion    = $(this).find('.duracion').val() != null && $(this).find('.duracion').val() != '' ? $(this).find('.duracion').val() : 0;
+            let val_costo       = $(this).find('.costo').val() != null && $(this).find('.costo').val() != '' ? $(this).find('.costo').val() : 0;
+            total_duracion  = parseInt(total_duracion) + parseInt(val_duracion);
+            total_costo = (parseFloat(total_costo) + parseFloat(val_costo)).toFixed(2);
+        });
+
+        console.log('total_duracion',total_duracion);
+        console.log('total_costo',total_costo);
+        $(modal_clone).find('#total_duracion').text(total_duracion);
+        $(modal_clone).find('#total_costo').text(total_costo);
+
+        //  SE CALCULA LA HORA DE TERMINO
+        if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
+            let hora_inicio = $(modal_clone).find('.input_hora_inicio').val();
+            $(modal_clone).find('.input_hora_termino').val(sumarUnMinuto(hora_inicio,total_duracion));
+        }
+    }
+
+    function verificarEmpalmado($weekContainer,dayIndex,start,end){
+        let hora_inicio_header  = convertirHoraATiempo(start);
+        let hora_termino_header = convertirHoraATiempo(end);
+        let flag_empalmados         = false;
+        let hora_termino_empalmado  = '';
+        $($weekContainer).find('.dia_'+dayIndex).each(function(){
+            console.log('-----------    dentro del foreach  ---------------');
+            let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
+            let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
+            
+
+            //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
+            if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+                console.log('empalmado hora_inicio_header');
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
+            //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
+            if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                console.log('empalmado hora termino');
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
+            //  EXISTE UN EMPALMADO POR LO CUAL SE DEBE DE RECALCULAR 
+            //  LA HORA INICIO Y TERMINO 
+             
+            if (flag_empalmados){
+                return false;
+            }
+        });
+
+        return {
+            flag_empalmados : flag_empalmados,
+            hora_termino_empalmado  : hora_termino_empalmado
+        };
+    }
+
+
+    //  CALCULA LA HORA INICIO EN BASE A LA SOLICITADA Y QUE NO ESTE EMPALMADA
+    function verificarHoraInicio(modal_clone,start,end){
+        let hora_inicio_header  = convertirHoraATiempo(start);
+        let hora_termino_header = convertirHoraATiempo(end);
+        let flag_empalmados         = false;
+        let hora_termino_empalmado  = '';
+
+        $(modal_clone).find('.evento-flotante').each(function(){
+            console.log('-----------    dentro del foreach  ---------------');
+            let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
+            let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
+
+            //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
+            if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+                console.log('empalmado hora_inicio_header');
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
+            //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
+            if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                console.log('empalmado hora termino');
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
+            //  EXISTE UN EMPALMADO POR LO CUAL SE DEBE DE RECALCULAR 
+            //  LA HORA INICIO Y TERMINO 
+             
+            if (flag_empalmados){
+                return false;
+            }
+        });
+
+        if (!flag_empalmados){
+            hora_termino_empalmado  = start;
+        }
+
+        return {
+            flag_empalmados : flag_empalmados,
+            hora_termino_empalmado  : hora_termino_empalmado
+        };
+    }
+
     function show_modal_citas(id_cita_programada = null,dia_default = null,hora_default = null,info_profesional,id_profesional){
         let modal_clone = $("#modal_save_class").clone().show();
         let min_hora_inicio_modal   = '';
         let max_hora_inicio_modal   = '';
+
+        $(modal_clone).on('click','.btn_add_service',function(){
+            let div_clone   = $("#template_servicio").clone().removeAttr('id').addClass('header_servicio').show();
+
+            //codigo de prueba
+            $(div_clone).find('.select_servicios_modal').find('option').remove();
+            $(div_clone).find('.select_servicios_modal').append('<option></option>');
+            console.log("info_profesional['servicios']");
+            console.log(info_profesional['servicios']);
+            for(let i in info_profesional['servicios']){
+                let service = info_profesional['servicios'][i];
+
+                let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'">'+service["nombre"]+'</option>'
+                $(div_clone).find('.select_servicios_modal').append(option);
+
+            }
+
+            $(div_clone).find('.select_servicios_modal').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            }).on('select2:select',function(){
+                let duracion    = $(this).find('option:selected').data('duracionminutos');
+                let costo       = $(this).find('option:selected').data('costo');
+
+                $(this).closest('.header_servicio').find('.duracion').val(duracion);
+                $(this).closest('.header_servicio').find('.costo').val(costo);
+
+                calcula_totales(modal_clone);
+            });
+
+            $(modal_clone).find('.div_header_servicios').append(div_clone);
+        });
 
         $(modal_clone).on('mouseenter','.evento-flotante',function() {
             $(modal_clone).find('.agenda-hours').addClass('no-hover-effect');
@@ -1743,22 +1829,9 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('.agenda-hours').removeClass('no-hover-effect');
         });
 
-        //codigo de prueba
-        $(modal_clone).find('.select_servicios_modal').find('option').remove();
-        $(modal_clone).find('.select_servicios_modal').append('<option></option>');
-
-        for(let i in info_profesional['servicios']){
-            let service = info_profesional['servicios'][i];
-
-            let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'">'+service["nombre"]+'</option>'
-            $(modal_clone).find('.select_servicios_modal').append(option);
-
-        }
-
-        $(modal_clone).find('.select_servicios_modal').select2({
-            placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
-            width: '50px'
+        $(modal_clone).on('click','.btn_delete_servicio',function(){
+            $(this).closest('.header_servicio').remove();
+            calcula_totales(modal_clone);
         });
 
         if (id_cita_programada == null){
@@ -1853,128 +1926,6 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('.div_header_citas').append(row_cita);
         });
 
-        $(modal_clone).find('#select_locaciones_modal').select2({
-            placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
-            width: '50px'
-        }).on('select2:select',function(){
-            if ($(this).val() != null){
-                const id_locacion   = $(this).val();
-                $.ajax({
-                    url     : url_index,
-                    method  : 'post',
-                    data    : {
-                        accion      : 'get_info_locacion',
-                        id_locacion : id_locacion
-                    },
-                    success : function(data){
-                        console.log('data');
-                        console.log(data);
-                        $(modal_clone).find('.floating-box').remove();
-                        show_calendar(modal_clone,data,id_locacion);
-                    },
-                    error   : function(error){
-                        console.log('error');
-                        console.log(error);
-
-                        $(modal_clone).find('.grid-hours').remove();
-                        $(modal_clone).find('.hour').remove();
-                        $(modal_clone).find('.floating-box').remove();
-
-                        $(modal_clone).find('#select_servicios_modal').val(null).trigger('change');
-                        $(modal_clone).find('#select_servicios_modal').prop('disabled',true).find('option').remove();
-
-                        $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
-                        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
-
-                        $(modal_clone).find('.div_add_appointment').addClass('hide');
-                        $(modal_clone).find('.header_row').remove();
-                        $(modal_clone).find('#div_header_week_container_modal').closest('.row').addClass('hide');
-                    }
-                });
-            }
-        });
-
-        // $(modal_clone).find('#select_servicios_modal').select2({
-        //     placeholder: 'Seleccione una opción',
-        //     dropdownParent: $(modal_clone),
-        //     width: '50px'
-        // }).on('select2:select',function(){
-        //     const id_servicio       = $(this).val();
-        //     const duracion_minutos  = $(modal_clone).find('#select_servicios_modal').find('option:selected').data('duracionminutos');
-
-        //     $.ajax({
-        //         url     : url_index,
-        //         method  : 'post',
-        //         data    : {
-        //             accion      : 'get_profesionales',
-        //             id_locacion : $(modal_clone).find("#select_locaciones_modal").val(),
-        //             id_servicio : id_servicio
-        //         },
-        //         success : function(data){
-        //             // console.log('data');
-        //             // console.log(data);
-
-        //             let option  = '<option></option>';
-        //             for(let i in data){
-        //                 option  += '<option value="'+data[i]['id'] +'">'+data[i]['nombre_completo']+'</option>';
-        //             }
-
-        //             $(modal_clone).find('.span_duracion').text(duracion_minutos+' Min.');
-        //             $(modal_clone).find('#select_profesionales_modal').find('option').remove();
-        //             $(modal_clone).find('#select_profesionales_modal').append(option);
-        //             $(modal_clone).find('#select_profesionales_modal').prop('disabled',false);
-        //             //$(modal_clone).find('.input_hora_inicio').prop('disabled',false);
-
-        //             clear_week_container(modal_clone,false);
-        //             $(modal_clone).find('.flot_profesional').remove();
-        //             $(modal_clone).find('.flot_cita').remove();
-        //         },
-        //         error   : function(error){
-        //             console.log('error');
-        //             console.log(error);
-        //         }
-        //     });
-        // });
-
-        
-
-        $(modal_clone).on('click','.btn_delete_hour',async function(){
-
-            let id_template_cita    = $(this).closest('.header_row').attr('id');
-            if ($(modal_clone).find(".floating-box#"+id_template_cita).length > 0){
-                const respuesta = await window.modalConfirm(translations['confirm_delete']);
-                if (respuesta){
-                    $(modal_clone).find(".floating-box#"+id_template_cita).remove();
-                    $(this).closest('.header_row').remove();
-                }
-            } else {
-                $(this).closest('.header_row').remove();
-            }
-
-            if ($(modal_clone).find('.header_row').length == 0){
-                $(modal_clone).find('#btn_add_appoitment').trigger('click');
-            }
-
-        });
-
-        $(modal_clone).on('select2:select','.select_dias',function(){
-            //  SE VERIFICA QUE TODO EL ROW TENGA VALOR
-            let hora_inicio     = $(this).closest('.header_row').find('.input_hora_inicio').val();
-            let hora_termino    = $(this).closest('.header_row').find('.input_hora_termino').val();
-            let dia             = $(this).val();
-
-            if (hora_inicio != '' && hora_termino != '' && dia != ''){
-                let obj_evento  = {
-                    start   : hora_inicio,
-                    end     : hora_termino,
-                    day     : diasSemana[dia - 1]
-                }
-
-                crearCuadroFlotante(obj_evento,'bg-info',$(modal_clone).find(".week-container"),'flot_cita',$(this).closest('.header_row').attr('id'));
-            }
-        });
-
         $(modal_clone).on('blur', '.input_hora_inicio', function() {
             const valor = $(this).val(); // Obtener el valor del input
             const patron = /^([01]\d|2[0-3]):([0-5]\d)$/; // Expresión regular para validar HH:MM
@@ -1984,26 +1935,6 @@ use App\Library\FuncionesGlobales;
                 // Ejecutar la función solo si el formato es correcto
                 change_input_hora_inicio($(this), $(this).closest('.header_row').find('.select_dias').val() != '');
             }
-        });
-
-        $(modal_clone).on('click','.floating-box',function(){
-            console.log('id cambio',$(this).attr('id'));
-        });
-
-        $(modal_clone).on('click','.grid-hours',function(){
-            const dia           = $(this).data('dia');
-            const hora_inicio   = $(this).data('horainicio');
-
-            if ($(modal_clone).find("#select_profesionales_modal").val() == null || $(modal_clone).find("#select_profesionales_modal").val() == ''){
-                return false;
-            }
-
-            if (id_cita_programada != null){
-                $(modal_clone).find('.flot_cita').remove();
-            }
-
-            modal_click_grid_hours(modal_clone,dia,hora_inicio,null,id_cita_programada);
-            
         });
 
         $(modal_clone).on('click','#btnSave',function(){
@@ -2131,6 +2062,16 @@ use App\Library\FuncionesGlobales;
         let profesional = profesionales.find(row => row.id == id_profesional);
         console.log('profesional',profesional);
         show_hours(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,[profesional],info_profesional['rango_no_disponible']);
+
+        if ($(modal_clone).find('.header_servicio').length == 0){
+            $(modal_clone).find('.btn_add_service').trigger('click');
+        }
+
+        if (id_cita_programada == null){
+            let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5));
+            console.log('hora_inicio',hora_inicio);
+            $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
+        }
 
         $(modal_clone).find('.hide').removeClass('hide');
         $(modal_clone).find('.hide_container').removeClass('hide_container');
@@ -2384,8 +2325,6 @@ use App\Library\FuncionesGlobales;
             let fecha_actual    = formatearFecha(fechaActual);
             fecha_actual        = fecha_actual.split(",");
             let hora_inicio     = $(this).closest('.row_info').find('.agenda-time').text();
-            console.log('aqui');
-            console.log(hora_inicio);
 
             if ($(this).hasClass('no-hover-effect')){
                 return false;
@@ -2398,9 +2337,7 @@ use App\Library\FuncionesGlobales;
 
             // Formatear la fecha como 'YYYY-MM-DD'
             let fechaFormateada = `${anio}-${mes}-${dia}`;
-
             const id_profesional    = $(this).data('idprofesional');
-            console.log('id_profesional',id_profesional);
             $.ajax({
                 url     : url_index,
                 method  : 'post',
@@ -2418,24 +2355,6 @@ use App\Library\FuncionesGlobales;
                     console.log(data);
 
                     show_modal_citas(null,dia,hora_inicio,data,id_profesional);
-
-                    // clear_week_container(modal_clone,true);
-
-                    // const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
-                    // $(modal_clone).find('.flot_profesional').remove();
-                    // eventos['rango_no_disponible'].forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_profesional'));
-                    // eventos['citas_paciente'].forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_profesional',id_cita_programada));
-
-                    // $(modal_clone).find('.hide').removeClass('hide');
-                    
-
-                    // if (dia_default != null && hora_default != null){
-                    //     modal_click_grid_hours(modal_clone,dia_default,hora_default,true);
-                    // } else {
-                    //     if ($(modal_clone).find('.header_row').length == 0){
-                    //         $(modal_clone).find('#btn_add_appoitment').trigger('click');
-                    //     }
-                    // }
                 },
                 error : function(error){
                     console.log('error');
@@ -2443,17 +2362,6 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.flot_profesional').remove();
                     $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
 
-                    // $(modal_clone).find('.btn_delete_hour').each(function(){
-                    //     let id_template_cita    = $(this).closest('.header_row').attr('id');
-                    //     if ($(modal_clone).find(".floating-box#"+id_template_cita).length > 0){
-                    //         $(modal_clone).find(".floating-box#"+id_template_cita).remove();
-                    //         $(this).closest('.header_row').remove();
-                    //     }
-
-                    //     if ($(modal_clone).find('.header_row').length == 0){
-                    //         $(modal_clone).find('#btn_add_appoitment').trigger('click');
-                    //     }
-                    // });
                     clear_week_container(modal_clone,false);
 
                     showAlert('danger','Profesional sin horario de atenci&oacute;n asignado');
