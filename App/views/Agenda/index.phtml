@@ -635,7 +635,7 @@ use App\Library\FuncionesGlobales;
                         <select id="select_paciente_modal" class="select_paciente_modal" required>
                             <option value=""></option>
                         </select>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
                     <label for="input_celular" class="col-form-label"><?php echo $translations['html_cellphone']; ?></label>
@@ -643,19 +643,19 @@ use App\Library\FuncionesGlobales;
                     <div class="invalid-feedback"><?php echo $translations['html_error_cellphone']; ?></div>
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
-                    <label for="input_celular" class="col-form-label"><?php echo $translations['html_name']; ?></label>
-                    <input type="text" id="input_nombre" name="input_celular" class="form-control" required />
-                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
-                </div>
-                <div class="div_datos_paciente col-md-3" style="display:none;">
-                    <label for="input_celular" class="col-form-label"><?php echo $translations['html_first_lastname']; ?></label>
-                    <input type="text" id="input_primer_apellido" name="input_celular" class="form-control" required />
+                    <label for="input_primer_apellido" class="col-form-label"><?php echo $translations['html_first_lastname']; ?></label>
+                    <input type="text" id="input_primer_apellido" name="input_primer_apellido" class="form-control" required />
                     <div class="invalid-feedback"><?php echo $translations['html_error_first_lastname']; ?></div>
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
-                    <label for="input_celular" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
-                    <input type="text" id="input_segundo_apellido" name="input_celular" class="form-control" />
+                    <label for="input_segundo_apellido" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
+                    <input type="text" id="input_segundo_apellido" name="input_segundo_apellido" class="form-control" />
                     <div class="invalid-feedback"><?php echo $translations['html_second_lastname']; ?></div>
+                </div>
+                <div class="div_datos_paciente col-md-3" style="display:none;">
+                    <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" id="input_nombre" name="input_nombre" class="form-control" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
                 </div>
             </div>
             <div class="row col-md-12">
@@ -743,17 +743,17 @@ use App\Library\FuncionesGlobales;
 
 <div id="template_servicio" class="row" style="display:none;">
     <div class="col-md-3" style="padding-right:5px;">
-        <select class="select_servicios_modal">
+        <select class="select_servicios_modal" required>
             <option></option>
         </select>
+        <div class="invalid-feedback"><?php echo $translations['html_error_service']; ?></div>
+    </div>
+    <div class="col-md-3" style="padding-right:5px;">
+        <input type="number" class="form-control duracion" required/>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
     <div class="col-md-3" style="padding-right:5px;">
-        <input type="number" class="form-control duracion" />
-        <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
-    </div>
-    <div class="col-md-3" style="padding-right:5px;">
-        <input type="number" class="form-control costo" />
+        <input type="number" class="form-control costo" required />
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
     <div class="col-md-3" style="padding-right:5px;" align="center">
@@ -975,6 +975,8 @@ use App\Library\FuncionesGlobales;
             } else {
                 // Encontrar la columna correspondiente al profesional
                 const profesionalIndex = profesionales.findIndex(p => p.id === evento.id_profesional);
+                console.log('profesionalIndex');
+                console.log(profesionalIndex);
                 if (profesionalIndex !== -1) {
                     columnaProfesional = filaInicio.find(".agenda-service").eq(profesionalIndex);
 
@@ -987,6 +989,7 @@ use App\Library\FuncionesGlobales;
                     console.log('calculo top',inicioMinutos,(inicioMinutos % 60),alturaPorMinuto);
                     altura  = (finMinutos - inicioMinutos) * alturaPorMinuto; // Altura del evento
                     altura  = altura + (Math.floor(altura / 100) * 2);
+                    console.log('seccion profesionalIndex');
 
                     // Crear el evento flotante
                     const eventoDiv = $("<div>")
@@ -1671,7 +1674,7 @@ use App\Library\FuncionesGlobales;
     }
 
     //  CALCULA EL TOTAL DE DURACION Y COSTO POR CITA
-    function calcula_totales(modal_clone){
+    function calcula_totales(modal_clone,id_profesional){
         //  TOTALES
         let total_duracion  = 0;
         let total_costo     = 0;
@@ -1679,12 +1682,10 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).find('.header_servicio').each(function(){
             let val_duracion    = $(this).find('.duracion').val() != null && $(this).find('.duracion').val() != '' ? $(this).find('.duracion').val() : 0;
             let val_costo       = $(this).find('.costo').val() != null && $(this).find('.costo').val() != '' ? $(this).find('.costo').val() : 0;
-            total_duracion  = parseInt(total_duracion) + parseInt(val_duracion);
-            total_costo = (parseFloat(total_costo) + parseFloat(val_costo)).toFixed(2);
+            total_duracion      = parseInt(total_duracion) + parseInt(val_duracion);
+            total_costo         = (parseFloat(total_costo) + parseFloat(val_costo)).toFixed(2);
         });
 
-        console.log('total_duracion',total_duracion);
-        console.log('total_costo',total_costo);
         $(modal_clone).find('#total_duracion').text(total_duracion);
         $(modal_clone).find('#total_costo').text(total_costo);
 
@@ -1692,6 +1693,32 @@ use App\Library\FuncionesGlobales;
         if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
             let hora_inicio = $(modal_clone).find('.input_hora_inicio').val();
             $(modal_clone).find('.input_hora_termino').val(sumarUnMinuto(hora_inicio,total_duracion));
+            let profesional = profesionales.find(row => row.id == id_profesional);
+            console.log('profesional',profesional);
+            let text_day    = formatearFecha(fechaActual);
+            text_day        = text_day.split(",")[0];
+            let evento  = {
+                start   : hora_inicio,
+                end     : $(modal_clone).find('.input_hora_termino').val(),
+                day     : text_day,
+                nombre_completo : profesional['nombre_completo'],
+                nombre_profesional  : profesional['nombre_completo'],
+                id_agenda_cita      : -1,
+                duracion            : total_duracion,
+                asistencia          : 1,
+                id_profesional      : id_profesional
+            };
+            
+            //  SE BORRA EL REGISTREO ACTUAL -1 
+            $(modal_clone).find('.flot_cita').each(function(){
+                console.log('idagendacita',$(this).data('idagendacita'));
+                if ($(this).data('idagendacita') == -1 || $(this).data('idagendacita') == '-1'){
+                    console.log('remove div');
+                    $(this).remove();
+                    return false;
+                }
+            })
+            cuadroFlotantesDiario(modal_clone,evento,'bg-success','flot_cita',null,true);
         }
     }
 
@@ -1795,7 +1822,7 @@ use App\Library\FuncionesGlobales;
             $(div_clone).find('.select_servicios_modal').find('option').remove();
             $(div_clone).find('.select_servicios_modal').append('<option></option>');
             console.log("info_profesional['servicios']");
-            console.log(info_profesional['servicios']);
+            console.log(info_profesional);
             for(let i in info_profesional['servicios']){
                 let service = info_profesional['servicios'][i];
 
@@ -1815,7 +1842,7 @@ use App\Library\FuncionesGlobales;
                 $(this).closest('.header_servicio').find('.duracion').val(duracion);
                 $(this).closest('.header_servicio').find('.costo').val(costo);
 
-                calcula_totales(modal_clone);
+                calcula_totales(modal_clone,id_profesional);
             });
 
             $(modal_clone).find('.div_header_servicios').append(div_clone);
@@ -1831,7 +1858,7 @@ use App\Library\FuncionesGlobales;
 
         $(modal_clone).on('click','.btn_delete_servicio',function(){
             $(this).closest('.header_servicio').remove();
-            calcula_totales(modal_clone);
+            calcula_totales(modal_clone,id_profesional);
         });
 
         if (id_cita_programada == null){
@@ -1954,6 +1981,16 @@ use App\Library\FuncionesGlobales;
                 return false;
             }
 
+            //  VALIDAR ESTRUCTURA DE DATOS
+            if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
+                console.log('pase1');
+                $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
+                $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                return false;
+            } else {
+                $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
+            }
+
             //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS
             let flag_empalmados = false;
             let dia_empalmado   = '';
@@ -2003,6 +2040,8 @@ use App\Library\FuncionesGlobales;
             } else {
                 $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
             }
+            console.log('valido save');
+            return false;
 
             let obj_info        = {};
             let count_services  = 0;
@@ -2072,6 +2111,21 @@ use App\Library\FuncionesGlobales;
             console.log('hora_inicio',hora_inicio);
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
         }
+
+        $(modal_clone).on('click','.agenda-hours',function(){
+            let hora_inicio     = $(this).closest('.row_info').find('.agenda-time').text();
+            console.log('hora_inicio',hora_inicio);
+            let duracion    = $(modal_clone).find("#total_duracion").text();
+            duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
+            hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion));
+            console.log('hora_inicio',hora_inicio);
+            $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
+
+            if ($(modal_clone).find('.select_servicios_modal').val() != null && $(modal_clone).find('.select_servicios_modal').val() != ''){
+                calcula_totales(modal_clone,id_profesional);
+            }
+            
+        });
 
         $(modal_clone).find('.hide').removeClass('hide');
         $(modal_clone).find('.hide_container').removeClass('hide_container');

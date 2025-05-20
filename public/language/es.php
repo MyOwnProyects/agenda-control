@@ -156,5 +156,6 @@ return [
     'html_error_starting_date'          => 'Ingresa la fecha de inicio',
     'html_error_range_date'             => 'Rango fechas invalido',
     'html_error_reason_cancellation'    => 'Ingrese un motivo de cancelaci&oacute;n',
-    'html_error_attendance_status'      => 'Especifique el estatus de la asistencia'
+    'html_error_attendance_status'      => 'Especifique el estatus de la asistencia',
+    'html_error_enter_cellphone_name'   => 'Ingresa un numero de telefono o nombre del paciente'
 ];

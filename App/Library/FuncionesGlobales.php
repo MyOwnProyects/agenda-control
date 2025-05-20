@@ -230,12 +230,22 @@ class FuncionesGlobales{
                 }
             }
         }
-
+        
+        $minutos_restantes  = explode(':', $max_hora_termino)[1];
         $min_hora = explode(':', $min_hora_inicio)[0];
-        $max_hora = explode(':', $max_hora_termino)[0] - 1;
+        if ($minutos_restantes != '00'){
+            $max_hora = explode(':', $max_hora_termino)[0];
+        } else {
+            $max_hora = explode(':', $max_hora_termino)[0] - 1;
+        }
+        
 
         $tmp_min_hora   = intval(explode(':', $min_hora_inicio)[0]); // Convierte a número entero
-        $tmp_max_hora   = intval(explode(':', $max_hora_termino)[0]); // Convierte a número entero
+        $tmp_max_hora   = intval(explode(':', $max_hora_termino)[0]);
+        
+        if ($minutos_restantes!= '00'){
+            $tmp_max_hora   = $tmp_max_hora + 1;
+        }
 
         $rangos_no_incluidos    = SELF::timeRangeNotIncluded($horario_atencion,$tmp_min_hora,$tmp_max_hora);
 
