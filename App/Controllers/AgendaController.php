@@ -193,6 +193,25 @@ class AgendaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'save_appoinmenmt'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['save_appoinment'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                $nombre_paciente    = $_POST['info_cita']['primer_apellido'].' '. $_POST['info_cita']['segundo_apellido'].' '.$_POST['info_cita']['nombre'];
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREATE','Se programo la cita para el paciente'.$_POST['info_cita'],$obj_info);
+
+                $response->setJsonContent('Cancelacion exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }     
 
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];

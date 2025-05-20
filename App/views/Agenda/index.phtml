@@ -45,7 +45,7 @@ use App\Library\FuncionesGlobales;
     .div_header_days_container .evento-flotante {
         position: absolute;
         background-color: rgba(0, 123, 255, 0.2);
-        border: 1px solid #007bff;
+        /* border: 1px solid #007bff; */
         width: 100%; /* CAMBIO: usar todo el ancho */
         left: 0; /* CAMBIO: alinear a la izquierda */
         z-index: 10;
@@ -644,17 +644,17 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
                     <label for="input_primer_apellido" class="col-form-label"><?php echo $translations['html_first_lastname']; ?></label>
-                    <input type="text" id="input_primer_apellido" name="input_primer_apellido" class="form-control" required />
+                    <input type="text" id="input_primer_apellido" name="input_primer_apellido" class="form-control input_nombres" required />
                     <div class="invalid-feedback"><?php echo $translations['html_error_first_lastname']; ?></div>
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
                     <label for="input_segundo_apellido" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
-                    <input type="text" id="input_segundo_apellido" name="input_segundo_apellido" class="form-control" />
+                    <input type="text" id="input_segundo_apellido" name="input_segundo_apellido" class="form-control input_nombres" />
                     <div class="invalid-feedback"><?php echo $translations['html_second_lastname']; ?></div>
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
                     <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
-                    <input type="text" id="input_nombre" name="input_nombre" class="form-control" required />
+                    <input type="text" id="input_nombre" name="input_nombre" class="form-control input_nombres" required />
                     <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
                 </div>
             </div>
@@ -695,7 +695,7 @@ use App\Library\FuncionesGlobales;
                             <label class="col-form-label"><?php echo $translations['html_service']; ?></label>
                         </div>
                         <div class="col-md-3" style="padding-right:5px;">
-                            <label class="col-form-label"><?php echo $translations['html_ab_duration']; ?></label>
+                            <label class="col-form-label"><?php echo $translations['html_duration']; ?></label>
                         </div>
                         <div class="col-md-3" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_price']; ?></label>
@@ -752,8 +752,8 @@ use App\Library\FuncionesGlobales;
         <input type="number" class="form-control duracion" required/>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;">
-        <input type="number" class="form-control costo" required />
+    <div class="col-md-3" style="padding-right:5px;" align="center">
+        <span class="costo"></span>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
     <div class="col-md-3" style="padding-right:5px;" align="center">
@@ -820,6 +820,7 @@ use App\Library\FuncionesGlobales;
         error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
         error_spliced           : "<?php echo $translations['html_error_spliced']; ?>",
         error_range_date        : "<?php echo $translations['html_error_range_date']; ?>",
+        error_day_spliced       : "<?php echo $translations['html_error_day_spliced']; ?>",
     }
 
     let count_id_citas  = 0;
@@ -1681,13 +1682,20 @@ use App\Library\FuncionesGlobales;
 
         $(modal_clone).find('.header_servicio').each(function(){
             let val_duracion    = $(this).find('.duracion').val() != null && $(this).find('.duracion').val() != '' ? $(this).find('.duracion').val() : 0;
-            let val_costo       = $(this).find('.costo').val() != null && $(this).find('.costo').val() != '' ? $(this).find('.costo').val() : 0;
+            let val_costo       = $(this).find('.costo').text() != null && $(this).find('.costo').text() != '' ? $(this).find('.costo').text() : 0;
             total_duracion      = parseInt(total_duracion) + parseInt(val_duracion);
             total_costo         = (parseFloat(total_costo) + parseFloat(val_costo)).toFixed(2);
         });
 
         $(modal_clone).find('#total_duracion').text(total_duracion);
         $(modal_clone).find('#total_costo').text(total_costo);
+        let segundo_apellido    = $(modal_clone).find('#input_segundo_apellido').val() != null && $(modal_clone).find('#input_segundo_apellido').val() != '' ? $(modal_clone).find('#input_segundo_apellido').val() : ''; 
+        let nombre_completo     = $(modal_clone).find('#input_primer_apellido').val() + ' ' + segundo_apellido +' '+$(modal_clone).find('#input_nombre').val()
+        nombre_completo         = nombre_completo.trim();
+        
+        if (nombre_completo == ''){
+            nombre_completo = 'S/N';
+        }
 
         //  SE CALCULA LA HORA DE TERMINO
         if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
@@ -1701,7 +1709,7 @@ use App\Library\FuncionesGlobales;
                 start   : hora_inicio,
                 end     : $(modal_clone).find('.input_hora_termino').val(),
                 day     : text_day,
-                nombre_completo : profesional['nombre_completo'],
+                nombre_completo : nombre_completo,
                 nombre_profesional  : profesional['nombre_completo'],
                 id_agenda_cita      : -1,
                 duracion            : total_duracion,
@@ -1826,7 +1834,7 @@ use App\Library\FuncionesGlobales;
             for(let i in info_profesional['servicios']){
                 let service = info_profesional['servicios'][i];
 
-                let option  = '<option value="'+service["id"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'">'+service["nombre"]+'</option>'
+                let option  = '<option value="'+service["id_servicio"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'">'+service["nombre"]+'</option>'
                 $(div_clone).find('.select_servicios_modal').append(option);
 
             }
@@ -1840,7 +1848,7 @@ use App\Library\FuncionesGlobales;
                 let costo       = $(this).find('option:selected').data('costo');
 
                 $(this).closest('.header_servicio').find('.duracion').val(duracion);
-                $(this).closest('.header_servicio').find('.costo').val(costo);
+                $(this).closest('.header_servicio').find('.costo').text(costo);
 
                 calcula_totales(modal_clone,id_profesional);
             });
@@ -1935,6 +1943,10 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('.div_datos_paciente').find('#input_primer_apellido').val(data.primer_apellido);
             $(modal_clone).find('.div_datos_paciente').find('#input_segundo_apellido').val(data.segundo_apellido);
             $(modal_clone).find('.div_datos_paciente').show().find('input').prop('disabled',input_disabled);
+
+            if ($(modal_clone).find('.select_servicios_modal').val() != null && $(modal_clone).find('.select_servicios_modal').val() != ''){
+                calcula_totales(modal_clone,id_profesional);
+            }
             
         });
 
@@ -1958,9 +1970,19 @@ use App\Library\FuncionesGlobales;
             const patron = /^([01]\d|2[0-3]):([0-5]\d)$/; // Expresión regular para validar HH:MM
 
             // Validar el formato de la hora
-            if (patron.test(valor) ) {
+            if (patron.test(valor) && $(modal_clone).find('.input_hora_termino').val() != null && $(modal_clone).find('.input_hora_termino').val() != '') {
                 // Ejecutar la función solo si el formato es correcto
-                change_input_hora_inicio($(this), $(this).closest('.header_row').find('.select_dias').val() != '');
+                calcula_totales(modal_clone,id_profesional);
+            }
+        });
+
+        $(modal_clone).on('blur', '.duracion', function() {
+            calcula_totales(modal_clone,id_profesional);
+        });
+
+        $(modal_clone).on('blur', '.input_nombres', function() {
+            if ($(modal_clone).find('.input_hora_termino').val() != null && $(modal_clone).find('.input_hora_termino').val() != ''){
+                calcula_totales(modal_clone,id_profesional);
             }
         });
 
@@ -1986,6 +2008,7 @@ use App\Library\FuncionesGlobales;
                 console.log('pase1');
                 $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
                 $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                $(btn).prop('disabled',false);
                 return false;
             } else {
                 $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
@@ -1994,34 +2017,36 @@ use App\Library\FuncionesGlobales;
             //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS
             let flag_empalmados = false;
             let dia_empalmado   = '';
-            $(modal_clone).find('.header_row').each(function(){
-                const id_header         = $(this).attr('id');
-                const day_header        = $(this).find('.select_dias').val();
-                let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
-                let hora_termino_header = convertirHoraATiempo($(this).find('.input_hora_termino').val());
-                dia_empalmado           = $(this).find('.select_dias').find('option:selected').text();
+            $(modal_clone).find('.evento-flotante').each(function(){
+                const id_header         = $(this).data('idagendacita');
+                let hora_inicio_header  = convertirHoraATiempo($(this).data('horainicio'));
+                let hora_termino_header = convertirHoraATiempo($(this).data('horatermino'));
 
-                $(modal_clone).find('.header_row').each(function(){
+                $(modal_clone).find('.evento-flotante').each(function(){
                     //  NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID O SI ES DIFERENTE DIA
-                    if (id_header == $(this).attr('id')){
+                    if (id_header == $(this).data('idagendacita')){
                         return true;
                     }
 
-                    if (day_header != $(this).find('.select_dias').val()){
-                        return true;
-                    }
+                    console.log('id_header',id_header);
+                    console.log("$(this).data('idagendacita')",$(this).data('idagendacita'));
 
-                    let hora_inicio     = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
-                    let hora_termino    = convertirHoraATiempo($(this).find('.input_hora_termino').val());
+                    let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
+                    let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
 
                     //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
                     if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+                        console.log('empalmado 1',(hora_inicio_header >= hora_inicio),hora_inicio_header < hora_termino);
+                        console.log('hora_inicio_header',hora_inicio_header);
+                        console.log('hora_inicio',hora_inicio);
+                        console.log('hora_termino',hora_termino);
                         flag_empalmados = true;
                         return false;
                     }
 
                     //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
                     if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                        console.log('empalmado 2',(hora_termino_header > hora_inicio),(hora_termino_header <= hora_termino));
                         flag_empalmados = true;
                         return false;
                     }
@@ -2034,50 +2059,52 @@ use App\Library\FuncionesGlobales;
 
             if (flag_empalmados){
                 $(btn).prop('disabled',false);
-                $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_spliced']+ dia_empalmado);
+                $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_day_spliced']);
                 $(modal_clone).find('#alert_error').addClass('d-flex').show();
                 return false;
             } else {
                 $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
             }
             console.log('valido save');
-            return false;
+            //return false;
 
-            let obj_info        = {};
-            let count_services  = 0;
-            obj_info[count_services]    = {};
-            obj_info[count_services]['id_servicio']         = $(modal_clone).find('.select_servicios_modal').val();
-            obj_info[count_services]['label_servicio']      = $(modal_clone).find('.select_servicios_modal').find('option:selected').text();
-            obj_info[count_services]['id_profesional']      = $(modal_clone).find('.select_profesionales_modal').val();
-            obj_info[count_services]['label_profesional']   = $(modal_clone).find('.select_profesionales_modal').find('option:selected').text();
-
-            let count_horarios  = 0;
-            obj_info[count_services]['horarios']    = {};
-
-            $(modal_clone).find('.header_row').each(function(){
-                obj_info[count_services]['horarios'][count_horarios]    = {
-                    dia             : $(this).find('.select_dias').val(),
-                    hora_inicio     : $(this).find('.input_hora_inicio').val(),
-                    hora_termino    : $(this).find('.input_hora_termino').val(),
-                };
-
-                count_horarios  ++;
+            let obj_info        = {
+                info_cita   : {},
+                servicios   : []
+            };
+            
+            $(modal_clone).find('.header_servicio').each(function(){
+                obj_info.servicios.push({
+                    id_servicio : $(this).find('.select_servicios_modal').val(),
+                    duracion    : $(this).find('.duracion').val(),
+                    costo       : $(this).find('.costo').text(),
+                });
             });
+
+            if ($(modal_clone).find('#select_paciente_modal').val() == -1){
+                obj_info.info_cita.celular          = $(modal_clone).find('#input_celular').val();
+                obj_info.info_cita.primer_apellido  = $(modal_clone).find('#input_primer_apellido').val();
+                obj_info.info_cita.segundo_apellido = $(modal_clone).find('#input_segundo_apellido').val();
+                obj_info.info_cita.nombre           = $(modal_clone).find('#input_nombre').val();
+            } else {
+                obj_info.info_cita.id_paciente  = $(modal_clone).find('#select_paciente_modal').val();
+            }
+
+            obj_info.info_cita.id_profesional   = id_profesional;
+            obj_info.info_cita.id_locacion      = $("#select_locaciones").val();
 
             console.log('obj_info');
             console.log(obj_info);
-            //return false;
+            return false;
 
             $.ajax({
                 url         : url_index,
                 method      : 'post',
                 data        : {
                     obj_info    : obj_info,
-                    accion      : 'save_program_date',
-                    nombre_completo : nombre_completo,
+                    accion      : 'save_appoinment',
                     id_paciente     : id_paciente,
-                    id_locacion     : $(modal_clone).find('.select_locaciones_modal').val(),
-                    id_cita_programada_servicio_horario : id_cita_programada  
+                    id_locacion     : $(modal_clone).find('.select_locaciones_modal').val()
                 },
                 success : function(data){
                     console.log('data');

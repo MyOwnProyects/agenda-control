@@ -44,7 +44,7 @@ return [
     'html_confirm_delete'       => '&iquest;Desea borrar el registro?',
     'html_confirm_update'       => '&iquest;Desea activar/desactivar el registro?',
     'html_price'                => 'Costo(Mex$)',
-    'html_duration'             => 'Duraci&oacute;n(Minutos)',
+    'html_duration'             => 'Duraci&oacute;n(Min)',
     'html_ab_duration'          => 'Duraci&oacute;n',
     'html_services'             => 'Servicios',
     'html_service'              => 'Servicio',
@@ -157,5 +157,6 @@ return [
     'html_error_range_date'             => 'Rango fechas invalido',
     'html_error_reason_cancellation'    => 'Ingrese un motivo de cancelaci&oacute;n',
     'html_error_attendance_status'      => 'Especifique el estatus de la asistencia',
-    'html_error_enter_cellphone_name'   => 'Ingresa un numero de telefono o nombre del paciente'
+    'html_error_enter_cellphone_name'   => 'Ingresa un numero de telefono o nombre del paciente',
+    'html_error_day_spliced'            => 'La cita esta empalmada con otra cita o esta fuera del rango de horas de servicio',
 ];
