@@ -2069,8 +2069,12 @@ use App\Library\FuncionesGlobales;
             //return false;
 
             let obj_info        = {
-                info_cita   : {},
-                servicios   : []
+                id_paciente         : null,
+                celular             : null,
+                primer_apellido     : null,
+                segundo_apellido    : null,
+                nombre              : null,
+                servicios           : []
             };
             
             $(modal_clone).find('.header_servicio').each(function(){
@@ -2082,38 +2086,45 @@ use App\Library\FuncionesGlobales;
             });
 
             if ($(modal_clone).find('#select_paciente_modal').val() == -1){
-                obj_info.info_cita.celular          = $(modal_clone).find('#input_celular').val();
-                obj_info.info_cita.primer_apellido  = $(modal_clone).find('#input_primer_apellido').val();
-                obj_info.info_cita.segundo_apellido = $(modal_clone).find('#input_segundo_apellido').val();
-                obj_info.info_cita.nombre           = $(modal_clone).find('#input_nombre').val();
+                obj_info.celular          = $(modal_clone).find('#input_celular').val();
+                obj_info.primer_apellido  = $(modal_clone).find('#input_primer_apellido').val();
+                obj_info.segundo_apellido = $(modal_clone).find('#input_segundo_apellido').val();
+                obj_info.nombre           = $(modal_clone).find('#input_nombre').val();
             } else {
-                obj_info.info_cita.id_paciente  = $(modal_clone).find('#select_paciente_modal').val();
+                obj_info.id_paciente    = $(modal_clone).find('#select_paciente_modal').val();
             }
 
-            obj_info.info_cita.id_profesional   = id_profesional;
-            obj_info.info_cita.id_locacion      = $("#select_locaciones").val();
+            obj_info.id_profesional = id_profesional;
+            obj_info.id_locacion    = $("#select_locaciones").val();
+            
+            //  OBTENER FECHA DE LA CITA
+            let fecha_actual    = formatearFecha(fechaActual);
+            fecha_actual        = fecha_actual.split(",");
+            obj_info.fecha_cita = fecha_actual[1].trim();
+            obj_info.dia        = diasSemana.indexOf(fecha_actual[0]) + 1;
+            obj_info.hora_inicio    = $(modal_clone).find('.input_hora_inicio').val();
+            obj_info.hora_termino   = $(modal_clone).find('.input_hora_termino').val();
 
             console.log('obj_info');
             console.log(obj_info);
-            return false;
+            //return false;
 
             $.ajax({
                 url         : url_index,
                 method      : 'post',
                 data        : {
                     obj_info    : obj_info,
-                    accion      : 'save_appoinment',
-                    id_paciente     : id_paciente,
-                    id_locacion     : $(modal_clone).find('.select_locaciones_modal').val()
+                    accion      : 'save_appoinment'
                 },
                 success : function(data){
                     console.log('data');
                     console.log(data);
-                    showAlert('success','Captura exitosa!');
-                    $(modal_clone).modal('hide');
-                    const $weekContainer = $("#div_header_week_container").find(".week-container");
-                    $($weekContainer).find('.flot_cita').remove();
-                    data.forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_cita'));
+                    $(btn).prop('disabled',false);
+                    // showAlert('success','Captura exitosa!');
+                    // $(modal_clone).modal('hide');
+                    // const $weekContainer = $("#div_header_week_container").find(".week-container");
+                    // $($weekContainer).find('.flot_cita').remove();
+                    // data.forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_cita'));
                 },
                 error : function(error){
                     $(btn).prop('disabled',false);
