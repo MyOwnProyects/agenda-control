@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="/css/general.css">
     <link rel="stylesheet" href="/css/select2-bootstrap-5.min.css">
 </head>
-<body>
   <?php 
     require_once APP_PATH . "/Library/FuncionesGlobales.php";
     $tipo_usuarios  = \App\Library\FuncionesGlobales::HasAccess('Tipousuarios', 'index');
@@ -57,11 +56,63 @@
       $excludedController = 'login';
       $excludedAction = 'index';
 
-      // Mostrar el label solo si no estás en la ruta excluida
-      if ($currentController !== $excludedController || $currentAction !== $excludedAction):
+      
   ?>
-        
-    
+<?php 
+    // Mostrar el label solo si no estás en la ruta excluida
+    if ($currentController !== $excludedController || $currentAction !== $excludedAction): 
+?>
+<header class="p-3 bg-dark text-white">
+  <div class="">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <div class="col-10 me-lg-auto mb-2 justify-content-center mb-md-0 text-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none fs-5 fw-semibold">
+          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
+          AGENDA CONTROL
+        </a>
+      </div>
+      
+
+      <!-- <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
+        <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
+        <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+        <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
+        <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+      </ul> -->
+
+      <!-- <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+        <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
+      </form> -->
+
+      <div class="col-2 me-lg-auto text-end bg-dark">
+        <!-- <button type="button" class="btn btn-warning">Sign-up</button> -->
+         <ul class="dropdown-menu text-small show bg-dark" aria-labelledby="dropdownUser1" style="position: absolute; margin: 0px; transform: translate(0px, -34.4px);" data-popper-placement="top-start">
+          <li class="mb-1">
+            <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear me-2 text-white" viewBox="0 0 16 16">
+                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
+                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+              </svg>
+            <?php echo $translations['html_title_my_account']; ?>
+            </button>
+            <div class="collapse" id="account-collapse">
+              <ul class="dropdown-menu text-small show">
+                <li><a href="/login/logout" class="rounded">Cerrar sesi&oacute;n</a></li>
+              </ul>
+            </div>
+          </li>
+         </ul>
+      </div>
+    </div>
+  </div>
+</header>
+<?php endif; ?>
+<body>
+<?php   
+  // Mostrar el label solo si no estás en la ruta excluida  
+  if ($currentController !== $excludedController || $currentAction !== $excludedAction): 
+?>
 <div class="">
     <div class="row">
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -123,102 +174,75 @@
   </symbol>
 </svg>
         <!-- Menú en la parte izquierda -->
-        <aside class="col-md-2 text-white bg-dark p-3 aside">
+        <aside class="col-md-2 text-white bg-dark p-3 aside <?php echo $currentController == 'Menu' ? '' : 'aside-collapsed'; ?>">
             <main>
               <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
-                <a href="/Menu" class="d-flex align-items-center pb-3 mb-3 text-white text-decoration-none border-bottom">
-                  <svg class="bi me-2" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
-                  <span class="fs-5 fw-semibold">AGENDA <br>CONTROL</span>
-                </a>
                 <ul class="nav nav-pills flex-column mb-auto">
-                  <li class="nav-item">
+                  <li class="nav-item" title="Inicio">
                     <a href="/Menu/" aria-current="page" class="nav-link text-white">
-                      <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
-                      Inicio
+                      <i class="bi bi-house me-2"></i>
+                      <span>Inicio</span>
                     </a>
                   </li>
                   <?php if($agenda): ?>
-                    <li class="nav-item">
+                    <li class="nav-item" title="<?php echo $translations['html_agenda']; ?>">
                       <a href="/Agenda/" aria-current="page" class="nav-link text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar me-2" viewBox="0 0 16 16">
-                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
-                      </svg>
-                        <?php echo $translations['html_agenda']; ?>
+                        <i class="bi bi-calendar me-2"></i>
+                        <span><?php echo $translations['html_agenda']; ?></span>
                       </a>
                     </li>
                   <?php endif; ?>
                   <?php if($locaciones): ?>
-                    <li class="nav-item">
+                    <li class="nav-item" title="<?php echo $translations['html_locations']; ?>">
                       <a href="/Locaciones/" aria-current="page" class="nav-link text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-building me-2" viewBox="0 0 16 16">
-                        <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
-                        <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/>
-                      </svg>
-                        <?php echo $translations['html_locations']; ?>
+                        <i class="bi bi-building me-2"></i>
+                        <span><?php echo $translations['html_locations']; ?></span>
                       </a>
                     </li>
                   <?php endif; ?>
                   <?php if($pacientes): ?>
-                  <li class="nav-item">
+                  <li class="nav-item" title="<?php echo $translations['html_title_patients']; ?>">
                     <a href="/Pacientes/" aria-current="page" class="nav-link text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-bounding-box me-2" viewBox="0 0 16 16">
-                      <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5"/>
-                      <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                    </svg>
-                      <?php echo $translations['html_title_patients']; ?>
+                    <i class="bi bi-person-bounding-box me-2"></i>
+                      <span><?php echo $translations['html_title_patients']; ?></span>
                     </a>
                   </li>
                   <?php endif; ?>
                   <?php if($tipo_usuarios): ?>
-                  <li class="nav-item">
+                  <li class="nav-item" title="<?php echo $translations['html_title_user_type']; ?>">
                     <a href="/Tipousuarios/" aria-current="page" class="nav-link text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill me-2" viewBox="0 0 16 16">
-                      <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
-                    </svg>
-                      <?php echo $translations['html_title_user_type']; ?>
+                      <i class="bi bi-people-fill me-2"></i>
+                      <span><?php echo $translations['html_title_user_type']; ?></span>
                     </a>
                   </li>
                   <?php endif; ?>
                   <?php if($profesionales): ?>
-                  <li class="nav-item">
+                  <li class="nav-item" title="<?php echo $translations['html_title_professionals']; ?>">
                     <a href="/Profesionales/" aria-current="page" class="nav-link text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-gear me-2" viewBox="0 0 16 16">
-                      <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1zm3.63-4.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
-                    </svg>
-                      <?php echo $translations['html_title_professionals']; ?>
+                      <i class="bi bi-person-gear me-2"></i>
+                      <span><?php echo $translations['html_title_professionals']; ?></span>
                     </a>
                   </li>
                   <?php endif; ?>
                   <?php if($servicios): ?>
-                  <li class="nav-item">
+                  <li class="nav-item" title="<?php echo $translations['html_services']; ?>">
                     <a href="/Servicios/" aria-current="page" class="nav-link text-white">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#grid"></use></svg>
-                      <?php echo $translations['html_services']; ?>
+                    <i class="bi bi-grid me-2"></i>
+                      <span><?php echo $translations['html_services']; ?></span>
                     </a>
                   </li>
                   <?php endif; ?>
                   <?php if($usuarios): ?>
-                  <li class="nav-item">
+                  <li class="nav-item" title="<?php echo $translations['html_title_users']; ?>">
                     <a href="/Usuarios/" aria-current="page" class="nav-link text-white">
-                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"></use></svg>
-                      <?php echo $translations['html_title_users']; ?>
+                      <i class="bi bi-person-circle me-2"></i>
+                      <span><?php echo $translations['html_title_users']; ?></span>
                     </a>
                   </li>
                   <?php endif; ?>
                   <li class="border-top my-3"></li>
-                  <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed text-white" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear me-2 text-white" viewBox="0 0 16 16">
-                      <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
-                      <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
-                    </svg>
-                    <?php echo $translations['html_title_my_account']; ?>
-                    </button>
-                    <div class="collapse" id="account-collapse">
-                      <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                        <li><a href="/login/logout" class="text-white rounded">Cerrar sesi&oacute;n</a></li>
-                      </ul>
-                    </div>
+                  <li class="nav-item <?php echo $currentController == 'Menu' ? 'text-center' : 'text-left'; ?>">
+                    <button id="toggle-aside" class="btn bg-dark text-white "><i class="bi <?php echo $currentController == 'Menu' ? 'bi-arrow-left-short' : 'bi-arrow-right-short'; ?>"></i></button>
                   </li>
                 </ul>
               </div>
@@ -292,13 +316,25 @@
     <script>
         $(document).ready(function() {
             $('#show-alert').click(function() {
-                console.log('click interno');
                 $('#alert-success').fadeIn();
                 setTimeout(function() {
                     $('#alert-success').fadeOut();
                 }, 3000);
             });
-        });
+
+            $("#toggle-aside").click(function() {
+              $(".aside").toggleClass("aside-collapsed");
+
+              if ($(".aside").hasClass('aside-collapsed')){
+                $(this).closest('li').removeClass('text-center').addClass('text-left');
+                $(this).find('i').removeClass('bi-arrow-left-short').addClass('bi-arrow-right-short');
+              } else {
+                $(this).closest('li').removeClass('text-left').addClass('text-center');
+                $(this).find('i').removeClass('bi-arrow-right-short').addClass('bi-arrow-left-short');
+              }
+
+            });
+          });
     </script>
 </body>
 </html>

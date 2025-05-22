@@ -109,3 +109,54 @@
   
   .fw-semibold { font-weight: 600; }
   .lh-tight { line-height: 1.25; }
+
+/* MENU PARTE SUPERIOR */
+.form-control-dark {
+  color: #fff;
+  background-color: var(--bs-dark);
+  border-color: var(--bs-gray);
+}
+.form-control-dark:focus {
+  color: #fff;
+  background-color: var(--bs-dark);
+  border-color: #fff;
+  box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25);
+}
+
+.bi {
+  vertical-align: -.125em;
+  fill: currentColor;
+}
+
+.text-small {
+  font-size: 85%;
+}
+
+.dropdown-toggle {
+  outline: 0;
+}
+
+/* ESTILO PARA MANUPULAR APERTURA Y CIERRE DE MENU */
+.aside-collapsed {
+  width: 100px !important;
+  overflow: hidden;
+}
+
+.aside-collapsed a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+
+.aside-collapsed a span {
+  display: none; /* Oculta solo el texto, manteniendo los íconos visibles */
+}
+
+.aside-collapsed i,
+.aside-collapsed svg {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  display: inline-block; /* Asegura que los íconos se sigan viendo */
+}
