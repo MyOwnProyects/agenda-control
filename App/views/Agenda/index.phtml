@@ -463,10 +463,11 @@ use App\Library\FuncionesGlobales;
                 <!-- Campo Clave -->
                 <div class="col-md-6">
                     <label for="input_clave" class="col-form-label"><?php echo $translations['html_location']; ?></label>
-                    <select id="select_locaciones_modal" class="select_locaciones_modal" required>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones_modal" class="select_locaciones_modal" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?> required>
                         <option value=""></option>
                         <?php foreach($arr_locaciones as $locacion): ?>
-                            <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
                         <?php endforeach; ?>
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
@@ -831,6 +832,7 @@ use App\Library\FuncionesGlobales;
     const markedDays    = [14, 25]; 
     let cierre_agenda   = new Date(2025, 3, 30); // Año, Mes (0-indexed), Día
     console.log('cierre_agenda',cierre_agenda);
+    let exist_apertura_agenda   = false;
 
     // Array de horas (de 9:00 a 19:00)
     let horas = [];
@@ -951,7 +953,6 @@ use App\Library\FuncionesGlobales;
                 top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
                 altura = ((finMinutos - inicioMinutos) * alturaPorMinuto) + ((((finMinutos - inicioMinutos) * (alturaPorMinuto)) / 100) *2 ); // Altura del evento
                 altura  = altura + (Math.floor(altura / 100) * 2);
-                console.log('limit_width',limit_width);
                 if (!limit_width){
                     width = $("#agenda-header").find(".agenda-service").length * 100;
                 } else {
@@ -976,8 +977,6 @@ use App\Library\FuncionesGlobales;
             } else {
                 // Encontrar la columna correspondiente al profesional
                 const profesionalIndex = profesionales.findIndex(p => p.id === evento.id_profesional);
-                console.log('profesionalIndex');
-                console.log(profesionalIndex);
                 if (profesionalIndex !== -1) {
                     columnaProfesional = filaInicio.find(".agenda-service").eq(profesionalIndex);
 
@@ -986,11 +985,8 @@ use App\Library\FuncionesGlobales;
                     alturaPorMinuto = alturaPorHora / 60; // Altura por minuto
 
                     top = (inicioMinutos % 60) * alturaPorMinuto; // Posición vertical
-                    console.log('top',top);
-                    console.log('calculo top',inicioMinutos,(inicioMinutos % 60),alturaPorMinuto);
                     altura  = (finMinutos - inicioMinutos) * alturaPorMinuto; // Altura del evento
                     altura  = altura + (Math.floor(altura / 100) * 2);
-                    console.log('seccion profesionalIndex');
 
                     // Crear el evento flotante
                     const eventoDiv = $("<div>")
@@ -1046,9 +1042,10 @@ use App\Library\FuncionesGlobales;
         }
 
         // Si la nueva fecha es mayor a la fecha límite, no se permite el cambio
-        if (nuevaFecha > cierre_agenda) {
-            alert("No puedes seleccionar una fecha posterior al cierre de la agenda.");
-            return;
+        let valida_fechas   = validar_fechas_permitidas(nuevaFecha);
+        if (valida_fechas != true){
+            showAlert('danger',valida_fechas);
+            return false;
         }
 
         fechaActual = nuevaFecha;
@@ -1068,10 +1065,10 @@ use App\Library\FuncionesGlobales;
         let nuevaFecha = new Date(fechaActual);
         nuevaFecha.setDate(nuevaFecha.getDate() + (7 * semanas));
 
-        // Verifica que la nueva fecha no exceda la fecha límite
-        if (nuevaFecha > cierre_agenda) {
-            alert("No puedes avanzar más allá del cierre de la agenda.");
-            return;
+        let valida_fechas   = validar_fechas_permitidas(nuevaFecha);
+        if (valida_fechas != true){
+            showAlert('danger',valida_fechas);
+            return false;
         }
 
         fechaActual = nuevaFecha;
@@ -1085,9 +1082,10 @@ use App\Library\FuncionesGlobales;
         nuevaFecha.setMonth(nuevaFecha.getMonth() + meses);
 
         // Verifica que la nueva fecha no exceda la fecha límite
-        if (nuevaFecha > cierre_agenda) {
-            alert("No puedes avanzar más allá del cierre de la agenda.");
-            return;
+        let valida_fechas   = validar_fechas_permitidas(nuevaFecha);
+        if (valida_fechas != true){
+            showAlert('danger',valida_fechas);
+            return false;
         }
 
         fechaActual = nuevaFecha;
@@ -1244,8 +1242,10 @@ use App\Library\FuncionesGlobales;
         profesionales       = data['all_professionals'];
 
         let tmp_cierre_fecha    = data['cierre_agenda']['last_fecha_limite'];
-        tmp_cierre_fecha    = data['cierre_agenda']['last_fecha_limite'].split('-');
-        cierre_agenda   = new Date(tmp_cierre_fecha[0],tmp_cierre_fecha[1],tmp_cierre_fecha[2]);
+        tmp_cierre_fecha        = data['cierre_agenda']['last_fecha_limite'].split('-');
+        console.log('tmp_cierre_fecha',tmp_cierre_fecha);
+        cierre_agenda           = new Date(tmp_cierre_fecha[0],tmp_cierre_fecha[1] - 1,tmp_cierre_fecha[2]);
+        exist_apertura_agenda   = data['cierre_agenda']['has_record'];
 
         horas   = [];
         for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
@@ -2174,14 +2174,34 @@ use App\Library\FuncionesGlobales;
         let fechaStr = $(element).data('day');
         let partes = fechaStr.split('-');
         let nuevaFecha = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
-
-        if (nuevaFecha > cierre_agenda) {
-            alert("No puedes seleccionar una fecha posterior al cierre de la agenda.");
-            return;
+        
+        let valida_fechas   = validar_fechas_permitidas(nuevaFecha);
+        if (valida_fechas != true){
+            showAlert('danger',valida_fechas);
+            return false;
         }
 
         cambiarDia(null, nuevaFecha);
         $("#btn-dia").trigger('click');
+    }
+
+    //  VALIDA 
+    function validar_fechas_permitidas(nueva_fecha){
+        try{
+            //  VALIDA SI EXISTE AL MENOS UN REGISTRO DE APERTURA DE AGENDA
+            if (exist_apertura_agenda == 0){
+                throw new Error("No existe un registro de apertura de agenda");
+            } 
+
+            if (nueva_fecha > cierre_agenda) {
+                throw new Error("No puedes seleccionar una fecha posterior al cierre de la agenda.");
+            }
+
+        }catch(err){
+            return err;
+        }
+
+        return true;
     }
 
     // Inicializar la agenda
@@ -2322,6 +2342,28 @@ use App\Library\FuncionesGlobales;
                 })
             });
 
+            if ($(modal_clone).find('.select_locaciones_modal').val() != '' && $(modal_clone).find('.select_locaciones_modal') != null){
+                const id_locacion   = $(modal_clone).find('.select_locaciones_modal').val();
+                $.ajax({
+                    url     : url_index,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'get_date',
+                        id_locacion : id_locacion
+                    },
+                    success     : function(data){
+                        console.log('data');
+                        console.log(data);
+
+                        $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['fecha_actual']).val(data['last_fecha_limite']).trigger('change');
+                        $(modal_clone).find('#input_fecha_termino').attr('min' , data['fecha_actual']).prop('disabled',false);
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            }
+
             $(modal_clone).on('change','#input_fecha_inicio',function(){
                 // Cadena de texto con la fecha en formato DD/MM/YYYY
                 const fechaStr = $(this).val();
@@ -2414,6 +2456,13 @@ use App\Library\FuncionesGlobales;
             if ($(event.target).closest('.flot_cita').length > 0) {
                 return; // no ejecutar si el clic vino desde un flot_cita
             }
+
+            let valida_fechas   = validar_fechas_permitidas(fechaActual);
+            if (valida_fechas != true){
+                showAlert('danger',valida_fechas);
+                return false;
+            }
+
             let fecha_actual    = formatearFecha(fechaActual);
             fecha_actual        = fecha_actual.split(",");
             let hora_inicio     = $(this).closest('.row_info').find('.agenda-time').text();
