@@ -5,6 +5,7 @@ body {
   margin: 0; /* Elimina márgenes predeterminados */
   padding: 0; /* Elimina rellenos predeterminados */
   background-color: #f8f9fa !important;
+  width: 100vw; /* Establece el ancho como el 100% del viewport width */
 }
 
 textarea {

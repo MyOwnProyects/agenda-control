@@ -1240,6 +1240,8 @@ use App\Library\FuncionesGlobales;
         let min_hora_inicio = parseInt(data['min_hora_inicio']);
         let max_hora_inicio = parseInt(data['max_hora_inicio']);
         profesionales       = data['all_professionals'];
+        console.log('data');
+        console.log(data);
 
         let tmp_cierre_fecha    = data['cierre_agenda']['last_fecha_limite'];
         tmp_cierre_fecha        = data['cierre_agenda']['last_fecha_limite'].split('-');
@@ -1390,6 +1392,7 @@ use App\Library\FuncionesGlobales;
         if (horario_no_disponible_prof){
             horario_no_disponible_prof.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-secondary','no_disponible',null,true));
             horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-secondary','no_disponible',null,true));
+            citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-success','flot_cita',null));
         }
     }
 
@@ -2152,11 +2155,11 @@ use App\Library\FuncionesGlobales;
 
         $(modal_clone).on('click','.agenda-hours',function(){
             let hora_inicio     = $(this).closest('.row_info').find('.agenda-time').text();
-            console.log('hora_inicio',hora_inicio);
             let duracion    = $(modal_clone).find("#total_duracion").text();
+
             duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
             hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion));
-            console.log('hora_inicio',hora_inicio);
+
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
 
             if ($(modal_clone).find('.select_servicios_modal').val() != null && $(modal_clone).find('.select_servicios_modal').val() != ''){
