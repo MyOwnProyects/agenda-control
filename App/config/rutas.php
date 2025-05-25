@@ -78,7 +78,7 @@ return [
         'show'          => '/tbagenda_citas/show',
         'cancelar_cita' => '/tbagenda_citas/cancelar_cita',
         'modificar_asistencia'  => '/tbagenda_citas/modificar_asistencia',
-        'create'                => '/tbagenda_citas/create'
+        'save'                  => '/tbagenda_citas/save'
     ),
     'ctmotivos_cancelacion_cita'    => array(
         'show'  => '/ctmotivos_cancelacion_cita/show'

@@ -195,7 +195,7 @@ class AgendaController extends BaseController
             }
 
             if ($accion == 'save_appoinment'){
-                $route      = $this->url_api.$this->rutas['tbagenda_citas']['create'];
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['save'];
                 $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST['obj_info']);
 
                 $response = new Response();
@@ -277,6 +277,7 @@ class AgendaController extends BaseController
         //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
         $_POST['activa']                = 1;
+        $_POST['get_servicios']         = 1;
         $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
         //  SI VIENEN VACIOS ESTOS ESPACIOS, SE UNIFICAN LAS HORAS PARA QUE SEA UN SOLO DIV CORRIDO
@@ -313,16 +314,6 @@ class AgendaController extends BaseController
     }
 
     function unificar_citas_agendadas($citas){
-        // Array original de citas
-        // $citas = [
-        //     ["day" => 1, "fecha_cita" => "2025-05-12", "start" => "09:35", "end" => "10:20"],
-        //     ["day" => 1, "fecha_cita" => "2025-05-12", "start" => "10:20", "end" => "10:55"],
-        //     ["day" => 1, "fecha_cita" => "2025-05-12", "start" => "11:30", "end" => "12:50"], // Nueva cita separada
-        //     ["day" => 3, "fecha_cita" => "2025-05-14", "start" => "09:45", "end" => "10:20"],
-        //     ["day" => 3, "fecha_cita" => "2025-05-14", "start" => "11:00", "end" => "11:45"],
-        //     ["day" => 5, "fecha_cita" => "2025-05-16", "start" => "10:00", "end" => "10:35"]
-        // ];
-
         // Agrupar citas por día
         $citasAgrupadas = [];
 
