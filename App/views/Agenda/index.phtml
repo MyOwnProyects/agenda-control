@@ -1802,8 +1802,6 @@ use App\Library\FuncionesGlobales;
         let hora_termino_header = convertirHoraATiempo(end);
         let flag_empalmados         = false;
         let hora_termino_empalmado  = '';
-        console.log('id_agenda_cita',id_agenda_cita);
-        console.log('duracion',duracion);
 
         if (id_agenda_cita != null){
             $(modal_clone).find('#select_paciente_modal').removeAttr('required');
@@ -1816,7 +1814,6 @@ use App\Library\FuncionesGlobales;
             console.log('hora_termino_header',hora_termino_header)
             console.log('id foreach',$(element).data('idagendacita'))
             if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') === id_agenda_cita){
-                console.log('aqui undefined');
                 return true;
             }
             let hora_inicio     = convertirHoraATiempo($(element).data('horainicio'));
@@ -2385,7 +2382,42 @@ use App\Library\FuncionesGlobales;
         //selectToSelect2($(".div_header_filters"),"select_locaciones");
         selectToSelect2($(".div_header_filters"),"select_servicios");
         selectToSelect2($(".div_header_filters"),"select_profesionales");
-        selectToSelect2($(".div_header_filters"),"select_pacientes");
+        //selectToSelect2($(".div_header_filters"),"select_pacientes");
+
+        $('.div_header_filters').find('#select_pacientes').select2({
+            placeholder: 'Seleccione una opción',
+            width: '50px',
+            minimumInputLength: 5,
+            ajax: {
+                url: url_index,
+                method: 'post',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    cadena_enviada  = params.term;
+                    return {
+                        accion: 'fill_combo',
+                        cadena: params.term
+                    };
+                },
+                processResults: function (data) {
+                    // Aquí adaptamos la respuesta al formato que select2 necesita
+                    return {
+                        results: data.map(function (item) {
+                            return {
+                                id: item.id,
+                                text: item.celular + ' - ' + item.nombre_completo,
+                                nombre: item.nombre,
+                                primer_apellido: item.primer_apellido,
+                                segundo_apellido: item.segundo_apellido,
+                                celular: item.celular
+                            };
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
 
         $(".filters").find('#select_locaciones').select2({
             placeholder: 'Seleccione una opción',

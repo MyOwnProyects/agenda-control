@@ -1208,6 +1208,12 @@ let module_schedule_appointments    = (function(){
                         return false;
                     }
 
+                    if (hora_inicio_header < hora_inicio && hora_termino_header >= hora_termino){
+                        console.log('empalmado hora Maximo');
+                        flag_empalmados = true;
+                        return false;
+                    }
+
                     if (flag_empalmados){
                         return false;
                     }
