@@ -901,6 +901,7 @@ use App\Library\FuncionesGlobales;
 
     // Función para convertir una hora en minutos desde las 00:00
     function convertirHoraAMinutos(hora) {
+        console.log('hora error',hora);
         const [h, m] = hora.split(":").map(Number);
         return h * 60 + m;
     }
@@ -1016,6 +1017,7 @@ use App\Library\FuncionesGlobales;
 
     function sumarUnMinuto(hora, minutosASumar = 1) {
         // Dividir la hora en horas y minutos
+        console.log('hora error',hora);
         let [horas, minutos] = hora.split(":").map(Number);
 
         // Sumar los minutos
@@ -1709,13 +1711,26 @@ use App\Library\FuncionesGlobales;
 
         //  SE CALCULA LA HORA DE TERMINO
         if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
-            let hora_inicio = $(modal_clone).find('.input_hora_inicio').val();
-            $(modal_clone).find('.input_hora_termino').val(sumarUnMinuto(hora_inicio,total_duracion));
+            let input_hora_inicio   = $(modal_clone).find('.input_hora_inicio').val();
+            let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion);
+            console.log('hora_inicio calcula totales',hora_inicio);
+            if (hora_inicio['excede_horario'] == true){
+                showAlert('danger','El valor ingresado esta fuera del horario de atenci&oacute;n');
+                $(modal_clone).find('.input_hora_inicio').val('');
+                $(modal_clone).find('.input_hora_termino').val('');
+                return false;
+            } else {
+                if (input_hora_inicio != hora_inicio['hora_termino_empalmado']){
+                    $(modal_clone).find('.input_hora_inicio').val(input_hora_inicio);
+                }
+            }
+            
+            $(modal_clone).find('.input_hora_termino').val(sumarUnMinuto(input_hora_inicio,total_duracion));
             let profesional = profesionales.find(row => row.id == id_profesional);
             let text_day    = formatearFecha(fechaActual);
             text_day        = text_day.split(",")[0];
             let evento  = {
-                start   : hora_inicio,
+                start   : $(modal_clone).find('.input_hora_inicio').val(),
                 end     : $(modal_clone).find('.input_hora_termino').val(),
                 day     : text_day,
                 nombre_completo : nombre_completo,
@@ -1789,6 +1804,10 @@ use App\Library\FuncionesGlobales;
         let hora_termino_empalmado  = '';
         console.log('id_agenda_cita',id_agenda_cita);
         console.log('duracion',duracion);
+
+        if (id_agenda_cita != null){
+            $(modal_clone).find('#select_paciente_modal').removeAttr('required');
+        }
 
         $(modal_clone).find('.evento-flotante').each(function(){
             let element = $(this);
@@ -2000,6 +2019,7 @@ use App\Library\FuncionesGlobales;
         });
 
         $(modal_clone).on('blur', '.input_hora_inicio', function() {
+            //@TODO OBTENER LA HORA INICIO ANTERIOR EN CASO DE EXISTIR EMPALMADOS
             const valor = $(this).val(); // Obtener el valor del input
             const patron = /^([01]\d|2[0-3]):([0-5]\d)$/; // Expresión regular para validar HH:MM
 
@@ -2020,14 +2040,32 @@ use App\Library\FuncionesGlobales;
             }
         });
 
+        //  GUARDAR CITA
         $(modal_clone).on('click','#btnSave',function(){
             let btn = $(this);
             $(btn).prop('disabled',true);
             const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
             let flag_error  = false;
-            if (form.checkValidity() === false) {
+            
+            if (!form.checkValidity()) {
                 $(form).addClass('was-validated');
-                flag_error  = true;
+                flag_error = true;
+
+                // // Obtener los elementos inválidos
+                // const invalidElements = form.querySelectorAll(':invalid'); 
+
+                // invalidElements.forEach(element => {
+                //     if (element.id === 'select_paciente_modal' && id_agenda_cita != null) {
+                //         console.log('aqui if');
+                //         $(modal_clone).find('#select_paciente_modal').removeClass('was-validated'); // Quita la clase solo a este elemento
+                //     }
+                //     console.log(`Elemento inválido: ${element.name || element.id}`, element);
+                // });
+                
+                // console.log('invalidElements.length',form.querySelectorAll(':invalid').length);
+                // if (form.querySelectorAll(':invalid').length == 0){
+                //     flag_error = false;
+                // }
             } else {
                 $(form).removeClass('was-validated');
             }
@@ -2103,6 +2141,7 @@ use App\Library\FuncionesGlobales;
             //return false;
 
             let obj_info        = {
+                id_agenda_cita      : id_agenda_cita,
                 id_paciente         : null,
                 celular             : null,
                 primer_apellido     : null,
@@ -2119,14 +2158,17 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
-            if ($(modal_clone).find('#select_paciente_modal').val() == -1){
-                obj_info.celular          = $(modal_clone).find('#input_celular').val();
-                obj_info.primer_apellido  = $(modal_clone).find('#input_primer_apellido').val();
-                obj_info.segundo_apellido = $(modal_clone).find('#input_segundo_apellido').val();
-                obj_info.nombre           = $(modal_clone).find('#input_nombre').val();
-            } else {
-                obj_info.id_paciente    = $(modal_clone).find('#select_paciente_modal').val();
+            if (id_agenda_cita == null){
+                if ($(modal_clone).find('#select_paciente_modal').val() == -1){
+                    obj_info.celular          = $(modal_clone).find('#input_celular').val();
+                    obj_info.primer_apellido  = $(modal_clone).find('#input_primer_apellido').val();
+                    obj_info.segundo_apellido = $(modal_clone).find('#input_segundo_apellido').val();
+                    obj_info.nombre           = $(modal_clone).find('#input_nombre').val();
+                } else {
+                    obj_info.id_paciente    = $(modal_clone).find('#select_paciente_modal').val();
+                }
             }
+            
 
             obj_info.id_profesional = id_profesional;
             obj_info.id_locacion    = $("#select_locaciones").val();

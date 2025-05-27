@@ -647,6 +647,13 @@ let module_schedule_appointments    = (function(){
                 return false;
             }
 
+            //  VERIFICA EMPALMADO DONDE HORA INICIO Y TERMINO SON MAYORES RESPECTIVAMENTE
+            if (hora_inicio_header < hora_inicio && hora_termino_header > hora_termino){
+                flag_empalmados         = true;
+                hora_termino_empalmado  = $(this).data('horatermino');
+                return false;
+            }
+
             //  EXISTE UN EMPALMADO POR LO CUAL SE DEBE DE RECALCULAR 
             //  LA HORA INICIO Y TERMINO 
              
