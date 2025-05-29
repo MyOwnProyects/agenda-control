@@ -1318,7 +1318,24 @@ use App\Library\FuncionesGlobales;
                 min_hora_inicio = data.min_hora_inicio;
                 max_hora_inicio = data.max_hora_inicio;
                 // $(modal_clone).find('.floating-box').remove();
-                setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500)
+                setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
+
+                //  SE LLENAN LOS SELECTS
+                let options = '<option></option>';
+                for(let i in data['all_services']){
+                    let row = data['all_services'][i];
+                    options += '<option value="'+row["id"]+'">'+row["nombre"]+'</option>';
+                }
+                $("#select_servicios").find('option').remove();
+                $("#select_servicios").append(options);
+
+                options = '<option></option>';
+                for(let i in data['all_professionals']){
+                    let row = data['all_professionals'][i];
+                    options += '<option value="'+row["id"]+'">'+row["nombre_completo"]+'</option>';
+                }
+                $("#select_profesionales").find('option').remove();
+                $("#select_profesionales").append(options);
                 
             },
             error   : function(error){
@@ -2419,6 +2436,7 @@ use App\Library\FuncionesGlobales;
             }
         });
 
+        //  EVENTOS PARA FILTRAR CITAS
         $(".filters").find('#select_locaciones').select2({
             placeholder: 'Seleccione una opción',
             allowClear : false,
@@ -2430,9 +2448,19 @@ use App\Library\FuncionesGlobales;
             }
         });
 
+        $(".filters").on('select2:select','#select_servicios',function(){
+            get_all_appointments($(this));
+        });
+
+        $(".filters").on('select2:select','#select_profesionales',function(){
+            get_all_appointments($(this));
+        });
+
         if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
             get_all_appointments($("#select_locaciones"));
         }
+
+
 
         // Encapsulación de eventos dentro de .div_header_days_container
         $('.div_header_days_container').on('mouseenter','.evento-flotante',function() {
