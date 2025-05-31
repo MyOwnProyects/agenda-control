@@ -871,8 +871,11 @@ use App\Library\FuncionesGlobales;
     // ];
 
     // Variables para manejar la fecha
-    let fechaActual = new Date();
+    
     const date_today    = "<?php echo $today; ?>";
+    let split_today     = date_today.split('-');
+    let fechaActual = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
+
     console.log('date_today',date_today);
 
     let rango_semana_actual = {
@@ -946,7 +949,6 @@ use App\Library\FuncionesGlobales;
 
     // Función para generar los eventos flotantes PARA CALENDARIO POR DIA
     function cuadroFlotantesDiario(element_header,evento,background,tipo_cuadro,mensaje = null,limit_width = false) {
-        console.log('limit_width',limit_width);
         let fecha_actual    = formatearFecha(fechaActual);
         fecha_actual        = fecha_actual.split(",");
 
@@ -1770,8 +1772,8 @@ use App\Library\FuncionesGlobales;
         }
 
         //  SE CALCULA LA HORA DE TERMINO
+        let input_hora_inicio   = $(modal_clone).find('.input_hora_inicio').val();
         if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
-            let input_hora_inicio   = $(modal_clone).find('.input_hora_inicio').val();
             let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion);
             console.log('hora_inicio calcula totales',hora_inicio);
             if (hora_inicio['excede_horario'] == true){
@@ -1780,8 +1782,11 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.input_hora_termino').val('');
                 return false;
             } else {
+                console.log('antes if',input_hora_inicio,hora_inicio['hora_termino_empalmado']);
+                console.log('result if',input_hora_inicio != hora_inicio['hora_termino_empalmado']);
                 if (input_hora_inicio != hora_inicio['hora_termino_empalmado']){
-                    $(modal_clone).find('.input_hora_inicio').val(input_hora_inicio);
+                    $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
+                    input_hora_inicio   = hora_inicio['hora_termino_empalmado'];
                 }
             }
             
@@ -1803,9 +1808,7 @@ use App\Library\FuncionesGlobales;
             
             //  SE BORRA EL REGISTREO ACTUAL -1 
             $(modal_clone).find('.flot_cita').each(function(){
-                console.log('idagendacita',$(this).data('idagendacita'));
                 if ($(this).data('idagendacita') == id_agenda_cita){
-                    console.log('remove div');
                     $(this).remove();
                     return false;
                 }
@@ -1862,21 +1865,24 @@ use App\Library\FuncionesGlobales;
         let hora_termino_header = convertirHoraATiempo(end);
         let flag_empalmados         = false;
         let hora_termino_empalmado  = '';
-
-        if (id_agenda_cita != null){
-            $(modal_clone).find('#select_paciente_modal').removeAttr('required');
-        }
+        console.log('id_agenda_cita antes de veriricar',id_agenda_cita);
+        console.log('horas header',hora_inicio_header,hora_termino_header);
 
         $(modal_clone).find('.evento-flotante').each(function(){
             let element = $(this);
             console.log('-----------    dentro del foreach  verificarHoraInicio---------------');
+            console.log("$(element).data('idagendacita')",$(element).data('idagendacita'));
+            
             if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') === id_agenda_cita){
                 return true;
             }
+            console.log('hodas antes convert',$(element).data('horainicio'),$(element).data('horatermino'));
             let hora_inicio     = convertirHoraATiempo($(element).data('horainicio'));
             let hora_termino    = convertirHoraATiempo($(element).data('horatermino'));
+            console.log('horas row',hora_inicio,hora_termino);
 
             if (hora_termino < hora_inicio_header){
+                console.log('aqui return')
                 return true;
             }
 
@@ -1941,6 +1947,10 @@ use App\Library\FuncionesGlobales;
         let max_hora_inicio_modal   = '';
         let id_template_cita        = '';  
         let tmp_fecha_actual        = fechaActual;
+
+        if (id_agenda_cita != null){
+            $(modal_clone).find('#select_paciente_modal').removeAttr('required');
+        }
         
         $(modal_clone).on('click','#input_modify_day',function(){
             let is_checked  = $(this).prop('checked');
@@ -1954,8 +1964,16 @@ use App\Library\FuncionesGlobales;
 
         //  EVENTOS DIV DE DIAS
         // Eventos para los botones de navegación
-        $(modal_clone).find("#btn-anterior").on("click", () => cambiarDia(-1,null,$(modal_clone)));
-        $(modal_clone).find("#btn-siguiente").on("click", () => cambiarDia(1,null,$(modal_clone)));
+        $(modal_clone).find("#btn-anterior").on("click", function(){
+            cambiarDia(-1,null,$(modal_clone));
+            console.log('entre funciones');
+            setTimeout(calcula_totales(modal_clone,id_profesional,id_agenda_cita),50);
+        });
+        $(modal_clone).find("#btn-siguiente").on("click", function(){
+            cambiarDia(1,null,$(modal_clone));
+            console.log('entre funciones');
+            setTimeout(calcula_totales(modal_clone,id_profesional,id_agenda_cita),50);
+        });
 
         // Eventos para cambiar semana
         $(modal_clone).find("#btn-semana-anterior").on("click", () => cambiarSemana(-1));
@@ -2139,7 +2157,6 @@ use App\Library\FuncionesGlobales;
 
             //  VALIDAR ESTRUCTURA DE DATOS
             if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
-                console.log('pase1');
                 $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
                 $(modal_clone).find('#alert_error').addClass('d-flex').show();
                 $(btn).prop('disabled',false);
@@ -2162,18 +2179,12 @@ use App\Library\FuncionesGlobales;
                         return true;
                     }
 
-                    console.log('id_header',id_header);
-                    console.log("$(this).data('idagendacita')",$(this).data('idagendacita'));
-
                     let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
                     let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
 
                     //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
                     if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
                         console.log('empalmado 1',(hora_inicio_header >= hora_inicio),hora_inicio_header < hora_termino);
-                        console.log('hora_inicio_header',hora_inicio_header);
-                        console.log('hora_inicio',hora_inicio);
-                        console.log('hora_termino',hora_termino);
                         flag_empalmados = true;
                         return false;
                     }
@@ -2278,7 +2289,6 @@ use App\Library\FuncionesGlobales;
 
         if (id_agenda_cita == null){
             let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5);
-            console.log('hora_inicio retornado',hora_inicio);
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
         } else {
             let info_cita   = citas_desglosadas.find(row => row.id_agenda_cita == id_agenda_cita);
@@ -2307,7 +2317,6 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('.div_select_paciente').hide();
             $(modal_clone).find('.div_datos_paciente').show();
             $(modal_clone).find('#span_paciente').text(info_cita['celular'] + ' - ' + info_cita['primer_apellido'] + ' ' + info_cita['segundo_apellido']+ ' '+ info_cita['nombre'] );
-            console.log('fecha cita',new Date(info_cita['fecha_cita']),formatearFecha(new Date(info_cita['fecha_cita'])));
             let formato_fecha   = info_cita['fecha_cita'].split('-');
 
             $(modal_clone).find('#span_fecha_cita').text(formato_fecha[2]+'/'+formato_fecha[1]+'/'+formato_fecha[0]);
@@ -2327,7 +2336,6 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).on('hidden.bs.modal', function (e) {
                 // Tu código aquí
-                console.log('aqui evento  cerrar', tmp_fecha_actual);
                 fechaActual = tmp_fecha_actual;
             });
 
@@ -2345,9 +2353,8 @@ use App\Library\FuncionesGlobales;
             let duracion    = $(modal_clone).find("#total_duracion").text();
 
             duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
-            console.log('duracion',duracion);
             hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion),id_agenda_cita,duracion);
-            console.log('hora_inicio retornado',hora_inicio);
+
             if (hora_inicio['excede_horario']){
                 hora_inicio['hora_termino_empalmado']   = $(modal_clone).find('.input_hora_inicio').val();
             }
@@ -2439,7 +2446,6 @@ use App\Library\FuncionesGlobales;
 
                 console.log('data');
                 console.log(data);
-                console.log('dia',dia);
                 show_modal_citas(id_agenda_cita,hora_inicio,data,id_profesional);
             },
             error : function(error){
@@ -2779,8 +2785,6 @@ use App\Library\FuncionesGlobales;
             const dia           = $(this).data('dia');
             const hora_inicio   = $(this).data('horainicio');
             const id_agenda_cita    = $(this).data('idagendacita');
-
-            console.log('id_agenda_cita',id_agenda_cita);
         });
 
         $("#infoBox").on('click','.btn_cancelar',function(){
