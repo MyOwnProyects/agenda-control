@@ -921,15 +921,23 @@ use App\Library\FuncionesGlobales;
                 if (fechaActual >= fechaInicio && fechaActual <= fechaTermino) {
                     div_header  = $(div_header).hasClass('modal') ? $(div_header) : '#div_header_agenda';
                     $(div_header).find(".div_header_days_container").find('.evento-flotante').remove();
+                    let id_profesional  = null;
                     if (div_header == '#div_header_agenda'){
-                        console.log('entrto elsife');
+                        console.log('entre if');
                         horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-secondary','no_disponible'));
                     } else {
-                        console.log('entrto else');
+                        id_profesional  = $(div_header).find('#span_paciente').data('idprofesional');
+                        console.log('entro else');
+                        console.log('horario_no_disponible',horario_no_disponible);
                         horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-secondary','no_disponible',null,true));
                     }
                     
-                    citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-success','flot_cita',null));
+                    //citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-success','flot_cita',null));
+                    citas_desglosadas.forEach(rango => {
+                        if (id_profesional == null || rango.id_profesional == id_profesional) {
+                            cuadroFlotantesDiario($(div_header), rango, 'bg-success', 'flot_cita', null);
+                        }
+                    });
                     show_horario_no_disponible_profesional($(div_header));
                 } else {
                     div_header  = $(div_header).hasClass('modal') ? $(div_header) : null;
@@ -1272,23 +1280,38 @@ use App\Library\FuncionesGlobales;
 
     function show_horario_no_disponible_profesional(div_header = null){
         //  SE PINTA EL HORARIO NO DISPONIBLE POR PROFESIONAL POR DIA
+        let header_id_profesional   = null;
+        console.log("$(div_header).hasClass('modal')",$(div_header).hasClass('modal'),div_header != null && $(div_header).hasClass('modal'));
+        if (div_header != null && $(div_header).hasClass('modal')){
+            header_id_profesional   = $(div_header).find('#span_paciente').data('idprofesional');
+            console.log('aqui ver',header_id_profesional);
+        }
+        console.log('profesionales',profesionales);
         for(let i in profesionales){
             let rango_no_disponible = profesionales[i]['rango_no_disponible'];
             let nombre_completo = profesionales[i]['nombre_completo'];
             let id_profesional  = profesionales[i]['id'];
+            console.log('id_profesional if',id_profesional)
 
-            rango_no_disponible.forEach(rango => {
-                // Agregamos la propiedad nombre_completo al objeto rango
-                rango.nombre_profesional    = nombre_completo;
-                rango.id_profesional        = id_profesional;
-                // Llamamos a la función con el rango modificado
-                if (div_header == null){
-                    cuadroFlotantesDiario($("#div_header_agenda"),rango, 'bg-secondary', 'no_disponible');
-                } else {
-                    cuadroFlotantesDiario($(div_header),rango, 'bg-secondary', 'no_disponible');
-                }
-                
-            });
+            if (header_id_profesional != null && id_profesional != header_id_profesional){
+                //return true;
+            }
+            console.log('pase if',profesionales[i]);
+
+            if (header_id_profesional == null || id_profesional == header_id_profesional){
+                rango_no_disponible.forEach(rango => {
+                    // Agregamos la propiedad nombre_completo al objeto rango
+                    rango.nombre_profesional    = nombre_completo;
+                    rango.id_profesional        = id_profesional;
+                    // Llamamos a la función con el rango modificado
+                    if (div_header == null){
+                        cuadroFlotantesDiario($("#div_header_agenda"),rango, 'bg-secondary', 'no_disponible');
+                    } else {
+                        cuadroFlotantesDiario($(div_header),rango, 'bg-secondary', 'no_disponible');
+                    }
+                });
+            }
+            
         }
     }
 
