@@ -208,7 +208,7 @@ class AgendaController extends BaseController
                 $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
                 FuncionesGlobales::saveBitacora($this->bitacora,'CREATE','Se programo la cita para el paciente: '.$nombre_paciente,$_PST['obj_info']);
 
-                $response->setJsonContent('Cancelacion exitosa!');
+                $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
