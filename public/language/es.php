@@ -121,6 +121,9 @@ return [
     'html_appointment_scheduling'   => 'Programaci&oacute;n de citas',
     'html_schedule_an_appointment'  => 'Agendar cita',
     'html_totals'                   => 'Totales',
+    'html_question_return'          => '&iquest; Deseas regresar al inicio del catalogo?',
+    'html_appoinment_date'          => 'Fecha actual de la cita',
+    'html_modify_date'              => 'Cambiar d&iacute;a',
 
 
     //  MENSAJES DE ERROR

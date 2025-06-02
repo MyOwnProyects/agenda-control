@@ -213,6 +213,7 @@
             error_validate_cellphone    : "<?php echo $translations['html_error_validate_cellphone']; ?>",
             error_verify_general_data   : "<?php echo $translations['html_error_verify_general_data']; ?>",
             error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
+            question_return             : "<?php echo $translations['html_question_return']?>",
         }
 
         const tipo_usuario_defeco   = "<?php echo $arr_tipo_usuario['nombre']; ?>";
@@ -309,8 +310,11 @@
             });
 
             //
-            $(".create-container").on('click',".btnReturn",function(){
-                window.location = "/Profesionales";
+            $(".create-container").on('click',".btnReturn",async function(){
+                const respuesta = await window.modalConfirm(error_list['question_return']);
+                if (respuesta){
+                    window.location = "/Profesionales";
+                }
             });
 
             $(".create-container").on('click','#btnSave',function(){
