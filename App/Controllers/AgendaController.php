@@ -81,7 +81,7 @@ class AgendaController extends BaseController
                 foreach($arr_return['all_professionals'] as $index => $profesional){
                     $horario_atencion_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
                         'id_locacion'           => $_POST['id_locacion'],
-                        'id_profesional'        => $profesional['id'],
+                        'id_profesional'        => $profesional['id']
                     ));
 
                     $hora_cierre    = (INT) $arr_return['max_hora_inicio'] + 1;
@@ -186,7 +186,7 @@ class AgendaController extends BaseController
                     'get_servicios' => true
                 ));
 
-                $result['servicios']    = $servicios[0]['locacion_servicios'];
+                $result['servicios']    = $servicios[0]['servicios'];
 
                 $response = new Response();
                 $response->setJsonContent($result);
@@ -276,7 +276,7 @@ class AgendaController extends BaseController
 
         // INFORMACION DE LOS PROFESIONALES
         $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
-        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
 
         //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
