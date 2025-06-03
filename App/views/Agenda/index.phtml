@@ -981,7 +981,11 @@ use App\Library\FuncionesGlobales;
         
         //  MENSAJE A MOSTRAR
         if (tipo_cuadro == 'no_disponible'){
-            mensaje = '<span>Horario no disponible</span>';
+            if (mensaje != null){
+                mensaje = '<span>'+mensaje+'</span>';
+            } else {
+                mensaje = '<span>Horario no disponible</span>';
+            }
         } else {
             mensaje = '<span>'+evento.nombre_completo+'</span><span>'+evento.start + '-' + evento.end+'</span>'
         }
@@ -1310,9 +1314,9 @@ use App\Library\FuncionesGlobales;
                     rango.id_profesional        = id_profesional;
                     // Llamamos a la función con el rango modificado
                     if (div_header == null){
-                        cuadroFlotantesDiario($("#div_header_agenda"),rango, 'bg-secondary', 'no_disponible');
+                        cuadroFlotantesDiario($("#div_header_agenda"),rango, 'bg-secondary', 'no_disponible','Profesional no disponible');
                     } else {
-                        cuadroFlotantesDiario($(div_header),rango, 'bg-secondary', 'no_disponible');
+                        cuadroFlotantesDiario($(div_header),rango, 'bg-secondary', 'no_disponible','Profesional no disponible');
                     }
                 });
             }
@@ -1471,9 +1475,15 @@ use App\Library\FuncionesGlobales;
         profesionales.forEach(profesional => {
             row_fila    += '<div class="agenda-service agenda-hours" data-idprofesional="'+profesional.id+'"></div>';
 
-            const columna = $("<div>")
+            let servicios   = 'Servicios: \n';
+            for(let i in profesional.servicios){
+                servicios   += '*'+profesional.servicios[i]['nombre']+'\n';
+            }
+
+            const columna = $('<div>')
                 .addClass("agenda-service")
-                .text(profesional.nombre_completo);
+                .text(profesional.nombre_completo)
+                .prop('title',servicios);
             agendaHeader.append(columna);
         });
 
