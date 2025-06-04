@@ -81,7 +81,7 @@ class AgendaController extends BaseController
                 foreach($arr_return['all_professionals'] as $index => $profesional){
                     $horario_atencion_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
                         'id_locacion'           => $_POST['id_locacion'],
-                        'id_profesional'        => $profesional['id'],
+                        'id_profesional'        => $profesional['id']
                     ));
 
                     $hora_cierre    = (INT) $arr_return['max_hora_inicio'] + 1;
@@ -186,7 +186,7 @@ class AgendaController extends BaseController
                     'get_servicios' => true
                 ));
 
-                $result['servicios']    = $servicios[0]['locacion_servicios'];
+                $result['servicios']    = $servicios[0]['servicios'];
 
                 $response = new Response();
                 $response->setJsonContent($result);
@@ -276,7 +276,7 @@ class AgendaController extends BaseController
 
         // INFORMACION DE LOS PROFESIONALES
         $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
-        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
 
         //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
@@ -317,8 +317,13 @@ class AgendaController extends BaseController
         return $citas_paciente;
     }
 
-    function unificar_citas_agendadas($citas){
-        // Agrupar citas por día
+    function unificar_citas_agendadas($citas) {
+        // Ordenar citas por día y luego por hora de inicio
+        usort($citas, function($a, $b) {
+            return strcmp($a['fecha_cita'] . $a['start'], $b['fecha_cita'] . $b['start']);
+        });
+
+        // Agrupar citas por día y fusionar solapamientos
         $citasAgrupadas = [];
 
         foreach ($citas as $cita) {
@@ -326,20 +331,34 @@ class AgendaController extends BaseController
             $fecha = $cita["fecha_cita"];
             $start = $cita["start"];
             $end = $cita["end"];
+            $id_agenda_cita = $cita["id_agenda_cita"];
 
             if (!isset($citasAgrupadas[$day])) {
                 // Primera cita del día
-                $citasAgrupadas[$day][] = ["start" => $start, "end" => $end, "fecha_cita" => $fecha, "day" => $day,"nombre_completo" => 'Horario ocupado'];
+                $citasAgrupadas[$day][] = [
+                    "start" => $start, "end" => $end,
+                    "fecha_cita" => $fecha, "day" => $day,
+                    "nombre_completo" => 'Horario ocupado',
+                    "lista_id_agenda_citas" => [$id_agenda_cita]
+                ];
             } else {
                 // Obtener el último grupo de citas
                 $lastGroup = &$citasAgrupadas[$day][count($citasAgrupadas[$day]) - 1];
 
-                // Si la cita inicia justo después del último rango, se une al grupo
-                if ($start === $lastGroup["end"]) {
-                    $lastGroup["end"] = $end;
+                // Verificar si hay solapamiento o continuidad
+                if ($start <= $lastGroup["end"]) {
+                    // Expandir el rango de la cita previa para incluir la nueva
+                    $lastGroup["end"] = max($lastGroup["end"], $end);
+                    // Agregar el id_agenda_cita a la lista
+                    $lastGroup["lista_id_agenda_citas"][] = $id_agenda_cita;
                 } else {
-                    // Si la cita no está conectada al rango anterior, se crea un nuevo grupo
-                    $citasAgrupadas[$day][] = ["start" => $start, "end" => $end, "fecha_cita" => $fecha, "day" => $day,"nombre_completo" => 'Horario ocupado'];
+                    // Si no hay conexión, se crea un nuevo grupo
+                    $citasAgrupadas[$day][] = [
+                        "start" => $start, "end" => $end,
+                        "fecha_cita" => $fecha, "day" => $day,
+                        "nombre_completo" => 'Horario ocupado',
+                        "lista_id_agenda_citas" => [$id_agenda_cita]
+                    ];
                 }
             }
         }
@@ -352,9 +371,9 @@ class AgendaController extends BaseController
             }
         }
 
-        // Imprimir resultado
         return $citasUnificadas;
-
     }
+
+
     
 }

@@ -1,7 +1,5 @@
 function actionJsonError(error,btn = null){
     try{
-        console.log('error');
-        console.log(error);
         let error_info  = error.status != 401 ? error.responseJSON : error.responseText;
     
         let flag_message    = error_info.includes("message");
