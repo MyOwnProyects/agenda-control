@@ -1547,7 +1547,7 @@ use App\Library\FuncionesGlobales;
             $($weekContainer).find('#'+id_horario_cita).remove();
         }
 
-        let { start, end, day, duracion = null,id_agenda_cita = null,nombre_completo = null,nombre_profesional = null } = evento;
+        let { start, end, day, duracion = null,id_agenda_cita = null,nombre_completo = null,nombre_profesional = null,lista_id_agenda_citas = null } = evento;
 
         const dayIndex  = isNaN(day) ? diasSemana.indexOf(day) + 1 : day;
         const duracion_minutos  = duracion == null ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos') : duracion;
@@ -1555,6 +1555,14 @@ use App\Library\FuncionesGlobales;
         if ( (id_horario_cita != null && id_agenda_cita != null) && id_horario_cita == id_agenda_cita){
             return true;
         }
+        
+        if (lista_id_agenda_citas == null){
+            lista_id_agenda_citas   = [id_agenda_cita];
+        }
+
+        console.log('lista_id_agenda_citas',lista_id_agenda_citas);
+        lista_id_agenda_citas   = JSON.stringify(lista_id_agenda_citas);
+
         
         //  ANTES DE CONTINUAR SE DEBE DE VERIFICAR QUE NO EXISTA
         //  NINGUN TIPO DE EMPALMADO ENTRE NINGUN CUADRO FLOTANTE
@@ -1675,7 +1683,7 @@ use App\Library\FuncionesGlobales;
             id_floating = '';
         }
 
-        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" '+data_paciente+' data-dia="'+dayIndex+'" data-dialabel="'+(diasSemana[day - 1])+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-profesional="'+nombre_profesional+'" data-idagendacita="'+id_agenda_cita+'">'+span_info+'</span></div>').css({
+        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" '+data_paciente+' data-dia="'+dayIndex+'" data-dialabel="'+(diasSemana[day - 1])+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-profesional="'+nombre_profesional+'" data-idagendacita="'+id_agenda_cita+'" data-listaidagendacitas="'+lista_id_agenda_citas+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
             left: `${left}px`,
             width: `${width - borderSize}px`,
@@ -2884,6 +2892,18 @@ use App\Library\FuncionesGlobales;
         // Mostrar el modal al pasar el mouse sobre el .flot_cita
         $("#div_header_week_container").on("click",'.flot_cita',function () {
             //show_info_cita($(this));
+            let lista_id_agenda_citas   = JSON.parse($(this).attr('data-listaidagendacitas'));
+
+            console.log('lista_id_agenda_citas',lista_id_agenda_citas);
+            console.log('citas_agendadas',citas_agendadas);
+            //  SE RECORRE LA LISTA DE CITAS AGENDADAS, AHI SE PINTA LA INFOMACION UN MODAL
+            for(let i in citas_desglosadas){
+                let cita    = citas_desglosadas[i];
+                if (lista_id_agenda_citas.includes(cita['id_agenda_cita'])){
+                    console.log('Cita array',cita);
+                }
+            }
+
         });
 
         $(".div_header_days_container").on("click",'.flot_cita',function () {
