@@ -674,13 +674,11 @@ use App\Library\FuncionesGlobales;
                     <div class="navigation">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-mes-anterior" class="btn btn-secondary"><<<</button>
                             <button type="button" id="btn-semana-anterior" class="btn btn-secondary"><<</button>
                             <button type="button" id="btn-anterior" class="btn btn-secondary"><</button>
                             <h3 id="fecha-actual"></h3>
                             <button type="button" id="btn-siguiente" class="btn btn-secondary">></button>
                             <button type="button" id="btn-semana-siguiente" class="btn btn-secondary">>></button>
-                            <button type="button" id="btn-mes-siguiente" class="btn btn-secondary">>>></button>
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
@@ -787,6 +785,43 @@ use App\Library\FuncionesGlobales;
     <div class="col-md-3" style="padding-right:5px;" align="center">
         <button type="button" class="btn btn-outline-dark btn_delete_servicio btn-close"></button>
     </div>
+</div>
+
+<div class="modal fade" id="modal_info_citas" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_cancelar_cita"><?php echo FuncionesGlobales::UpperString($translations['html_cancel_appointment']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_reason_cancellation']; ?></label>
+                    <select id="select_motivo_cancelacion">
+                        <option></option>
+                        <?php foreach($motivos_cancelacion_cita as $motivo): ?>
+                            <option value="<?php echo $motivo['id']; ?>"><?php echo $motivo['nombre']; ?></option>
+                        <?php  endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
+                </div>
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_observations']; ?></label>
+                    
+                    <textarea row="2" id="textarea_observaciones_cancelacion" class="form-control"></textarea>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1130,7 +1165,7 @@ use App\Library\FuncionesGlobales;
         //  ESE DIA COMO DEL RANGO DE SEMANA
     }
 
-    function cambiarSemana(semanas) {
+    function cambiarSemana(semanas,div_header = null) {
         let nuevaFecha = new Date(fechaActual);
         nuevaFecha.setDate(nuevaFecha.getDate() + (7 * semanas));
 
@@ -1141,8 +1176,10 @@ use App\Library\FuncionesGlobales;
         }
 
         fechaActual = nuevaFecha;
-        actualizarFecha();
-        renderCalendarMes();
+        actualizarFecha($(div_header));
+        if (!$(div_header).hasClass('modal')){
+            renderCalendarMes();
+        }
     }
 
     // Función para cambiar de mes
@@ -2048,7 +2085,6 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.input_hora_inicio').val($(modal_clone).find('.input_hora_inicio').data('hora'))
                     calcula_totales(modal_clone,id_profesional,id_agenda_cita);
                 },50);
-                //cambiarDia(null, fechaActual,$(modal_clone));
             }
         });
 
@@ -2086,8 +2122,8 @@ use App\Library\FuncionesGlobales;
         });
 
         // Eventos para cambiar semana
-        $(modal_clone).find("#btn-semana-anterior").on("click", () => cambiarSemana(-1));
-        $(modal_clone).find("#btn-semana-siguiente").on("click", () => cambiarSemana(1));
+        $(modal_clone).find("#btn-semana-anterior").on("click", () => cambiarSemana(-1,$(modal_clone)));
+        $(modal_clone).find("#btn-semana-siguiente").on("click", () => cambiarSemana(1,$(modal_clone)));
 
 
         $(modal_clone).on('click','.btn_add_service',function(){
@@ -2375,6 +2411,11 @@ use App\Library\FuncionesGlobales;
                     accion      : 'save_appoinment'
                 },
                 success : function(data){
+                    // Tu código aquí
+                    fechaActual = tmp_fecha_actual;
+
+                    //  CITAS POR DIA
+                    citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
                     $(btn).prop('disabled',false);
                     $(modal_clone).modal('hide');
                     showAlert('success',data);
@@ -2670,8 +2711,8 @@ use App\Library\FuncionesGlobales;
         divHeaderFilters.find("#btn-siguiente").on("click", () => cambiarDia(1,null,$("#div_header_agenda")));
 
         // Eventos para cambiar semana
-        divHeaderFilters.find("#btn-semana-anterior").on("click", () => cambiarSemana(-1));
-        divHeaderFilters.find("#btn-semana-siguiente").on("click", () => cambiarSemana(1));
+        divHeaderFilters.find("#btn-semana-anterior").on("click", () => cambiarSemana(-1,$("#div_header_agenda")));
+        divHeaderFilters.find("#btn-semana-siguiente").on("click", () => cambiarSemana(1,$("#div_header_agenda")));
 
         // Eventos para cambiar mes
         divHeaderFilters.find("#btn-mes-anterior").on("click", () => cambiarMes(-1));
@@ -2892,6 +2933,7 @@ use App\Library\FuncionesGlobales;
         // Mostrar el modal al pasar el mouse sobre el .flot_cita
         $("#div_header_week_container").on("click",'.flot_cita',function () {
             //show_info_cita($(this));
+            let modal_clone = $("#modal_info_citas").clone().removeAttr('id').show();
             let lista_id_agenda_citas   = JSON.parse($(this).attr('data-listaidagendacitas'));
 
             console.log('lista_id_agenda_citas',lista_id_agenda_citas);
@@ -2903,6 +2945,8 @@ use App\Library\FuncionesGlobales;
                     console.log('Cita array',cita);
                 }
             }
+
+            $(modal_clone).modal('show');
 
         });
 
