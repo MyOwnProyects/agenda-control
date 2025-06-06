@@ -521,9 +521,8 @@ use App\Library\FuncionesGlobales;
         <span id="servicio" class="event-title"></span>
         </div>
         <div>
-        <button class="icon-button btn_edit" title="Agregar/Quitar Servicios"><i class="bi bi-pencil-fill"></i></button>
+        <button class="icon-button btn_edit" title="Agregar/Quitar Servicios - Reagendar"><i class="bi bi-pencil-fill"></i></button>
         <button class="icon-button btn_asistencia" title=""></button>
-        <button class="icon-button btn_reagendar" title="Re-agendar"><i class="bi bi-calendar-day"></i></button>
         <button class="icon-button btn_cancelar" title="Cancelar"><i class="bi bi-calendar-x"></i></button>
         <button id="closeModal" type="button" class="btn" ><i class="bi bi-x"></i></button>
         </div>
@@ -806,6 +805,9 @@ use App\Library\FuncionesGlobales;
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
+        <label>D&iacute;a: <span id="dia_cita"></span></label>
+      </div>
+      <div class="modal-body col-md-12">
         <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
             <div class="row mb-3">
                 <!-- Campo Clave -->
@@ -816,6 +818,7 @@ use App\Library\FuncionesGlobales;
         </form>
       </div>
       <div class="modal-footer">
+        <button id="btn_go_day" type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_go_day']; ?></button>
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
       </div>
     </div>
@@ -1626,7 +1629,7 @@ use App\Library\FuncionesGlobales;
             $($weekContainer).find('#'+id_horario_cita).remove();
         }
 
-        let { start, end, day, duracion = null,id_agenda_cita = null,nombre_completo = null,nombre_profesional = null,lista_id_agenda_citas = null } = evento;
+        let { start, end, day, duracion = null,id_agenda_cita = null,nombre_completo = null,nombre_profesional = null,lista_id_agenda_citas = null,fecha_cita } = evento;
 
         const dayIndex  = isNaN(day) ? diasSemana.indexOf(day) + 1 : day;
         const duracion_minutos  = duracion == null ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos') : duracion;
@@ -1639,9 +1642,7 @@ use App\Library\FuncionesGlobales;
             lista_id_agenda_citas   = [id_agenda_cita];
         }
 
-        console.log('lista_id_agenda_citas',lista_id_agenda_citas);
         lista_id_agenda_citas   = JSON.stringify(lista_id_agenda_citas);
-
         
         //  ANTES DE CONTINUAR SE DEBE DE VERIFICAR QUE NO EXISTA
         //  NINGUN TIPO DE EMPALMADO ENTRE NINGUN CUADRO FLOTANTE
@@ -1762,7 +1763,7 @@ use App\Library\FuncionesGlobales;
             id_floating = '';
         }
 
-        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" '+data_paciente+' data-dia="'+dayIndex+'" data-dialabel="'+(diasSemana[day - 1])+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-profesional="'+nombre_profesional+'" data-idagendacita="'+id_agenda_cita+'" data-listaidagendacitas="'+lista_id_agenda_citas+'">'+span_info+'</span></div>').css({
+        const $floatingBox = $('<div id="'+id_floating+'" class="floating-box '+background+' '+tipo_flot+' dia_'+dayIndex+'" '+data_paciente+' data-dia="'+dayIndex+'" data-dialabel="'+(diasSemana[day - 1])+'" data-duracion="'+duracion_minutos+'" data-horainicio="'+start+'" data-horatermino="'+end+'" data-profesional="'+nombre_profesional+'" data-idagendacita="'+id_agenda_cita+'" data-listaidagendacitas="'+lista_id_agenda_citas+'" data-day="'+fecha_cita+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
             left: `${left}px`,
             width: `${width - borderSize}px`,
@@ -2975,11 +2976,22 @@ use App\Library\FuncionesGlobales;
         // Mostrar el modal al pasar el mouse sobre el .flot_cita
         $("#div_header_week_container").on("click",'.flot_cita',function () {
             //show_info_cita($(this));
-            let modal_clone = $("#modal_info_citas").clone().removeAttr('id').show();
+            let div_flot_cita   = $(this);
+            let dia_cita        = $(this).data('day');
+            let modal_clone     = $("#modal_info_citas").clone().removeAttr('id').show();
+            dia_cita            = dia_cita.split('-');
+            dia_cita            = new Date(dia_cita[0],dia_cita[1] - 1,dia_cita[2]);
+            //  SE PINTA EL DIA EN EL MODAL
+            $(modal_clone).find('#dia_cita').text(formatearFecha(dia_cita));
+
+            //  EVENTO PARA IR AL DIA 
+            $(modal_clone).on('click','#btn_go_day',function(){
+                //ajax_previo_show_modal($(div_flot_cita));
+                ubicar_citas_dia($(div_flot_cita),$("#div_header_agenda"));
+            });
+
             let lista_id_agenda_citas   = JSON.parse($(this).attr('data-listaidagendacitas'));
 
-            console.log('lista_id_agenda_citas',lista_id_agenda_citas);
-            console.log('citas_agendadas',citas_agendadas);
             //  SE RECORRE LA LISTA DE CITAS AGENDADAS, AHI SE PINTA LA INFOMACION UN MODAL
             let id_row  = 0;
             for(let i in citas_desglosadas){
@@ -2990,6 +3002,7 @@ use App\Library\FuncionesGlobales;
                     let row = $("#template_cita_dia").clone().removeAttr('id').show();
 
                     $(row).find('.nombre_paciente').text(cita['nombre_completo']);
+                    $(row).find('.nombre_profesional').text(cita['nombre_profesional']);
                     $(row).find('.horario_cita').text(cita['start'] +' - '+cita['end']);
 
                     $(row).find('.div_header').attr('data-bs-target', '#collapse'+id_row);
@@ -3024,12 +3037,6 @@ use App\Library\FuncionesGlobales;
         $("#infoBox").on('click','.btn_edit',function(){
             ajax_previo_show_modal($(this));
             $("#closeModal").trigger('click');
-        });
-
-        $("#infoBox").on('click','.btn_reagendar',function(){
-            const dia           = $(this).data('dia');
-            const hora_inicio   = $(this).data('horainicio');
-            const id_agenda_cita    = $(this).data('idagendacita');
         });
 
         $("#infoBox").on('click','.btn_cancelar',function(){

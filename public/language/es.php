@@ -125,6 +125,7 @@ return [
     'html_appoinment_date'          => 'Fecha actual de la cita',
     'html_modify_date'              => 'Cambiar d&iacute;a',
     'html_appointment_days'         => 'Citas del día',
+    'html_go_day'                   => 'Ir al d&iacute;a',
 
 
     //  MENSAJES DE ERROR
