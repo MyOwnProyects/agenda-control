@@ -124,6 +124,7 @@ return [
     'html_question_return'          => '&iquest; Deseas regresar al inicio del catalogo?',
     'html_appoinment_date'          => 'Fecha actual de la cita',
     'html_modify_date'              => 'Cambiar d&iacute;a',
+    'html_appointment_days'         => 'Citas del día',
 
 
     //  MENSAJES DE ERROR
