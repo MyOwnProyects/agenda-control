@@ -963,6 +963,37 @@ use App\Library\FuncionesGlobales;
         'fecha_termino' : ''
     };
 
+    //  RETORNA LA CLASE DEL COLOR BACKGROUND DEL DIV FLOTANTE
+    function background_tipo_cita(info_cita){
+        let return_background   = 'bg-secondary';
+
+        // if (typeof info_cita['id_agenda_cita'] == "undefined" && typeof info_cita['lista_id_agenda_citas'] == "undefined" ){
+        //     return 'bg-secondary';
+        // }
+
+        //  CITA PROGRAMADA
+        if (typeof info_cita['id_cita_programada'] != "undefined" && info_cita['id_cita_programada'] != null && info_cita['id_cita_programada'] != ''){
+            return 'bg-success';
+        }
+
+        //  CITAS AGRUPADAS
+        if (typeof info_cita['lista_id_agenda_citas'] != "undefined" && info_cita['lista_id_agenda_citas'] != null && info_cita['lista_id_agenda_citas'] != ''){
+            return 'bg-primary';
+        }
+
+        //  CITA REAGENDADA
+        if (typeof info_cita['id_cita_reagendada'] != "undefined" && info_cita['id_cita_reagendada'] != null && info_cita['id_cita_reagendada'] != ''){
+            return 'bg-info';
+        }
+
+        // CITA ORDINARIA
+        if (typeof info_cita['id_agenda_cita'] != "undefined" && info_cita['id_agenda_cita'] != null && info_cita['id_agenda_cita'] != ''){
+            return 'bg-info';
+        }
+
+        return return_background;
+    }
+
     // Función para formatear la fecha como "Día, DD/MM/AAAA"
     function formatearFecha(fecha) {
         const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -1004,18 +1035,17 @@ use App\Library\FuncionesGlobales;
                     let id_profesional  = null;
                     if (div_header == '#div_header_agenda'){
                         console.log('entre if');
-                        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-secondary','no_disponible'));
+                        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,background_tipo_cita,'no_disponible'));
                     } else {
                         id_profesional  = $(div_header).find('#span_paciente').data('idprofesional');
                         console.log('entro else');
                         console.log('horario_no_disponible',horario_no_disponible);
-                        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-secondary','no_disponible',null,true));
+                        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,background_tipo_cita(rango),'no_disponible',null,true));
                     }
                     
-                    //citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(div_header),rango,'bg-success','flot_cita',null));
                     citas_desglosadas.forEach(rango => {
                         if (id_profesional == null || rango.id_profesional == id_profesional) {
-                            cuadroFlotantesDiario($(div_header), rango, 'bg-success', 'flot_cita', null);
+                            cuadroFlotantesDiario($(div_header), rango, background_tipo_cita(rango), 'flot_cita', null);
                         }
                     });
                     show_horario_no_disponible_profesional($(div_header));
@@ -1396,9 +1426,9 @@ use App\Library\FuncionesGlobales;
                     rango.id_profesional        = id_profesional;
                     // Llamamos a la función con el rango modificado
                     if (div_header == null){
-                        cuadroFlotantesDiario($("#div_header_agenda"),rango, 'bg-secondary', 'no_disponible','Profesional no disponible');
+                        cuadroFlotantesDiario($("#div_header_agenda"),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
                     } else {
-                        cuadroFlotantesDiario($(div_header),rango, 'bg-secondary', 'no_disponible','Profesional no disponible');
+                        cuadroFlotantesDiario($(div_header),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
                     }
                 });
             }
@@ -1430,8 +1460,8 @@ use App\Library\FuncionesGlobales;
 
         console.log(horario_no_disponible);
 
-        horario_no_disponible.forEach(evento => cuadroFlotantesSemana(evento,'bg-secondary',$weekContainer.find(".week-container"),'flot_locacion'));
-        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,'bg-secondary','no_disponible'));
+        horario_no_disponible.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_locacion'));
+        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'no_disponible'));
         
         show_horario_no_disponible_profesional();
         
@@ -1441,8 +1471,8 @@ use App\Library\FuncionesGlobales;
         citas_agendadas = typeof (data['citas_unificadas']) ? data['citas_unificadas'] : data['citas_agendadas'];
         citas_desglosadas   = data['citas_agendadas'];
 
-        citas_agendadas.forEach(evento => cuadroFlotantesSemana(evento,'bg-success',$weekContainer.find(".week-container"),'flot_cita'));
-        citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,'bg-success','flot_cita',null));
+        citas_agendadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_cita'));
+        citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
 
         $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
         $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
@@ -1508,8 +1538,8 @@ use App\Library\FuncionesGlobales;
                     //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
                     $(modal_clone).find('.evento-flotante').remove();
                     citas_desglosadas   = data['citas_agendadas'];
-                    horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,'bg-secondary','no_disponible',null,true));
-                    citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,'bg-success','flot_cita',null));
+                    horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                    citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
                     show_horario_no_disponible_profesional($(modal_clone));
                     setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),500);
                 }
@@ -1602,11 +1632,11 @@ use App\Library\FuncionesGlobales;
         if (horario_no_disponible_prof){
             console.log('profesionales',profesionales);
             let id_profesional  = profesionales[0]['id'];
-            horario_no_disponible_prof.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-secondary','no_disponible',null,true));
-            horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_days),rango,'bg-secondary','no_disponible',null,true));
+            horario_no_disponible_prof.forEach(rango => cuadroFlotantesDiario($(div_days),rango,background_tipo_cita(rango),'no_disponible',null,true));
+            horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_days),rango,background_tipo_cita(rango),'no_disponible',null,true));
             citas_desglosadas.forEach(rango => {
                 if (rango.id_profesional == id_profesional) {
-                    cuadroFlotantesDiario($(div_days), rango, 'bg-success', 'flot_cita', null);
+                    cuadroFlotantesDiario($(div_days), rango, background_tipo_cita(rango), 'flot_cita', null);
                 }
             });
         }
@@ -1961,7 +1991,7 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
             })
-            cuadroFlotantesDiario(modal_clone,evento,'bg-success','flot_cita',null,true);
+            cuadroFlotantesDiario(modal_clone,evento,background_tipo_cita(evento),'flot_cita',null,true);
         }
     }
 
@@ -2120,8 +2150,8 @@ use App\Library\FuncionesGlobales;
                 //  SE BORRAN LOS DIV FLOTANTES
                 $(modal_clone).find('.evento-flotante').remove();
                 
-                horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,'bg-secondary','no_disponible',null,true));
-                citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,'bg-success','flot_cita',null));
+                horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
                 show_horario_no_disponible_profesional($(modal_clone));
                 setTimeout(function(){
                     cambiarDia(null, fechaActual,$(modal_clone));
@@ -2154,8 +2184,8 @@ use App\Library\FuncionesGlobales;
             //  SE BORRAN LOS DIV FLOTANTES
             $(modal_clone).find('.evento-flotante').remove();
             
-            horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,'bg-secondary','no_disponible',null,true));
-            citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,'bg-success','flot_cita',null));
+            horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+            citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
             show_horario_no_disponible_profesional($(modal_clone));
             setTimeout(function(){
                 cambiarDia(null, fechaActual,$(modal_clone));
