@@ -378,19 +378,19 @@ use App\Library\FuncionesGlobales;
         </div>
         <div class="col-3">
             <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_services']; ?></label>
-            <select id="select_servicios" class="select_servicios">
+            <select id="select_servicios" class="select_servicios select_filtros">
                 <option value=""></option>
             </select>
         </div>
         <div class="col-3">
             <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
-            <select id="select_profesionales" class="select_profesionales">
+            <select id="select_profesionales" class="select_profesionales select_filtros">
                 <option value=""></option>
             </select>
         </div>
         <div class="col-3">
             <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
-            <select id="select_pacientes" class="select_pacientes">
+            <select id="select_pacientes" class="select_pacientes select_filtros">
                 <option value=""></option>
             </select>
         </div>
@@ -943,20 +943,11 @@ use App\Library\FuncionesGlobales;
     // Array de horas (de 9:00 a 19:00)
     let horas = [];
 
-    // Array de eventos (ejemplo para cada doctor)
-    // const eventos = [
-    //     { profesional: "Dr. Juan Pérez", inicio: "10:00", fin: "11:00", descripcion: "Consulta con Paciente 1" },
-    //     { profesional: "Dra. María Gómez", inicio: "11:00", fin: "12:00", descripcion: "Consulta con Paciente 2" },
-    //     { profesional: "Dr. Carlos López", inicio: "17:25", fin: "17:55", descripcion: "Consulta con Paciente 3" }
-    // ];
-
     // Variables para manejar la fecha
     
     const date_today    = "<?php echo $today; ?>";
     let split_today     = date_today.split('-');
     let fechaActual = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
-
-    console.log('date_today',date_today);
 
     let rango_semana_actual = {
         'fecha_inicio'  : '',
@@ -965,11 +956,8 @@ use App\Library\FuncionesGlobales;
 
     //  RETORNA LA CLASE DEL COLOR BACKGROUND DEL DIV FLOTANTE
     function background_tipo_cita(info_cita){
+        //  VALOR POR DEFECTO
         let return_background   = 'bg-secondary';
-
-        // if (typeof info_cita['id_agenda_cita'] == "undefined" && typeof info_cita['lista_id_agenda_citas'] == "undefined" ){
-        //     return 'bg-secondary';
-        // }
 
         //  CITA PROGRAMADA
         if (typeof info_cita['id_cita_programada'] != "undefined" && info_cita['id_cita_programada'] != null && info_cita['id_cita_programada'] != ''){
@@ -1051,7 +1039,7 @@ use App\Library\FuncionesGlobales;
                     show_horario_no_disponible_profesional($(div_header));
                 } else {
                     div_header  = $(div_header).hasClass('modal') ? $(div_header) : null;
-                    get_all_appointments($("#select_locaciones"),div_header);
+                    get_all_appointments($(".filters"),div_header);
                 }
             }
             
@@ -1198,10 +1186,6 @@ use App\Library\FuncionesGlobales;
 
         return `${horasFormateadas}:${minutosFormateados}`;
     }
-
-
-
-
 
     // Función para cambiar el día (anterior o siguiente)
     function cambiarDia(dias, nueva_fecha, div_header) {
@@ -1351,11 +1335,8 @@ use App\Library\FuncionesGlobales;
             $dateElement.addClass('div_month_day');
             $dateElement.data('day',year+'-'+(month + 2)+'-'+i);
             $dates.append($dateElement);
-        }
-
-        
+        }     
     }
-
 
     function rellenar_fecha(i) {
         let num_return = i.toString(); // Convertimos a string por si es número
@@ -1389,11 +1370,6 @@ use App\Library\FuncionesGlobales;
             const dia = String(fecha.getDate()).padStart(2, '0');
             return `${año}-${mes}-${dia}`;
         };
-        
-        // return {
-        //     fecha_inicio    : formatoFecha(lunes),
-        //     fecha_termino   : formatoFecha(domingo)
-        // };
 
         rango_semana_actual['fecha_inicio']     = formatoFecha(lunes);
         rango_semana_actual['fecha_termino']    = formatoFecha(domingo);
@@ -1500,7 +1476,10 @@ use App\Library\FuncionesGlobales;
         }
         
         get_rango_semana(fechaActual);
-        const id_locacion   = $(element).val();
+        const id_locacion       = $(element).find("#select_locaciones").val();
+        const id_servicio       = $(element).find("#select_servicios").val();
+        const id_profesional    = $(element).find("#select_profesionales").val();
+        const id_paciente       = $(element).find("#id_paciente").val();
         $.ajax({
             url     : url_index,
             method  : 'post',
@@ -1704,6 +1683,7 @@ use App\Library\FuncionesGlobales;
             });
             
             if (!existe_horario_disponinle){
+                console.log('evento',evento);
                 console.log('alert stop');
             }
 
@@ -2492,7 +2472,7 @@ use App\Library\FuncionesGlobales;
                     $(btn).prop('disabled',false);
                     $(modal_clone).modal('hide');
                     showAlert('success',data);
-                    get_all_appointments($("#select_locaciones"));
+                    get_all_appointments($(".filters"));
                 },
                 error : function(error){
                     $(btn).prop('disabled',false);
@@ -2713,6 +2693,7 @@ use App\Library\FuncionesGlobales;
             placeholder: 'Seleccione una opción',
             width: '50px',
             minimumInputLength: 5,
+            allowClear : true,
             ajax: {
                 url: url_index,
                 method: 'post',
@@ -2752,20 +2733,32 @@ use App\Library\FuncionesGlobales;
         }).on('select2:select',function(){
             
             if ($(this).val() != null){
-                get_all_appointments($(this));
+                get_all_appointments($('.filters'));
             }
         });
 
-        $(".filters").on('select2:select','#select_servicios',function(){
-            get_all_appointments($(this));
-        });
+        $(".filters").on('select2:select','.select_filtros',function(){
+            //get_all_appointments($('.filters'));
+            let obj_citas_unificadas    = unificarCitasAgendadas(citas_desglosadas);
 
-        $(".filters").on('select2:select','#select_profesionales',function(){
-            get_all_appointments($(this));
+            //  SE BORRAN TODOS LOS REGISTROS DE CITAS
+            $("#div_header_agenda").find('.flot_cita').remove();
+            const $weekContainer = $(".div_header_week_container .week-container");
+            obj_citas_unificadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer,'flot_cita'));
+            //citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
+        }).on("select2:unselect",'.select_filtros',function(){
+            //get_all_appointments($('.filters'));
+            let obj_citas_unificadas    = unificarCitasAgendadas(citas_desglosadas);
+
+            //  SE BORRAN TODOS LOS REGISTROS DE CITAS
+            $("#div_header_agenda").find('.flot_cita').remove();
+            const $weekContainer = $(".div_header_week_container .week-container");
+            obj_citas_unificadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer,'flot_cita'));
+            //citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
         });
 
         if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
-            get_all_appointments($("#select_locaciones"));
+            get_all_appointments($(".filters"));
         }
 
         // Encapsulación de eventos dentro de .div_header_days_container
@@ -2980,7 +2973,7 @@ use App\Library\FuncionesGlobales;
                         $(btn).prop('disabled',false);
                         $(modal_clone).modal('hide');
                         showAlert('success',data);
-                        get_all_appointments($("#select_locaciones"));
+                        get_all_appointments($(".filters"));
                     },
                     error     : function(error){
                         actionJsonError(error,btn);
@@ -3115,4 +3108,95 @@ use App\Library\FuncionesGlobales;
 
         // CAMBIO PARA HACER MERGE
     }
+
+    function unificarCitasAgendadas(citas) {
+        let id_servicio     = $(".filters").find('#select_servicios').val();
+        let id_profesional  = $(".filters").find('#select_profesionales').val();
+        let id_paciente     = $(".filters").find('#select_pacientes').val();
+
+        id_servicio_filtro      = id_servicio == null || id_servicio == '' ? null : id_servicio;
+        id_profesional_filtro   = id_profesional == null || id_profesional == '' ? null : id_profesional;
+        id_paciente_filtro      = id_paciente == null || id_paciente == '' ? null : id_paciente;
+        // Ordenar citas por fecha y hora de inicio
+        citas.sort((a, b) => (a.fecha_cita + a.start).localeCompare(b.fecha_cita + b.start));
+
+        // Agrupar citas por día y fusionar solapamientos
+        const citasAgrupadas = {};
+
+        citas.forEach(cita => {
+            const { day, fecha_cita, start, end, id_agenda_cita,id_paciente,id_profesional,servicios } = cita;
+            //  LIMPIA DE FILTROS
+            if (id_profesional_filtro != null && id_profesional_filtro != id_profesional){
+                return true;
+            }
+
+            if (id_paciente_filtro != null && id_paciente_filtro != id_paciente){
+                return true;
+            }
+
+            console.log('servicios',servicios,id_servicio_filtro);
+
+            let has_servicio    = false;
+            if (id_servicio_filtro != null){
+                for(let i in servicios){
+                    if (servicios[i]['id_servicio'] == id_servicio_filtro){
+                        has_servicio    = true;
+                        //return false;
+                    }
+                }
+            } else {
+                has_servicio    = true;
+            }
+            console.log('has_servicio',has_servicio);
+            if (!has_servicio){
+                return true;
+            }
+
+            if (!citasAgrupadas[day]) {
+                citasAgrupadas[day] = [{
+                    start, end, fecha_cita, day,
+                    nombre_completo: 'Horario ocupado',
+                    lista_id_agenda_citas: [id_agenda_cita]
+                }];
+            } else {
+                const lastGroup = citasAgrupadas[day][citasAgrupadas[day].length - 1];
+
+                // Convertir las horas en minutos para comparación
+                const lastEndMinutes = parseTime(lastGroup.end);
+                const currentEndMinutes = parseTime(end);
+
+                // Si `lastEndMinutes` es NaN, asignar `lastGroup.end` como respaldo
+                if (isNaN(lastEndMinutes)) {
+                    console.warn(`Corregido lastGroup.end (era NaN), asignando valor previo:`, lastGroup.end);
+                    lastGroup.end = lastGroup.end;
+                }
+
+                if (parseTime(start) <= lastEndMinutes) {
+                    // Aquí garantizamos que se use el mayor valor de end correctamente
+                    lastGroup.end = lastEndMinutes > currentEndMinutes ? lastGroup.end : end;
+                    lastGroup.lista_id_agenda_citas.push(id_agenda_cita);
+                } else {
+                    citasAgrupadas[day].push({
+                        start, end, fecha_cita, day,
+                        nombre_completo: 'Horario ocupado',
+                        lista_id_agenda_citas: [id_agenda_cita]
+                    });
+                }
+            }
+        });
+
+        // Convertir el resultado a un array numerado
+        return Object.values(citasAgrupadas).flat();
+    }
+
+    // Función para convertir horas en minutos correctamente
+    function parseTime(timeString) {
+        if (typeof timeString !== "string") {
+            return timeString; // Si ya es numérico, simplemente regresarlo
+        }
+
+        const [hours, minutes] = timeString.split(":").map(Number);
+        return hours * 60 + minutes; // Convertir a minutos totales
+    }
+
 </script>
