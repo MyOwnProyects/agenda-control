@@ -1062,9 +1062,46 @@ use App\Library\FuncionesGlobales;
         const eventoDayIndex    = isNaN(evento.day) ? diasSemana.indexOf(evento.day) + 1 : evento.day;
         const profesional       = evento.nombre_profesional;
         const id_profesional    = evento.id_profesional;
+        const id_paciente       = evento.id_paciente;
 
         if (eventoDayIndex != dayIndex){
             return false;
+        }
+
+        if ($(element_header).attr('id') == 'div_header_agenda' && tipo_cuadro != 'no_disponible'){
+
+            let id_servicio_filtro      = $(".filters").find('#select_servicios').val()  == null || $(".filters").find('#select_servicios').val() == '' ? null : $(".filters").find('#select_servicios').val();
+            let id_profesional_filtro   = $(".filters").find('#select_profesionales').val() == null || $(".filters").find('#select_profesionales').val() == '' ? null : $(".filters").find('#select_profesionales').val();
+            let id_paciente_filtro      = $(".filters").find('#select_pacientes').val() == null || $(".filters").find('#select_pacientes').val() == '' ? null : $(".filters").find('#select_pacientes').val();
+
+            if (id_profesional_filtro != null && id_profesional_filtro != id_profesional){
+                return false;
+            }
+
+            if (id_paciente_filtro != null && id_paciente_filtro != id_paciente){
+                return false;
+            }
+
+            let servicios   = evento.servicios;
+
+            console.log('servicios',servicios,id_servicio_filtro);
+
+            let has_servicio    = false;
+            if (id_servicio_filtro != null){
+                for(let i in servicios){
+                    if (servicios[i]['id_servicio'] == id_servicio_filtro){
+                        has_servicio    = true;
+                        //return false;
+                    }
+                }
+            } else {
+                has_servicio    = true;
+            }
+            console.log('has_servicio',has_servicio);
+            if (!has_servicio){
+                return false;
+            }
+
         }
 
         // Convertir las horas de inicio y fin a minutos
@@ -1444,7 +1481,7 @@ use App\Library\FuncionesGlobales;
 
         //  SE PINTAN LAS CITAS DE TODA LA SEMANA
         citas_agendadas = {};
-        citas_agendadas = typeof (data['citas_unificadas']) ? data['citas_unificadas'] : data['citas_agendadas'];
+        citas_agendadas = unificarCitasAgendadas(data['citas_agendadas']);//typeof (data['citas_unificadas']) ? data['citas_unificadas'] : data['citas_agendadas'];
         citas_desglosadas   = data['citas_agendadas'];
 
         citas_agendadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_cita'));
@@ -1466,7 +1503,7 @@ use App\Library\FuncionesGlobales;
     }
 
     //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
-    function get_all_appointments(element,modal_clone = null){
+    function get_all_appointments(element,modal_clone = null,refresh_filtros = null){
         console.log('modal_clone',modal_clone);
         if (modal_clone != null){
             $(modal_clone).find('.evento-flotante').remove();
@@ -1494,25 +1531,28 @@ use App\Library\FuncionesGlobales;
                 if (modal_clone == null){
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;
+                    
+                    if (refresh_filtros != null){
+                         //  SE LLENAN LOS SELECTS
+                        let options = '<option></option>';
+                        for(let i in data['all_services']){
+                            let row = data['all_services'][i];
+                            options += '<option value="'+row["id"]+'">'+row["nombre"]+'</option>';
+                        }
+                        $("#select_servicios").find('option').remove();
+                        $("#select_servicios").append(options);
+
+                        options = '<option></option>';
+                        for(let i in data['all_professionals']){
+                            let row = data['all_professionals'][i];
+                            options += '<option value="'+row["id"]+'">'+row["nombre_completo"]+'</option>';
+                        }
+                        $("#select_profesionales").find('option').remove();
+                        $("#select_profesionales").append(options);
+                    }
+
                     // $(modal_clone).find('.floating-box').remove();
                     setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
-
-                    //  SE LLENAN LOS SELECTS
-                    let options = '<option></option>';
-                    for(let i in data['all_services']){
-                        let row = data['all_services'][i];
-                        options += '<option value="'+row["id"]+'">'+row["nombre"]+'</option>';
-                    }
-                    $("#select_servicios").find('option').remove();
-                    $("#select_servicios").append(options);
-
-                    options = '<option></option>';
-                    for(let i in data['all_professionals']){
-                        let row = data['all_professionals'][i];
-                        options += '<option value="'+row["id"]+'">'+row["nombre_completo"]+'</option>';
-                    }
-                    $("#select_profesionales").find('option').remove();
-                    $("#select_profesionales").append(options);
                 } else {
                     //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
                     $(modal_clone).find('.evento-flotante').remove();
@@ -2710,6 +2750,7 @@ use App\Library\FuncionesGlobales;
                     // Aquí adaptamos la respuesta al formato que select2 necesita
                     return {
                         results: data.map(function (item) {
+                            if (item.id == -1) return true;
                             return {
                                 id: item.id,
                                 text: item.celular + ' - ' + item.nombre_completo,
@@ -2733,32 +2774,31 @@ use App\Library\FuncionesGlobales;
         }).on('select2:select',function(){
             
             if ($(this).val() != null){
-                get_all_appointments($('.filters'));
+                get_all_appointments($('.filters'),null,true);
             }
         });
 
         $(".filters").on('select2:select','.select_filtros',function(){
-            //get_all_appointments($('.filters'));
-            let obj_citas_unificadas    = unificarCitasAgendadas(citas_desglosadas);
+            let obj_citas_unificadas        = unificarCitasAgendadas(citas_desglosadas);
+            let filtro_citas_desglosadas    = [];
 
             //  SE BORRAN TODOS LOS REGISTROS DE CITAS
             $("#div_header_agenda").find('.flot_cita').remove();
             const $weekContainer = $(".div_header_week_container .week-container");
             obj_citas_unificadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer,'flot_cita'));
-            //citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
+            citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
         }).on("select2:unselect",'.select_filtros',function(){
-            //get_all_appointments($('.filters'));
             let obj_citas_unificadas    = unificarCitasAgendadas(citas_desglosadas);
 
             //  SE BORRAN TODOS LOS REGISTROS DE CITAS
             $("#div_header_agenda").find('.flot_cita').remove();
             const $weekContainer = $(".div_header_week_container .week-container");
             obj_citas_unificadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer,'flot_cita'));
-            //citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
+            citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
         });
 
         if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
-            get_all_appointments($(".filters"));
+            get_all_appointments($(".filters"),null,true);
         }
 
         // Encapsulación de eventos dentro de .div_header_days_container

@@ -285,9 +285,9 @@ class AgendaController extends BaseController
         $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
         //  SI VIENEN VACIOS ESTOS ESPACIOS, SE UNIFICAN LAS HORAS PARA QUE SEA UN SOLO DIV CORRIDO
-        if (empty($_POST['id_profesional']) && empty($_POST['id_paciente'])) {
-            $arr_return['citas_unificadas'] =   $this->unificar_citas_agendadas($arr_return['citas_agendadas']);
-        }
+        // if (empty($_POST['id_profesional']) && empty($_POST['id_paciente'])) {
+        //     $arr_return['citas_unificadas'] =   $this->unificar_citas_agendadas($arr_return['citas_agendadas']);
+        // }
         
         return $arr_return;
     }
