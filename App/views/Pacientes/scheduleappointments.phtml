@@ -726,6 +726,11 @@ let module_schedule_appointments    = (function(){
                         console.log('data');
                         console.log(data);
 
+                        if (data['has_record'] == 0){
+                            showAlert('danger','No existe registro de apertura de agenda');
+                            return false;
+                        }
+
                         $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['fecha_actual']).attr('max',data['last_fecha_limite']).val(data['fecha_actual']).trigger('change');
                         $(modal_clone).find('#input_fecha_termino').attr('min' , data['fecha_actual']).data('fecha',data['last_fecha_limite']).val(data['last_fecha_limite']).prop('disabled',true);
                     },
