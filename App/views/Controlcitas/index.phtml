@@ -1,0 +1,189 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
+
+    .hide{
+        display: none;
+    }
+
+    .div_label_accion {
+        margin-bottom: 5px; /* Reduce el espacio vertical entre los elementos */
+        padding: 0; /* Opcional: elimina el relleno interno si es necesario */
+    }
+
+    .div_check {
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da; /* Color del borde */
+        border-radius: 0.375rem; /* Bordes redondeados */
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        max-width: calc(100% - 1px); /* Reduce el ancho en 1px */
+        cursor: pointer;
+    }
+
+    .hide {
+        display:none;
+    }
+
+</style>
+
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales" class="select_profesionales">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+                    <select id="select_pacientes" class="select_pacientes">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
+                        <i class="bi bi-plus-lg"></i> 
+                        <?php echo $translations['html_new']; ?>
+                    </button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_title_patient']; ?></th>
+                        <th><?php echo $translations['html_title_professional']; ?></th>
+                        <th><?php echo $translations['html_assigned_services']; ?></th>
+                        <th><?php echo $translations['html_appointment_date']; ?></th>
+                        <th><?php echo $translations['html_appointment_time']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let module_control_citas    = (function(){
+
+        //  URL
+        const controller    = '/Controlcitas';
+        const url_index     = controller+"/index";
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>",
+            schedule_availability   : "<?= $translations['html_schedule_availability']?>",
+            error_selected_location : "<?= $translations['error_selected_location']?>",
+            error_professional      : "<?= $translations['html_error_professional']?>",
+            error_selected_patient  : "<?= $translations['html_error_selected_patient']?>",
+        };
+
+        $(document).ready(function() {
+            // Initialize the select elements
+            $('.select_locaciones').select2({
+                placeholder: translations['error_selected_location']
+            });
+
+            $('.select_profesionales').select2({
+                placeholder: translations['error_professional'],
+                allowClear: true
+            });
+
+            $('#select_pacientes').select2({
+                placeholder: translations['error_selected_patient'],
+                width: '50px',
+                minimumInputLength: 5,
+                allowClear : true,
+                ajax: {
+                    url: url_index,
+                    method: 'post',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        cadena_enviada  = params.term;
+                        return {
+                            accion: 'fill_combo',
+                            cadena: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        // Aquí adaptamos la respuesta al formato que select2 necesita
+                        return {
+                            results: data.map(function (item) {
+                                if (item.id == -1) return true;
+                                return {
+                                    id: item.id,
+                                    text: item.celular + ' - ' + item.nombre_completo,
+                                    nombre: item.nombre,
+                                    primer_apellido: item.primer_apellido,
+                                    segundo_apellido: item.segundo_apellido,
+                                    celular: item.celular
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            
+        });
+        
+    })();
+</script>

@@ -216,7 +216,7 @@ var mod_tipo_usuario    = (function(){
                                 '<i class="bi bi-search"></i> '+
                             '</button>' : '';
 
-                            let btn_delete  = action_delete && (data['clave'] != 'PROF' && data['clave'] != 'PAC') ? 
+                            let btn_delete  = action_delete && (data['clave'] != 'PROF' && data['clave'] != 'PAC' && data['clave'] != 'user_admin') ? 
                             '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
                                 '<i class="bi bi-trash3-fill"></i>'+
                             '</button>' : '';
