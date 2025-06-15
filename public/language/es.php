@@ -138,6 +138,13 @@ return [
     'html_active_appoitments'       => 'Mostrar solo citas <b>ACTIVAS</b>',
     'html_canceled_appoitments'     => 'Mostrar solo citas <b>CANCELADAS</b>',
     'html_info_appointment'         => 'Información de la cita',
+    'html_close'                    => 'Cerrar',
+    'html_hour'                     => 'Hora',
+    'html_user_capture'             => 'Usuario captura',
+    'html_appoitment_type'          => 'Tipo de cita',
+    'html_date'                     => 'Fecha',
+    'html_user'                     => 'Usuario',
+    'html_reason'                   => 'Motivo',
 
 
     //  MENSAJES DE ERROR

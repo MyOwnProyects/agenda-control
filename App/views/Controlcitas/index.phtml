@@ -36,92 +36,91 @@ use App\Library\FuncionesGlobales;
     }
 
     /* ESTILO PARA MODAL DE INFORMACION */
-/* Encabezado del modal */
-#modal_info_cita .modal-header {
-  background-color: #343a40;
-  color: #fff;
-  border-bottom: 1px solid #dee2e6;
-  border-top-left-radius: 0.75rem;
-  border-top-right-radius: 0.75rem;
-}
+    #modal_info_cita .modal-header {
+    background-color: #343a40;
+    color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    }
 
-/* Labels dentro del body */
-#modal_info_cita .modal-body label {
-  font-weight: 600;
-  color: #495057;
-}
+    /* Labels dentro del body */
+    #modal_info_cita .modal-body label {
+    font-weight: 600;
+    color: #495057;
+    }
 
-/* Spans dentro del body */
-#modal_info_cita .modal-body span {
-  display: inline-block;
-  margin-top: 0.25rem;
-  font-weight: 500;
-  color: #212529;
-}
+    /* Spans dentro del body */
+    #modal_info_cita .modal-body span {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font-weight: 500;
+    color: #212529;
+    }
 
-/* Separadores de secciones */
-#modal_info_cita .row.mb-3 {
-  padding: 10px 0;
-  border-bottom: 1px dashed #ced4da;
-  margin-bottom: 15px;
-}
+    /* Separadores de secciones */
+    #modal_info_cita .row.mb-3 {
+    padding: 10px 0;
+    border-bottom: 1px dashed #ced4da;
+    margin-bottom: 15px;
+    }
 
-/* Información de cancelación */
-#modal_info_cita .div_info_cancelacion {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  padding: 15px;
-  border-radius: 0.5rem;
-  margin-top: 15px;
-}
+    /* Información de cancelación */
+    #modal_info_cita .div_info_cancelacion {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 15px;
+    border-radius: 0.5rem;
+    margin-top: 15px;
+    }
 
-#modal_info_cita .div_info_cancelacion label {
-  font-weight: bold;
-  color: #856404;
-  margin-bottom: 10px;
-}
+    #modal_info_cita .div_info_cancelacion label {
+    font-weight: bold;
+    color: #856404;
+    margin-bottom: 10px;
+    }
 
-/* Lista de servicios */
-#modal_info_cita .div_servicios {
-  /*background-color: #f1f3f5;  Fondo uniforme para toda la sección */
-  border: 1px solid #ced4da;
-  padding: 15px;
-  border-radius: 0.5rem;
-  margin-top: 20px;
-}
+    /* Lista de servicios */
+    #modal_info_cita .div_servicios {
+    /*background-color: #f1f3f5;  Fondo uniforme para toda la sección */
+    border: 1px solid #ced4da;
+    padding: 15px;
+    border-radius: 0.5rem;
+    margin-top: 20px;
+    }
 
-#modal_info_cita .div_servicios label {
-  font-weight: bold;
-  margin-bottom: 10px;
-  display: block;
-  color: #495057;
-}
+    #modal_info_cita .div_servicios label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #495057;
+    }
 
-#modal_info_cita .div_servicios .d-flex {
-  align-items: center;
-}
+    #modal_info_cita .div_servicios .d-flex {
+    align-items: center;
+    }
 
-/* Quitamos el fondo de las filas de encabezado de servicios */
-#modal_info_cita .div_servicios .div_header_servicios .d-flex {
-  background-color: transparent;
-}
+    /* Quitamos el fondo de las filas de encabezado de servicios */
+    #modal_info_cita .div_servicios .div_header_servicios .d-flex {
+    background-color: transparent;
+    }
 
-/* Total en servicios */
-#modal_info_cita .div_servicios .total {
-  font-size: 1.1rem;
-  color: #343a40;
-}
+    /* Total en servicios */
+    #modal_info_cita .div_servicios .total {
+    font-size: 1.1rem;
+    color: #343a40;
+    }
 
-/* Footer del modal */
-#modal_info_cita .modal-footer {
-  border-top: none;
-}
+    /* Footer del modal */
+    #modal_info_cita .modal-footer {
+    border-top: none;
+    }
 
-/* Botón de cancelar */
-#modal_info_cita .btn-outline-dark {
-  border-radius: 0.5rem;
-  padding: 6px 20px;
-}
+    /* Botón de cancelar */
+    #modal_info_cita .btn-outline-dark {
+    border-radius: 0.5rem;
+    padding: 6px 20px;
+    }
 
 </style>
 
@@ -333,43 +332,46 @@ use App\Library\FuncionesGlobales;
         <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label>Paciente: <span id="nombre_paciente"></span></label>
+                    <label><?php echo $translations['html_title_patient']; ?>: <span id="nombre_paciente"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Profesional: <span id="nombre_profesional"></span></label>
+                    <label><?php echo $translations['html_title_professional']; ?>: <span id="nombre_profesional"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Fecha: <span id="fecha_cita"></span></label>
+                    <label><?php echo $translations['html_appointment_date']; ?>: <span id="fecha_cita"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Hora: <span id="hora_cita"></span></label>
+                    <label><?php echo $translations['html_hour']; ?>: <span id="hora_cita"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Duraci&oacute;n: <span id="duracion"></span></label>
+                    <label><?php echo $translations['html_ab_duration']; ?>: <span id="duracion"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Usuario captura: <span id="usuario_captura"></span></label>
+                    <label><?php echo $translations['html_user_capture']; ?>: <span id="usuario_captura"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Asistencia: <span id="asistencia"></span></label>
+                    <label><?php echo $translations['html_attendance_status']; ?>: <span id="asistencia"></span></label>
                 </div>
                 <div class="col-md-4">
-                    <label>Estatus: <span id="estatus"></span></label>
+                    <label><?php echo $translations['html_appoitment_type']; ?>: <span id="tipo_cita"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_status']; ?>: <span id="estatus"></span></label>
                 </div>
                 <div class="col-md-12 div_info_cancelacion hide">
-                    <label>Informaci&oacute;n de la cancelaci&oacute;n de cita</label>
+                    <label><?php echo $translations['html_info_appointment']; ?></label>
                     <div class="row">
                         <div class="col-md-4">
-                            <label>Fecha: <span id="fecha_cancelacion"></span></label>
+                            <label><?php echo $translations['html_date']; ?>: <span id="fecha_cancelacion"></span></label>
                         </div>
                         <div class="col-md-4">
-                            <label>Usuario: <span id="usuario_cancelacion"></span></label>
+                            <label><?php echo $translations['html_user']; ?>: <span id="usuario_cancelacion"></span></label>
                         </div>
                         <div class="col-md-4">
-                            <label>Motivo: <span id="motivo_cancelacion"></span></label>
+                            <label><?php echo $translations['html_reason']; ?>: <span id="motivo_cancelacion"></span></label>
                         </div>
                         <div class="col-md-12">
-                            <label>Observaciones: <span id="observaciones_cancelacion"></span></label>
+                            <label><?php echo $translations['html_observations']; ?>: <span id="observaciones_cancelacion"></span></label>
                         </div>
                     </div>
                 </div>
@@ -394,7 +396,7 @@ use App\Library\FuncionesGlobales;
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_close']; ?></button>
       </div>
     </div>
   </div>
@@ -523,11 +525,11 @@ use App\Library\FuncionesGlobales;
                         // Guardar el objeto completo en la fila como data
                         $(row).data('rowData', data);
                         if (data.activa == 0) {
-                            $(row).find('td:eq(5)').css('background-color', '#f85b4b'); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
                         }
 
                         if (data.activa == 1) {
-                            $(row).find('td:eq(5)').css('background-color', '#84e395'); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
                         }
                     }
                 });
@@ -658,6 +660,32 @@ use App\Library\FuncionesGlobales;
             return `${dia}/${mes}/${anio} ${hora}:${minuto} hrs`;
         }
 
+        function formatearDuracion(minutos) {
+            if (isNaN(minutos) || minutos < 0) return '';
+
+            const horas = Math.floor(minutos / 60);
+            const minutosRestantes = minutos % 60;
+
+            let resultado = '';
+
+            if (horas > 0) {
+                resultado += `${horas} hr${horas > 1 ? 's' : ''}`;
+            }
+
+            if (minutosRestantes > 0) {
+                if (resultado) resultado += ' ';
+                resultado += `${minutosRestantes} min`;
+            }
+
+            // Si dura exactamente 0 min
+            if (resultado === '') {
+                resultado = '0 min';
+            }
+
+            return resultado;
+        }
+
+
 
         function show_info_cita(info_cita){
             let modal_clone = $("#modal_info_cita").clone().show();
@@ -669,10 +697,11 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).find("#fecha_cita").text(formatearFecha(fecha_cita));
             $(modal_clone).find("#hora_cita").text(info_cita['hora_cita']);
-            $(modal_clone).find("#duracion").text(info_cita['duracion']);
+            $(modal_clone).find("#duracion").text(formatearDuracion(info_cita['duracion']));
             $(modal_clone).find("#usuario_captura").text(info_cita['usuario_captura']);
 
             $(modal_clone).find("#asistencia").text(estatus_asistencia[info_cita['asistencia']]);
+            $(modal_clone).find("#tipo_cita").text(info_cita['id_cita_programada'] != null ? 'CITA PROGRAMADA' : 'CITA ORDINARIA');
             $(modal_clone).find("#estatus").text(info_cita['estatus']);
 
             if (info_cita['activa'] != 1){
