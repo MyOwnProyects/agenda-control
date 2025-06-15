@@ -34,6 +34,95 @@ use App\Library\FuncionesGlobales;
     .hide {
         display:none;
     }
+
+    /* ESTILO PARA MODAL DE INFORMACION */
+/* Encabezado del modal */
+#modal_info_cita .modal-header {
+  background-color: #343a40;
+  color: #fff;
+  border-bottom: 1px solid #dee2e6;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+/* Labels dentro del body */
+#modal_info_cita .modal-body label {
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Spans dentro del body */
+#modal_info_cita .modal-body span {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-weight: 500;
+  color: #212529;
+}
+
+/* Separadores de secciones */
+#modal_info_cita .row.mb-3 {
+  padding: 10px 0;
+  border-bottom: 1px dashed #ced4da;
+  margin-bottom: 15px;
+}
+
+/* Información de cancelación */
+#modal_info_cita .div_info_cancelacion {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 15px;
+  border-radius: 0.5rem;
+  margin-top: 15px;
+}
+
+#modal_info_cita .div_info_cancelacion label {
+  font-weight: bold;
+  color: #856404;
+  margin-bottom: 10px;
+}
+
+/* Lista de servicios */
+#modal_info_cita .div_servicios {
+  /*background-color: #f1f3f5;  Fondo uniforme para toda la sección */
+  border: 1px solid #ced4da;
+  padding: 15px;
+  border-radius: 0.5rem;
+  margin-top: 20px;
+}
+
+#modal_info_cita .div_servicios label {
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: block;
+  color: #495057;
+}
+
+#modal_info_cita .div_servicios .d-flex {
+  align-items: center;
+}
+
+/* Quitamos el fondo de las filas de encabezado de servicios */
+#modal_info_cita .div_servicios .div_header_servicios .d-flex {
+  background-color: transparent;
+}
+
+/* Total en servicios */
+#modal_info_cita .div_servicios .total {
+  font-size: 1.1rem;
+  color: #343a40;
+}
+
+/* Footer del modal */
+#modal_info_cita .modal-footer {
+  border-top: none;
+}
+
+/* Botón de cancelar */
+#modal_info_cita .btn-outline-dark {
+  border-radius: 0.5rem;
+  padding: 6px 20px;
+}
+
 </style>
 
 <div class="container mt-4">
@@ -158,7 +247,6 @@ use App\Library\FuncionesGlobales;
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
                 </div>
-                <!-- Campo Nombre -->
                 <div class="col-md-6">
                     <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
                     <input type="date" class="form-control" id="input_fecha_inicio" disabled required>
@@ -244,7 +332,64 @@ use App\Library\FuncionesGlobales;
       <div class="modal-body col-md-12">
         <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
             <div class="row mb-3">
+                <div class="col-md-4">
+                    <label>Paciente: <span id="nombre_paciente"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Profesional: <span id="nombre_profesional"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Fecha: <span id="fecha_cita"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Hora: <span id="hora_cita"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Duraci&oacute;n: <span id="duracion"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Usuario captura: <span id="usuario_captura"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Asistencia: <span id="asistencia"></span></label>
+                </div>
+                <div class="col-md-4">
+                    <label>Estatus: <span id="estatus"></span></label>
+                </div>
+                <div class="col-md-12 div_info_cancelacion hide">
+                    <label>Informaci&oacute;n de la cancelaci&oacute;n de cita</label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Fecha: <span id="fecha_cancelacion"></span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Usuario: <span id="usuario_cancelacion"></span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Motivo: <span id="motivo_cancelacion"></span></label>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Observaciones: <span id="observaciones_cancelacion"></span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 div_servicios">
+                    <div class="col-md-12"><label>Lista de servicios</label></div>
+                    <div class="d-flex border-bottom fw-bold py-2 mt-3">
+                        <div class="flex-fill">Servicio</div>
+                        <div class="flex-fill">Duración</div>
+                        <div class="flex-fill">Costo</div>
+                    </div>
 
+                    <!-- Primera fila de datos -->
+                    <div class="div_header_servicios">
+                    </div>
+
+                    <!-- Total -->
+                    <div class="d-flex justify-content-end fw-bold py-2 mt-2">
+                        <div>Total: $<span class="total"></span></div>
+                    </div>
+                </div>
             </div>
         </form>
       </div>
@@ -255,10 +400,22 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
+<div id="template_servicio_cita_diaria" class=" py-2 border-bottom hide">
+    <div class="flex-fill servicio">Lenguaje</div>
+    <div class="flex-fill"><span class="duracion"></span> Min</div>
+    <div class="flex-fill costo">$<span clas="costo"></span></div>
+</div>
+
 <script>
     let module_control_citas    = (function(){
         let draw            = 0;
         let count_hours     = 0;
+
+        let estatus_asistencia  = {
+            0   : 'FALTA',
+            1   : 'ASISTENCIA',
+            2   : 'RETARDO'
+        };
 
         //  URL
         const controller    = '/Controlcitas';
@@ -352,9 +509,6 @@ use App\Library\FuncionesGlobales;
                                 let btn_update  = 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
-                                '</button>'+
-                                '<button class="btn btn-outline-dark btn-sm btn_opening_hours" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['opening_hours'] +'">' +
-                                    '<i class="bi bi-calendar2-event"></i>'+
                                 '</button>';
 
                                 let btn_delete  = 
@@ -469,13 +623,85 @@ use App\Library\FuncionesGlobales;
             })
         }
 
-        function show_info_cita(data){
-            let modal_clone = $("#modal_info_cita").clone().removeAttr('id').show();
+        function formatearFecha(fecha) {
+            const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+            const partes = fechaFormateada.split(', ');
+            
+            function capitalizarPrimeraLetra(texto) {
+                return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+            }
 
+            if (partes.length > 1) {
+                // Si la fecha incluye coma (formato "día, fecha")
+                return capitalizarPrimeraLetra(partes[0]) + ', ' + partes[1];
+            } else {
+                // Si no hay coma, convertir la primera palabra (asumiendo que es el día)
+                const palabras = fechaFormateada.split(' ');
+                palabras[0] = capitalizarPrimeraLetra(palabras[0]);
+                return palabras.join(' ');
+            }
+        }
+
+        function formatearFechaExtensa(fechaStr) {
+            if (!fechaStr) return '';
+
+            // Separar fecha y hora
+            const [fechaParte, horaParte] = fechaStr.split(' ');
+
+            if (!fechaParte || !horaParte) return fechaStr; // Si no tiene formato esperado, devolver tal cual
+
+            const [anio, mes, dia] = fechaParte.split('-');
+            const [hora, minuto] = horaParte.split(':');
+
+            // Retornar en formato más humano
+            return `${dia}/${mes}/${anio} ${hora}:${minuto} hrs`;
+        }
+
+
+        function show_info_cita(info_cita){
+            let modal_clone = $("#modal_info_cita").clone().show();
+            $(modal_clone).find("#nombre_paciente").text(info_cita['nombre_completo']);
+            $(modal_clone).find("#nombre_profesional").text(info_cita['nombre_profesional']);
+
+            let split_today = info_cita['fecha_cita'].split('-');
+            let fecha_cita  = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
+
+            $(modal_clone).find("#fecha_cita").text(formatearFecha(fecha_cita));
+            $(modal_clone).find("#hora_cita").text(info_cita['hora_cita']);
+            $(modal_clone).find("#duracion").text(info_cita['duracion']);
+            $(modal_clone).find("#usuario_captura").text(info_cita['usuario_captura']);
+
+            $(modal_clone).find("#asistencia").text(estatus_asistencia[info_cita['asistencia']]);
+            $(modal_clone).find("#estatus").text(info_cita['estatus']);
+
+            if (info_cita['activa'] != 1){
+                $(modal_clone).find("#fecha_cancelacion").text(formatearFechaExtensa(info_cita['fecha_cancelacion']));
+                $(modal_clone).find("#usuario_cancelacion").text(info_cita['usuario_cancelacion']);
+                $(modal_clone).find("#motivo_cancelacion").text(info_cita['motivo_cancelacion']);
+                $(modal_clone).find("#observaciones_cancelacion").text(info_cita['observaciones_cancelacion']);
+                $(modal_clone).find('.div_info_cancelacion').removeClass('hide');
+            }
+
+            //  SE RECORREN LOS SERVICIOS
+            for(let x in info_cita['servicios']){
+                let servicio        = info_cita['servicios'][x];
+                let row_servicio    = $("#template_servicio_cita_diaria").clone().removeAttr('id').addClass('d-flex').removeClass('hide');
+
+                $(row_servicio).find('.servicio').text(servicio['nombre_servicio']);
+                $(row_servicio).find('.duracion').text(servicio['duracion']);
+                $(row_servicio).find('.costo').text(servicio['costo']);
+
+                $(modal_clone).find('.div_header_servicios').append(row_servicio);
+            }
+            $(modal_clone).find('.total').text(info_cita['total']);
             $(modal_clone).modal('show');
         }
 
         $(document).ready(function() {
+
+            $("#input_rango_fecha_inicio").val('2025-06-16');
+            $("#input_rango_fecha_termino").val('2025-06-20');
             
             // Initialize the select elements
             $('.select_locaciones').select2({
