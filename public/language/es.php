@@ -131,6 +131,8 @@ return [
     'html_appointment_professional' => 'Profesional de la cita',
     'html_appointment_service'      => 'Servicio de la cita',
     'html_appointment_patient'      => 'Paciente de la cita',
+    'html_range_date'               => 'Rango de fechas',
+    'html_limit_date'               => 'Limite de fechas',
 
 
     //  MENSAJES DE ERROR

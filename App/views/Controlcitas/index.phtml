@@ -67,14 +67,22 @@ use App\Library\FuncionesGlobales;
                         <option value=""></option>
                     </select>
                 </div>
+                <div class="col-md-4">
+                    <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_appointment_date']; ?></label>
+                    <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_appointment_date']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
+                </div>
                 <div class="col-md-12 text-end">
                     <button type="button" class="btn btn-outline-dark" id="btnBuscar">
                         <i class="bi bi-search"></i> 
                         <?php echo $translations['html_btn_search']; ?>
                     </button>
-                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
-                        <i class="bi bi-plus-lg"></i> 
-                        <?php echo $translations['html_new']; ?>
+                    <button type="button" class="btn btn-outline-dark" id="btn_agenda_opening">
+                        <i class="bi bi-calendar-date"></i>
+                        <?php echo $translations['html_agenda_opening']; ?>
                     </button>
                 </div> 
             </form>
@@ -103,8 +111,62 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
+<div class="modal fade" id="modal_agenda_opening" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_agenda_opening']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_agenda_opening" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-6">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_location']; ?></label>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones_modal" class="select_locaciones_modal" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?> required>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-6">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_inicio" disabled required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="input_fecha_termino" class="col-form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_termino" disabled required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     let module_control_citas    = (function(){
+        let draw            = 0;
+        let count_hours     = 0;
 
         //  URL
         const controller    = '/Controlcitas';
@@ -132,9 +194,91 @@ use App\Library\FuncionesGlobales;
             error_selected_location : "<?= $translations['error_selected_location']?>",
             error_professional      : "<?= $translations['html_error_professional']?>",
             error_selected_patient  : "<?= $translations['html_error_selected_patient']?>",
+            error_starting_date     : "<?= $translations['html_error_starting_date']?>",
         };
 
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
+        //  dias_programacion_citas
+        const dias_programacion_citas = <?php echo $dias_programacion_citas; ?>
+
+        // Función para inicializar o recargar la tabla
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.from_catalog      = true;
+                            d.get_servicios     = true;
+                            d.id_locacion       = $("#select_locaciones").val();
+                            d.id_profesional    = $("#select_profesionales").val();
+                            d.id_paciente       = $("#select_pacientes").val();
+                            d.fecha_inicio      = $("#input_rango_fecha_inicio").val();
+                            d.fecha_termino     = $("#input_rango_fecha_termino").val();
+                        }
+                    },
+                    columns: [
+                        { data: 'nombre_completo' }, // Columna 1
+                        { data: 'nombre_profesional' }, // Columna 1
+                        { data: 'num_servicios' }, // Columna 1
+                        { data: 'fecha_cita' }, // Columna 1
+                        { data: 'hora_cita' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
+
+                                let btn_preview = 
+                                '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                    '<i class="bi bi-search"></i> '+
+                                '</button>';
+
+                                let btn_update  = 
+                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
+                                    '<i class="bi bi-pencil-fill"></i>'+
+                                '</button>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_opening_hours" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['opening_hours'] +'">' +
+                                    '<i class="bi bi-calendar2-event"></i>'+
+                                '</button>';
+
+                                let btn_delete  = 
+                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['title_delete'] +'">' +
+                                    '<i class="bi bi-trash3-fill"></i>'+
+                                '</button>';
+                                return btn_preview + btn_update + btn_delete;
+                            }
+                        }
+                    ]
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
         $(document).ready(function() {
+            
             // Initialize the select elements
             $('.select_locaciones').select2({
                 placeholder: translations['error_selected_location']
@@ -182,6 +326,162 @@ use App\Library\FuncionesGlobales;
                 }
             });
 
+            // EVENTO PARA BUSCAR CITAS
+            $('#btnBuscar').on('click', function() {
+                if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                    showAlert('danger', translations['error_starting_date']);
+                    return false;
+                }
+
+                if ($('#input_rango_fecha_termino').val() == '') {
+                    showAlert('danger', translations['error_starting_date']);
+                    return false;
+                }
+                cargarTabla();
+            });
+
+            //  EVENTOS PARA APERTURA DE AGENDA
+            $("#btn_agenda_opening").on('click',function(){
+                let modal_clone = $("#modal_agenda_opening").clone().show();
+
+                // Aplica select2 solo al nuevo select
+                $(modal_clone).find('.select_locaciones_modal').select2({
+                    placeholder : 'Seleccione una opción',
+                    allowClear  : false,
+                    dropdownParent: $(modal_clone),
+                    width: '50px'
+                }).on('select2:select',function(){
+                    const id_locacion   = $(this).val();
+                    $.ajax({
+                        url     : url_index,
+                        method  : 'post',
+                        data    : {
+                            accion      : 'get_date',
+                            id_locacion : id_locacion
+                        },
+                        success     : function(data){
+                            console.log('data');
+                            console.log(data);
+
+                            $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['fecha_actual']).val(data['last_fecha_limite']).trigger('change');
+                            $(modal_clone).find('#input_fecha_termino').attr('min' , data['fecha_actual']).prop('disabled',false);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    })
+                });
+
+                if ($(modal_clone).find('.select_locaciones_modal').val() != '' && $(modal_clone).find('.select_locaciones_modal') != null){
+                    const id_locacion   = $(modal_clone).find('.select_locaciones_modal').val();
+                    $.ajax({
+                        url     : url_index,
+                        method  : 'post',
+                        data    : {
+                            accion      : 'get_date',
+                            id_locacion : id_locacion
+                        },
+                        success     : function(data){
+                            console.log('data');
+                            console.log(data);
+
+                            $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['fecha_actual']).val(data['last_fecha_limite']).trigger('change');
+                            $(modal_clone).find('#input_fecha_termino').attr('min' , data['fecha_actual']).prop('disabled',false);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    })
+                }
+
+                $(modal_clone).on('change','#input_fecha_inicio',function(){
+                    // Cadena de texto con la fecha en formato DD/MM/YYYY
+                    const fechaStr = $(this).val();
+
+                    // Dividir la cadena en día, mes y año
+                    const [anio, mes, dia] = fechaStr.split('-');
+
+                    // Crear un objeto Date (los meses en JavaScript son base 0, por eso restamos 1 al mes)
+                    const fecha = new Date(anio, mes - 1, dia);
+
+                    // Sumar 31 días
+                    fecha.setDate(fecha.getDate() + parseInt(dias_programacion_citas));
+                    let [nuevo_dia, nuevo_mes, nuevo_anio]  = fecha.toLocaleDateString().split('/');
+                    nuevo_mes   = nuevo_mes.length == 1 ? '0'+nuevo_mes : nuevo_mes;
+                    nuevo_dia   = nuevo_dia.length == 1 ? '0'+nuevo_dia : nuevo_dia;
+
+
+                    // Mostrar la nueva fecha en formato local
+                    $(modal_clone).find('#input_fecha_termino').val(nuevo_anio+'-'+nuevo_mes+'-'+nuevo_dia);
+                });
+
+                $(modal_clone).on('click','#btnSave',function(){
+                    let btn =  $(this);
+                    $(btn).prop('disable',true);
+
+                    const form = $(modal_clone).find('#form_modal_agenda_opening')[0]; // Obtén el elemento DOM
+                    let flag_error  = false;
+                    if (form.checkValidity() === false) {
+                        $(form).addClass('was-validated');
+                        flag_error  = true;
+                    } else {
+                        $(form).removeClass('was-validated');
+                    }
+
+                    let fecha_inicio    = $(modal_clone).find('#input_fecha_inicio').val();
+                    let fecha_termino   = $(modal_clone).find('#input_fecha_termino').val();
+
+                    // Convertir las cadenas a objetos Date
+                    fecha_inicio    = new Date(fecha_inicio);
+                    fecha_termino   = new Date(fecha_termino);
+
+                    //  VALIDAR REGISTROS
+                    if (fecha_inicio > fecha_termino){
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_range_date']);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                        return false;
+                    }
+
+                    if(flag_error){
+                        return false;
+                    }
+
+                    let obj_info    = {
+                        id_locacion     : $(modal_clone).find('#select_locaciones_modal').val(),
+                        nombre_locacion : $(modal_clone).find('#select_locaciones_modal').find('option:selected').text(),
+                        fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
+                        fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
+                    };
+
+                    console.log('obj_info');
+                    console.log(obj_info);
+                    //return false;
+
+                    //  AJAX SAVE
+                    $.ajax({
+                        url         : url_index,
+                        method      : 'POST',
+                        dataType    : 'json',
+                        data        : {
+                            accion      : 'save_agenda_opening',
+                            obj_info    : obj_info
+                        },
+                        success     : function(data){
+                            $(btn).prop('disabled',false);
+                            $(modal_clone).modal('hide');
+                            showAlert('success',data);
+                            if ("#input_rango_fecha_inicio" != null && $("#input_rango_fecha_inicio").val() != '' && $("#input_rango_fecha_termino").val() != null && $("#input_rango_fecha_termino").val() != ''){
+                                cargarTabla();
+                            }
+                        },
+                        error     : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    })
+                });
+
+                $(modal_clone).modal('show');
+            });
             
         });
         
