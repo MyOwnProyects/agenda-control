@@ -137,6 +137,7 @@ return [
     'html_all_appoitments'          => 'Mostrar <b>TODAS</b> las citas',
     'html_active_appoitments'       => 'Mostrar solo citas <b>ACTIVAS</b>',
     'html_canceled_appoitments'     => 'Mostrar solo citas <b>CANCELADAS</b>',
+    'html_info_appointment'         => 'Información de la cita',
 
 
     //  MENSAJES DE ERROR

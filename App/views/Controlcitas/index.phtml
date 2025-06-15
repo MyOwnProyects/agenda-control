@@ -234,6 +234,27 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
+<div class="modal fade" id="modal_info_cita" tabindex="-1" aria-labelledby="label_modal_info_cita" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_info_cita"><?php echo FuncionesGlobales::UpperString($translations['html_info_appointment']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     let module_control_citas    = (function(){
         let draw            = 0;
@@ -319,6 +340,7 @@ use App\Library\FuncionesGlobales;
                             orderable: false, // Desactiva el ordenamiento para esta columna
                             render: function (data, type, row) {
                                 draw    ++;
+                                console.log('data',data);
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
 
@@ -344,6 +366,8 @@ use App\Library\FuncionesGlobales;
                         }
                     ],
                     createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
                         if (data.activa == 0) {
                             $(row).find('td:eq(5)').css('background-color', '#f85b4b'); // La sexta columna tiene índice 5
                         }
@@ -443,6 +467,12 @@ use App\Library\FuncionesGlobales;
                     $("#select_profesionales").append('<option></option>');
                 }
             })
+        }
+
+        function show_info_cita(data){
+            let modal_clone = $("#modal_info_cita").clone().removeAttr('id').show();
+
+            $(modal_clone).modal('show');
         }
 
         $(document).ready(function() {
@@ -658,6 +688,18 @@ use App\Library\FuncionesGlobales;
             //  EVENTO PARA CANCELAR UNA CITA
             $("#table_results").on('click','.btn_cancelar',function(){
                 show_modal_cancelar_cita($(this));
+            });
+
+            //  EVENTO PARA VISUALZAR LA INFORMACION DE LA CITA
+            $("#table_results").on('click','.btn_preview',function(){
+                // Obtener la fila padre
+                let row = $(this).closest('tr');
+
+                // Obtener los datos almacenados en la fila
+                let data = row.data('rowData');
+
+                console.log(data); // Aquí tienes todo el objeto data de esa fila
+                show_info_cita(data);
             });
             
         });
