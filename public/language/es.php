@@ -133,6 +133,10 @@ return [
     'html_appointment_patient'      => 'Paciente de la cita',
     'html_range_date'               => 'Rango de fechas',
     'html_limit_date'               => 'Limite de fechas',
+    'html_filter_appoitments'       => 'Filtrar citas',
+    'html_all_appoitments'          => 'Mostrar <b>TODAS</b> las citas',
+    'html_active_appoitments'       => 'Mostrar solo citas <b>ACTIVAS</b>',
+    'html_canceled_appoitments'     => 'Mostrar solo citas <b>CANCELADAS</b>',
 
 
     //  MENSAJES DE ERROR

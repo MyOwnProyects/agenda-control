@@ -101,6 +101,54 @@ class ControlcitasController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'cancelar_cita'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['cancelar_cita'];
+                $result     = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+
+                $response->setJsonContent('Cancelacion exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'fill_profesionales'){
+                $route      = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'modificar_asistencia'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['modificar_asistencia'];
+                $result     = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+
+                $response->setJsonContent('Cancelacion exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
@@ -126,5 +174,10 @@ class ControlcitasController extends BaseController
         }
 
         $this->view->dias_programacion_citas    = $dias_programacion_citas;
+
+        //  MOTIVOS PARA CANCELAR UNA CITA
+        $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
+        $motivos_cancelacion_cita   = FuncionesGlobales::RequestApi('GET',$route);
+        $this->view->motivos_cancelacion_cita   = $motivos_cancelacion_cita;
     }
 }

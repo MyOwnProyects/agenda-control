@@ -34,7 +34,6 @@ use App\Library\FuncionesGlobales;
     .hide {
         display:none;
     }
-
 </style>
 
 <div class="container mt-4">
@@ -75,6 +74,31 @@ use App\Library\FuncionesGlobales;
                     <label for="rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
                     <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
                 </div>
+                <div class="col-md-4">
+                    
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label"><b><?php echo $translations['html_filter_appoitments']; ?></b></label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filtro_citas" id="radio_todas" value="todas" checked>
+                        <label class="form-check-label" for="radio_todas">
+                            <?php echo $translations['html_all_appoitments']; ?>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filtro_citas" id="radio_activas" value="activas">
+                        <label class="form-check-label" for="radio_activas">
+                            <?php echo $translations['html_active_appoitments']; ?>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filtro_citas" id="radio_canceladas" value="canceladas">
+                        <label class="form-check-label" for="radio_canceladas">
+                            <?php echo $translations['html_canceled_appoitments']; ?>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="col-md-12 text-end">
                     <button type="button" class="btn btn-outline-dark" id="btnBuscar">
                         <i class="bi bi-search"></i> 
@@ -103,6 +127,7 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_assigned_services']; ?></th>
                         <th><?php echo $translations['html_appointment_date']; ?></th>
                         <th><?php echo $translations['html_appointment_time']; ?></th>
+                        <th><?php echo $translations['html_current_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -143,6 +168,52 @@ use App\Library\FuncionesGlobales;
                     <label for="input_fecha_termino" class="col-form-label"><?php echo $translations['html_limit_date']; ?></label>
                     <input type="date" class="form-control" id="input_fecha_termino" disabled required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_cancelar_cita" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_cancelar_cita"><?php echo FuncionesGlobales::UpperString($translations['html_cancel_appointment']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <!-- Campo Clave -->
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_reason_cancellation']; ?></label>
+                    <select id="select_motivo_cancelacion">
+                        <option></option>
+                        <?php foreach($motivos_cancelacion_cita as $motivo): ?>
+                            <option value="<?php echo $motivo['id']; ?>"><?php echo $motivo['nombre']; ?></option>
+                        <?php  endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
+                </div>
+                <div class="col-md-12">
+                    <label for="input_clave" class="col-form-label"><?php echo $translations['html_observations']; ?></label>
+                    
+                    <textarea row="2" id="textarea_observaciones_cancelacion" class="form-control"></textarea>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
                 </div>
             </div>
             <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
@@ -232,6 +303,7 @@ use App\Library\FuncionesGlobales;
                             d.id_paciente       = $("#select_pacientes").val();
                             d.fecha_inicio      = $("#input_rango_fecha_inicio").val();
                             d.fecha_termino     = $("#input_rango_fecha_termino").val();
+                            d.tipo_busqueda     = $('input[name="filtro_citas"]:checked').val() || 'todas'; // Obtiene el valor del radio seleccionado
                         }
                     },
                     columns: [
@@ -240,6 +312,7 @@ use App\Library\FuncionesGlobales;
                         { data: 'num_servicios' }, // Columna 1
                         { data: 'fecha_cita' }, // Columna 1
                         { data: 'hora_cita' }, // Columna 1
+                        { data: 'estatus' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -263,18 +336,113 @@ use App\Library\FuncionesGlobales;
                                 '</button>';
 
                                 let btn_delete  = 
-                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['title_delete'] +'">' +
-                                    '<i class="bi bi-trash3-fill"></i>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" title="'+translations['title_delete'] +'">' +
+                                    '<i class="bi bi-calendar-x"></i>'+
                                 '</button>';
                                 return btn_preview + btn_update + btn_delete;
                             }
                         }
-                    ]
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        if (data.activa == 0) {
+                            $(row).find('td:eq(5)').css('background-color', '#f85b4b'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.activa == 1) {
+                            $(row).find('td:eq(5)').css('background-color', '#84e395'); // La sexta columna tiene índice 5
+                        }
+                    }
                 });
             } else {
                 draw    ++;
                 table.ajax.reload();
             }
+        }
+
+        function show_modal_cancelar_cita(element){
+            let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
+            let id_agenda_cita  = $(element).data('id');
+            console.log('id_agenda_cita',id_agenda_cita);
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+                const form = $(modal_clone).find('#form_modal_cancelar_cita')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion          : 'cancelar_cita',
+                        id_motivo_cancelacion       : $(modal_clone).find("#select_motivo_cancelacion").val(),
+                        observaciones_cancelacion   : $(modal_clone).find("#textarea_observaciones_cancelacion").val(),
+                        id_agenda_cita              : $(element).data('id')
+                    },
+                    success     : function(data){
+                        $(modal_clone).modal('hide');
+                        showAlert('success','Cita cancelada');
+
+                        $(modal_clone).find('#btnSave').prop('disabled',false);
+
+                        if ("#input_rango_fecha_inicio" != null && $("#input_rango_fecha_inicio").val() != '' && $("#input_rango_fecha_termino").val() != null && $("#input_rango_fecha_termino").val() != ''){
+                            cargarTabla();
+                        }
+                    },
+                    error     : function(error){
+                        console.log('error',error);
+                        //$(modal_clone).find('#btnSave').prop('disabled',false);
+                    }
+                });
+            });
+
+            $(modal_clone).find('#select_motivo_cancelacion').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        function fill_profesionales(id_locacion){
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                data        : {
+                    accion      : 'fill_profesionales',
+                    id_locacion : id_locacion
+                },
+                success     : function(data){
+
+                    $("#select_profesionales").val(null).trigger('change');
+                    $("#select_profesionales").find('option').remove();
+
+                    let options = '<option></option>';
+                    for(let i in data){
+                        options += '<option value="'+data[i]['id']+'">'+data[i]['nombre_completo']+'</option>';
+                    }
+                    
+                    $("#select_profesionales").append(options);
+                },
+                error     : function(error){
+                    $("#select_profesionales").val(null).trigger('change');
+                    $("#select_profesionales").find('option').remove();
+                    $("#select_profesionales").append('<option></option>');
+                }
+            })
         }
 
         $(document).ready(function() {
@@ -283,6 +451,10 @@ use App\Library\FuncionesGlobales;
             $('.select_locaciones').select2({
                 placeholder: translations['error_selected_location']
             });
+
+            if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
+                fill_profesionales($("#select_locaciones").val());
+            }
 
             $('.select_profesionales').select2({
                 placeholder: translations['error_professional'],
@@ -481,6 +653,11 @@ use App\Library\FuncionesGlobales;
                 });
 
                 $(modal_clone).modal('show');
+            });
+
+            //  EVENTO PARA CANCELAR UNA CITA
+            $("#table_results").on('click','.btn_cancelar',function(){
+                show_modal_cancelar_cita($(this));
             });
             
         });
