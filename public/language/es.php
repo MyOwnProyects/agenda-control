@@ -145,6 +145,7 @@ return [
     'html_date'                     => 'Fecha',
     'html_user'                     => 'Usuario',
     'html_reason'                   => 'Motivo',
+    'html_info_cancel_appoitment'   => 'Informaci&oacute;n de la cancelaci&oacute;n',
 
 
     //  MENSAJES DE ERROR
