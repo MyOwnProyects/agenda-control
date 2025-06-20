@@ -146,6 +146,7 @@ return [
     'html_user'                     => 'Usuario',
     'html_reason'                   => 'Motivo',
     'html_info_cancel_appoitment'   => 'Informaci&oacute;n de la cancelaci&oacute;n',
+    'html_appoinment_edit'          => 'Editar cita',
 
 
     //  MENSAJES DE ERROR
