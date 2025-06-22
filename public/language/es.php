@@ -147,6 +147,7 @@ return [
     'html_reason'                   => 'Motivo',
     'html_info_cancel_appoitment'   => 'Informaci&oacute;n de la cancelaci&oacute;n',
     'html_appoinment_edit'          => 'Editar cita',
+    'html_change_professional'      => 'Cambiar profesional',
 
 
     //  MENSAJES DE ERROR

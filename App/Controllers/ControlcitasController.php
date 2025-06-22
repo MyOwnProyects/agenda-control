@@ -186,6 +186,25 @@ class ControlcitasController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'save_appoinment'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['save'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST['obj_info']);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREATE','Se programo la cita para el paciente: '.$nombre_paciente,$_PST['obj_info']);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');

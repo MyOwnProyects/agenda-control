@@ -1385,31 +1385,28 @@ use App\Library\FuncionesGlobales;
         return num_return;
     }
 
-    function get_rango_semana(fecha) {
-        // Crear un objeto Date a partir de la fecha proporcionada
-        const fechaObj = new Date(fecha);
-        
-        // Obtener el día de la semana (0 para domingo, 1 para lunes, ..., 6 para sábado)
+    function get_rango_semana(fechaString) {
+        // Crear el objeto Date usando componentes separados (año, mes, día)
+        const [año, mes, dia] = fechaString.split("-").map(Number);
+        const fechaObj = new Date(año, mes - 1, dia); // Meses van de 0 a 11
+
         const diaSemana = fechaObj.getDay();
-        
-        // Calcular la fecha del lunes de esa semana
+
         const lunes = new Date(fechaObj);
         lunes.setDate(fechaObj.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
-        
-        // Calcular la fecha del domingo de esa semana
+
         const domingo = new Date(fechaObj);
         domingo.setDate(fechaObj.getDate() + (diaSemana === 0 ? 0 : 7 - diaSemana));
-        
-        // Formatear las fechas en el formato 'YYYY-MM-DD'
+
         const formatoFecha = (fecha) => {
-            const año = fecha.getFullYear();
-            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-            const dia = String(fecha.getDate()).padStart(2, '0');
-            return `${año}-${mes}-${dia}`;
+            const y = fecha.getFullYear();
+            const m = String(fecha.getMonth() + 1).padStart(2, '0');
+            const d = String(fecha.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         };
 
-        rango_semana_actual['fecha_inicio']     = formatoFecha(lunes);
-        rango_semana_actual['fecha_termino']    = formatoFecha(domingo);
+        rango_semana_actual['fecha_inicio'] = formatoFecha(lunes);
+        rango_semana_actual['fecha_termino'] = formatoFecha(domingo);
     }
 
     function show_horario_no_disponible_profesional(div_header = null){

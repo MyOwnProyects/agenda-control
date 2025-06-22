@@ -190,6 +190,39 @@ use App\Library\FuncionesGlobales;
         font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
     }
 
+    .div_header_filters .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .div_header_filters .navigation .left-section {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacio entre los botones */
+        width: 400px; /* Ancho fijo para left-section */
+    }
+    .div_header_filters .navigation .right-section {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacio entre los botones */
+    }
+    .div_header_filters .navigation button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .div_header_filters .filters {
+        display: flex;
+        gap: 20px; /* Espacio entre los select */
+        margin: 20px;
+    }
+    .div_header_filters .filters select {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
 </style>
 
 <div class="container mt-4">
@@ -501,9 +534,9 @@ use App\Library\FuncionesGlobales;
             <div class="row mb-3 div_input_paciente">
                 <div class="div_select_paciente col-md-12">
                     <label for="select_paciente_modal" class="col-form-label"><?php echo $translations['html_title_patient']; ?></label>
-                        <select id="select_paciente_modal" class="select_paciente_modal" required>
-                            <option value=""></option>
-                        </select>
+                    <select id="select_paciente_modal" class="select_paciente_modal" required>
+                        <option value=""></option>
+                    </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
                 </div>
                 <div class="div_datos_paciente col-md-3" style="display:none;">
@@ -534,11 +567,15 @@ use App\Library\FuncionesGlobales;
                 <div class="col-md-4">
                     <label for="span_fecha_cita" class="col-form-label"><b><?php echo $translations['html_appoinment_date']; ?>:</b> <span id="span_fecha_cita"></label>
                 </div>
-                <div class=" col-md-4 text-right">
+                <div class=" col-md-2 text-right">
                     <label for="input_modify_day" class="col-form-label"><?php echo $translations['html_modify_date']; ?></label>
                     <input type="checkbox" id="input_modify_day" name="input_modify_day" />
                 </div>
-                <div class="div_cambiar_dia col-md-12 div_header_filters" style="display:none;">
+                <div class=" col-md-2 text-right">
+                    <label for="input_modify_professional" class="col-form-label"><?php echo $translations['html_change_professional']; ?></label>
+                    <input type="checkbox" id="input_modify_professional" name="input_modify_professional" />
+                </div>
+                <div class="div_cambiar_dia col-md-6 div_header_filters" style="display:none;">
                     <div class="navigation">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
@@ -549,6 +586,17 @@ use App\Library\FuncionesGlobales;
                             <button type="button" id="btn-semana-siguiente" class="btn btn-secondary">>></button>
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
+                    </div>
+                </div>
+                <div class="div_cambiar_profesional col-md-3 div_header_filters" style="display:none;">
+                    <div class="navigation">
+                        <div class="col-md-12">
+                            <label for="select_profesionales_modal" class="col-form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                            <select id="select_profesionales_modal" class="select_profesionales_modal">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -694,6 +742,7 @@ use App\Library\FuncionesGlobales;
             error_selected_patient  : "<?= $translations['html_error_selected_patient']?>",
             error_starting_date     : "<?= $translations['html_error_starting_date']?>",
             appoinment_edit         : "<?= $translations['html_appoinment_edit']?>",
+            cancel_appointment      : "<?= $translations['html_cancel_appointment']?>",
         };
 
         // Variable global para almacenar la instancia de DataTable
@@ -716,9 +765,12 @@ use App\Library\FuncionesGlobales;
         let citas_desglosadas       = {};
         let profesionales           = {};
         //  RANGO DE HORARIO DE ATENCION
-        let min_hora_inicio = '';
-        let max_hora_inicio = '';
-        let fechaActual     = '';
+        let min_hora_inicio     = '';
+        let max_hora_inicio     = '';
+        let fechaActual         = '';
+        let tmp_fecha_actual    = '';
+        let cierre_agenda           = new Date(2025, 3, 30); // Año, Mes (0-indexed), Día
+        let exist_apertura_agenda   = false;
 
         // Función para inicializar o recargar la tabla
         // Función para inicializar o recargar la tabla
@@ -773,13 +825,13 @@ use App\Library\FuncionesGlobales;
                                     '<i class="bi bi-search"></i> '+
                                 '</button>';
 
-                                let btn_update  = data['vencida'] == 1 ? '' : 
+                                let btn_update  = data['vencida'] == 1 || data['activa'] != 1 ? '' : 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['appoinment_edit'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>';
 
-                                let btn_delete  = data['vencida'] == 1 ? '' : 
-                                '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" title="'+translations['title_delete'] +'">' +
+                                let btn_delete  = data['vencida'] == 1 || data['activa'] != 1 ? '' : 
+                                '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" title="'+translations['cancel_appointment'] +'">' +
                                     '<i class="bi bi-calendar-x"></i>'+
                                 '</button>';
                                 return btn_preview + btn_update + btn_delete;
@@ -788,6 +840,7 @@ use App\Library\FuncionesGlobales;
                     ],
                     createdRow: function (row, data, dataIndex) {
                         // Guardar el objeto completo en la fila como data
+                        //console.log('data',data);
                         $(row).data('rowData', data);
                         if (data.activa == 0) {
                             $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
@@ -891,6 +944,7 @@ use App\Library\FuncionesGlobales;
         }
 
         function formatearFecha(fecha) {
+            console.log('fecha value',fecha);
             const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
             const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
             const partes = fechaFormateada.split(', ');
@@ -992,45 +1046,46 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         }
 
-        function get_rango_semana(fecha) {
-            // Crear un objeto Date a partir de la fecha proporcionada
-            const fechaObj = new Date(fecha);
-            
-            // Obtener el día de la semana (0 para domingo, 1 para lunes, ..., 6 para sábado)
+        function get_rango_semana(fechaString) {
+            // Crear el objeto Date usando componentes separados (año, mes, día)
+            const [año, mes, dia] = fechaString.split("-").map(Number);
+            const fechaObj = new Date(año, mes - 1, dia); // Meses van de 0 a 11
+
             const diaSemana = fechaObj.getDay();
-            
-            // Calcular la fecha del lunes de esa semana
+
             const lunes = new Date(fechaObj);
             lunes.setDate(fechaObj.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
-            
-            // Calcular la fecha del domingo de esa semana
+
             const domingo = new Date(fechaObj);
             domingo.setDate(fechaObj.getDate() + (diaSemana === 0 ? 0 : 7 - diaSemana));
-            
-            // Formatear las fechas en el formato 'YYYY-MM-DD'
+
             const formatoFecha = (fecha) => {
-                const año = fecha.getFullYear();
-                const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-                const dia = String(fecha.getDate()).padStart(2, '0');
-                return `${año}-${mes}-${dia}`;
+                const y = fecha.getFullYear();
+                const m = String(fecha.getMonth() + 1).padStart(2, '0');
+                const d = String(fecha.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
             };
 
-            rango_semana_actual['fecha_inicio']     = formatoFecha(lunes);
-            rango_semana_actual['fecha_termino']    = formatoFecha(domingo);
+            rango_semana_actual['fecha_inicio'] = formatoFecha(lunes);
+            rango_semana_actual['fecha_termino'] = formatoFecha(domingo);
         }
 
         //  AJAX PARA OBTENER TODA LA INFOMACION DE LAS CITAS
         function ajax_previo_show_modal(data_cita,data_ajax){
-            // let valida_fechas   = validar_fechas_apertura_agenda(fechaActual);
-            // if (valida_fechas != true){
-            //     showAlert('danger',valida_fechas);
-            //     return false;
-            // }
+            let valida_fechas   = validar_fechas_apertura_agenda(fechaActual);
+            if (valida_fechas != true){
+                showAlert('danger',valida_fechas);
+                return false;
+            }
             let split_today     = data_cita['fecha_cita'].split('-');
             fechaActual         = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
             let fecha_actual    = formatearFecha(fechaActual);
             fecha_actual        = fecha_actual.split(",");
             let hora_inicio     = data_cita['start']; //$(element).closest('.row_info').find('.agenda-time').text();
+            let tmp_cierre_fecha    = data_ajax['cierre_agenda']['last_fecha_limite'];
+            tmp_cierre_fecha        = data_ajax['cierre_agenda']['last_fecha_limite'].split('-');
+            cierre_agenda           = new Date(tmp_cierre_fecha[0],tmp_cierre_fecha[1] - 1,tmp_cierre_fecha[2]);
+            exist_apertura_agenda   = data_ajax['cierre_agenda']['has_record'];
 
             // if ($(element).hasClass('no-hover-effect')){
             //     return false;
@@ -1134,7 +1189,7 @@ use App\Library\FuncionesGlobales;
             let min_hora_inicio_modal   = '';
             let max_hora_inicio_modal   = '';
             let id_template_cita        = '';  
-            let tmp_fecha_actual        = info_profesional['info_cita']['fecha_hora'];
+            tmp_fecha_actual            = fechaActual;
 
             //  ASIGNACION DE VARIABLES GLOBALES
             citas_desglosadas       = info_profesional['info_ajax']['citas_agendadas'];
@@ -1150,6 +1205,67 @@ use App\Library\FuncionesGlobales;
 
             if (id_agenda_cita != null){
                 $(modal_clone).find('#select_paciente_modal').removeAttr('required');
+                $(modal_clone).find('#select_profesionales_modal').select2({
+                    placeholder: 'Seleccione una opción',
+                    dropdownParent: $(modal_clone),
+                    width: '50px'
+                }).on('select2:select',function(){
+                    // const id_profesional    = $(this).val();
+                    // const min_hora_inicio   = $(this).data('minhora');
+                    // const max_hora_inicio   = $(this).data('maxhora');
+                    // $.ajax({
+                    //     url     : url_scheduleappointments,
+                    //     method  : 'post',
+                    //     data    : {
+                    //         accion  : 'get_horario_profesional',
+                    //         id_locacion     : $(modal_clone).find("#select_locaciones_modal").val(),
+                    //         id_profesional  : id_profesional,
+                    //         min_hora_inicio : min_hora_inicio,
+                    //         max_hora_inicio : max_hora_inicio
+                    //     },
+                    //     success : function(eventos){
+
+                    //         clear_week_container(modal_clone,true);
+
+                    //         const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
+                    //         $(modal_clone).find('.flot_profesional').remove();
+                    //         eventos['rango_no_disponible'].forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_profesional'));
+                    //         eventos['citas_paciente'].forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_profesional',id_cita_programada));
+
+                    //         $(modal_clone).find('.hide').removeClass('hide');
+                            
+
+                    //         if (dia_default != null && hora_default != null){
+                    //             modal_click_grid_hours(modal_clone,dia_default,hora_default,true);
+                    //         } else {
+                    //             if ($(modal_clone).find('.header_row').length == 0){
+                    //                 $(modal_clone).find('#btn_add_appoitment').trigger('click');
+                    //             }
+                    //         }
+                    //     },
+                    //     error : function(error){
+                    //         console.log('error');
+                    //         console.log(error);
+                    //         $(modal_clone).find('.flot_profesional').remove();
+                    //         $(modal_clone).find('#select_profesionales_modal').val(null).trigger('change');
+
+                    //         // $(modal_clone).find('.btn_delete_hour').each(function(){
+                    //         //     let id_template_cita    = $(this).closest('.header_row').attr('id');
+                    //         //     if ($(modal_clone).find(".floating-box#"+id_template_cita).length > 0){
+                    //         //         $(modal_clone).find(".floating-box#"+id_template_cita).remove();
+                    //         //         $(this).closest('.header_row').remove();
+                    //         //     }
+
+                    //         //     if ($(modal_clone).find('.header_row').length == 0){
+                    //         //         $(modal_clone).find('#btn_add_appoitment').trigger('click');
+                    //         //     }
+                    //         // });
+                    //         clear_week_container(modal_clone,false);
+
+                    //         showAlert('danger','Profesional sin horario de atenci&oacute;n asignado');
+                    //     }
+                    // })
+                });
             }
             
             $(modal_clone).on('click','#input_modify_day',function(){
@@ -1159,6 +1275,35 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.div_cambiar_dia').show();
                 } else {
                     $(modal_clone).find('.div_cambiar_dia').hide();
+                    //  SE REHACE LA INFORMACION DEL DIV DE FECHA
+                    // Tu código aquí
+                    fechaActual = tmp_fecha_actual;
+
+                    //  CITAS POR DIA
+                    citas_desglosadas   = tmp_citas_desglosadas.map(obj => ({ ...obj }));
+
+                    //  SE BORRAN LOS DIV FLOTANTES
+                    $(modal_clone).find('.evento-flotante').remove();
+                    
+                    horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                    citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
+                    show_horario_no_disponible_profesional($(modal_clone));
+                    setTimeout(function(){
+                        cambiarDia(null, fechaActual,$(modal_clone));
+                        $(modal_clone).find('.input_hora_inicio').val($(modal_clone).find('.input_hora_inicio').data('hora'))
+                        calcula_totales(modal_clone,id_profesional,id_agenda_cita);
+                    },50);
+                }
+            });
+
+            $(modal_clone).on('click','#input_modify_professional',function(){
+                let is_checked  = $(this).prop('checked');
+
+                if (is_checked){
+                    $(modal_clone).find('.div_cambiar_profesional').show();
+                    $(modal_clone).find('#select_profesionales_modal').addAttr('required');
+                } else {
+                    $(modal_clone).find('.div_cambiar_profesional').hide();
                     //  SE REHACE LA INFORMACION DEL DIV DE FECHA
                     // Tu código aquí
                     fechaActual = tmp_fecha_actual;
@@ -1371,6 +1516,7 @@ use App\Library\FuncionesGlobales;
 
             //  GUARDAR CITA
             $(modal_clone).on('click','#btnSave',function(){
+                console.log('aqui clic');
                 let btn = $(this);
                 $(btn).prop('disabled',true);
                 const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
@@ -1388,6 +1534,8 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
+                console.log('pase 1');
+
                 //  VALIDAR ESTRUCTURA DE DATOS
                 if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
                     $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
@@ -1399,52 +1547,6 @@ use App\Library\FuncionesGlobales;
                 }
 
                 //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS
-                let flag_empalmados = false;
-                let dia_empalmado   = '';
-                $(modal_clone).find('.evento-flotante').each(function(){
-                    const id_header         = $(this).data('idagendacita');
-                    let hora_inicio_header  = convertirHoraATiempo($(this).data('horainicio'));
-                    let hora_termino_header = convertirHoraATiempo($(this).data('horatermino'));
-
-                    $(modal_clone).find('.evento-flotante').each(function(){
-                        //  NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID O SI ES DIFERENTE DIA
-                        if (id_header == $(this).data('idagendacita')){
-                            return true;
-                        }
-
-                        let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
-                        let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
-
-                        //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-                        if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
-                            console.log('empalmado 1',(hora_inicio_header >= hora_inicio),hora_inicio_header < hora_termino);
-                            flag_empalmados = true;
-                            return false;
-                        }
-
-                        //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
-                        if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
-                            console.log('empalmado 2',(hora_termino_header > hora_inicio),(hora_termino_header <= hora_termino));
-                            flag_empalmados = true;
-                            return false;
-                        }
-
-                        if (flag_empalmados){
-                            return false;
-                        }
-                    });
-                });
-
-                if (flag_empalmados){
-                    $(btn).prop('disabled',false);
-                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_day_spliced']);
-                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
-                }
-                console.log('valido save');
-                //return false;
 
                 let obj_info        = {
                     id_agenda_cita      : id_agenda_cita,
@@ -1479,7 +1581,7 @@ use App\Library\FuncionesGlobales;
                     obj_info['accion']  = $(modal_clone).find('#input_modify_day').prop('checked') ? 'reagendar_cita' : 'modificar_cita';
                 }
                 
-
+                console.log('pase 2')
                 obj_info.id_profesional = id_profesional;
                 obj_info.id_locacion    = $("#select_locaciones").val();
                 
@@ -1511,7 +1613,9 @@ use App\Library\FuncionesGlobales;
                         $(btn).prop('disabled',false);
                         $(modal_clone).modal('hide');
                         showAlert('success',data);
-                        get_all_appointments($(".filters"));
+                        //get_all_appointments($(".filters"));
+                        $("#btnBuscar").trigger('click');
+
                     },
                     error : function(error){
                         $(btn).prop('disabled',false);
@@ -1532,6 +1636,7 @@ use App\Library\FuncionesGlobales;
                 
                 $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
             } else {
+                console.log('citas_desglosadas',citas_desglosadas,id_agenda_cita);
                 let info_cita   = citas_desglosadas.find(row => row.id_agenda_cita == id_agenda_cita);
                 $(modal_clone).find('.input_hora_inicio').val(info_cita.start).data('hora',info_cita.start);
                 $(modal_clone).find('.input_hora_termino').val(info_cita.end);
@@ -1619,8 +1724,8 @@ use App\Library\FuncionesGlobales;
 
         $(document).ready(function() {
 
-            $("#input_rango_fecha_inicio").val('2025-06-16');
-            $("#input_rango_fecha_termino").val('2025-06-20');
+            $("#input_rango_fecha_inicio").val('2025-06-21');
+            $("#input_rango_fecha_termino").val('2025-06-30');
             
             // Initialize the select elements
             $('.select_locaciones').select2({
@@ -1849,6 +1954,7 @@ use App\Library\FuncionesGlobales;
                 console.log('row',row);
 
                 get_rango_semana(row['fecha_cita']);
+                console.log('rango_semana_actual',rango_semana_actual,row['fecha_cita']);
 
                 let modal_clone = '';
 
@@ -1919,6 +2025,9 @@ use App\Library\FuncionesGlobales;
                     }
                 });
             });
+
+            //  BUSQUEDA RAPIDA
+            $("#btnBuscar").trigger('click');
             
         });
 
@@ -2295,6 +2404,142 @@ use App\Library\FuncionesGlobales;
                 hora_termino_empalmado  : hora_termino_empalmado,
                 excede_horario          : excede_horario
             };
+        }
+
+        function show_horario_no_disponible_profesional(div_header = null){
+            //  SE PINTA EL HORARIO NO DISPONIBLE POR PROFESIONAL POR DIA
+            let header_id_profesional   = null;
+            console.log("$(div_header).hasClass('modal')",$(div_header).hasClass('modal'),div_header != null && $(div_header).hasClass('modal'));
+            if (div_header != null && $(div_header).hasClass('modal')){
+                header_id_profesional   = $(div_header).find('#span_paciente').data('idprofesional');
+                console.log('aqui ver',header_id_profesional);
+            }
+            console.log('profesionales',profesionales);
+            for(let i in profesionales){
+                let rango_no_disponible = profesionales[i]['rango_no_disponible'];
+                let nombre_completo = profesionales[i]['nombre_completo'];
+                let id_profesional  = profesionales[i]['id'];
+                console.log('id_profesional if',id_profesional)
+
+                if (header_id_profesional != null && id_profesional != header_id_profesional){
+                    //return true;
+                }
+                console.log('pase if',profesionales[i]);
+
+                if (header_id_profesional == null || id_profesional == header_id_profesional){
+                    rango_no_disponible.forEach(rango => {
+                        // Agregamos la propiedad nombre_completo al objeto rango
+                        rango.nombre_profesional    = nombre_completo;
+                        rango.id_profesional        = id_profesional;
+                        // Llamamos a la función con el rango modificado
+                        if (div_header == null){
+                            cuadroFlotantesDiario($("#div_header_agenda"),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
+                        } else {
+                            cuadroFlotantesDiario($(div_header),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
+                        }
+                    });
+                }
+                
+            }
+        }
+
+        // Función para cambiar el día (anterior o siguiente)
+        function cambiarDia(dias, nueva_fecha, div_header) {
+            console.log('3');
+            let last_month = fechaActual.getMonth();
+            console.log('4');
+            let new_month = last_month;
+            console.log('5');
+
+            let nuevaFecha = nueva_fecha ? new Date(nueva_fecha) : new Date(fechaActual);
+            console.log('6');
+            
+            if (dias !== null) {
+                nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+            }
+            console.log('7');
+
+            // Si la nueva fecha es mayor a la fecha límite, no se permite el cambio
+            let valida_fechas   = validar_fechas_apertura_agenda(nuevaFecha);
+            if (valida_fechas != true){
+                showAlert('danger',valida_fechas);
+                return false;
+            }
+
+            fechaActual = nuevaFecha;
+            new_month = fechaActual.getMonth();
+            //div_header  = $(div_header).attr('id') == 'div_header_agenda' ? '.div_principal_filter' : '.div_cambiar_dia';
+            console.log('antes funcion',div_header);
+            actualizarFecha($(div_header));
+            
+            if (new_month !== last_month) {
+                renderCalendarMes();
+            }
+
+            //  AL CAMBIAR EL DIA ACTUAL, SE BUSCA LAS CITAS TANTO DE
+            //  ESE DIA COMO DEL RANGO DE SEMANA
+        }
+
+        //  VALIDA 
+        function validar_fechas_apertura_agenda(nueva_fecha){
+            try{
+                //  VALIDA SI EXISTE AL MENOS UN REGISTRO DE APERTURA DE AGENDA
+                if (exist_apertura_agenda == 0){
+                    throw new Error("No existe un registro de apertura de agenda");
+                } 
+
+                if (nueva_fecha > cierre_agenda) {
+                    throw new Error("No puedes seleccionar una fecha posterior al cierre de la agenda.");
+                }
+
+            }catch(err){
+                return err;
+            }
+
+            return true;
+        }
+
+        // Función para actualizar la fecha mostrada
+        function actualizarFecha(div_header) {
+            console.log('div_header',div_header);
+            let div_fecha   = $(div_header).attr("id") == 'div_header_agenda' ? $(".div_principal_filter") : $(div_header);
+            $(div_fecha).find("#fecha-actual").text(formatearFecha(fechaActual));
+
+            if (rango_semana_actual.fecha_inicio != ''){
+                //  SE VERIFICA QUE LA NUEVA FECHA 
+                let fechaInicio = new Date(rango_semana_actual.fecha_inicio + 'T00:00:00');
+                let fechaTermino = new Date(rango_semana_actual.fecha_termino + 'T23:59:59');
+
+                // Ahora verificamos si fechaActual está dentro del rango
+                if (Object.keys(horario_no_disponible).length > 0){
+                    if (fechaActual >= fechaInicio && fechaActual <= fechaTermino) {
+                        div_header  = $(div_header).hasClass('modal') ? $(div_header) : '#div_header_agenda';
+                        $(div_header).find(".div_header_days_container").find('.evento-flotante').remove();
+                        let id_profesional  = null;
+                        if (div_header == '#div_header_agenda'){
+                            console.log('entre if');
+                            horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,background_tipo_cita,'no_disponible'));
+                        } else {
+                            id_profesional  = $(div_header).find('#span_paciente').data('idprofesional');
+                            console.log('entro else');
+                            console.log('horario_no_disponible',horario_no_disponible);
+                            horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_header),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                        }
+                        
+                        citas_desglosadas.forEach(rango => {
+                            if (id_profesional == null || rango.id_profesional == id_profesional) {
+                                cuadroFlotantesDiario($(div_header), rango, background_tipo_cita(rango), 'flot_cita', null);
+                            }
+                        });
+                        show_horario_no_disponible_profesional($(div_header));
+                    } else {
+                        div_header  = $(div_header).hasClass('modal') ? $(div_header) : null;
+                        get_all_appointments($(".filters"),div_header);
+                    }
+                }
+                
+            }
+            
         }
         
     })();
