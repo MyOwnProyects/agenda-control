@@ -944,7 +944,6 @@ use App\Library\FuncionesGlobales;
         }
 
         function formatearFecha(fecha) {
-            console.log('fecha value',fecha);
             const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
             const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
             const partes = fechaFormateada.split(', ');
@@ -1072,11 +1071,11 @@ use App\Library\FuncionesGlobales;
 
         //  AJAX PARA OBTENER TODA LA INFOMACION DE LAS CITAS
         function ajax_previo_show_modal(data_cita,data_ajax){
-            let valida_fechas   = validar_fechas_apertura_agenda(fechaActual);
-            if (valida_fechas != true){
-                showAlert('danger',valida_fechas);
-                return false;
-            }
+            // let valida_fechas   = validar_fechas_apertura_agenda(fechaActual);
+            // if (valida_fechas != true){
+            //     showAlert('danger',valida_fechas);
+            //     return false;
+            // }
             let split_today     = data_cita['fecha_cita'].split('-');
             fechaActual         = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
             let fecha_actual    = formatearFecha(fechaActual);
@@ -1100,10 +1099,6 @@ use App\Library\FuncionesGlobales;
             const id_profesional    = data_cita['id_profesional'];
             const id_agenda_cita    = data_cita['id_agenda_cita']
             let profesional = data_ajax['all_professionals'].find(row => row.id == id_profesional);
-            console.log('id_agenda_cita',id_agenda_cita);
-            console.log('id_profesional',id_profesional);
-            console.log('profesional',profesional);
-            console.log('data_ajax',data_ajax);
             let obj_data    = {
                 citas_paciente      : {},
                 citas_programadas   : {},
@@ -1112,8 +1107,6 @@ use App\Library\FuncionesGlobales;
                 info_cita           : data_cita,
                 info_ajax           : data_ajax
             };
-
-            console.log('obj_data',obj_data);
 
             show_modal_citas(id_agenda_cita,hora_inicio,obj_data,id_profesional);
         }
@@ -1192,24 +1185,81 @@ use App\Library\FuncionesGlobales;
             tmp_fecha_actual            = fechaActual;
 
             //  ASIGNACION DE VARIABLES GLOBALES
+            console.log('info_profesional',info_profesional);
             citas_desglosadas       = info_profesional['info_ajax']['citas_agendadas'];
             profesionales           = info_profesional['info_ajax']['all_professionals'];
             min_hora_inicio         = info_profesional['info_ajax']['min_hora_inicio'];
             max_hora_inicio         = info_profesional['info_ajax']['max_hora_inicio'];
             horario_no_disponible   = info_profesional['info_ajax']['rangos_no_incluidos'];
-            
-            console.log('profesionles globales',typeof profesionales);
 
             //  CITAS POR DIA
             let tmp_citas_desglosadas       = citas_desglosadas.map(obj => ({ ...obj }));
 
             if (id_agenda_cita != null){
-                $(modal_clone).find('#select_paciente_modal').removeAttr('required');
+                $(modal_clone).find('#select_profesionales_modal').removeAttr('required');
+
+                //  SE LLENA COMBO DE PROFESIONALES
+                let options     = '<option></option>';
+                let selected    = '';
+                for(let i in profesionales){
+                    let tmp_profesional = profesionales[i];
+                    selected    = tmp_profesional["id"] == info_profesional['info_cita']['id_profesional'] ? 'selected' : '';
+                    options += '<option value="'+tmp_profesional["id"]+'" '+selected+'>'+tmp_profesional["nombre_completo"]+'</option>';
+                }
+
+                $(modal_clone).find('#select_profesionales_modal').find('option').remove();
+                $(modal_clone).find('#select_profesionales_modal').append(options);
+
                 $(modal_clone).find('#select_profesionales_modal').select2({
                     placeholder: 'Seleccione una opción',
                     dropdownParent: $(modal_clone),
                     width: '50px'
                 }).on('select2:select',function(){
+                    //  SE OBTIENE LA INFORMACION DEL PROFESIONAL
+                    let id  = $(this).val();
+                    let check_profesional   = profesionales.find(row => row.id == id);
+                    console.log('check_profesional',check_profesional);
+                    let tmp_servicios   = check_profesional['servicios'];
+
+                    //  SE VERIFICA SI LOS SERVICIOS QUE TIENE ACTUALMENTE EL PACIENTE
+                    //  LOS CUBRE EN SU TOTALIDAD EL NUEVO PROFESIONAL
+                    let flag_cumple_servicios   = true;
+                    $(modal_clone).find('.header_servicio').find(".select_servicios_modal").each(function(){
+                        console.log('aqui each');
+                        if ($(this).val() == null || $(this).val() == ''){
+                            return true;
+                        }
+
+                        console.log('aqui each 2');
+
+                        let flag_exist  = false;
+                        for(let i in tmp_servicios){
+                            if (tmp_servicios[i]['id_servicio'] == $(this).val()){
+                                flag_exist  = true;
+                                break;
+                            }
+                        }
+
+                        if (!flag_exist){
+                            flag_cumple_servicios   = false;
+                            return false;
+                        }
+                    });
+
+                    if (!flag_cumple_servicios){
+                        showAlert('danger','El profesional seleccionado no cumple con todos los servicios requeridos en esta cita');
+                        console.log('actual id_prof',info_profesional['info_cita']['id_profesional']);
+                        $(modal_clone).find('#select_profesionales_modal').val(info_profesional['info_cita']['id_profesional']);
+                        $(modal_clone).find('#select_profesionales_modal').trigger('change');
+                        $(modal_clone).find('#select_profesionales_modal').trigger('select2:select');
+                        return false;
+                    }
+
+                    //  AL PASAR SIGNIFICA QUE EL PROFESIONAL CUMPLE CON LOS SERVICIOS REQUERIDOS
+
+
+
+                    //show_hours(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,[check_profesional],info_profesional['rango_no_disponible']);
                     // const id_profesional    = $(this).val();
                     // const min_hora_inicio   = $(this).data('minhora');
                     // const max_hora_inicio   = $(this).data('maxhora');
@@ -1301,7 +1351,7 @@ use App\Library\FuncionesGlobales;
 
                 if (is_checked){
                     $(modal_clone).find('.div_cambiar_profesional').show();
-                    $(modal_clone).find('#select_profesionales_modal').addAttr('required');
+                    $(modal_clone).find('#select_profesionales_modal').attr('required');
                 } else {
                     $(modal_clone).find('.div_cambiar_profesional').hide();
                     //  SE REHACE LA INFORMACION DEL DIV DE FECHA
@@ -1627,9 +1677,7 @@ use App\Library\FuncionesGlobales;
             });
 
             let profesional = profesionales.find(row => row.id == id_profesional);
-            console.log('profesional a editare',profesional);
             show_hours(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,[profesional],info_profesional['rango_no_disponible']);
-            console.log('num flot_cita',$(modal_clone).find('.flot_cita').length);
 
             if (id_agenda_cita == null){
                 let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5);
@@ -1950,11 +1998,7 @@ use App\Library\FuncionesGlobales;
             //  EVENTO PARA EDITAR UNA CITA
             $("#table_results").on('click','.btn_edit',function(){
                 let row = $(this).closest('tr').data('rowData');
-
-                console.log('row',row);
-
                 get_rango_semana(row['fecha_cita']);
-                console.log('rango_semana_actual',rango_semana_actual,row['fecha_cita']);
 
                 let modal_clone = '';
 
@@ -1967,8 +2011,7 @@ use App\Library\FuncionesGlobales;
                         rango_fechas    : rango_semana_actual
                     },
                     success : function(data){
-                        console.log('data info 1');
-                        console.log(data);
+
                         ajax_previo_show_modal(row,data);
                         // if (modal_clone == null){
                         //     min_hora_inicio = data.min_hora_inicio;
@@ -2232,11 +2275,8 @@ use App\Library\FuncionesGlobales;
                 } else {
                     // Encontrar la columna correspondiente al profesional
                     const profesionalIndex = profesionales.findIndex(p => p.id === evento.id_profesional);
-                    console.log('profesionalIndex',profesionalIndex);
                     if (profesionalIndex !== -1) {
-                        console.log('limit_width == true ? 0 : profesionalIndex',$(element_header).hasClass('modal'),$(element_header).hasClass('modal') ? 0 : profesionalIndex);
                         columnaProfesional = filaInicio.find(".agenda-service").eq($(element_header).hasClass('modal') ? 0 : profesionalIndex);
-                        console.log('columnaProfesional',columnaProfesional);
 
                         // Calcular la posición y altura del evento
                         alturaPorHora = 100; // Cada hora ocupa 100% de altura
@@ -2330,8 +2370,6 @@ use App\Library\FuncionesGlobales;
             let hora_termino_header = convertirHoraATiempo(end);
             let flag_empalmados         = false;
             let hora_termino_empalmado  = '';
-            console.log('id_agenda_cita antes de veriricar',id_agenda_cita);
-            console.log('horas header',hora_inicio_header,hora_termino_header);
 
             $(modal_clone).find('.evento-flotante').each(function(){
                 let element = $(this);
@@ -2341,10 +2379,9 @@ use App\Library\FuncionesGlobales;
                 if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') === id_agenda_cita){
                     return true;
                 }
-                console.log('hodas antes convert',$(element).data('horainicio'),$(element).data('horatermino'));
+
                 let hora_inicio     = convertirHoraATiempo($(element).data('horainicio'));
                 let hora_termino    = convertirHoraATiempo($(element).data('horatermino'));
-                console.log('horas row',hora_inicio,hora_termino);
 
                 if (hora_termino < hora_inicio_header){
                     console.log('aqui return')
