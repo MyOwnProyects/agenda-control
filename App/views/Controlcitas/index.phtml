@@ -567,16 +567,12 @@ use App\Library\FuncionesGlobales;
                 <div class="col-md-4">
                     <label for="span_fecha_cita" class="col-form-label"><b><?php echo $translations['html_appoinment_date']; ?>:</b> <span id="span_fecha_cita"></label>
                 </div>
-                <div class=" col-md-2 text-right">
-                    <label for="input_modify_day" class="col-form-label"><?php echo $translations['html_modify_date']; ?></label>
+                <div class=" col-md-4 text-right">
+                    <label for="input_modify_day" class="col-form-label"><?php echo $translations['html_reschedule_appoitment']; ?></label>
                     <input type="checkbox" id="input_modify_day" name="input_modify_day" />
                 </div>
-                <div class=" col-md-2 text-right">
-                    <label for="input_modify_professional" class="col-form-label"><?php echo $translations['html_change_professional']; ?></label>
-                    <input type="checkbox" id="input_modify_professional" name="input_modify_professional" />
-                </div>
-                <div class="div_cambiar_dia col-md-6 div_header_filters" style="display:none;">
-                    <div class="navigation">
+                <div class="row div_cambiar_dia col-md-12 div_header_filters" style="display:none;">
+                    <div class="navigation" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
                             <button type="button" id="btn-semana-anterior" class="btn btn-secondary"><<</button>
@@ -587,16 +583,13 @@ use App\Library\FuncionesGlobales;
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
-                </div>
-                <div class="div_cambiar_profesional col-md-3 div_header_filters" style="display:none;">
-                    <div class="navigation">
+                    <div class="navigation" style="width:50%">
                         <div class="col-md-12">
                             <label for="select_profesionales_modal" class="col-form-label"><?php echo $translations['html_title_professionals']; ?></label>
                             <select id="select_profesionales_modal" class="select_profesionales_modal">
                                 <option value=""></option>
                             </select>
-                        </div>
-                        
+                        </div>  
                     </div>
                 </div>
             </div>
@@ -1046,9 +1039,19 @@ use App\Library\FuncionesGlobales;
         }
 
         function get_rango_semana(fechaString) {
-            // Crear el objeto Date usando componentes separados (año, mes, día)
-            const [año, mes, dia] = fechaString.split("-").map(Number);
-            const fechaObj = new Date(año, mes - 1, dia); // Meses van de 0 a 11
+            let año, mes, dia;
+
+            if (fechaString instanceof Date) {
+                // Si es un objeto Date, extraer los valores directamente
+                año = fechaString.getFullYear();
+                mes = fechaString.getMonth() + 1; // Meses van de 0 a 11
+                dia = fechaString.getDate();
+            } else {
+                // Si es string, parsearlo
+                [año, mes, dia] = fechaString.split("-").map(Number);
+            }
+
+            const fechaObj = new Date(año, mes - 1, dia);
 
             const diaSemana = fechaObj.getDay();
 
@@ -1325,35 +1328,6 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.div_cambiar_dia').show();
                 } else {
                     $(modal_clone).find('.div_cambiar_dia').hide();
-                    //  SE REHACE LA INFORMACION DEL DIV DE FECHA
-                    // Tu código aquí
-                    fechaActual = tmp_fecha_actual;
-
-                    //  CITAS POR DIA
-                    citas_desglosadas   = tmp_citas_desglosadas.map(obj => ({ ...obj }));
-
-                    //  SE BORRAN LOS DIV FLOTANTES
-                    $(modal_clone).find('.evento-flotante').remove();
-                    
-                    horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
-                    citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
-                    show_horario_no_disponible_profesional($(modal_clone));
-                    setTimeout(function(){
-                        cambiarDia(null, fechaActual,$(modal_clone));
-                        $(modal_clone).find('.input_hora_inicio').val($(modal_clone).find('.input_hora_inicio').data('hora'))
-                        calcula_totales(modal_clone,id_profesional,id_agenda_cita);
-                    },50);
-                }
-            });
-
-            $(modal_clone).on('click','#input_modify_professional',function(){
-                let is_checked  = $(this).prop('checked');
-
-                if (is_checked){
-                    $(modal_clone).find('.div_cambiar_profesional').show();
-                    $(modal_clone).find('#select_profesionales_modal').attr('required');
-                } else {
-                    $(modal_clone).find('.div_cambiar_profesional').hide();
                     //  SE REHACE LA INFORMACION DEL DIV DE FECHA
                     // Tu código aquí
                     fechaActual = tmp_fecha_actual;

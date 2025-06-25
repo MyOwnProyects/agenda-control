@@ -1386,9 +1386,19 @@ use App\Library\FuncionesGlobales;
     }
 
     function get_rango_semana(fechaString) {
-        // Crear el objeto Date usando componentes separados (año, mes, día)
-        const [año, mes, dia] = fechaString.split("-").map(Number);
-        const fechaObj = new Date(año, mes - 1, dia); // Meses van de 0 a 11
+        let año, mes, dia;
+
+        if (fechaString instanceof Date) {
+            // Si es un objeto Date, extraer los valores directamente
+            año = fechaString.getFullYear();
+            mes = fechaString.getMonth() + 1; // Meses van de 0 a 11
+            dia = fechaString.getDate();
+        } else {
+            // Si es string, parsearlo
+            [año, mes, dia] = fechaString.split("-").map(Number);
+        }
+
+        const fechaObj = new Date(año, mes - 1, dia);
 
         const diaSemana = fechaObj.getDay();
 
@@ -1408,6 +1418,7 @@ use App\Library\FuncionesGlobales;
         rango_semana_actual['fecha_inicio'] = formatoFecha(lunes);
         rango_semana_actual['fecha_termino'] = formatoFecha(domingo);
     }
+
 
     function show_horario_no_disponible_profesional(div_header = null){
         //  SE PINTA EL HORARIO NO DISPONIBLE POR PROFESIONAL POR DIA
