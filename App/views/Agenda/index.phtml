@@ -2531,6 +2531,7 @@ use App\Library\FuncionesGlobales;
             });
         });
 
+        //  SECCION PARA PINTAR INFORMACION
         let profesional = profesionales.find(row => row.id == id_profesional);
         console.log('profesional a editare',profesional);
         show_hours(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,[profesional],info_profesional['rango_no_disponible']);
