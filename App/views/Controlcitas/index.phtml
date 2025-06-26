@@ -1551,7 +1551,7 @@ use App\Library\FuncionesGlobales;
                 }
                 
                 console.log('pase 2')
-                obj_info.id_profesional = id_profesional;
+                obj_info.id_profesional = $(modal_cita).find("#select_profesionales_modal").val();
                 obj_info.id_locacion    = $("#select_locaciones").val();
                 
                 //  OBTENER FECHA DE LA CITA
@@ -2441,13 +2441,15 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#span_paciente').text(info_cita['celular'] + ' - ' + info_cita['primer_apellido'] + ' ' + info_cita['segundo_apellido']+ ' '+ info_cita['nombre'] );
                 $(modal_clone).find('#span_paciente').data('idagendacita',id_agenda_cita);
                 $(modal_clone).find('#span_paciente').data('idprofesional',id_profesional);
-                let formato_fecha   = info_cita['fecha_cita'].split('-');
 
-                $(modal_clone).find('#span_fecha_cita').text(formato_fecha[2]+'/'+formato_fecha[1]+'/'+formato_fecha[0]);
-                $(modal_clone).find('#fecha-actual').text(formatearFecha(new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2])));
-                fechaActual = new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2]);
-                
+                //  EVITA QUE RECALCULE LA FECHA CUANDO VIENE DESDE EL COMBO DE PROFESIONALES
+                if (recrear_servicios){
+                    let formato_fecha   = info_cita['fecha_cita'].split('-');
 
+                    $(modal_clone).find('#span_fecha_cita').text(formato_fecha[2]+'/'+formato_fecha[1]+'/'+formato_fecha[0]);
+                    $(modal_clone).find('#fecha-actual').text(formatearFecha(new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2])));
+                    fechaActual = new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2]);
+                }
 
                 $(modal_clone).find('.div_input_paciente').hide();
                 $(modal_clone).find('.div_text_paciente').show();
