@@ -534,7 +534,7 @@ use App\Library\FuncionesGlobales;
             <div class="row mb-3 div_input_paciente">
                 <div class="div_select_paciente col-md-12">
                     <label for="select_paciente_modal" class="col-form-label"><?php echo $translations['html_title_patient']; ?></label>
-                    <select id="select_paciente_modal" class="select_paciente_modal" required>
+                    <select id="select_paciente_modal" class="select_paciente_modal">
                         <option value=""></option>
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
@@ -1494,6 +1494,13 @@ use App\Library\FuncionesGlobales;
                 if (!form.checkValidity()) {
                     $(form).addClass('was-validated');
                     flag_error = true;
+
+                    // Revisar cada campo que sea inválido
+                    const invalidFields = Array.from(form.elements).filter(el => !el.validity.valid);
+
+                    invalidFields.forEach(field => {
+                        console.log('Campo inválido:', field.name || field.id, field.validationMessage);
+                    });
                 } else {
                     $(form).removeClass('was-validated');
                 }
@@ -1551,7 +1558,7 @@ use App\Library\FuncionesGlobales;
                 }
                 
                 console.log('pase 2')
-                obj_info.id_profesional = $(modal_cita).find("#select_profesionales_modal").val();
+                obj_info.id_profesional = $(modal_clone).find("#select_profesionales_modal").val();
                 obj_info.id_locacion    = $("#select_locaciones").val();
                 
                 //  OBTENER FECHA DE LA CITA
