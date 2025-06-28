@@ -222,17 +222,17 @@ class AgendaController extends BaseController
         $this->view->apertura_agenda    = FuncionesGlobales::HasAccess("Agenda","agenda_opening");
 
         $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
-        $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(
-            'clave' => 'dias_programacion_citas'
+        $margen_minutos_empalmado   = FuncionesGlobales::RequestApi('GET',$route,array(
+            'clave' => 'margen_minutos_empalmado'  
         ));
 
-        if (!is_array($dias_programacion_citas)){
-            $dias_programacion_citas    = 31;
+        if (!is_array($margen_minutos_empalmado)){
+            $margen_minutos_empalmado   = 0;
         } else {
-            $dias_programacion_citas    = $dias_programacion_citas[0]['valor'];
+            $margen_minutos_empalmado   = $margen_minutos_empalmado[0]['valor'];
         }
 
-        $this->view->dias_programacion_citas    = $dias_programacion_citas;
+        $this->view->margen_minutos_empalmado   = $margen_minutos_empalmado;
 
         //  MOTIVOS PARA CANCELAR UNA CITA
         $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];

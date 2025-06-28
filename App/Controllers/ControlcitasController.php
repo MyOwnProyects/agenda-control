@@ -231,6 +231,20 @@ class ControlcitasController extends BaseController
 
         $this->view->dias_programacion_citas    = $dias_programacion_citas;
 
+        //  OBTENER MARGEN DE MINUTOS PARA EMPALADOS
+        $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
+        $margen_minutos_empalmado   = FuncionesGlobales::RequestApi('GET',$route,array(
+            'clave' => 'margen_minutos_empalmado'  
+        ));
+
+        if (!is_array($margen_minutos_empalmado)){
+            $margen_minutos_empalmado   = 0;
+        } else {
+            $margen_minutos_empalmado   = $margen_minutos_empalmado[0]['valor'];
+        }
+
+        $this->view->margen_minutos_empalmado   = $margen_minutos_empalmado;
+
         //  MOTIVOS PARA CANCELAR UNA CITA
         $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
         $motivos_cancelacion_cita   = FuncionesGlobales::RequestApi('GET',$route);
