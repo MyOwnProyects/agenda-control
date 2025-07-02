@@ -395,7 +395,7 @@ use App\Library\FuncionesGlobales;
             </select>
         </div>
     </div>
-    <?php if ($apertura_agenda): ?>
+    <?php if (false): ?>
     <div class="container col-12">
         <button id="btn_agenda_opening" type="button" class="btn btn-outline-dark"><?php echo $translations['html_agenda_opening']; ?></button>
     </div>
@@ -933,8 +933,11 @@ use App\Library\FuncionesGlobales;
 
     let count_id_citas  = 0;
 
+    //  MARGEN DE MINUTOS PARA PERMITIR EMPALMADO
+    const margen_minutos_empalmado_global   = <?php echo $margen_minutos_empalmado ?>;
+
     //  dias_programacion_citas
-    const dias_programacion_citas = <?php echo $dias_programacion_citas; ?>
+    const dias_programacion_citas = 0;//<?php //echo $dias_programacion_citas; ?>
 
     const markedDays    = [14, 25]; 
     let cierre_agenda   = new Date(2025, 3, 30); // Año, Mes (0-indexed), Día
@@ -1385,32 +1388,40 @@ use App\Library\FuncionesGlobales;
         return num_return;
     }
 
-    function get_rango_semana(fecha) {
-        // Crear un objeto Date a partir de la fecha proporcionada
-        const fechaObj = new Date(fecha);
-        
-        // Obtener el día de la semana (0 para domingo, 1 para lunes, ..., 6 para sábado)
+    function get_rango_semana(fechaString) {
+        let año, mes, dia;
+
+        if (fechaString instanceof Date) {
+            // Si es un objeto Date, extraer los valores directamente
+            año = fechaString.getFullYear();
+            mes = fechaString.getMonth() + 1; // Meses van de 0 a 11
+            dia = fechaString.getDate();
+        } else {
+            // Si es string, parsearlo
+            [año, mes, dia] = fechaString.split("-").map(Number);
+        }
+
+        const fechaObj = new Date(año, mes - 1, dia);
+
         const diaSemana = fechaObj.getDay();
-        
-        // Calcular la fecha del lunes de esa semana
+
         const lunes = new Date(fechaObj);
         lunes.setDate(fechaObj.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
-        
-        // Calcular la fecha del domingo de esa semana
+
         const domingo = new Date(fechaObj);
         domingo.setDate(fechaObj.getDate() + (diaSemana === 0 ? 0 : 7 - diaSemana));
-        
-        // Formatear las fechas en el formato 'YYYY-MM-DD'
+
         const formatoFecha = (fecha) => {
-            const año = fecha.getFullYear();
-            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-            const dia = String(fecha.getDate()).padStart(2, '0');
-            return `${año}-${mes}-${dia}`;
+            const y = fecha.getFullYear();
+            const m = String(fecha.getMonth() + 1).padStart(2, '0');
+            const d = String(fecha.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         };
 
-        rango_semana_actual['fecha_inicio']     = formatoFecha(lunes);
-        rango_semana_actual['fecha_termino']    = formatoFecha(domingo);
+        rango_semana_actual['fecha_inicio'] = formatoFecha(lunes);
+        rango_semana_actual['fecha_termino'] = formatoFecha(domingo);
     }
+
 
     function show_horario_no_disponible_profesional(div_header = null){
         //  SE PINTA EL HORARIO NO DISPONIBLE POR PROFESIONAL POR DIA
@@ -1975,7 +1986,7 @@ use App\Library\FuncionesGlobales;
         //  SE CALCULA LA HORA DE TERMINO
         let input_hora_inicio   = $(modal_clone).find('.input_hora_inicio').val();
         if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
-            let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion);
+            let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
             if (hora_inicio['excede_horario'] == true){
                 showAlert('danger','El valor ingresado esta fuera del horario de atenci&oacute;n');
                 $(modal_clone).find('.input_hora_inicio').val('');
@@ -2058,86 +2069,94 @@ use App\Library\FuncionesGlobales;
 
 
     //  CALCULA LA HORA INICIO EN BASE A LA SOLICITADA Y QUE NO ESTE EMPALMADA
-    function verificarHoraInicio(modal_clone,start,end,id_agenda_cita = null,duracion){
-        let hora_inicio_header  = convertirHoraATiempo(start);
+    function verificarHoraInicio(modal_clone, start, end, id_agenda_cita = null, duracion,estricto) {
+        let hora_inicio_header = convertirHoraATiempo(start);
         let hora_termino_header = convertirHoraATiempo(end);
-        let flag_empalmados         = false;
-        let hora_termino_empalmado  = '';
-        console.log('id_agenda_cita antes de veriricar',id_agenda_cita);
-        console.log('horas header',hora_inicio_header,hora_termino_header);
+        let flag_empalmados = false;
+        let hora_termino_empalmado = '';
+        let margen_minutos_empalmado = estricto ? 0 : margen_minutos_empalmado_global;
 
-        $(modal_clone).find('.evento-flotante').each(function(){
+        console.log('id_agenda_cita antes de verificar', id_agenda_cita);
+        console.log('horas header', hora_inicio_header, hora_termino_header);
+
+        $(modal_clone).find('.evento-flotante').each(function () {
             let element = $(this);
-            console.log('-----------    dentro del foreach  verificarHoraInicio---------------');
-            console.log("$(element).data('idagendacita')",$(element).data('idagendacita'));
-            
-            if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') === id_agenda_cita){
-                return true;
-            }
-            console.log('hodas antes convert',$(element).data('horainicio'),$(element).data('horatermino'));
-            let hora_inicio     = convertirHoraATiempo($(element).data('horainicio'));
-            let hora_termino    = convertirHoraATiempo($(element).data('horatermino'));
-            console.log('horas row',hora_inicio,hora_termino);
 
-            if (hora_termino < hora_inicio_header){
-                console.log('aqui return')
+            if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') === id_agenda_cita) {
                 return true;
             }
 
-            //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-            if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
+            let hora_inicio_str = $(element).data('horainicio');
+            let hora_termino_str = $(element).data('horatermino');
+
+            let hora_inicio = convertirHoraATiempo(hora_inicio_str);
+            let hora_termino = convertirHoraATiempo(hora_termino_str);
+
+            // Ajustar con margen usando sumarUnMinuto
+            let hora_inicio_mas_margen = convertirHoraATiempo(sumarUnMinuto(hora_inicio_str, margen_minutos_empalmado));
+            let hora_termino_menos_margen = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado));
+
+            // Si la cita existente termina antes de que inicie la nueva
+            if (hora_termino < hora_inicio_header) {
+                return true;
+            }
+
+            // Verificar empalme con hora de inicio
+            if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
                 console.log('empalmado hora_inicio_header');
-                flag_empalmados     = true;
-                hora_inicio_header  = hora_termino;
-                hora_termino_header = convertirHoraATiempo(sumarUnMinuto($(element).data('horatermino'),duracion));
-                hora_termino_empalmado  = $(element).data('horatermino');
+                flag_empalmados = true;
+                hora_inicio_header = hora_termino;
+                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                hora_termino_empalmado = hora_termino_str;
                 return true;
             }
 
-            //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
-            if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+            // Verificar empalme con hora de término
+            if (hora_termino_header > hora_inicio_mas_margen && hora_termino_header <= hora_termino_menos_margen) {
                 console.log('empalmado hora termino');
-                flag_empalmados     = true;
-                hora_inicio_header  = hora_termino;
-                hora_termino_header = convertirHoraATiempo(sumarUnMinuto($(element).data('horatermino'),duracion));
-                hora_termino_empalmado  = $(element).data('horatermino');
+                flag_empalmados = true;
+                hora_inicio_header = hora_termino;
+                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                hora_termino_empalmado = hora_termino_str;
                 return true;
             }
 
-            if (hora_inicio_header < hora_inicio && hora_termino_header > hora_termino){
+            // Verificar empalme máximo
+            if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
                 console.log('empalmado maximo');
-                flag_empalmados     = true;
-                hora_inicio_header  = hora_termino;
-
-                hora_termino_header = convertirHoraATiempo(sumarUnMinuto($(element).data('horatermino'),duracion));
-                hora_termino_empalmado  = $(element).data('horatermino');
+                flag_empalmados = true;
+                hora_inicio_header = hora_termino;
+                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                hora_termino_empalmado = hora_termino_str;
                 return true;
             }
 
             return false;
         });
 
-        if (!flag_empalmados){
-            hora_termino_empalmado  = start;
+        if (!flag_empalmados) {
+            hora_termino_empalmado = start;
         }
 
-        //  SE VERIFICA SI EL HORARIO FINAL EXCEDE EL HORARIO DE ATENCION
+        // Verificar si excede horario de atención
         let info_ultimo_row = $(modal_clone).find(".agenda-time:last").text();
+        let excede_horario = false;
 
-        //  EXCEDE EL HORARIO DE ATENCION
-        let excede_horario  = false;
-        if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)) >= convertirHoraATiempo(info_ultimo_row)){
-            excede_horario  = true;
+        if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado, duracion)) >= convertirHoraATiempo(info_ultimo_row)) {
+            excede_horario = true;
         }
 
-        console.log('flag_empalmados fin',flag_empalmados);
-        console.log('hora_termino_empalmado fin',hora_termino_empalmado);
+        console.log('flag_empalmados fin', flag_empalmados);
+        console.log('hora_termino_empalmado fin', hora_termino_empalmado);
+
         return {
-            flag_empalmados : flag_empalmados,
-            hora_termino_empalmado  : hora_termino_empalmado,
-            excede_horario          : excede_horario
+            flag_empalmados: flag_empalmados,
+            hora_termino_empalmado: hora_termino_empalmado,
+            excede_horario: excede_horario
         };
     }
+
+
 
     function show_modal_citas(id_agenda_cita = null,hora_default = null,info_profesional,id_profesional){
         let modal_clone = $("#modal_save_class").clone().show();
@@ -2399,42 +2418,63 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
             }
 
-            //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS
+            //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS CON MARGEN
             let flag_empalmados = false;
-            let dia_empalmado   = '';
-            $(modal_clone).find('.evento-flotante').each(function(){
-                const id_header         = $(this).data('idagendacita');
-                let hora_inicio_header  = convertirHoraATiempo($(this).data('horainicio'));
-                let hora_termino_header = convertirHoraATiempo($(this).data('horatermino'));
+            let dia_empalmado = '';
 
-                $(modal_clone).find('.evento-flotante').each(function(){
-                    //  NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID O SI ES DIFERENTE DIA
-                    if (id_header == $(this).data('idagendacita')){
+            $(modal_clone).find('.evento-flotante').each(function () {
+                const id_header = $(this).data('idagendacita');
+                let hora_inicio_header_str = $(this).data('horainicio');
+                let hora_termino_header_str = $(this).data('horatermino');
+
+                let hora_inicio_header = convertirHoraATiempo(hora_inicio_header_str);
+                let hora_termino_header = convertirHoraATiempo(hora_termino_header_str);
+
+                $(modal_clone).find('.evento-flotante').each(function () {
+                    const id = $(this).data('idagendacita');
+
+                    // NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID
+                    if (id_header == id) {
                         return true;
                     }
 
-                    let hora_inicio     = convertirHoraATiempo($(this).data('horainicio'));
-                    let hora_termino    = convertirHoraATiempo($(this).data('horatermino'));
+                    let hora_inicio_str = $(this).data('horainicio');
+                    let hora_termino_str = $(this).data('horatermino');
 
-                    //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-                    if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
-                        console.log('empalmado 1',(hora_inicio_header >= hora_inicio),hora_inicio_header < hora_termino);
+                    let hora_inicio = convertirHoraATiempo(hora_inicio_str);
+                    let hora_termino = convertirHoraATiempo(hora_termino_str);
+
+                    // Ajustar con margen usando sumarUnMinuto
+                    let hora_inicio_mas_margen = convertirHoraATiempo(sumarUnMinuto(hora_inicio_str, margen_minutos_empalmado_global));
+                    let hora_termino_menos_margen = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado_global));
+
+                    // Verificar empalme con hora de inicio (ajustada)
+                    if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
+                        console.log('empalmado 1', (hora_inicio_header >= hora_inicio_mas_margen), hora_inicio_header < hora_termino_menos_margen);
                         flag_empalmados = true;
                         return false;
                     }
 
-                    //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
-                    if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
-                        console.log('empalmado 2',(hora_termino_header > hora_inicio),(hora_termino_header <= hora_termino));
+                    // Verificar empalme con hora de término (ajustada)
+                    if (hora_termino_header > hora_inicio_mas_margen && hora_termino_header <= hora_termino_menos_margen) {
+                        console.log('empalmado 2', (hora_termino_header > hora_inicio_mas_margen), (hora_termino_header <= hora_termino_menos_margen));
                         flag_empalmados = true;
                         return false;
                     }
 
-                    if (flag_empalmados){
+                    // Verificar empalme máximo (nueva cita abarcando toda otra)
+                    if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
+                        console.log('empalmado maximo');
+                        flag_empalmados = true;
+                        return false;
+                    }
+
+                    if (flag_empalmados) {
                         return false;
                     }
                 });
             });
+
 
             if (flag_empalmados){
                 $(btn).prop('disabled',false);
@@ -2523,13 +2563,14 @@ use App\Library\FuncionesGlobales;
             });
         });
 
+        //  SECCION PARA PINTAR INFORMACION
         let profesional = profesionales.find(row => row.id == id_profesional);
         console.log('profesional a editare',profesional);
         show_hours(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,[profesional],info_profesional['rango_no_disponible']);
         console.log('num flot_cita',$(modal_clone).find('.flot_cita').length);
 
         if (id_agenda_cita == null){
-            let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5);
+            let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5,true);
             
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
         } else {
@@ -2600,7 +2641,7 @@ use App\Library\FuncionesGlobales;
             let duracion    = $(modal_clone).find("#total_duracion").text();
 
             duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
-            hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion),id_agenda_cita,duracion);
+            hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion),id_agenda_cita,duracion,true);
 
             if (hora_inicio['excede_horario']){
                 hora_inicio['hora_termino_empalmado']   = $(modal_clone).find('.input_hora_inicio').val();
