@@ -211,16 +211,20 @@ var mod_tipo_usuario    = (function(){
                             draw    ++;
                             // `data` contiene el objeto completo de la fila
                             // Generamos un botón con un atributo dinámico para identificar la fila
+                            let btn_preview = '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+tableTranslations['title_update'] +'">' +
+                                '<i class="bi bi-search"></i> '+
+                            '</button>';
+
                             let btn_update  = action_update ? 
                             '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+tableTranslations['title_update'] +'">' +
-                                '<i class="bi bi-search"></i> '+
+                                '<i class="bi bi-pencil-fill"></i> '+
                             '</button>' : '';
 
                             let btn_delete  = action_delete && (data['clave'] != 'PROF' && data['clave'] != 'PAC' && data['clave'] != 'user_admin') ? 
                             '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
                                 '<i class="bi bi-trash3-fill"></i>'+
                             '</button>' : '';
-                            return btn_update + btn_delete;
+                            return btn_preview + btn_update + btn_delete;
                         }
                     }
                 ]
@@ -259,6 +263,30 @@ var mod_tipo_usuario    = (function(){
         });
 
         //  EVENTO BOTON EDITAR
+        $("#table_results").on('click','.btn_preview',function(){
+            const id    = $(this).data('id');
+            let btn     = $(this);
+            $(btn).prop('disabled',true);
+            $.ajax({
+                url     : url_index,
+                method  : 'POST',
+                data    :  {
+                    accion  : 'get_info_edit',
+                    id      : id
+                },
+                success : function(data){
+                    console.log('data');
+                    console.log(data);
+                    $(btn).prop('disabled',false);
+                    show_modal_data(data['permisos'],data['info'],$(btn).hasClass('btn_preview'));
+                },
+                error   : function(error){
+                    actionJsonError(error,btn);
+                }
+            });
+        });
+
+        //  EVENTO BOTON EDITAR
         $("#table_results").on('click','.btn_edit',function(){
             const id    = $(this).data('id');
             let btn     = $(this);
@@ -274,7 +302,7 @@ var mod_tipo_usuario    = (function(){
                     console.log('data');
                     console.log(data);
                     $(btn).prop('disabled',false);
-                    show_modal_data(data['permisos'],data['info']);
+                    show_modal_data(data['permisos'],data['info'],$(btn).hasClass('btn_preview'));
                 },
                 error   : function(error){
                     actionJsonError(error,btn);
@@ -321,7 +349,8 @@ var mod_tipo_usuario    = (function(){
     });
 
     //  FUNCION PARA MOSTRAR MODAL DE CREACION
-    function show_modal_data(data,info = null){
+    function show_modal_data(data,info = null,preview){
+        console.log('preview',preview);
 
         let modal_clone = $("#modal_create").clone();
 
@@ -370,35 +399,40 @@ var mod_tipo_usuario    = (function(){
         }
 
         //  EVENTOS MODAL
-        $(modal_clone).on('click','.span_controlador',function(){
-            console.log($(this).closest('.div_header').find('.hide').length);
-            if ($(this).closest('.div_header').find('.hide').length > 0){
-                $(this).closest('.div_header').find('.div_label_accion').removeClass('hide');
-            } else {
-                $(this).closest('.div_header').find('.div_label_accion').addClass('hide');
-            }
-        });
+        
 
         //  EVENTO PARA CHECK
-        $(modal_clone).on('click','.header_check',function(){
-            let status_check    = $(this).prop('checked');
+        if (!preview){
+            $(modal_clone).on('click','.span_controlador',function(){
+                console.log($(this).closest('.div_header').find('.hide').length);
+                if ($(this).closest('.div_header').find('.hide').length > 0){
+                    $(this).closest('.div_header').find('.div_label_accion').removeClass('hide');
+                } else {
+                    $(this).closest('.div_header').find('.div_label_accion').addClass('hide');
+                }
+            });
 
-            $(this).closest('.div_header').find('.check_sublist').prop('checked',status_check);
-        });
+            $(modal_clone).on('click','.header_check',function(){
+                let status_check    = $(this).prop('checked');
 
-        $(modal_clone).on('click','.check_sublist',function(){
-            let count_elements  = $(this).closest('.child-options').find('.check_sublist').length;
+                $(this).closest('.div_header').find('.check_sublist').prop('checked',status_check);
+            });
 
-            if ($(this).closest('.child-options').find('.check_sublist:checked').length > 0){
-                console.log('todos checked');
-                $(this).closest('.div_header').find('.header_check').prop('checked',true);
-            }
+            $(modal_clone).on('click','.check_sublist',function(){
+                let count_elements  = $(this).closest('.child-options').find('.check_sublist').length;
 
-            if ($(this).closest('.child-options').find('.check_sublist:checked').length == 0){
-                console.log('ninguno checked');
-                $(this).closest('.div_header').find('.header_check').prop('checked',false);
-            }
-        });
+                if ($(this).closest('.child-options').find('.check_sublist:checked').length > 0){
+                    console.log('todos checked');
+                    $(this).closest('.div_header').find('.header_check').prop('checked',true);
+                }
+
+                if ($(this).closest('.child-options').find('.check_sublist:checked').length == 0){
+                    console.log('ninguno checked');
+                    $(this).closest('.div_header').find('.header_check').prop('checked',false);
+                }
+            });
+        }
+        
 
         // Agregar evento al botón de envío
         $(modal_clone).on('click','#btnSave',function () {
@@ -475,6 +509,13 @@ var mod_tipo_usuario    = (function(){
                 event.stopPropagation();
             }
         });
+
+        if (preview){
+            $(modal_clone).find('.form-control').prop('disabled',true);
+            $(modal_clone).find('.form-check-input').prop('disabled',true);
+            $(modal_clone).find("#label_modal_create").text('Vista previa');
+            $(modal_clone).find('#btnSave').remove();
+        }
 
         $(modal_clone).modal('show');
     }
