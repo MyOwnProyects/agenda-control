@@ -155,7 +155,7 @@ class TipousuariosController extends BaseController
                 return $response;
             }
 
-            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' permisos de '.count($_POST['permisos_old']).' a '.count($_POST['lista_permisos']),$_POST);
+            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando editar el tipo usuario: Clave antigua :'.$_POST['clave_old'].' por '.$_POST['clave'].' nombre antiguo: '.$_POST['nombre_old'].' permisos de '.count(isset($_POST['permisos_old']) ? $_POST['permisos_old'] : array()).' a '.count($_POST['lista_permisos']),$_POST);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
