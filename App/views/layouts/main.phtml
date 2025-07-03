@@ -41,6 +41,7 @@
     $locaciones     = \App\Library\FuncionesGlobales::HasAccess('Locaciones', 'index');
     $pacientes      = \App\Library\FuncionesGlobales::HasAccess('Pacientes', 'index');
     $agenda         = \App\Library\FuncionesGlobales::HasAccess('Agenda', 'index');
+    $control_citas  = \App\Library\FuncionesGlobales::HasAccess('Controlcitas', 'index');
   ?>
   <?php
       // Obtén el despachador desde el contenedor de dependencias
@@ -190,6 +191,14 @@
                         <i class="bi bi-calendar me-2"></i>
                         <span><?php echo $translations['html_agenda']; ?></span>
                       </a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if($control_citas): ?>
+                    <li class="nav-item" title="<?php echo $translations['html_control_appoitment']; ?>">
+                      <a href="/Controlcitas/" aria-current="page" class="nav-link text-white">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <span><?php echo $translations['html_control_appoitment']; ?></span>
+                      </a> 
                     </li>
                   <?php endif; ?>
                   <?php if($locaciones): ?>

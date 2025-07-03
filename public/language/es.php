@@ -149,6 +149,7 @@ return [
     'html_appoinment_edit'          => 'Editar cita',
     'html_change_professional'      => 'Cambiar profesional',
     'html_reschedule_appoitment'    => 'Reprogramar cita',
+    'html_control_appoitment'       => 'Control de citas',
 
 
     //  MENSAJES DE ERROR
