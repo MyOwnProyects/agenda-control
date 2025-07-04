@@ -977,10 +977,16 @@ use App\Library\FuncionesGlobales;
             return 'bg-info';
         }
 
+        //  CITA NUEVA
+        if (typeof info_cita['id_agenda_cita'] != "undefined" && (info_cita['id_agenda_cita'] == -1 || info_cita['id_agenda_cita'] == null)){
+            return 'bg-primary';
+        }
+
         // CITA ORDINARIA
         if (typeof info_cita['id_agenda_cita'] != "undefined" && info_cita['id_agenda_cita'] != null && info_cita['id_agenda_cita'] != ''){
             return 'bg-info';
         }
+
 
         return return_background;
     }
@@ -1008,9 +1014,8 @@ use App\Library\FuncionesGlobales;
 
 
     // Función para actualizar la fecha mostrada
-    function actualizarFecha(div_header) {
-        console.log('div_header',div_header);
-        let div_fecha   = $(div_header).attr("id") == 'div_header_agenda' ? $(".div_principal_filter") : $(div_header);
+    function actualizarFecha(div_header = null) {
+        let div_fecha   = $(div_header).attr("id") == 'div_header_agenda' || div_header == null ? $(".div_principal_filter") : $(div_header);
         $(div_fecha).find("#fecha-actual").text(formatearFecha(fechaActual));
 
         if (rango_semana_actual.fecha_inicio != ''){
@@ -1309,74 +1314,55 @@ use App\Library\FuncionesGlobales;
     //  funcion para renderizar calendario por mes  
     function renderCalendarMes() {
         const $calendarContainer = $('.div_header_month_container');
-        const $monthYear = $calendarContainer.find('#monthYear');
         const $dates = $calendarContainer.find('#calendar_month_dates');
-        const $prevMonthButton = $calendarContainer.find('#prevMonth');
-        const $nextMonthButton = $calendarContainer.find('#nextMonth');
-        const year  = fechaActual.getFullYear();
+        const year = fechaActual.getFullYear();
         const month = fechaActual.getMonth();
         const today = new Date();
 
-        //$monthYear.text(`${currentDate.toLocaleString('es', { month: 'long' })} ${year}`);
         $dates.empty();
 
         const firstDayOfMonth = new Date(year, month, 1);
-        const lastDayOfMonth = new Date(year, month + 1, 0);
-        const daysInMonth = lastDayOfMonth.getDate();
         const startingDay = firstDayOfMonth.getDay();
-        const prevMonthLastDay = new Date(year, month, 0).getDate();
-        
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-        // Días del mes anterior
-        for (let i = startingDay - 1; i >= 0; i--) {
-            let day = prevMonthLastDay - i;
-            let classList = "other-month";
-            if (new Date(year, month - 1, day).getDay() === 0) classList += " disabled";
-            classList   += ' div_month_day';
-            let create_date = new Date(year, month - 1, day);
-            
-            if (create_date > cierre_agenda) continue; // No agregar días después del cierre
+        const totalCells = 35; // 6 filas de 7 días
 
-            $(".div_header_month_container #calendar_month_dates").append(`<div class="${classList}" data-day="${year}-${rellenar_fecha(month)}-${rellenar_fecha(day)}">${day}</div>`);
+        for (let i = 0; i < totalCells; i++) {
+            let day, displayMonth, displayYear, classList = 'div_month_day';
+
+            if (i < startingDay) {
+                // Días del mes anterior
+                day = daysInPrevMonth - (startingDay - 1 - i);
+                displayMonth = month === 0 ? 11 : month - 1;
+                displayYear = month === 0 ? year - 1 : year;
+                classList += ' other-month';
+            } else if (i >= startingDay + daysInMonth) {
+                // Días del mes siguiente
+                day = i - (startingDay + daysInMonth) + 1;
+                displayMonth = month === 11 ? 0 : month + 1;
+                displayYear = month === 11 ? year + 1 : year;
+                classList += ' other-month';
+            } else {
+                // Días del mes actual
+                day = i - startingDay + 1;
+                displayMonth = month;
+                displayYear = year;
+
+                if (
+                    displayYear === today.getFullYear() &&
+                    displayMonth === today.getMonth() &&
+                    day === today.getDate()
+                ) {
+                    classList += ' current-day';
+                }
+            }
+
+            const dateStr = `${displayYear}-${rellenar_fecha(displayMonth + 1)}-${rellenar_fecha(day)}`;
+            $dates.append(`<div class="${classList}" data-day="${dateStr}">${day}</div>`);
         }
-
-        // Días del mes actual
-        for (let i = 1; i <= daysInMonth; i++) {
-            const $dateElement = $('<div>').text(i);
-            const dayOfWeek = new Date(year, month, i).getDay();
-            let classList   = '';
-            if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
-                classList   += 'current-day ';
-            }
-
-            if (dayOfWeek === 0) {
-                classList   +=  'disabled ';
-            }
-
-            classList   += 'div_month_day';
-
-            $(".div_header_month_container #calendar_month_dates").append(`<div class="${classList}" data-day="${year}-${rellenar_fecha(month + 1)}-${rellenar_fecha(i)}">${i}</div>`);
-
-            // Marcar días especiales si quieres
-            // if (markedDays.includes(i)) {
-            //   $dateElement.addClass('marked-day');
-            // }
-        }
-
-        // Días del mes siguiente
-        const totalCells = 35;
-        const remainingCells = totalCells - (startingDay + daysInMonth);
-        for (let i = 1; i <= remainingCells; i++) {
-            const dayOfWeek = new Date(year, month + 1, i).getDay();
-            const $dateElement = $('<div>').text(i).addClass('other-month');
-            if (dayOfWeek === 0) {
-                $dateElement.addClass('disabled');
-            }
-            $dateElement.addClass('div_month_day');
-            $dateElement.data('day',year+'-'+(month + 2)+'-'+i);
-            $dates.append($dateElement);
-        }     
     }
+
 
     function rellenar_fecha(i) {
         let num_return = i.toString(); // Convertimos a string por si es número
@@ -2170,6 +2156,10 @@ use App\Library\FuncionesGlobales;
 
         if (id_agenda_cita != null){
             $(modal_clone).find('#select_paciente_modal').removeAttr('required');
+        } else {
+            let texto_fecha     = $(".div_principal_filter").find('#fecha-actual').text();
+            let texto_titulo    = $(modal_clone).find("#label_modal_agenda_opening").text();
+            $(modal_clone).find("#label_modal_agenda_opening").text(texto_titulo+' para el día: '+texto_fecha);
         }
         
         $(modal_clone).on('click','#input_modify_day',function(){
