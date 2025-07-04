@@ -62,7 +62,7 @@ main.login_content > div > form > button {}
 .rc_brand > a {cursor: pointer; font-size: 28px; color: #fff !important;}
 .rc_brand > a > i {font-size: inherit;}
 
-.mc_user_dropdown {position: absolute; top: 1em; right: 1em;}
+.mc_user_dropdown {position: absolute; top: 1em; right: 1em; z-index: 2;}
 .mc_user_dropdown > div {}
 .mc_user_dropdown > div > button {padding: 0; height: 40px; width: 40px; border-radius: 10px; display: flex ; align-items: center;
   justify-content: center;}
@@ -72,6 +72,11 @@ main.login_content > div > form > button {}
   position: relative; overflow: hidden; border: 0; font-size: 14px;}
 .mc_user_dropdown > div > ul > label {}
 .mc_user_dropdown > div > ul > li {}
+
+.welcome_cont {display: flex ; align-items: center; justify-content: center; position: absolute; left: 0; top: 0; bottom: 0; right: 0; 
+  padding: 2em;}
+.welcome_cont > h1 {margin: 0; position: relative; z-index: 1; font-size: 38px; color: #5c5fdb;}
+.welcome_cont > h1 > span {font-size: 40px; position: absolute; left: calc(50% - 35px);top: -50px;}
 
 
 #table_results_wrapper {}

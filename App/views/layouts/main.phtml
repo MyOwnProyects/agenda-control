@@ -259,6 +259,24 @@
 
     <!-- Script para manejar la alerta -->
     <script>
+
+        function check_window() {
+            function cw_size() {
+                if ($(window).width() < 768) {
+                    //console.log("Menor a 768px");
+                  if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
+                    $('body').find('#toggle-aside').click();
+                  } else {}
+                } else {
+                    //console.log("Mayor a 768px");
+                }
+            }
+
+            cw_size();
+
+            $(window).on('resize', cw_size);
+        }
+
         $(document).ready(function() {
             $('#show-alert').click(function() {
                 $('#alert-success').fadeIn();
@@ -285,7 +303,10 @@
                 $('body').find('#toggle-aside').click();
               } else {}
             });
+
+            check_window();
           });
+
     </script>
 </body>
 </html>
