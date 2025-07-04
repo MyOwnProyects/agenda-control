@@ -53,6 +53,8 @@ main.login_content > div > form > button {}
 .r_container > * {transition: inherit;}
 .r_container > aside {width: max-content;}
 .r_container > main.main_content {flex: 1; padding: 2em; height: 100vh; overflow: auto; position: relative;}
+body.modal-open .r_container > main.main_content {overflow: hidden;}
+.r_container > main.main_content > row {float: left; width: 100%;}
 
 .rc_brand {display: flex; position: relative; justify-content: space-between; align-items: center;}
 .aside-collapsed .rc_brand {justify-content: center;}
