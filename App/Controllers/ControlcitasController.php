@@ -212,8 +212,8 @@ class ControlcitasController extends BaseController
         }
 
         //  SE BUSCAN LOS SERVICIOS QUE PUEDE OFRECER EL USUARIO
-        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
-        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array());
+        $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('onlyallowed' => 1));
 
         $this->view->arr_locaciones     = $arr_locaciones; 
         $this->view->apertura_agenda    = FuncionesGlobales::HasAccess("Controlcitas","agenda_opening");
