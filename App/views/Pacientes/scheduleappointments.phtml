@@ -719,7 +719,7 @@ let module_schedule_appointments    = (function(){
             $(modal_clone).find('.select_locaciones_modal').select2({
                 placeholder : 'Seleccione una opción',
                 allowClear  : false,
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             }).on('select2:select',function(){
                 const id_locacion   = $(this).val();
@@ -943,7 +943,7 @@ let module_schedule_appointments    = (function(){
             let row_cita    = $("#template_cita").clone().attr('id','id_horario_cita_'+count_id_citas);
             $(row_cita).find('.select_dias').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             });
             $(modal_clone).find('.div_header_citas').append(row_cita);
@@ -951,7 +951,7 @@ let module_schedule_appointments    = (function(){
             let row_cita    = $("#template_cita").clone().attr('id','id_horario_cita_'+id_cita_programada);
             $(row_cita).find('.select_dias').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             });
             $(modal_clone).find('.div_header_citas').append(row_cita);
@@ -967,7 +967,7 @@ let module_schedule_appointments    = (function(){
 
             $(row_cita).find('.select_dias').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             });
 
@@ -976,7 +976,7 @@ let module_schedule_appointments    = (function(){
 
         $(modal_clone).find('#select_locaciones_modal').select2({
             placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
+            dropdownParent: $(modal_clone).find('.col-md-4'),
             width: '50px'
         }).on('select2:select',function(){
             if ($(this).val() != null){
@@ -991,7 +991,7 @@ let module_schedule_appointments    = (function(){
 
         $(modal_clone).find('#select_servicios_modal').select2({
             placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
+            dropdownParent: $(modal_clone).find('.col-md-4'),
             width: '50px'
         }).on('select2:select',function(){
             const id_servicio       = $(this).val();

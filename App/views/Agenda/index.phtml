@@ -69,13 +69,72 @@ use App\Library\FuncionesGlobales;
     .div_header_days_container .evento-flotante span {
         font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
     }
+
     .div_header_filters .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 20px;
+}
+
+.div_header_filters .navigation .left-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.div_header_filters .navigation .right-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Botones con tamaño moderado */
+.div_header_filters .left-section button,
+.div_header_filters .right-section button {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    min-width: 40px;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+/* Botón "Hoy" ligeramente más destacado */
+#btn-hoy {
+    padding: 6px 14px;
+    font-weight: bold;
+}
+
+/* Texto de la fecha */
+#fecha-actual {
+    margin: 0 10px;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+/* Scrollbar visualmente más amigable */
+.div_header_filters .navigation .left-section::-webkit-scrollbar {
+    height: 6px;
+}
+.div_header_filters .navigation .left-section::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+    /* .div_header_filters .navigation {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin: 20px;
-    }
-    .div_header_filters .navigation .left-section {
+    } */
+    /* .div_header_filters .navigation .left-section {
         display: flex;
         align-items: center;
         gap: 10px; /* Espacio entre los botones */
@@ -85,7 +144,7 @@ use App\Library\FuncionesGlobales;
         display: flex;
         align-items: center;
         gap: 10px; /* Espacio entre los botones */
-    }
+    } */
     .div_header_filters .navigation button {
         padding: 10px 20px;
         font-size: 16px;
