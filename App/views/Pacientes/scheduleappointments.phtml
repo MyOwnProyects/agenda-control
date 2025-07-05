@@ -201,6 +201,7 @@ use App\Library\FuncionesGlobales;
 <div class="container col-12">
     <button id="btn_create" type="button" class="btn btn-outline-dark"><?php echo $translations['html_add_appoitments']; ?></button>
     <button id="btn_agenda_opening" type="button" class="btn btn-outline-dark"><?php echo $translations['html_generate_dates']; ?></button>
+    <button id="btn_return" type="button" class="btn btn-outline-dark"><?php echo $translations['html_btn_return']; ?></button>
 </div>
 
 <div id="div_header_week_container" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
@@ -462,6 +463,7 @@ let module_schedule_appointments    = (function(){
         title_preview   : "<?= $translations['html_preview_record'] ?>",
         confirm_delete  : "<?= $translations['html_confirm_delete']?>",
         opening_hours   : "<?= $translations['html_opening_hours']?>",
+        question_return : "<?= $translations['html_question_return']?>",
     };
 
     //  CONTADOR DEL TEMPLATE CITAS POR SERVICIO
@@ -698,6 +700,12 @@ let module_schedule_appointments    = (function(){
         eventos.forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_locacion'));
         citas_paciente.forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_cita'));
 
+        $(".container").on('click',"#btn_return",async function(){
+            const respuesta = await window.modalConfirm(translations['question_return']);
+            if (respuesta){
+                window.location = "/Pacientes";
+            }
+        });
 
         $("#btn_create").on('click',function(){
             show_modal_citas();
@@ -711,7 +719,7 @@ let module_schedule_appointments    = (function(){
             $(modal_clone).find('.select_locaciones_modal').select2({
                 placeholder : 'Seleccione una opción',
                 allowClear  : false,
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             }).on('select2:select',function(){
                 const id_locacion   = $(this).val();
@@ -766,7 +774,7 @@ let module_schedule_appointments    = (function(){
 
                 //  VALIDAR REGISTROS
                 if (fecha_inicio > fecha_termino){
-                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_range_date']);
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(translations['error_range_date']);
                     $(modal_clone).find('#alert_error').addClass('d-flex').show();
                     return false;
                 }
@@ -935,7 +943,7 @@ let module_schedule_appointments    = (function(){
             let row_cita    = $("#template_cita").clone().attr('id','id_horario_cita_'+count_id_citas);
             $(row_cita).find('.select_dias').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             });
             $(modal_clone).find('.div_header_citas').append(row_cita);
@@ -943,7 +951,7 @@ let module_schedule_appointments    = (function(){
             let row_cita    = $("#template_cita").clone().attr('id','id_horario_cita_'+id_cita_programada);
             $(row_cita).find('.select_dias').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             });
             $(modal_clone).find('.div_header_citas').append(row_cita);
@@ -959,7 +967,7 @@ let module_schedule_appointments    = (function(){
 
             $(row_cita).find('.select_dias').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
+                dropdownParent: $(modal_clone).find('.col-md-4'),
                 width: '50px'
             });
 
@@ -968,7 +976,7 @@ let module_schedule_appointments    = (function(){
 
         $(modal_clone).find('#select_locaciones_modal').select2({
             placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
+            dropdownParent: $(modal_clone).find('.col-md-4'),
             width: '50px'
         }).on('select2:select',function(){
             if ($(this).val() != null){
@@ -983,7 +991,7 @@ let module_schedule_appointments    = (function(){
 
         $(modal_clone).find('#select_servicios_modal').select2({
             placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
+            dropdownParent: $(modal_clone).find('.col-md-4'),
             width: '50px'
         }).on('select2:select',function(){
             const id_servicio       = $(this).val();
@@ -1227,7 +1235,7 @@ let module_schedule_appointments    = (function(){
 
             if (flag_empalmados){
                 $(btn).prop('disabled',false);
-                $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_spliced']+ dia_empalmado);
+                $(modal_clone).find('#alert_error').find('#msg_error').html(translations['error_spliced']+ dia_empalmado);
                 $(modal_clone).find('#alert_error').addClass('d-flex').show();
                 return false;
             } else {

@@ -138,14 +138,13 @@
 
 /* ESTILO PARA MANUPULAR APERTURA Y CIERRE DE MENU */
 .aside-collapsed {
-  width: 100px !important;
   overflow: hidden;
 }
 
 .aside-collapsed a {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 
@@ -155,8 +154,14 @@
 
 .aside-collapsed i,
 .aside-collapsed svg {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
+  font-size: 20px;
+  margin: 0 !important;
   display: inline-block; /* Asegura que los íconos se sigan viendo */
+  transition: all ease-out .3s;
 }
+
+aside .nav-pills .nav-link {transition: all ease-out .3s;}
+aside .nav-pills .nav-link:hover {filter: brightness(.85);}
+
+aside:not(.aside-collapsed) .nav-pills .nav-link {}
+aside:not(.aside-collapsed) .nav-pills .nav-link .bi {font-size: 18px; margin-right: 20px !important;}
