@@ -108,6 +108,8 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
                         <th><?php echo $translations['html_cellphone']; ?></th>
+                        <th><?php echo $translations['html_birthdate']; ?></th>
+                        <th><?php echo $translations['html_current_age']; ?></th>
                         <th><?php echo $translations['html_assigned_services']; ?></th>
                         <th><?php echo $translations['html_location']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
@@ -292,6 +294,12 @@ use App\Library\FuncionesGlobales;
                     <input type="text" class="form-control" id="input_nombre" required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
                 </div>
+                <!-- Campo fecha nacimiento -->
+                <div class="col-md-6">
+                    <label for="input_fecha_nacimiento" class="col-form-label"><?php echo $translations['html_birthdate']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_nacimiento">
+                    <div class="invalid-feedback"><?php echo $translations['html_error_birthdate']; ?></div>
+                </div>
             
             <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -369,6 +377,7 @@ use App\Library\FuncionesGlobales;
             error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
             error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
             error_spliced           : "<?php echo $translations['html_error_spliced']; ?>",
+            error_birthdate         : "<?php echo $translations['html_error_birthdate']; ?>"
         }
 
         // Variable global para almacenar la instancia de DataTable
@@ -870,6 +879,8 @@ use App\Library\FuncionesGlobales;
                         { data: 'clave' }, // Columna 1
                         { data: 'nombre_completo' }, // Columna 1
                         { data: 'celular' }, // Columna 1
+                        { data: 'fecha_nacimiento' }, // Columna 1
+                        { data: 'edad_actual' }, // Columna 1
                         { data: 'num_servicios' }, // Columna 1
                         { data: 'locacion_registro' }, // Columna 1
                         { data: 'label_estatus' }, // Columna 1
@@ -957,6 +968,8 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
                 }
 
+                const fecha_nacimiento  = $(modal_clone).find('#input_fecha_nacimiento').val();
+
                 if (flag_error){
                     return false;
                 }
@@ -968,6 +981,7 @@ use App\Library\FuncionesGlobales;
                     nombre              : $(modal_clone).find('#input_nombre').val(),
                     id_locacion_registro    : $(modal_clone).find('#select_locaciones').val(),
                     label_locacion          : $(modal_clone).find('#select_locaciones').find('option:selected').text(),
+                    fecha_nacimiento        : convertirFechaDDMMYYYYaISO(fecha_nacimiento)
                 };
 
                 console.log('obj_info');
@@ -997,5 +1011,14 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).modal('show');
         }
+
+        function convertirFechaDDMMYYYYaISO(fechaTexto) {
+            const partes = fechaTexto.split('/');
+            if (partes.length !== 3) return null;
+
+            const [dia, mes, anio] = partes;
+            return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+        }
+
     })();  
 </script>

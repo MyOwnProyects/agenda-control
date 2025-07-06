@@ -150,6 +150,10 @@ return [
     'html_change_professional'      => 'Cambiar profesional',
     'html_reschedule_appoitment'    => 'Reprogramar cita',
     'html_control_appoitment'       => 'Control de citas',
+    'html_select_color'             => 'Selecciona el color del servicio',
+    'html_active'                   => 'Activo',
+    'html_birthdate'                => 'Fecha de nacimiento',
+    'html_current_age'              => 'Edad actual',
 
 
     //  MENSAJES DE ERROR
@@ -190,4 +194,6 @@ return [
     'html_error_attendance_status'      => 'Especifique el estatus de la asistencia',
     'html_error_enter_cellphone_name'   => 'Ingresa un numero de telefono o nombre del paciente',
     'html_error_day_spliced'            => 'La cita esta empalmada con otra cita o esta fuera del rango de horas de servicio',
+    'html_error_selected_color'         => 'Selecciona un color',
+    'html_error_birthdate'              => 'Formato de fecha invalido',
 ];

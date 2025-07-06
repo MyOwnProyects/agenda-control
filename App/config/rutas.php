@@ -30,7 +30,8 @@ return [
         'create'            => "/ctservicios/create",
         'delete'            => "/ctservicios/delete",
         'update'            => "/ctservicios/update",
-        'count'             => "/ctservicios/count"
+        'count'             => "/ctservicios/count",
+        'change_status'     => "/ctservicios/change_status",
     ],
     'ctlocaciones'  => [
         'show'              => "/ctlocaciones/show",

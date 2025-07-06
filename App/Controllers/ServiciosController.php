@@ -117,7 +117,7 @@ class ServiciosController extends BaseController
                 return $response;
             }
 
-            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino el Servicio '.$_POST['clave'].' - '.$_POST['nombre'],$_POST);
+            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino el Servicio '.$_POST['data_bitacora']['clave'].' - '.$_POST['data_bitacora']['nombre'],$_POST['data_bitacora']);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
@@ -127,6 +127,24 @@ class ServiciosController extends BaseController
 
     public function updateAction(){
         if ($this->request->isAjax()){
+
+            if (!empty($this->request->getPost('accion')) && $this->request->getPost('accion') == 'change_status'){
+                $route  = $this->url_api.$this->rutas['ctservicios']['change_status'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del servicio: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+
+                $response->setJsonContent('Edición exitosa');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            } 
 
             $route  = $this->url_api.$this->rutas['ctservicios']['update'];
             $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
