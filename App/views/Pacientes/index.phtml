@@ -83,14 +83,12 @@ use App\Library\FuncionesGlobales;
                         <i class="bi bi-search"></i> 
                         <?php echo $translations['html_btn_search']; ?>
                     </button>
-                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
-                        <i class="bi bi-plus-lg"></i> 
-                        <?php echo $translations['html_new']; ?>
-                    </button>
+                    <?php if ($create): ?>
                     <button type="button" class="btn btn-outline-dark" id="btnCrearExpress">
                         <i class="bi bi-plus-lg"></i> 
                         <?php echo $translations['html_express_new_record']; ?>
                     </button>
+                    <?php endif; ?>
                 </div> 
             </form>
         </div>
@@ -319,6 +317,60 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
+<div class="modal fade" id="modal_diagnostico" tabindex="-1" aria-labelledby="label_modal_diagnostico" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_diagnostico"><?php echo FuncionesGlobales::UpperString($translations['html_diagnosis_capture']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <!-- Campo Clave -->
+                <div class="col-md-12">
+                    <label><?php echo $translations['html_title_patient']; ?>:</label>
+                    <div id="nombre_paciente" class="d-block"></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-12">
+                    <label for="input_primer_apellido" class="col-form-label"><?php echo $translations['html_registered_diagnoses']; ?></label>
+                </div>
+                <div class="col-md-6">
+                    <label for="input_segundo_apellido" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
+                    <input type="text" class="form-control" id="input_segundo_apellido">
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-6">
+                    <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
+                </div>
+                <!-- Campo fecha nacimiento -->
+                <div class="col-md-6">
+                    <label for="input_fecha_nacimiento" class="col-form-label"><?php echo $translations['html_birthdate']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_nacimiento">
+                    <div class="invalid-feedback"><?php echo $translations['html_error_birthdate']; ?></div>
+                </div>
+            
+            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     let modulo_patients = (function(){
         let count_add_row_service   = 0;
@@ -337,9 +389,6 @@ use App\Library\FuncionesGlobales;
         const action_update = '<?php echo $update; ?>';
         const action_delete = '<?php echo $delete; ?>';
         const action_schedule_appointments  = '<?php echo $schedule_appointments; ?>';
-
-        //  DIAS DEFAULT PARA PROGRAMAR CITAS
-        const dias_programacion_citas   = '<?php echo $dias_programacion_citas; ?>';
 
         //  language
         const translations  = {
@@ -396,7 +445,7 @@ use App\Library\FuncionesGlobales;
 
             // Evento click del botón "CREACION EXPRESS"
             $("#header_filters").on('click',"#btnCrearExpress",function() {
-                creacionExpress();
+                show_modal_creacion();
             });
 
             //  EVENTO PARA PROGRAMAR UNA CITA
@@ -410,35 +459,8 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-                const id                    = $(this).data('id');
-
+                const id             = $(this).data('id');
                 window.location.href = '/Pacientes/scheduleappointments?id='+id;
-
-                // const id_locacion_registro  = $(this).data('idlocacionregistro');
-                // const nombre_completo       = $(this).data('nombrecompleto');
-                // let btn     = $(this);
-                // $(btn).prop('disabled',true);
-
-                // $.ajax({
-                //     url     : url_index,
-                //     method  : 'post',
-                //     data    : {
-                //         accion                  : 'get_services',
-                //         id_locacion_registro    : id_locacion_registro,
-                //         id_paciente             : id
-                //     },
-                //     success : function(data){
-                //         show_modal_program_date(data['all_services'],id_locacion_registro,id,nombre_completo,data['info_paciente'],data['info_agenda']);
-                //     },
-                //     error   : function(error){
-                //         $(btn).prop('disabled',false);
-                //         console.log('error');
-                //         console.log(error);
-                //         actionJsonError(error,btn);
-                //     }
-                // })
-
-                // $(btn).prop('disabled',false);
                 
             }); 
 
@@ -477,257 +499,13 @@ use App\Library\FuncionesGlobales;
                     $(btn).prop('disabled',false);
                 }
             });
+
+            $("#table_results").on('click','.btn_edit',function(){
+                let data    = $(this).closest('tr').data('rowData');
+                console.log('data',data);
+                show_modal_creacion(data);
+            });
         });
-
-        function show_modal_program_date(all_services,id_locacion_registro,id_paciente,nombre_completo,info_paciente = null,info_agenda){
-            let modal_clone = $("#modal_program_date").clone().show();
-
-            if (info_agenda['has_record'] != 1){
-                $(modal_clone).find('#input_generar_citas').prop('disabled',true);
-            } else {
-                $(modal_clone).on('click','#input_generar_citas',function(){
-                    let status_check    = $(this).prop('checked');
-
-                    $(modal_clone).find('.input_date').prop('disabled',status_check ? false : true).val('');
-                });
-            }
-
-            $(modal_clone).on('change','.input_fecha_inicio',function(){
-                // Cadena de texto con la fecha en formato DD/MM/YYYY
-                const fechaStr = $(this).val();
-
-                // Dividir la cadena en día, mes y año
-                const [anio, mes, dia] = fechaStr.split('-');
-
-                // Crear un objeto Date (los meses en JavaScript son base 0, por eso restamos 1 al mes)
-                const fecha = new Date(anio, mes - 1, dia);
-
-                // Sumar 31 días
-                fecha.setDate(fecha.getDate() + parseInt(dias_programacion_citas));
-                let [nuevo_dia, nuevo_mes, nuevo_anio]  = fecha.toLocaleDateString().split('/');
-                nuevo_mes   = nuevo_mes.length == 1 ? '0'+nuevo_mes : nuevo_mes;
-                nuevo_dia   = nuevo_dia.length == 1 ? '0'+nuevo_dia : nuevo_dia;
-                
-
-                // Mostrar la nueva fecha en formato local
-                $(modal_clone).find('.input_fecha_termino').val(nuevo_anio+'-'+nuevo_mes+'-'+nuevo_dia);
-            });
-
-            $(modal_clone).find('#input_generar_citas').prop('checked',false).trigger('change');
-
-            $(modal_clone).find('.select_locaciones').select2({
-                placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
-                width: '50px'
-            });
-
-            $(modal_clone).find('.select_locaciones').val(id_locacion_registro).trigger('change');
-            $(modal_clone).find('.select_locaciones').prop('disabled',true);
-
-            if (info_paciente == null || info_paciente == ''){
-                add_template_service(modal_clone,all_services,id_locacion_registro);
-            } else {
-                for(let i in info_paciente){
-                    add_template_service(modal_clone,all_services,id_locacion_registro,info_paciente[i]);
-                }
-            }
-
-            $(modal_clone).on('click','#btn_add_service',function(){
-                add_template_service(modal_clone,all_services,id_locacion_registro);
-            });
-
-            $(modal_clone).on('click','.btn_delete_service',function(){
-                $(this).closest('.header_service').remove();
-            });
-
-            $(modal_clone).on('click','.btn_add_hours',function(){
-                add_template_hours(modal_clone,$(this).closest('.header_service'));
-            });
-
-            $(modal_clone).on('click','.btn_delete_hour',function(){
-                if (($(this).closest('.div_append_hours').find('.row_hours').length - 1) == 0){
-                    return false;
-                }
-
-                $(this).closest('.row_hours').remove();
-            });
-
-            $(modal_clone).on('change','.input_hora_inicio',function(){
-                // String de hora
-                let horaString = $(this).val();
-                const duracion = $(this).closest('.header_service').find('.select_servicios').find('option:selected').data('duracion');
-
-                // Validar que el string de hora tenga el formato correcto
-                if (!/^\d{1,2}:\d{2}$/.test(horaString)) {
-                    console.error('Formato de hora inválido. Debe ser H:MM o HH:MM');
-                    return; // Detener la ejecución si el formato no es válido
-                }
-
-                // Asegurar que la hora tenga dos dígitos en la parte de las horas (agregar un 0 si es necesario)
-                if (horaString.length === 4) { // Si es de la forma "H:MM"
-                    horaString = '0' + horaString; // Convertir a "HH:MM"
-                }
-
-                // Extraer horas y minutos del string
-                const [horas, minutos] = horaString.split(':').map(Number);
-
-                // Validar que las horas y minutos sean números válidos
-                if (isNaN(horas) || isNaN(minutos) || horas < 0 || horas > 23 || minutos < 0 || minutos > 59) {
-                    console.error('Hora o minutos inválidos');
-                    return; // Detener la ejecución si los valores no son válidos
-                }
-
-                // Crear un objeto Date con la fecha actual y la hora extraída
-                const fecha = new Date();
-                fecha.setHours(horas);
-                fecha.setMinutes(minutos);
-
-                // Sumar la duración (asegurarse de que duracion sea un número)
-                if (isNaN(duracion) || duracion < 0) {
-                    console.error('Duración inválida');
-                    return; // Detener la ejecución si la duración no es válida
-                }
-                fecha.setMinutes(fecha.getMinutes() + duracion);
-
-                // Obtener la nueva hora en formato "HH:MM"
-                const nuevaHora = `${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
-                $(this).closest('.row_hours').find('.input_hora_termino').val(nuevaHora);
-            });
-
-            $(modal_clone).on('click','#btnSave',function(){
-                let btn = $(this);
-                $(btn).prop('disabled',true);
-                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
-                let flag_error  = false;
-                if (form.checkValidity() === false) {
-                    $(form).addClass('was-validated');
-                    flag_error  = true;
-                } else {
-                    $(form).removeClass('was-validated');
-                }
-
-                if (flag_error){
-                    $(btn).prop('disabled',false);
-                    return false;
-                }
-
-                //  SE VALIDA QUE NO EXISTAN HORAS EMPALMADAS
-                let flag_empalmados = false;
-                let dia_empalmado   = '';
-                $(modal_clone).find('.row_hours').each(function(){
-                    const id_header         = $(this).attr('id');
-                    console.log('id_header');
-                    console.log(id_header);
-                    const day_header        = $(this).find('.select_dias').val();
-                    let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
-                    let hora_termino_header = convertirHoraATiempo($(this).find('.input_hora_termino').val());
-                    dia_empalmado           = $(this).find('.select_dias').find('option:selected').text();
-
-                    $(modal_clone).find('.row_hours').each(function(){
-                        //  NO SE VERIFICA EL EMPALMADO SI ES EL MISMO ID O SI ES DIFERENTE DIA
-                        console.log('$(this).attr("id")');
-                        console.log($(this).attr('id'));
-                        if (id_header == $(this).attr('id')){
-                            return true;
-                        }
-
-                        if (day_header != $(this).find('.select_dias').val()){
-                            return true;
-                        }
-
-                        let hora_inicio     = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
-                        let hora_termino    = convertirHoraATiempo($(this).find('.input_hora_termino').val());
-
-                        //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-                        console.log('hora_inicio_header >= hora_inicio');
-                        console.log(hora_inicio_header >= hora_inicio,hora_inicio);
-                        if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
-                            console.log('empalmado hora_inicio_header');
-                            flag_empalmados = true;
-                            return false;
-                        }
-
-                        //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
-                        if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
-                            console.log('empalmado hora termino');
-                            flag_empalmados = true;
-                            return false;
-                        }
-
-                        if (flag_empalmados){
-                            return false;
-                        }
-                    });
-                });
-
-                if (flag_empalmados){
-                    $(btn).prop('disabled',false);
-                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_spliced']+ dia_empalmado);
-                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
-                }
-
-                let obj_info        = {};
-                let count_services  = 0;
-                $(modal_clone).find('.header_service').each(function(){
-                    obj_info[count_services]    = {};
-                    obj_info[count_services]['id_servicio']         = $(this).find('.select_servicios').val();
-                    obj_info[count_services]['label_servicio']      = $(this).find('.select_servicios').find('option:selected').text();
-                    obj_info[count_services]['id_profesional']      = $(this).find('.select_profesionales').val();
-                    obj_info[count_services]['label_profesional']   = $(this).find('.select_profesionales').find('option:selected').text();
-
-                    let count_horarios  = 0;
-                    obj_info[count_services]['horarios']    = {};
-
-                    $(this).find('.div_append_hours').find('.row_hours').each(function(){
-                        obj_info[count_services]['horarios'][count_horarios]    = {
-                            dia             : $(this).find('.select_dias').val(),
-                            hora_inicio     : $(this).find('.input_hora_inicio').val(),
-                            hora_termino    : $(this).find('.input_hora_termino').val(),
-                        };
-
-                        count_horarios  ++;
-                    });
-
-                    count_services  ++;
-                });
-
-                console.log('obj_info');
-                console.log(obj_info);
-
-                $.ajax({
-                    url         : url_update,
-                    method      : 'post',
-                    data        : {
-                        obj_info    : obj_info,
-                        accion      : 'save_program_date',
-                        nombre_completo : nombre_completo,
-                        id_paciente     : id_paciente,
-                        id_locacion     : $(modal_clone).find('.select_locaciones').val(),
-                        generar_citas   : info_agenda['has_record'] != 1 ? 0 : $(modal_clone).find('.input_generar_citas').is(':checked'),
-                        fecha_inicio    : info_agenda['has_record'] != 1 ? null : $(modal_clone).find('.input_fecha_inicio').val(),
-                        fecha_termino   : info_agenda['has_record'] != 1 ? null : $(modal_clone).find('.input_fecha_termino').val(),
-                    },
-                    success : function(data){
-                        console.log('data');
-                        console.log(data);
-                        cargarTabla();
-                        showAlert('success','Captura exitosa!');
-                        $(modal_clone).modal('hide');
-                    },
-                    error : function(error){
-                        $(btn).prop('disabled',false);
-                        console.log('error');
-                        console.log(error);
-                        actionJsonError(error,btn);
-                    }
-                });
-            });
-
-            $(modal_clone).modal('show');
-        }
 
         //  FUNCION PARA LLENAR COMBO DE PROFESIONALES
         function fill_profesionales(header_template,id_locacion_registro,id_servicio,id_profesional = null){
@@ -920,7 +698,11 @@ use App\Library\FuncionesGlobales;
                                 return btn_preview + btn_schedule_appointment +  btn_update + btn_delete;
                             }
                         }
-                    ]
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
+                    }
                 });
             } else {
                 draw    ++;
@@ -928,13 +710,23 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function creacionExpress(){
+        function show_modal_creacion(data = null){
             let modal_clone = $("#modal_create").clone().show();
 
             $(modal_clone).find('#select_locaciones').select2({
                 placeholder     : 'Seleccione una opción',
                 dropdownParent: $(modal_clone)
             });
+
+            //  SI DATA VIENE CON INFORMACION ES EDICION
+            if (data != null){
+                $(modal_clone).find('#select_locaciones').val(data['id_locacion_registro']).trigger('change');
+                $(modal_clone).find('#input_celular').val(data['celular']);
+                $(modal_clone).find('#input_primer_apellido').val(data['primer_apellido']);
+                $(modal_clone).find('#input_segundo_apellido').val(data['segundo_apellido']);
+                $(modal_clone).find('#input_nombre').val(data['nombre']);
+                $(modal_clone).find('#input_fecha_nacimiento').val(data['fecha_nacimiento']);
+            }
 
             //  EVENTOS
             $(modal_clone).on('keypress','#input_celular',function(e) {
@@ -984,18 +776,23 @@ use App\Library\FuncionesGlobales;
                     fecha_nacimiento        : convertirFechaDDMMYYYYaISO(fecha_nacimiento)
                 };
 
+                if (data != null){
+                    obj_info['id']  = data['id'];
+                }
+
                 console.log('obj_info');
                 console.log(obj_info);
                 //return false;
 
                 //  AJAX SAVE
                 $.ajax({
-                    url         : url_create,
+                    url         : data != null ? url_update : url_create,
                     method      : 'POST',
                     dataType    : 'json',
                     data        : {
                         obj_info    : obj_info,
-                        accion      : 'create_express'
+                        accion      : data != null ? 'save_express' : 'create_express',
+                        data_old    : data
                     },
                     success     : function(data){
                         $(btn).prop('disabled',false);
@@ -1013,12 +810,22 @@ use App\Library\FuncionesGlobales;
         }
 
         function convertirFechaDDMMYYYYaISO(fechaTexto) {
-            const partes = fechaTexto.split('/');
+            let partes = [];
+
+            if (fechaTexto.includes('/')) {
+                partes = fechaTexto.split('/');
+            } else if (fechaTexto.includes('-')) {
+                partes = fechaTexto.split('-');
+            } else {
+                return null; // Formato no reconocido
+            }
+
             if (partes.length !== 3) return null;
 
             const [dia, mes, anio] = partes;
             return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
         }
+
 
     })();  
 </script>

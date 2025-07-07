@@ -96,9 +96,14 @@ class PacientesController extends BaseController
             return $response;
         }
 
+        //  GET LISTA DE TRANSTORNOS
+        $route              = $this->url_api.$this->rutas['cttranstornos_neurodesarrollo']['show'];
+        $arr_transtornos    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $this->view->arr_transtornos    = $arr_servicios;
+
+        //  GET LISTA DE SERVICIOS
         $route          = $this->url_api.$this->rutas['ctservicios']['show'];
         $arr_servicios  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-
         $this->view->arr_servicios      = $arr_servicios;
 
         //SE BUSCAS LAS LOCACIONES EXISTENTES
@@ -106,20 +111,6 @@ class PacientesController extends BaseController
         $_POST['onlyallowed']   = 1;
         $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         $this->view->arr_locaciones = $arr_locaciones;
-
-        //  SE BUSCA VARIABLE DEL SISTEMA dias_programacion_citas
-        $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
-        $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(
-            'clave' => 'dias_programacion_citas'
-        ));
-
-        if (!is_array($dias_programacion_citas)){
-            $dias_programacion_citas    = 31;
-        } else {
-            $dias_programacion_citas    = $dias_programacion_citas[0]['valor'];
-        }
-
-        $this->view->dias_programacion_citas    = $dias_programacion_citas;
 
         $this->view->create = FuncionesGlobales::HasAccess("Pacientes","create");
         $this->view->update = FuncionesGlobales::HasAccess("Pacientes","update");
@@ -212,6 +203,24 @@ class PacientesController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             } 
+
+            if (!empty($accion) && $this->request->getPost('accion') == 'save_express'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_express'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST['obj_info']);
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar la información del paciente: '.$_POST['data_old']['clave'],$_POST);
+
+                $response->setJsonContent('Edición exitosa');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
     }
 

@@ -154,6 +154,10 @@ return [
     'html_active'                   => 'Activo',
     'html_birthdate'                => 'Fecha de nacimiento',
     'html_current_age'              => 'Edad actual',
+    'html_diagnosis_capture'        => 'Captura de diagnostico(s)',
+    'html_List_neurodevelopmental_disorders'    => 'Lista de transtornos de neurodesarrollo',
+    'html_registered_diagnoses'                 => 'Diagnosticos registrados',
+    
 
 
     //  MENSAJES DE ERROR

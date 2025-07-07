@@ -67,6 +67,7 @@ return [
         'get_program_date'  => "/ctpacientes/get_program_date",
         'delete_program_date'   => "/ctpacientes/delete_program_date",
         'fill_combo'            => '/ctpacientes/fill_combo',
+        'save_express'          => '/ctpacientes/save_express'
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
@@ -85,6 +86,9 @@ return [
     ),
     'ctmotivos_cancelacion_cita'    => array(
         'show'  => '/ctmotivos_cancelacion_cita/show'
+    ),
+    'cttranstornos_neurodesarrollo' => array(
+        'show'  => '/cttranstornos_neurodesarrollo/show'
     ),
 
 ];
