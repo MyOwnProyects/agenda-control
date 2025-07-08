@@ -109,7 +109,7 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_birthdate']; ?></th>
                         <th><?php echo $translations['html_current_age']; ?></th>
                         <th><?php echo $translations['html_assigned_services']; ?></th>
-                        <th><?php echo $translations['html_location']; ?></th>
+                        <th><?php echo $translations['html_registered_diagnoses']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
@@ -299,7 +299,7 @@ use App\Library\FuncionesGlobales;
                     <div class="invalid-feedback"><?php echo $translations['html_error_birthdate']; ?></div>
                 </div>
             
-            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                 </svg>
@@ -334,29 +334,28 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <!-- Campo Nombre -->
                 <div class="col-md-12">
-                    <label for="input_primer_apellido" class="col-form-label"><?php echo $translations['html_registered_diagnoses']; ?></label>
+                    <label for="input_diagnoses" class="col-form-label"><?php echo $translations['html_registered_diagnoses']; ?></label>
                 </div>
-                <div class="col-md-6">
-                    <label for="input_segundo_apellido" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
-                    <input type="text" class="form-control" id="input_segundo_apellido">
-                </div>
-                <!-- Campo Nombre -->
-                <div class="col-md-6">
-                    <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
-                    <input type="text" class="form-control" id="input_nombre" required>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
-                </div>
-                <!-- Campo fecha nacimiento -->
-                <div class="col-md-6">
-                    <label for="input_fecha_nacimiento" class="col-form-label"><?php echo $translations['html_birthdate']; ?></label>
-                    <input type="date" class="form-control" id="input_fecha_nacimiento">
-                    <div class="invalid-feedback"><?php echo $translations['html_error_birthdate']; ?></div>
+                <div class="div_lista_diagnosticos col-md-12">
+                    <div class="row">
+                        <div class="col-md-2"><?php echo $translations['html_abrev']; ?></div>
+                        <div class="col-md-8"><?php echo $translations['html_diagnoses']; ?></div>
+                        <div class="col-md-2"><?php echo $translations['html_evidence']; ?></div>
+                    </div>
+                    
+                    <?php foreach($arr_transtornos as $row): ?>
+                        <div data-id="<?php echo $row['id']; ?>" class="row div_diagnostico" id="diagnostico_<?php echo $row['id']; ?>">
+                            <div class="col-md-2"><?php echo ($row['clave']); ?></div>
+                            <div class="col-md-8"><?php echo ($row['nombre']); ?></div>
+                            <div class="col-md-2" align="center"><input type="checkbox" class="input_evidencia"  disabled/></div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             
-            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
-                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                </svg>
+                <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
                 <div id="msg_error">
                     
                 </div>
@@ -415,7 +414,8 @@ use App\Library\FuncionesGlobales;
             wednesday: "<?php echo $translations['html_wednesday'];  ?>",
             thursday: "<?php echo $translations['html_thursday'];   ?>",
             friday: "<?php echo $translations['html_friday'];     ?>",
-            saturday: "<?php echo $translations['html_saturday'];   ?>",      
+            saturday: "<?php echo $translations['html_saturday'];   ?>",     
+            diagnosis_capture  :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -504,6 +504,12 @@ use App\Library\FuncionesGlobales;
                 let data    = $(this).closest('tr').data('rowData');
                 console.log('data',data);
                 show_modal_creacion(data);
+            });
+
+            $("#table_results").on('click','.btn_diagnoses',function(){
+                let data    = $(this).closest('tr').data('rowData');
+                console.log('data',data);
+                show_modal_diagnoses(data);
             });
         });
 
@@ -647,6 +653,7 @@ use App\Library\FuncionesGlobales;
                             d.nombre            = $("#input_nombre").val();
                             d.id_servicio       = $("#select_servicios").val();
                             d.id_locacion_registro  = $("#select_locaciones").val();
+                            d.get_diagnoses         = true;
                         },
                         dataSrc: function (json) {
                             console.log("DataTables Response:", json); // <---- Depuración
@@ -660,7 +667,7 @@ use App\Library\FuncionesGlobales;
                         { data: 'fecha_nacimiento' }, // Columna 1
                         { data: 'edad_actual' }, // Columna 1
                         { data: 'num_servicios' }, // Columna 1
-                        { data: 'locacion_registro' }, // Columna 1
+                        { data: 'diagnosticos_registrados' }, // Columna 1
                         { data: 'label_estatus' }, // Columna 1
                         {
                             data: null, 
@@ -681,8 +688,10 @@ use App\Library\FuncionesGlobales;
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
-                                '</button>'
-                                
+                                '</button>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_diagnoses" data-id="'+data['id']+'" title="'+translations['diagnosis_capture'] +'">' +
+                                    '<i class="bi bi-card-list"></i>'+
+                                '</button>' 
                                 : '';
 
                                 let btn_schedule_appointment    = action_schedule_appointments ? 
@@ -753,11 +762,11 @@ use App\Library\FuncionesGlobales;
                 //  VALIDAR ESTRUCTURA DE DATOS
                 if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
                     console.log('pase1');
-                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_celular']);
-                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
+                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
                     return false;
                 } else {
-                    $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
+                    $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
                 }
 
                 const fecha_nacimiento  = $(modal_clone).find('#input_fecha_nacimiento').val();
@@ -805,6 +814,44 @@ use App\Library\FuncionesGlobales;
                     }
                 })
             });
+
+            $(modal_clone).modal('show');
+        }
+
+        //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
+        function show_modal_diagnoses(data){
+            let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
+
+            $(modal_clone).find('#nombre_paciente').text(data['nombre_completo']);
+
+            $(modal_clone).on('click','.div_diagnostico',function(event){
+                // Evita que el evento se dispare si el clic fue en el input
+                if ($(event.target).is('input')) {
+                    return;
+                }
+                if ($(this).hasClass('bg-success')){
+                    $(this).removeClass('bg-success');
+                    $(this).find('input').prop('disabled',true).prop('checked',false)
+                } else {
+                    $(this).addClass('bg-success');
+                    $(this).find('input').prop('disabled',false);
+                }
+            });
+            
+            $(modal_clone).on('click','#btnSave',function(){
+                let obj_info    = [];
+
+                $(modal_clone).find('.div_diagnostico.bg-success').each(function(){
+                    let id_transtorno       = $(this).data('id');
+                    let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
+                    obj_info.push({
+                        id_transtorno,
+                        presento_evidencia
+                    })
+                });
+
+                console.log('obj_info',obj_info);
+            })
 
             $(modal_clone).modal('show');
         }

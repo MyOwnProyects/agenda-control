@@ -99,7 +99,7 @@ class PacientesController extends BaseController
         //  GET LISTA DE TRANSTORNOS
         $route              = $this->url_api.$this->rutas['cttranstornos_neurodesarrollo']['show'];
         $arr_transtornos    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-        $this->view->arr_transtornos    = $arr_servicios;
+        $this->view->arr_transtornos    = $arr_transtornos;
 
         //  GET LISTA DE SERVICIOS
         $route          = $this->url_api.$this->rutas['ctservicios']['show'];

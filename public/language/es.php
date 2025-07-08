@@ -157,6 +157,9 @@ return [
     'html_diagnosis_capture'        => 'Captura de diagnostico(s)',
     'html_List_neurodevelopmental_disorders'    => 'Lista de transtornos de neurodesarrollo',
     'html_registered_diagnoses'                 => 'Diagnosticos registrados',
+    'html_abrev'                                => 'Abrev.',
+    'html_diagnoses'                            => 'Diagnostico',
+    'html_evidence'                             => 'Presento evidencia',
     
 
 
