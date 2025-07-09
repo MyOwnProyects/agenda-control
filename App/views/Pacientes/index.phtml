@@ -819,8 +819,18 @@ use App\Library\FuncionesGlobales;
         }
 
         //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
-        function show_modal_diagnoses(data){
+        function show_modal_diagnoses(data = null){
             let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
+
+            if (data != null && Object.keys(data['diagnosticos']).length > 0){
+                for(let i in data['diagnosticos']){
+                    $(modal_clone).find('#diagnostico_'+data['diagnosticos'][i]['id'])
+                        .addClass('bg-success')
+                        .find('.input_evidencia')
+                        .prop('disabled',false)
+                        .prop('checked',data['diagnosticos'][i]['presento_evidencia'] == 1 ? true : false);
+                }
+            }
 
             $(modal_clone).find('#nombre_paciente').text(data['nombre_completo']);
 
@@ -839,6 +849,9 @@ use App\Library\FuncionesGlobales;
             });
             
             $(modal_clone).on('click','#btnSave',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
                 let obj_info    = [];
 
                 $(modal_clone).find('.div_diagnostico.bg-success').each(function(){
@@ -851,6 +864,25 @@ use App\Library\FuncionesGlobales;
                 });
 
                 console.log('obj_info',obj_info);
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_diagnoses',
+                        obj_info    : obj_info,
+                        id_paciente : data['id'],
+                        data_old    : data
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $(modal_clone).modal('hide');
+                        cargarTabla();
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
             })
 
             $(modal_clone).modal('show');

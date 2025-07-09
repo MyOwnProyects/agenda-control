@@ -67,7 +67,8 @@ return [
         'get_program_date'  => "/ctpacientes/get_program_date",
         'delete_program_date'   => "/ctpacientes/delete_program_date",
         'fill_combo'            => '/ctpacientes/fill_combo',
-        'save_express'          => '/ctpacientes/save_express'
+        'save_express'          => '/ctpacientes/save_express',
+        'save_diagnoses'        => '/ctpacientes/save_diagnoses'
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
