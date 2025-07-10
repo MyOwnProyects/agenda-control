@@ -12,12 +12,14 @@ class AgendaController extends BaseController
 {
     protected $rutas;
     protected $url_api;
+    protected $bitacora;
 
     public function initialize(){
         $config         = $this->getDI();
         $this->rutas    = $config->get('rutas');
         $config         = $config->get('config');
         $this->url_api  = $config['BASEAPI'];
+        $this->bitacora = 'Agenda';
     }
 
     public function IndexAction(){
@@ -114,7 +116,7 @@ class AgendaController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita: '.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'] ,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -133,7 +135,16 @@ class AgendaController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+                $estatus_asistencia  = array(
+                    '1'     => 'ASISTENCIA',
+                    '2'     => 'RETARDO',
+                    '0'     => 'FALTA',
+                    null    => 'Sin asignar' 
+                );
+
+                $estatus_asistencia_actual  = $estatus_asistencia[$_POST['estatus_asistencia_actual']];
+                $estatus_nuevo_estatus      = $estatus_asistencia[$_POST['nuevo_estatus_asistencia']];
+                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE','Se realizó la modificación del estatus de asistencia de la cita: '.$_POST['id_agenda_cita']. ' ' .$_POST['info_cita'].' de '.$estatus_asistencia_actual.' a '.$estatus_nuevo_estatus,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');

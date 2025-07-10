@@ -1882,6 +1882,7 @@ use App\Library\FuncionesGlobales;
     function show_modal_cancelar_cita(element){
         let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
         let id_agenda_cita  = $(element).data('idagendacita');
+        let texto_cita      = limpiarCadena($(element).closest('#infoBox').find('#servicio').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text());
 
         $(modal_clone).on('click','#btnSave',function(){
             let btn = $(this);
@@ -1909,7 +1910,8 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita  : id_agenda_cita,
                     id_motivo_cancelacion       : $(modal_clone).find("#select_motivo_cancelacion").val(),
                     observaciones_cancelacion   : $(modal_clone).find("#textarea_observaciones_cancelacion").val(),
-                    id_agenda_cita              : $(element).data('idagendacita')
+                    id_agenda_cita              : $(element).data('idagendacita'),
+                    texto_cita                  : texto_cita
                 },
                 success     : function(data){
                     $(modal_clone).modal('hide');
@@ -1944,9 +1946,10 @@ use App\Library\FuncionesGlobales;
         let modal_clone = $("#modal_asistencia").clone().show();
 
         let estatus_asistencia  = {
-            '1' : 'ASISTENCIA',
-            '2' : 'RETARDO',
-            '0' : 'FALTA' 
+            '1'     : 'ASISTENCIA',
+            '2'     : 'RETARDO',
+            '0'     : 'FALTA',
+            null    : 'Sin asignar' 
         }
 
         $(modal_clone).find('#select_asistencia').find('option').prop('disabled',false);
@@ -1976,6 +1979,8 @@ use App\Library\FuncionesGlobales;
                 return false;
             }
 
+            let texto_cita  = limpiarCadena($(element).closest('#infoBox').find('#servicio').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text());
+
             $.ajax({
                 url         : url_index,
                 method      : 'post',
@@ -1983,7 +1988,8 @@ use App\Library\FuncionesGlobales;
                 data        : {
                     accion          : 'modificar_asistencia',
                     id_agenda_cita  : id_agenda_cita,
-                    estatus_asistencia_actual   : estatus_actual,
+                    info_cita       : texto_cita,
+                    estatus_asistencia_actual   : estatus_actual === "" ? null : estatus_actual,
                     nuevo_estatus_asistencia    : $(modal_clone).find("#select_asistencia").val()
                 },
                 success     : function(data){
@@ -1998,6 +2004,7 @@ use App\Library\FuncionesGlobales;
                 },
                 error     : function(error){
                     $(modal_clone).find('#btnSave').prop('disabled',false);
+                    actionJsonError(error,btn);
                 }
             });
         });
@@ -2718,10 +2725,25 @@ use App\Library\FuncionesGlobales;
             showAlert('danger',valida_fechas);
             return false;
         }
-        console.log('1',div_header);
+
         cambiarDia(null, nuevaFecha,$(div_header));
-        console.log('2');
+
         $('.div_principal_filter').find("#btn-dia").trigger('click');
+    }
+
+    function limpiarCadena(str) {
+        // Reemplazar \\n por saltos de línea reales
+        let resultado = str.replace(/\\n/g, '\n');
+
+        // Reemplazar caracteres unicode \\uXXXX por sus respectivos caracteres
+        resultado = resultado.replace(/\\u([\dA-Fa-f]{4})/g, (match, grp) => {
+            return String.fromCharCode(parseInt(grp, 16));
+        });
+
+        // Eliminar saltos de línea reales y normalizar espacios
+        resultado = resultado.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+
+        return resultado;
     }
 
     //  VALIDA 
@@ -3215,6 +3237,10 @@ use App\Library\FuncionesGlobales;
         $("#infoBox").find("#duracion").text($(element).data('duracion')+' Minutos');
         $("#infoBox").find("#dia").text($(element).data('dialabel'));
         $("#infoBox").find("#horario").text(horario);
+
+        if ($(element).data('asistencia') == null){
+            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Sin asignar').append('<i class="bi bi-person-fill"></i>');
+        } 
 
         if ($(element).data('asistencia') == 1){
             $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Asistencia').append('<i class="bi bi-person-check-fill"></i>');
