@@ -289,6 +289,19 @@ use App\Library\FuncionesGlobales;
                             <?php echo $translations['html_canceled_appoitments']; ?>
                         </label>
                     </div>
+                    <label class="form-label"><b><?php echo $translations['html_pay_filters']; ?></b></label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_pagadas" value="canceladas">
+                        <label class="form-check-label" for="check_pagadas">
+                            <?php echo $translations['html_paid_appoitments']; ?>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_adeudo" value="canceladas">
+                        <label class="form-check-label" for="check_adeudo">
+                            <?php echo $translations['html_debt_appoitments']; ?>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="col-md-12 text-end">
@@ -316,10 +329,10 @@ use App\Library\FuncionesGlobales;
                     <tr>
                         <th><?php echo $translations['html_title_patient']; ?></th>
                         <th><?php echo $translations['html_title_professional']; ?></th>
-                        <th><?php echo $translations['html_assigned_services']; ?></th>
+                        <th><?php echo $translations['html_service_cost']; ?></th>
                         <th><?php echo $translations['html_appointment_date']; ?></th>
-                        <th><?php echo $translations['html_appointment_time']; ?></th>
-                        <th><?php echo $translations['html_current_status']; ?></th>
+                        <th><?php echo $translations['html_paid']; ?></th>
+                        <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -451,25 +464,37 @@ use App\Library\FuncionesGlobales;
                     <label><?php echo $translations['html_hour']; ?>:</label>
                     <div id="hora_cita" class="d-block"></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 hide_by_pay">
                     <label><?php echo $translations['html_ab_duration']; ?>:</label>
                     <div id="duracion" class="d-block"></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 hide_by_pay">
                     <label><?php echo $translations['html_user_capture']; ?>:</label>
                     <div id="usuario_captura" class="d-block"></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 hide_by_pay">
                     <label><?php echo $translations['html_attendance_status']; ?>:</label>
                     <div id="asistencia" class="d-block"></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 hide_by_pay">
                     <label><?php echo $translations['html_appoitment_type']; ?>:</label>
                     <div id="tipo_cita" class="d-block"></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 hide_by_pay">
                     <label><?php echo $translations['html_status']; ?>:</label>
                     <div id="estatus" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_paid']; ?>:</label>
+                    <div id="pagada" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_payment_date']; ?>:</label>
+                    <div id="fecha_pago" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_method_payment']; ?>:</label>
+                    <div id="forma_pago" class="d-block"></div>
                 </div>
                 <div class="col-md-12 div_info_cancelacion hide">
                     <label><?php echo $translations['html_info_cancel_appoitment']; ?></label>
@@ -508,11 +533,22 @@ use App\Library\FuncionesGlobales;
                     <div class="d-flex justify-content-end fw-bold py-2 mt-2">
                         <div>Total: $<span class="total"></span></div>
                     </div>
+                    <?php if ($registrar_pago): ?>
+                    <div class="col-md-12 div_forma_pago show_by_pay" align="center" style="display:none;">
+                        <label>Forma de pago</label>
+                        <input type="radio" name="forma_pago" value="EFECTIVO"  checked/> Efectivo
+                        <input type="radio" name="forma_pago" value="TRANSFERENCIA"  /> Transferencia
+                    </div>
+                    <?php endif;?>
                 </div>
+                
             </div>
         </form>
       </div>
       <div class="modal-footer">
+        <?php if ($registrar_pago): ?>
+        <button type="button" class="btn btn_registrar_pago show_by_pay" style="display:none;"></button>
+        <?php endif;?>
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_close']; ?></button>
       </div>
     </div>
@@ -704,10 +740,14 @@ use App\Library\FuncionesGlobales;
         let draw            = 0;
         let count_hours     = 0;
 
+        //  PERMISOS
+        let registrar_pago  = "<?php echo $registrar_pago; ?>"
+
         let estatus_asistencia  = {
             0   : 'FALTA',
             1   : 'ASISTENCIA',
-            2   : 'RETARDO'
+            2   : 'RETARDO',
+            null    : 'Sin asignar' 
         };
 
         //  URL
@@ -739,6 +779,9 @@ use App\Library\FuncionesGlobales;
             error_starting_date     : "<?= $translations['html_error_starting_date']?>",
             appoinment_edit         : "<?= $translations['html_appoinment_edit']?>",
             cancel_appointment      : "<?= $translations['html_cancel_appointment']?>",
+            register_payment        : "<?= $translations['html_register_payment']?>",
+            pay                     : "<?= $translations['html_pay']?>",
+            cancel_payment          : "<?= $translations['html_cancel_payment']?>",
         };
 
         // Variable global para almacenar la instancia de DataTable
@@ -786,8 +829,8 @@ use App\Library\FuncionesGlobales;
                     ordering: false,
                     serverSide: true,
                     ajax: {
-                        url: url_index,
-                        method: 'POST',
+                        url     : url_index,
+                        method  : 'POST',
                         data: function (d) {
                             d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
                             d.offset    = d.start == null || d.start == '' ? 0 : d.start;
@@ -801,14 +844,16 @@ use App\Library\FuncionesGlobales;
                             d.fecha_inicio      = $("#input_rango_fecha_inicio").val();
                             d.fecha_termino     = $("#input_rango_fecha_termino").val();
                             d.tipo_busqueda     = $('input[name="filtro_citas"]:checked').val() || 'todas'; // Obtiene el valor del radio seleccionado
+                            d.citas_pagadas     = $("#check_pagadas").prop('checked') == true ? 1 : 0;
+                            d.citas_adeudo      = $("#check_adeudo").prop('checked') == true ? 1 : 0;
                         }
                     },
                     columns: [
                         { data: 'nombre_completo' }, // Columna 1
                         { data: 'nombre_profesional' }, // Columna 1
-                        { data: 'num_servicios' }, // Columna 1
-                        { data: 'fecha_cita' }, // Columna 1
-                        { data: 'hora_cita' }, // Columna 1
+                        { data: 'num_servicios_costo' }, // Columna 1
+                        { data: 'fecha_completa' }, // Columna 1
+                        { data: 'label_pagada' }, // Columna 1
                         { data: 'estatus' }, // Columna 1
                         {
                             data: null, 
@@ -833,7 +878,13 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" title="'+translations['cancel_appointment'] +'">' +
                                     '<i class="bi bi-calendar-x"></i>'+
                                 '</button>';
-                                return btn_preview + btn_update + btn_delete;
+
+                                let btn_registrar_pago  = !registrar_pago || data['activa'] != 1 ? '' :
+                                '<button class="btn btn-outline-dark btn-sm btn_registrar_pago" data-id="'+data['id_agenda_cita']+'" title="'+translations['register_payment'] +'">' +
+                                    '<i class="bi bi-cash"></i>'+
+                                '</button>';
+
+                                return btn_preview + btn_update + btn_registrar_pago +btn_delete;
                             }
                         }
                     ],
@@ -1004,7 +1055,7 @@ use App\Library\FuncionesGlobales;
 
 
 
-        function show_info_cita(info_cita){
+        function show_info_cita(info_cita,registrar_pago = null){
             let modal_clone = $("#modal_info_cita").clone().show();
             $(modal_clone).find("#nombre_paciente").text(info_cita['nombre_completo']);
             $(modal_clone).find("#nombre_profesional").text(info_cita['nombre_profesional']);
@@ -1041,6 +1092,54 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_header_servicios').append(row_servicio);
             }
             $(modal_clone).find('.total').text(info_cita['total']);
+
+            if (registrar_pago != null){
+                $(modal_clone).find('.hide_by_pay').hide();
+                $(modal_clone).find('.show_by_pay').show();
+
+                if (info_cita['pagada'] == 1){
+                    $(modal_clone).find('.btn_registrar_pago').addClass('btn-danger').text(translations['cancel_payment']);
+                    $(modal_clone).find('#pagada').text('SI');
+                    $(modal_clone).find('#fecha_pago').text(info_cita['fecha_pago']);
+                    $(modal_clone).find('#forma_pago').text(info_cita['forma_pago']);
+                    $(modal_clone).find(".div_forma_pago").hide();
+                } else {
+                    $(modal_clone).find('.btn_registrar_pago').addClass('btn-success').text(translations['pay']);
+                    $(modal_clone).find('#pagada').text('NO');
+                    $(modal_clone).find('#fecha_pago').text('S/A');
+                    $(modal_clone).find('#forma_pago').text('S/A');
+                }
+
+                $(modal_clone).on('click','.btn_registrar_pago',function(){
+                    let btn = $(this);
+                    $(btn).prop('disabled',true);
+                    $.ajax({
+                        url     : url_index,
+                        method  : 'post',
+                        data    : {
+                            accion          : info_cita['pagada'] == 1 ? 'cancelar_pago' : 'capturar_pago',
+                            id_agenda_cita  : info_cita['id_agenda_cita'],
+                            forma_pago      : $(modal_clone).find('[name="forma_pago"]:checked').val(),
+                            info_cita       : info_cita
+                        },
+                        success : function(data){
+                            $(modal_clone).modal('hide');
+                            showAlert('success','Captura exitosa!');
+                            if ("#input_rango_fecha_inicio" != null && $("#input_rango_fecha_inicio").val() != '' && $("#input_rango_fecha_termino").val() != null && $("#input_rango_fecha_termino").val() != ''){
+                                cargarTabla();
+                            }
+
+                        },
+                        error   : function(error){
+                            $(btn).prop('disabled',false);
+                            console.log('error');
+                            //console.log(error);
+                            actionJsonError(error,btn);
+                        }
+                    });
+                });
+            }
+
             $(modal_clone).modal('show');
         }
 
@@ -1864,6 +1963,13 @@ use App\Library\FuncionesGlobales;
                 show_info_cita(data);
             });
 
+            //  MOSTRAR INFO PARA REGISTRAR PAGO
+            $("#table_results").on('click','.btn_registrar_pago',function(){
+                // Obtener los datos almacenados en la fila
+                let data = $(this).closest('tr').data('rowData');
+                show_info_cita(data,registrar_pago);
+            });
+
             //  EVENTO PARA EDITAR UNA CITA
             $("#table_results").on('click','.btn_edit',function(){
                 let row = $(this).closest('tr').data('rowData');
@@ -1900,6 +2006,12 @@ use App\Library\FuncionesGlobales;
                     }
                 });
             });
+
+            $('[name="filtro_citas_pago"]').on('click',function(){
+                let tmp_checked = $(this).prop('checked');
+                $('[name="filtro_citas_pago"]').prop('checked',false);
+                $(this).prop('checked',tmp_checked);
+            })
 
             //  BUSQUEDA RAPIDA
             //$("#btnBuscar").trigger('click');

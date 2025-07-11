@@ -83,7 +83,9 @@ return [
         'cancelar_cita'         => '/tbagenda_citas/cancelar_cita',
         'modificar_asistencia'  => '/tbagenda_citas/modificar_asistencia',
         'save'                  => '/tbagenda_citas/save',
-        'get_today'             => '/tbagenda_citas/get_today'
+        'get_today'             => '/tbagenda_citas/get_today',
+        'capturar_pago'         => '/tbagenda_citas/capturar_pago',
+        'cancelar_pago'         => '/tbagenda_citas/cancelar_pago',
     ),
     'ctmotivos_cancelacion_cita'    => array(
         'show'  => '/ctmotivos_cancelacion_cita/show'

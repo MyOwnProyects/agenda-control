@@ -204,6 +204,40 @@ class ControlcitasController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+            $aqui = 1;
+
+            if ($accion == 'cancelar_pago' || $accion == 'capturar_pago'){
+                $info_cita  = $_POST['info_cita'];
+
+                $route  = '';
+
+                $mensaje_bitacora   = '';
+                if ($accion == 'capturar_pago'){
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['capturar_pago'];
+                    $mensaje_bitacora   = 'Se registro el pago del paciente: '.$info_cita['nombre_completo'].' de la cita con fecha: '.$info_cita['fecha_completa'];
+                }
+
+                if ($accion == 'cancelar_pago'){
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['cancelar_pago'];
+                    $mensaje_bitacora   = 'Se cancelo el pago del paciente: '.$info_cita['nombre_completo'].' de la cita con fecha: '.$info_cita['fecha_completa'];
+                }
+
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
+                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE',$mensaje_bitacora,$_POST);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
 
             $response = new Response();
             $response->setJsonContent($result);
@@ -216,7 +250,10 @@ class ControlcitasController extends BaseController
         $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('onlyallowed' => 1));
 
         $this->view->arr_locaciones     = $arr_locaciones; 
+        
+        //  PERMISOS     register_payment
         $this->view->apertura_agenda    = FuncionesGlobales::HasAccess("Controlcitas","agenda_opening");
+        $this->view->registrar_pago     = FuncionesGlobales::HasAccess("Controlcitas","register_payment");
 
         $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
         $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(

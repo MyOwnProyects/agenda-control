@@ -137,6 +137,8 @@ return [
     'html_all_appoitments'          => 'Mostrar <b>TODAS</b> las citas',
     'html_active_appoitments'       => 'Mostrar solo citas <b>ACTIVAS</b>',
     'html_canceled_appoitments'     => 'Mostrar solo citas <b>CANCELADAS</b>',
+    'html_paid_appoitments'         => 'Citas <b>PAGADAS</b>',
+    'html_debt_appoitments'         => 'Citas <b>CON ADEUDO</b>',
     'html_info_appointment'         => 'Información de la cita',
     'html_close'                    => 'Cerrar',
     'html_hour'                     => 'Hora',
@@ -160,6 +162,14 @@ return [
     'html_abrev'                                => 'Abrev.',
     'html_diagnoses'                            => 'Diagnostico',
     'html_evidence'                             => 'Presento evidencia',
+    'html_paid'                                 => 'Pagada',
+    'html_register_payment'                     => 'Registrar/Cancelar pago',
+    'html_service_cost'                         => 'Servicios / Costo Total',
+    'html_cancel_payment'                       => 'Cancelar pago',
+    'html_pay'                                  => 'Pagar',
+    'html_payment_date'                         => 'Fecha de pago',
+    'html_method_payment'                       => 'Forma de pago',
+    'html_pay_filters'                          => 'Filtros de pago',
     
 
 
