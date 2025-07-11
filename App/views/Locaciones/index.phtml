@@ -179,22 +179,6 @@ use App\Library\FuncionesGlobales;
                     <button type="button" id="btn_add_hours" class="btn btn-outline-dark btn_add_hours"><i class="bi bi-plus"></i></button>
                 </div>
             </div>
-            <div class="row col-12 align-items-center">
-                <div class="col-2">
-                    <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
-                </div>
-                <div class="col-2">
-                    <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
-                </div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_monday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thuesday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_wednesday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thursday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_friday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_saturday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_sunday']; ?></label></div>
-                <div class="col-1">Acci&oacute;n</div>
-            </div>
             <div class="row rows_table">
                 
             </div>
@@ -218,6 +202,32 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <div id="template_horas" class="row col-12 hide div_header_hours" style="padding-top:5px;">
+    <div class="row col-12">
+        <div class="col-4">
+            <label>Titulo:</label>
+            <input class="titulo form-control" type="text" required/>
+        </div>
+        <div class="col-4">
+            <label>Intervalo de citas (Minutos):</label>
+            <input class="intervalo_citas form-control" type="number" style="width:50%" required/>
+        </div>
+    </div>
+    <div class="row col-12 align-items-center">
+        <div class="col-2">
+            <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
+        </div>
+        <div class="col-2">
+            <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
+        </div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_monday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thuesday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_wednesday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thursday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_friday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_saturday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_sunday']; ?></label></div>
+        <div class="col-1">Acci&oacute;n</div>
+    </div>
     <div class="col-2">
         <input type="time" step="60" class="form-control input_hora_inicio" required>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
@@ -694,9 +704,11 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.div_header_hours').each(function(){
 
                         obj_info[index] = new Object();
-                        obj_info[index]['hora_inicio']  = $(this).find('.input_hora_inicio').val();
-                        obj_info[index]['hora_termino'] = $(this).find('.input_hora_termino').val();
-                        obj_info[index]['dias']         = [];
+                        obj_info[index]['titulo']           = $(this).find('.titulo').val();
+                        obj_info[index]['intervalo_citas']  = $(this).find('.intervalo_citas').val();
+                        obj_info[index]['hora_inicio']      = $(this).find('.input_hora_inicio').val();
+                        obj_info[index]['hora_termino']     = $(this).find('.input_hora_termino').val();
+                        obj_info[index]['dias']             = [];
 
                         let id_header   = $(this).attr('id');
                         let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
@@ -708,17 +720,9 @@ use App\Library\FuncionesGlobales;
                         //  SE BUSCAN LOS DIAS SELECCIONADOS
                         $(this).find('.selected').each(function(){
                             let dia_selected    = $(this).data('dia');
-                            console.log('dia_selected');
-                            console.log(dia_selected);
-                            console.log('busqueda');
-                            console.log('.dia_'+dia_selected);
-                            console.log($(modal_clone).find('.dia_'+dia_selected).length);
 
                             //  SE BUSCAN LOS ROWS CUYO DIA SELECCIONADO SEA IGUAL
                             $(modal_clone).find('.dia_'+dia_selected).each(function(){
-                                console.log('check id');
-                                console.log($(this).closest('.div_header_hours').attr('id'));
-                                console.log(id_header);
                                 if ($(this).closest('.div_header_hours').attr('id') == id_header){
                                     return true;
                                 }
@@ -731,8 +735,6 @@ use App\Library\FuncionesGlobales;
                                 let hora_termino    = convertirHoraATiempo($(this).closest('.div_header_hours').find('.input_hora_termino').val());
 
                                 //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-                                console.log('hora_inicio_header >= hora_inicio');
-                                console.log(hora_inicio_header >= hora_inicio,hora_inicio);
                                 if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
                                     console.log('empalmado hora_inicio_header');
                                     throw 'error_opening_hours';
@@ -740,6 +742,11 @@ use App\Library\FuncionesGlobales;
 
                                 //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
                                 if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                                    console.log('empalmado hora termino');
+                                    throw 'error_opening_hours';
+                                }
+
+                                if (hora_inicio_header <= hora_inicio && hora_termino_header >= hora_termino) {
                                     console.log('empalmado hora termino');
                                     throw 'error_opening_hours';
                                 }
