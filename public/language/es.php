@@ -170,6 +170,7 @@ return [
     'html_payment_date'                         => 'Fecha de pago',
     'html_method_payment'                       => 'Forma de pago',
     'html_pay_filters'                          => 'Filtros de pago',
+    'html_appointment_range'                    => 'Intervalo de citas (Min)',
     
 
 

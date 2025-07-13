@@ -248,9 +248,45 @@ class PacientesController extends BaseController
         if ($this->request->isAjax()){
             $accion = $this->request->getPost('accion');
 
+            if ($accion == 'get_horario_atencion'){
+
+                $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+                $arr_locacion   = FuncionesGlobales::RequestApi('GET',$route,array('id' => $_POST['id_locacion']));
+                $arr_locacion   = $arr_locacion[0];
+
+                $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+                $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+                
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                if (count($horario_atencion) == 0){
+                    $response->setJsonContent('Locación sin horario de atención asignado');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $arr_return = array();
+                foreach($horario_atencion as $id => $horario){
+                    $arr_return[$id]            = FuncionesGlobales::allStructureSchedule(array($horario));
+                    $arr_return[$id]['titulo']          = $horario['titulo'];
+                    $arr_return[$id]['intervalo_citas'] = $arr_locacion['intervalo_citas'];
+                    $arr_return[$id]['id']              = $horario['id'];
+                }
+
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             if ($accion == 'get_date'){
                 $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
-                $arr_info           = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
                 $response = new Response();
                 $response->setJsonContent($arr_info);
@@ -279,11 +315,17 @@ class PacientesController extends BaseController
             }
 
             if ($accion == 'get_info_locacion'){
+
+                $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+                $arr_locacion   = FuncionesGlobales::RequestApi('GET',$route,array('id' => $_POST['id_locacion']));
+                $arr_locacion   = $arr_locacion[0];
+
                 $arr_return = array(
                     'horario_atencion'  => array()
                 );
                 $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-                $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+                $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'id' => $_POST[
+                    'id_horario_atencion']));
 
                 $response = new Response();
 
@@ -297,8 +339,9 @@ class PacientesController extends BaseController
 
                 $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
 
-                $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
-                $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
+                $arr_return['intervalo_citas']      = $arr_locacion['intervalo_citas'];
+                $arr_return['min_hora_inicio']      = $arr_horas['min_hora_inicio'];
+                $arr_return['max_hora_inicio']      = $arr_horas['max_hora_termino'];
                 $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
                 $tmp_json   = json_encode($arr_return['rangos_no_incluidos']);
 
@@ -331,7 +374,8 @@ class PacientesController extends BaseController
             if ($accion == 'get_horario_profesional'){
                 $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
                 $horario_atencion_locacion  = FuncionesGlobales::RequestApi('GET',$route,array(
-                    'id_locacion'           => $_POST['id_locacion']
+                    'id_locacion'   => $_POST['id_locacion'],
+                    'id'            => $_POST['id_horario_atencion']
                 ));
 
                 $horario_atencion_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
@@ -469,7 +513,7 @@ class PacientesController extends BaseController
         $this->view->rangos_no_incluidos = json_encode($arr_horas['rangos_no_incluidos']);
 
 
-        // HORARIO DE ATENCION PLANTEL
+        // PLANTELES PERMITIDOS AL USUARIO
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
         $_POST['onlyallowed']   = 1;
         $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,$_POST);

@@ -197,66 +197,63 @@ class FuncionesGlobales{
     }
 
     /**
-     * FUNCION PARA OBTENER LA HORA MINIMA Y MAXIMA A PINTAR
-     * 
-     * @param   Object  $horario_atencion
-     * 
+     * FUNCIÓN PARA OBTENER LA HORA MÍNIMA Y MÁXIMA A PINTAR CON PRECISIÓN DE MINUTOS
+     *
+     * @param   array   $horario_atencion
+     * @param   int     $intervalo_citas
+     *
      * @return array
      */
-    public static function allStructureSchedule($horario_atencion){
-        //  SE RECORRE EL ARRAY PARA OBTENER LA HORA DE INICIO Y TERMINO
-        $min_hora_inicio    = '23:59'; // Inicializa con la mayor hora posible
-        $max_hora_termino   = '00:00'; // Inicializa con la menor hora posible
-        $dias_disponibled   = array();
+    public static function allStructureSchedule($horario_atencion, $intervalo_citas = 60) {
+        $min_hora_inicio = '23:59';
+        $max_hora_termino = '00:00';
+        $dias_disponibled = [];
 
-        foreach ($horario_atencion as $key => $horario) {
-            $hora_inicio = strtotime($horario['hora_inicio']); // Convierte a timestamp
-            $hora_termino = strtotime($horario['hora_termino']); // Convierte a timestamp
+        foreach ($horario_atencion as $horario) {
+            $hora_inicio = strtotime($horario['hora_inicio']);
+            $hora_termino = strtotime($horario['hora_termino']);
 
-            // Comparar y establecer la hora de inicio mínima
             if ($hora_inicio < strtotime($min_hora_inicio)) {
                 $min_hora_inicio = $horario['hora_inicio'];
             }
-
-            // Comparar y establecer la hora de término máxima
             if ($hora_termino > strtotime($max_hora_termino)) {
                 $max_hora_termino = $horario['hora_termino'];
             }
 
             foreach ($horario['dias'] as $dia) {
-                // Verifica si el día ya está en el array $dias_disponibled
-                if (!in_array($dia['dia'], $dias_disponibled)) { 
-                    array_push($dias_disponibled, $dia['dia']); // Añade el día al array si no existe
+                if (!in_array($dia['dia'], $dias_disponibled)) {
+                    $dias_disponibled[] = $dia['dia'];
                 }
             }
         }
-        
-        $minutos_restantes  = explode(':', $max_hora_termino)[1];
+
+        $minutos_restantes = explode(':', $max_hora_termino)[1];
         $min_hora = explode(':', $min_hora_inicio)[0];
-        if ($minutos_restantes != '00'){
+
+        if ($minutos_restantes != '00') {
             $max_hora = explode(':', $max_hora_termino)[0];
         } else {
             $max_hora = explode(':', $max_hora_termino)[0] - 1;
         }
-        
 
-        $tmp_min_hora   = intval(explode(':', $min_hora_inicio)[0]); // Convierte a número entero
-        $tmp_max_hora   = intval(explode(':', $max_hora_termino)[0]);
-        
-        if ($minutos_restantes!= '00'){
-            $tmp_max_hora   = $tmp_max_hora + 1;
-        }
+        // Minutos totales desde medianoche
+        $inicio_parts = explode(':', $min_hora_inicio);
+        $termino_parts = explode(':', $max_hora_termino);
 
-        $rangos_no_incluidos    = SELF::timeRangeNotIncluded($horario_atencion,$tmp_min_hora,$tmp_max_hora);
+        $tmp_min_hora = intval($inicio_parts[0]) * 60 + intval($inicio_parts[1]);
+        $tmp_max_hora = intval($termino_parts[0]) * 60 + intval($termino_parts[1]);
 
-        return array(
-            'min_hora'  => $min_hora,
-            'max_hora'  => $max_hora,
-            'min_hora_inicio'   => $min_hora_inicio,
-            'max_hora_termino'  => $max_hora_termino,
+        $rangos_no_incluidos = SELF::timeRangeNotIncluded($horario_atencion, $tmp_min_hora, $tmp_max_hora);
+
+        return [
+            'min_hora'              => $min_hora,
+            'max_hora'              => $max_hora,
+            'min_hora_inicio'       => $min_hora_inicio,
+            'max_hora_termino'      => $max_hora_termino,
             'rangos_no_incluidos'   => $rangos_no_incluidos
-        );
+        ];
     }
+
     /** 
      * FUNCION PARA CALCULAR LAS HORAS NO INCLUIDAS EN EL HORARIO DE ATENCION
      * 
@@ -264,8 +261,7 @@ class FuncionesGlobales{
      * 
      * @return array
     */
-    public static function timeRangeNotIncluded($horario_atencion,$min_hora,$max_hora){
-        // Inicializar los días de la semana
+    public static function timeRangeNotIncluded($horario_atencion, $minutos_inicio, $minutos_termino) {
         $dias_semana = [
             1 => "Lunes",
             2 => "Martes",
@@ -276,68 +272,55 @@ class FuncionesGlobales{
             7 => "Domingo"
         ];
 
-        // Crear un array que registre los rangos de tiempo no incluidos
         $rangos_no_incluidos = [];
 
-        // Iterar por los días de la semana
         foreach ($dias_semana as $numero_dia => $nombre_dia) {
-            $horas_cubiertas = []; // Guardará los rangos cubiertos por los horarios
+            $rangos_ocupados = [];
 
-            // Revisar los horarios para el día actual
             foreach ($horario_atencion as $horario) {
                 foreach ($horario['dias'] as $dia) {
                     if ($dia['dia'] == $numero_dia) {
-                        $horas_cubiertas[] = [
-                            "start" => strtotime($horario['hora_inicio']),
-                            "end" => strtotime($horario['hora_termino']),
+                        // Convertimos a minutos totales desde medianoche
+                        $inicio = explode(':', $horario['hora_inicio']);
+                        $fin = explode(':', $horario['hora_termino']);
+                        $rangos_ocupados[] = [
+                            'start' => intval($inicio[0]) * 60 + intval($inicio[1]),
+                            'end' => intval($fin[0]) * 60 + intval($fin[1]),
                         ];
                     }
                 }
             }
 
             // Ordenar los rangos por hora de inicio
-            usort($horas_cubiertas, function ($a, $b) {
-                return $a['start'] - $b['start'];
-            });
+            usort($rangos_ocupados, fn($a, $b) => $a['start'] - $b['start']);
 
-            // Establecer la hora mínima y máxima para el día
-            $hora_actual = strtotime(sprintf("%02d:00", $min_hora)); // Inicia en $min_hora
-            $hora_final = strtotime(sprintf("%02d:00", $max_hora)); // Termina en $max_hora
+            $actual = $minutos_inicio;
 
-            foreach ($horas_cubiertas as $rango) {
-                if ($hora_actual < $rango['start']) {
-                    // Ajustar el "end" si es igual a hora_final
-                    $end_time = min($rango['start'], $hora_final);
-                    if ($end_time == $hora_final) {
-                        $end_time -= 1; // Restar 1 segundo si end == hora_termino
-                    }
-                    // Hay un intervalo no cubierto antes del rango actual y dentro del rango permitido
+            foreach ($rangos_ocupados as $rango) {
+                if ($actual < $rango['start']) {
                     $rangos_no_incluidos[] = [
-                        "start" => date('H:i', $hora_actual),
-                        "end" => date('H:i', $end_time),
-                        "day" => $nombre_dia
+                        'start' => sprintf('%02d:%02d', intdiv($actual, 60), $actual % 60),
+                        'end'   => sprintf('%02d:%02d', intdiv($rango['start'], 60), $rango['start'] % 60),
+                        'day'   => $nombre_dia
                     ];
                 }
-                // Actualizar la hora actual al final del rango cubierto
-                $hora_actual = max($hora_actual, $rango['end']);
+                // Avanzamos al final del rango cubierto si es mayor
+                $actual = max($actual, $rango['end']);
             }
 
-            // Verificar si hay un intervalo no cubierto después del último rango dentro del rango permitido
-            if ($hora_actual < $hora_final) {
-                $end_time = $hora_final;
-                if ($end_time == $hora_final) {
-                    $end_time -= 1; // Restar 1 segundo si end == hora_termino
-                }
+            // Verificar si hay un hueco al final del día
+            if ($actual < $minutos_termino) {
                 $rangos_no_incluidos[] = [
-                    "start" => date('H:i', $hora_actual),
-                    "end" => date('H:i', $end_time),
-                    "day" => $nombre_dia
+                    'start' => sprintf('%02d:%02d', intdiv($actual, 60), $actual % 60),
+                    'end'   => sprintf('%02d:%02d', intdiv($minutos_termino, 60), $minutos_termino % 60),
+                    'day'   => $nombre_dia
                 ];
             }
         }
 
         return $rangos_no_incluidos;
     }
+
 
     public static function obtenerRangosNoDisponiblesPorDia($horariosLocacion, $horariosProfesional, $hora_cierre) {
         $diasSemana = [
