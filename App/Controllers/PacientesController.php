@@ -271,12 +271,17 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                $arr_return = array();
+                $arr_return     = array();
+                $citas_paciente = $this->get_citas_programadas(array('id_paciente'   => $_POST['id_paciente']));
+                $citas_por_locacion = array();
                 foreach($horario_atencion as $id => $horario){
                     $arr_return[$id]            = FuncionesGlobales::allStructureSchedule(array($horario));
                     $arr_return[$id]['titulo']          = $horario['titulo'];
                     $arr_return[$id]['intervalo_citas'] = $arr_locacion['intervalo_citas'];
                     $arr_return[$id]['id']              = $horario['id'];
+
+                    //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
+                    $arr_return[$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($citas_paciente,$horario);
                 }
 
                 $response->setJsonContent($arr_return);
@@ -324,8 +329,7 @@ class PacientesController extends BaseController
                     'horario_atencion'  => array()
                 );
                 $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-                $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'id' => $_POST[
-                    'id_horario_atencion']));
+                $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'id' => $_POST['id_horario_atencion']));
 
                 $response = new Response();
 
@@ -502,15 +506,15 @@ class PacientesController extends BaseController
         $this->view->nombre_completo    = $info_paciente['nombre_completo'];
 
         //  SE BUSCA LA INFORMACION DE LA LOCACION, ASI COMO SU HORARIO
-        $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-        $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $info_paciente['id_locacion_registro']));
-        $this->view->horario_atencion   = $horario_atencion;
+        // $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+        // $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $info_paciente['id_locacion_registro']));
+        $this->view->horario_atencion   = array();
 
-        $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
+       // $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
 
-        $this->view->min_hora_inicio    = $arr_horas['min_hora'];
-        $this->view->max_hora_inicio    = $arr_horas['max_hora'];
-        $this->view->rangos_no_incluidos = json_encode($arr_horas['rangos_no_incluidos']);
+        $this->view->min_hora_inicio    = '00:00';
+        $this->view->max_hora_inicio    = '00:00';
+        $this->view->rangos_no_incluidos = json_encode(array());
 
 
         // PLANTELES PERMITIDOS AL USUARIO

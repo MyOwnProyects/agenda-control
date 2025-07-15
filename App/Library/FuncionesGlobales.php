@@ -410,4 +410,49 @@ class FuncionesGlobales{
         return $horariosAgrupados;
     }
 
+    /*  
+        FUNCION QUE RECIBE DE PARAMETRO TODAS LAS CITAS DEL PACIENTE Y EL HORARIO DE 
+        ATENCION DE LA LOCACION, RETORNA LAS CITAS QUE ENCAJAN CON EL HORARIO
+
+        @param  $citas_paciente             {Obj}
+        @param  $horario_atencion_locacion  {Obj}
+
+        @return {Obj}
+    */
+    public static function AppoitmentByLocation($citas_paciente, $horario_atencion_locacion) {
+        $cita_locacion = array();
+
+        // Mapeo de días en español a números (1 = Lunes, ..., 7 = Domingo)
+        $dias_semana = array(
+            'Lunes' => 1,
+            'Martes' => 2,
+            'Miércoles' => 3,
+            'Jueves' => 4,
+            'Viernes' => 5,
+            'Sábado' => 6,
+            'Domingo' => 7
+        );
+
+        // Extrae días válidos de atención
+        $dias_validos = array_map(function($d) {
+            return $d['dia'];
+        }, $horario_atencion_locacion['dias']);
+
+        foreach ($citas_paciente as $cita) {
+            $dia_cita = $dias_semana[$cita['day']] ?? 0;
+            $hora_inicio = $horario_atencion_locacion['hora_inicio'];
+            $hora_termino = $horario_atencion_locacion['hora_termino'];
+
+            // Verifica si el día está en el horario permitido
+            if (in_array($dia_cita, $dias_validos)) {
+                if ($cita['start'] >= $hora_inicio && $cita['end'] <= $hora_termino) {
+                    $cita_locacion[] = $cita;
+                }
+            }
+        }
+
+        return $cita_locacion;
+    }
+
+
 }
