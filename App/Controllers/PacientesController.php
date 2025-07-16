@@ -446,9 +446,14 @@ class PacientesController extends BaseController
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'CITA PROGRAMADA','Se creo/modifico el registro de citas programadas para el paciente: '.$nombre.' el cual tendrá '.$servicios.' servicios programados'.$msg_generar_citas,$_POST);
 
+                $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+                $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'id' => $_POST['id_horario_atencion']));
+                $horario_atencion   = $horario_atencion[0];
+
                 //  OBTENER NUEVO HORARIO DEL PACIENTE
                 //  SE BUSCAN LOS REGISTROS DEL PACIENTE
                 $citas_paciente = $this->get_citas_programadas(array('id_paciente'   => $_POST['id_paciente']));
+                $citas_paciente = FuncionesGlobales::AppoitmentByLocation($citas_paciente,$horario_atencion);
 
                 $response->setJsonContent($citas_paciente);
                 $response->setStatusCode(200, 'OK');
@@ -563,7 +568,8 @@ class PacientesController extends BaseController
                     'duracion'      => $info_citas['duracion'],
                     'id_cita_programada_servicio'           => $id_cita_programada_servicio,
                     'id_cita_programada_servicio_horario'   => $horario['id_cita_programada_servicio_horario'],
-                    'nombre_locacion'                       => $info_citas['nombre_locacion']
+                    'nombre_locacion'                       => $info_citas['nombre_locacion'],
+                    'codigo_color'                          => $info_citas['codigo_color']
                 );
             }
         }
