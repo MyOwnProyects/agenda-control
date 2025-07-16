@@ -737,6 +737,9 @@ use App\Library\FuncionesGlobales;
 
 <script>
     let module_control_citas    = (function(){
+
+        let busqueda_pruebas    = true;
+
         let draw            = 0;
         let count_hours     = 0;
 
@@ -1986,6 +1989,7 @@ use App\Library\FuncionesGlobales;
                         rango_fechas    : rango_semana_actual
                     },
                     success : function(data){
+                        console.log('data ajax',data);
                         ajax_previo_show_modal(row,data);
                     },
                     error   : function(error){
@@ -2014,7 +2018,17 @@ use App\Library\FuncionesGlobales;
             })
 
             //  BUSQUEDA RAPIDA
-            //$("#btnBuscar").trigger('click');
+            if (busqueda_pruebas){
+                let fecha_hoy = new Date().toISOString().split('T')[0];
+
+                let fecha_30_dias = new Date();
+                fecha_30_dias.setDate(fecha_30_dias.getDate() + 30);
+                fecha_30_dias = fecha_30_dias.toISOString().split('T')[0];
+                $("#input_rango_fecha_inicio").val(fecha_hoy);
+                $("#input_rango_fecha_termino").val(fecha_30_dias);
+                $("#btnBuscar").trigger('click');
+            }
+            
             
         });
 

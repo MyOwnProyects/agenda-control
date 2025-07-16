@@ -439,7 +439,7 @@ class FuncionesGlobales{
         }, $horario_atencion_locacion['dias']);
 
         foreach ($citas_paciente as $cita) {
-            $dia_cita = $dias_semana[$cita['day']] ?? 0;
+            $dia_cita = is_numeric($cita['day']) ? $cita['day'] : $dias_semana[$cita['day']];
             $hora_inicio = $horario_atencion_locacion['hora_inicio'];
             $hora_termino = $horario_atencion_locacion['hora_termino'];
 
