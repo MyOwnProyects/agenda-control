@@ -633,18 +633,8 @@ use App\Library\FuncionesGlobales;
                 </div>
             </div>
             <div class="row col-md-12">
-                <div class="col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
-                    <div class="container div_header_days_container container-calendar hide_container col-12">
-                        <!-- Agenda -->
-                        <div class="agenda-container" id="agenda-container">
-                            <!-- Header -->
-                            <div class="agenda-row agenda-header" id="agenda-header">
-                                <div class="agenda-time">Hora</div>
-                                <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
-                            </div>
-                            <!-- Las filas de horas se generarán dinámicamente aquí -->
-                        </div>
-                    </div>
+                <div class="div_append_days_container col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
+                    
                 </div>
                 <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
@@ -713,6 +703,19 @@ use App\Library\FuncionesGlobales;
       </div>
     </div>
   </div>
+</div>
+
+<div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12 hide">
+    <!-- Agenda -->
+     <div class="titulo" align="center"></div>
+    <div class="agenda-container" id="agenda-container">
+        <!-- Header -->
+        <div class="agenda-row agenda-header" id="agenda-header">
+            <div class="agenda-time">Hora</div>
+            <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+        </div>
+        <!-- Las filas de horas se generarán dinámicamente aquí -->
+    </div>
 </div>
 
 <div id="template_servicio" class="row" style="display:none;">
@@ -1216,7 +1219,8 @@ use App\Library\FuncionesGlobales;
                 rango_no_disponible : profesional['rango_no_disponible'],
                 servicios           : profesional['servicios'],
                 info_cita           : data_cita,
-                info_ajax           : data_ajax
+                info_ajax           : data_ajax,
+                horario_atencion    : data_ajax['horario_atencion']
             };
 
             show_modal_citas(id_agenda_cita,hora_inicio,obj_data,id_profesional);
@@ -1297,13 +1301,30 @@ use App\Library\FuncionesGlobales;
             let id_template_cita        = '';  
             tmp_fecha_actual            = fechaActual;
 
-            //  ASIGNACION DE VARIABLES GLOBALES
             console.log('info_profesional',info_profesional);
             citas_desglosadas       = info_profesional['info_ajax']['citas_agendadas'];
             profesionales           = info_profesional['info_ajax']['all_professionals'];
             min_hora_inicio         = info_profesional['info_ajax']['min_hora_inicio'];
             max_hora_inicio         = info_profesional['info_ajax']['max_hora_inicio'];
             horario_no_disponible   = info_profesional['info_ajax']['rangos_no_incluidos'];
+
+            //  SE CREAN LOS TEMPLATES POR HORARIO DE ATENCION
+            let horario_atencion    = info_profesional['horario_atencion'];
+            let first_row           = true;
+            for(let i in horario_atencion){
+                let info_horario    = horario_atencion[i];
+                let template_days_container = $("#template_days_container").clone().removeAttr('id').attr('id','div_days_'+info_horario['id']).data('idhorarioatencion',info_horario['id']).removeClass('hide');
+
+                $(template_days_container).find('.titulo').text(info_horario['titulo']);
+
+
+                print_modal_info_cita(modal_clone,info_horario['min_hora_inicio'],info_horario['max_hora_inicio'],id_profesional,info_horario['rango_no_disponible'],id_agenda_cita,first_row,info_profesional['info_cita']);
+
+                first_row   = false;
+                $(modal_clone).find('.div_append_days_container').append(template_days_container);
+            }
+            //  ASIGNACION DE VARIABLES GLOBALES
+            
 
             //  CITAS POR DIA
             tmp_citas_desglosadas   = citas_desglosadas.map(obj => ({ ...obj }));
@@ -1367,7 +1388,7 @@ use App\Library\FuncionesGlobales;
 
                     //  AL PASAR SIGNIFICA QUE EL PROFESIONAL CUMPLE CON LOS SERVICIOS REQUERIDOS
                     console.log("combo",check_profesional['rango_no_disponible']);
-                    print_modal_info_cita(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,id,check_profesional['rango_no_disponible'],id_agenda_cita,false,info_profesional['info_cita']);
+                    print_modal_info_cita(modal_clone,min_hora_inicio,max_hora_inicio,id,check_profesional['rango_no_disponible'],id_agenda_cita,false,info_profesional['info_cita']);
                 });
             }
             
@@ -1709,7 +1730,7 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
-            print_modal_info_cita(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,id_profesional,info_profesional['rango_no_disponible'],id_agenda_cita,true,info_profesional['info_cita']);
+            //print_modal_info_cita(modal_clone,min_hora_inicio,max_hora_inicio,id_profesional,info_profesional['rango_no_disponible'],id_agenda_cita,true,info_profesional['info_cita']);
 
             if ($(modal_clone).find('.header_servicio').length == 0){
                 $(modal_clone).find('.btn_add_service').trigger('click');
@@ -2539,7 +2560,7 @@ use App\Library\FuncionesGlobales;
             
         }
 
-        function print_modal_info_cita(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita){
+        function print_modal_info_cita(modal_clone,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita){
             //  SE BORRAN TODOS LOS REGISTROS DE LA AGENDA
             $(modal_clone).find('.agenda-service').remove();
             $(modal_clone).find('.evento-flotante').remove();
@@ -2589,6 +2610,7 @@ use App\Library\FuncionesGlobales;
 
                 //  EVITA QUE RECALCULE LA FECHA CUANDO VIENE DESDE EL COMBO DE PROFESIONALES
                 if (recrear_servicios){
+                    console.log('info_cita',info_cita);
                     let formato_fecha   = info_cita['fecha_cita'].split('-');
 
                     $(modal_clone).find('#span_fecha_cita').text(formato_fecha[2]+'/'+formato_fecha[1]+'/'+formato_fecha[0]);
