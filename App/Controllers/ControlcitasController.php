@@ -321,11 +321,17 @@ class ControlcitasController extends BaseController
             return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
         }
 
+        //  SE BUSCA EL INTERVALO DE CITAS POR LOCACION
+        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,array('id' => $_POST['id_locacion']));
+        $arr_locaciones = $arr_locaciones[0];
+
         foreach($horario_atencion as $id => $horario){
             $arr_return['horario_atencion'][$id]                    = FuncionesGlobales::allStructureSchedule(array($horario));
             $arr_return['horario_atencion'][$id]['titulo']          = $horario['titulo'];
-            $arr_return['horario_atencion'][$id]['intervalo_citas'] = $arr_locacion['intervalo_citas'];
+            $arr_return['horario_atencion'][$id]['intervalo_citas'] = $arr_locaciones['intervalo_citas'];
             $arr_return['horario_atencion'][$id]['id']              = $horario['id'];
+            $arr_return['horario_atencion'][$id]['dias']            = $horario['dias'];
 
             //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
             $arr_return['horario_atencion'][$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);

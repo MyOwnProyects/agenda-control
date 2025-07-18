@@ -1301,6 +1301,8 @@ use App\Library\FuncionesGlobales;
             let id_template_cita        = '';  
             tmp_fecha_actual            = fechaActual;
 
+            console.log('fechaActual',fechaActual);
+
             console.log('info_profesional',info_profesional);
             citas_desglosadas       = info_profesional['info_ajax']['citas_agendadas'];
             profesionales           = info_profesional['info_ajax']['all_professionals'];
@@ -1311,16 +1313,38 @@ use App\Library\FuncionesGlobales;
             //  SE CREAN LOS TEMPLATES POR HORARIO DE ATENCION
             let horario_atencion    = info_profesional['horario_atencion'];
             let first_row           = true;
-            for(let i in horario_atencion){
-                let info_horario    = horario_atencion[i];
-                let template_days_container = $("#template_days_container").clone().removeAttr('id').attr('id','div_days_'+info_horario['id']).data('idhorarioatencion',info_horario['id']).removeClass('hide');
+            let diaActual           = fechaActual.getDay();
+            for (let i in horario_atencion) {
+                let info_horario = horario_atencion[i];
+                console.log('info_horario',info_horario);
+                let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
+
+                if (!diasPermitidos.includes(diaActual)) {
+                    continue;
+                }
+
+                let template_days_container = $("#template_days_container").clone()
+                    .removeAttr('id')
+                    .attr('id', 'div_days_' + info_horario['id'])
+                    .data('idhorarioatencion', info_horario['id'])
+                    .removeClass('hide');
 
                 $(template_days_container).find('.titulo').text(info_horario['titulo']);
 
+                print_modal_info_cita(
+                    modal_clone,
+                    template_days_container,
+                    info_horario['intervalo_citas'],
+                    info_horario['min_hora_inicio'],
+                    info_horario['max_hora_termino'],
+                    id_profesional,
+                    info_horario['rangos_no_incluidos'],
+                    id_agenda_cita,
+                    first_row,
+                    info_profesional['info_cita']
+                );
 
-                print_modal_info_cita(modal_clone,info_horario['min_hora_inicio'],info_horario['max_hora_inicio'],id_profesional,info_horario['rango_no_disponible'],id_agenda_cita,first_row,info_profesional['info_cita']);
-
-                first_row   = false;
+                first_row = false;
                 $(modal_clone).find('.div_append_days_container').append(template_days_container);
             }
             //  ASIGNACION DE VARIABLES GLOBALES
@@ -2053,75 +2077,72 @@ use App\Library\FuncionesGlobales;
             
         });
 
-        function show_hours(header_agenda,div_days,min_hora_inicio,max_hora_inicio,profesionales,horario_no_disponible_prof = null){
-            //  CONTENEDOR DE LA AGENDA POR SEMANA
-            let $weekContainer  = header_agenda.find(".week-container");
-            $weekContainer.find('.hour').remove();
-            $weekContainer.find('.grid-hours').remove();
+        function show_hours(header_agenda, div_days, min_hora_inicio, max_hora_inicio, profesionales, horario_no_disponible_prof = null, intervalo_citas){
+            // Validación de formato HH:mm
+            if (!moment(min_hora_inicio, "HH:mm", true).isValid() || !moment(max_hora_inicio, "HH:mm", true).isValid()) {
+                console.warn("Las horas de inicio y fin no tienen el formato válido HH:mm");
+                return;
+            }
 
-            //  CONTENEDOR DE LA AGENDA POR DIA
             let agendaContainer = $(header_agenda).find("#agenda-container");
             $(agendaContainer).find('.row_info').remove();
             $(agendaContainer).find('#agenda-header').find('.agenda-service').remove();
 
-            horas   = [];
-            for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
-                horas.push(`${i.toString().padStart(2, '0')}:00`);
+            // Generar horas con intervalo en minutos
+            horas = [];
+            let horaActual = moment(min_hora_inicio, "HH:mm");
+            let horaFinal  = moment(max_hora_inicio, "HH:mm");
+
+            while (true) {
+                let horaSiguiente = moment(horaActual).add(intervalo_citas, 'minutes');
+                if (horaSiguiente.isAfter(horaFinal)) break;
+
+                horas.push(horaActual.format("HH:mm"));
+                horaActual = horaSiguiente;
             }
 
-            //  PARA EL CONTENEDOR DE AGENDA POR DIA
+            // Construcción del encabezado por profesional
             let row_fila        = '';
-            let agendaHeader    = $(div_days).find(".div_header_days_container #agenda-header");
+            let agendaHeader    = $(div_days).find("#agenda-header");
             profesionales.forEach(profesional => {
-                row_fila    += '<div class="agenda-service agenda-hours" data-idprofesional="'+profesional.id+'"></div>';
-
-                let servicios   = 'Servicios: \n';
+                row_fila += '<div class="agenda-service agenda-hours" data-idprofesional="'+profesional.id+'"></div>';
+                let servicios = 'Servicios:\n';
                 for(let i in profesional.servicios){
-                    servicios   += '*'+profesional.servicios[i]['nombre']+'\n';
+                    servicios += '*'+profesional.servicios[i]['nombre']+'\n';
                 }
 
                 const columna = $('<div>')
                     .addClass("agenda-service")
                     .text(profesional.nombre_completo)
-                    .prop('title',servicios);
+                    .prop('title', servicios);
                 agendaHeader.append(columna);
             });
 
-            horas.forEach((hora, index) => {
-                $weekContainer.append(`<div class="grid-item hour">${hora}</div>`);
-                for (let i = 0; i < 7; i++) {
-                    let dia     = diasSemana[i];
-                    
-                    let num_dia = '';
-
-                    if ( i < 6 ){
-                        num_dia = calculaFechaPorDia(rango_semana_actual.fecha_inicio,(i + 1))
-                    } else {
-                        num_dia = calculaFechaPorDia(rango_semana_actual.fecha_termino,0)
-                    }
-
-                    $weekContainer.append('<div class="grid-item grid-hours" data-dia="'+dia+'" data-horainicio="'+hora+'" data-day="'+num_dia+'"></div>');
-                }
-
+            horas.forEach(hora => {
                 const fila = $("<div>").addClass("agenda-row").addClass('row_info');
+                let horaInicio = moment(hora, "HH:mm");
+                let horaFin = moment(hora, "HH:mm").add(intervalo_citas, 'minutes');
+                let rangoTexto = `${horaInicio.format("HH:mm")}-${horaFin.format("HH:mm")}`;
 
-                // Columna de la hora
-                const columnaHora = $("<div>")
-                    .addClass("agenda-time")
-                    .text(hora);
+                const columnaHora = $("<div>").addClass("agenda-time").text(rangoTexto);
                 fila.append(columnaHora);
-
                 fila.append(row_fila);
-
-                // Añadir la fila al contenedor
                 agendaContainer.append(fila);
             });
 
+            // Citas no disponibles y desglosadas
+            console.log('horario_no_disponible_prof',horario_no_disponible_prof);
             if (horario_no_disponible_prof){
-                console.log('profesionales',profesionales);
-                let id_profesional  = profesionales[0]['id'];
-                horario_no_disponible_prof.forEach(rango => cuadroFlotantesDiario($(div_days),rango,background_tipo_cita(rango),'no_disponible',null,true));
-                horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(div_days),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                let id_profesional = profesionales[0]['id'];
+                console.log('horario_no_disponible_prof',horario_no_disponible_prof);
+                console.log('horario_no_disponible',horario_no_disponible);
+                console.log('citas_desglosadas',citas_desglosadas);
+                horario_no_disponible_prof.forEach(rango => {
+                    cuadroFlotantesDiario($(div_days), rango, background_tipo_cita(rango), 'no_disponible', null, true);
+                });
+                horario_no_disponible.forEach(rango => {
+                    cuadroFlotantesDiario($(div_days), rango, background_tipo_cita(rango), 'no_disponible', null, true);
+                });
                 citas_desglosadas.forEach(rango => {
                     if (rango.id_profesional == id_profesional) {
                         cuadroFlotantesDiario($(div_days), rango, background_tipo_cita(rango), 'flot_cita', null);
@@ -2129,6 +2150,7 @@ use App\Library\FuncionesGlobales;
                 });
             }
         }
+
 
         function calculaFechaPorDia(fecha, dias_a_sumar) {
             const fechaObj = new Date(fecha);
@@ -2153,8 +2175,13 @@ use App\Library\FuncionesGlobales;
             const id_paciente       = evento.id_paciente;
 
             if (eventoDayIndex != dayIndex){
+                console.log('tipo_cuadro',tipo_cuadro);
+                console.log('evento no aceptado',evento);
+                console.log('return dias');
                 return false;
             }
+
+            console.log('pase evento',evento);
 
             if ($(element_header).attr('id') == 'div_header_agenda' && tipo_cuadro != 'no_disponible'){
 
@@ -2214,13 +2241,26 @@ use App\Library\FuncionesGlobales;
             }
 
             // Encontrar la fila correspondiente a la hora de inicio
-            const filaInicio = $(element_header).find(`.div_header_days_container .agenda-time:contains('${evento.start.split(":")[0].padStart(2, '0')}:00')`).closest(".agenda-row");
+            const horaEvento = moment(evento.start, "HH:mm");
+
+            const filaInicio = $(element_header).find(".agenda-time").filter(function() {
+                const rangoTexto = $(this).text().trim(); // Ej: "14:20-15:05"
+                const [inicioStr, finStr] = rangoTexto.split("-"); // Dividir por "-"
+                const horaInicio = moment(inicioStr, "HH:mm");
+                const horaFin = moment(finStr, "HH:mm");
+
+                return horaEvento.isSameOrAfter(horaInicio) && horaEvento.isBefore(horaFin);
+            }).closest(".agenda-row");
+
+
+            console.log('filaInicio',$(filaInicio).html());
             if (filaInicio.length) {
                 let alturaPorHora   = 0; // Cada hora ocupa 100% de altura
                 let alturaPorMinuto = 0; // Altura por minuto
                 let top             = 0; // Posición vertical
                 let altura          = 0; // Altura del evento
                 let columnaProfesional  = '';
+                console.log('profesional pase filaInicio',profesional);
                 if (profesional == null){
                     columnaProfesional = filaInicio.find(".agenda-service").eq(0);
 
@@ -2254,8 +2294,10 @@ use App\Library\FuncionesGlobales;
                 } else {
                     // Encontrar la columna correspondiente al profesional
                     const profesionalIndex = profesionales.findIndex(p => p.id === evento.id_profesional);
+                    console.log('profesionalIndex',profesionalIndex);
                     if (profesionalIndex !== -1) {
-                        columnaProfesional = filaInicio.find(".agenda-service").eq($(element_header).hasClass('modal') ? 0 : profesionalIndex);
+                        console.log('pase profesionalIndex',profesionalIndex);
+                        columnaProfesional = filaInicio.find(".agenda-service").eq(0);
 
                         // Calcular la posición y altura del evento
                         alturaPorHora = 100; // Cada hora ocupa 100% de altura
@@ -2284,6 +2326,7 @@ use App\Library\FuncionesGlobales;
                                 top: `${top}%`, // Posición vertical
                                 height: `${altura}%`, // Altura del evento
                             });
+                        console.log('columnaProfesional',$(columnaProfesional).html());
                         columnaProfesional.append(eventoDiv);
                     }
                 }
@@ -2560,14 +2603,17 @@ use App\Library\FuncionesGlobales;
             
         }
 
-        function print_modal_info_cita(modal_clone,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita){
+        function print_modal_info_cita(modal_clone,template_days_container,intervalo_citas,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita){
             //  SE BORRAN TODOS LOS REGISTROS DE LA AGENDA
-            $(modal_clone).find('.agenda-service').remove();
-            $(modal_clone).find('.evento-flotante').remove();
-            $(modal_clone).find('.row_info').remove();
+            $(template_days_container).find('.agenda-service').remove();
+            $(template_days_container).find('.evento-flotante').remove();
+            $(template_days_container).find('.row_info').remove();
             //  SECCION PARA PINTAR LA INFORMACION DE LA CITA
             let profesional = profesionales.find(row => row.id == id_profesional);
-            show_hours(modal_clone,modal_clone,min_hora_inicio,max_hora_inicio,[profesional],rango_no_disponible);
+            console.log('min_hora_inicio',min_hora_inicio);
+            console.log('max_hora_inicio',max_hora_inicio);
+            console.log('recrear_servicios',recrear_servicios);
+            show_hours(template_days_container,template_days_container,min_hora_inicio,max_hora_inicio,[profesional],rango_no_disponible,intervalo_citas);
 
             if (id_agenda_cita == null){
                 let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5,false);
@@ -2582,7 +2628,7 @@ use App\Library\FuncionesGlobales;
 
                 //  SE CREAN LOS SERVICIOS
                 if (recrear_servicios){
-                    console.log('info_cita',info_cita);
+                    console.log('info_cita recrear_servicios',info_cita,recrear_servicios);
                     for(let i in info_cita['servicios']){
                         let servicio = info_cita['servicios'][i];
 
