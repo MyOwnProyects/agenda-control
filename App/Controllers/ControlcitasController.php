@@ -176,7 +176,18 @@ class ControlcitasController extends BaseController
                         'citas_programadas'     => array()
                     );
 
-                    $arr_return['all_professionals'][$index]['rango_no_disponible']  = FuncionesGlobales::obtenerRangosNoDisponiblesPorDia($arr_return['horario_atencion'],$horario_atencion_profesional,$hora_cierre);
+                    foreach ($arr_return['horario_atencion'] as $horario_local){
+                        $parametros_locacion    = array(
+                            'id'                => $horario_local['id'],
+                            'id_locacion'       => null,
+                            'id_profesional'    => null,
+                            'hora_inicio'       => $horario_local['min_hora_inicio'],
+                            'hora_termino'      => $horario_local['max_hora_termino'],
+                            'titulo'            => $horario_local['titulo'],
+                            'dias'              => $horario_local['dias']
+                        );
+                        $arr_return['all_professionals'][$index]['rango_no_disponible'][$horario_local['id']]   = FuncionesGlobales::obtenerRangosNoDisponiblesPorDia(array($parametros_locacion),$horario_atencion_profesional,$hora_cierre);
+                    }
                 }
 
 
@@ -302,8 +313,12 @@ class ControlcitasController extends BaseController
         $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
 
         // INFORMACION DE LOS PROFESIONALES
-        $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
-        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+        $route              = $this->url_api.$this->rutas['ctprofesionales']['show'];
+        $all_professionals  = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+
+        foreach($all_professionals as $profesional){
+            $arr_return['all_professionals'][$profesional['id']]    = $profesional;
+        }
 
         //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
@@ -341,9 +356,9 @@ class ControlcitasController extends BaseController
 
         $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
 
-        $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
-        $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
-        $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
+        // $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
+        // $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
+        // $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
 
         //  SI VIENEN VACIOS ESTOS ESPACIOS, SE UNIFICAN LAS HORAS PARA QUE SEA UN SOLO DIV CORRIDO
         // if (empty($_POST['id_profesional']) && empty($_POST['id_paciente'])) {
