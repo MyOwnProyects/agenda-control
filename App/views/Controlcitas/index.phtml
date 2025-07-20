@@ -644,7 +644,7 @@ use App\Library\FuncionesGlobales;
                     <div id="" class="row">
                         <div class="col-md-4" style="padding-right:5px;">
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
-                            <input type="time" step="60" class="form-control input_hora_inicio" required>
+                            <select class="form-select input_hora_inicio" required></select>
                             <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
                         </div>
                         <!-- Campo Nombre -->
@@ -1228,11 +1228,46 @@ use App\Library\FuncionesGlobales;
                 horario_atencion    : data_ajax['horario_atencion']
             };
 
+            //  SE CREA LOS OPTIONS DEL COMBO DE HORA INICIO
+            let arr_hora_inicio = [];
+            let diaActual       = fechaActual.getDay();
+
+            for (let i in data_ajax['horario_atencion']) {
+                let info_horario    = data_ajax['horario_atencion'][i];
+                let h_inicio        = info_horario['min_hora_inicio'];
+                let h_termino       = info_horario['max_hora_termino'];
+                let intervalo_citas = info_horario['intervalo_citas'];
+
+                let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
+
+                if (!diasPermitidos.includes(diaActual)) {
+                    continue;
+                }
+
+                let minutosInicio  = convertirHoraAMinutos(h_inicio);
+                const minutosFin   = convertirHoraAMinutos(h_termino);
+
+                while (minutosInicio < minutosFin) {
+                    arr_hora_inicio.push(convertirMinutosAHora(minutosInicio));
+                    minutosInicio += intervalo_citas;
+                }
+            }
+
+            arr_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
+
+            console.log('arr_hora_inicio',arr_hora_inicio);
+            //  AL TEMPLATE DE SERVICIOS SE AGREGAN LAS HORAS
+            $("#modal_save_class").find('.input_hora_inicio').find('option').remove();
+            for(let i in arr_hora_inicio){
+                $("#modal_save_class").find('.input_hora_inicio').append('<option value="'+arr_hora_inicio[i]+'">'+arr_hora_inicio[i]+'</option>');
+            }
+
             show_modal_citas(id_agenda_cita,hora_inicio,obj_data,id_profesional);
         }
 
         //  CALCULA EL TOTAL DE DURACION Y COSTO POR CITA
         function calcula_totales(modal_clone,id_profesional,id_agenda_cita = -1){
+            console.log('dentro calcula totales',modal_clone,id_profesional,id_agenda_cita);
             //  TOTALES
             let total_duracion  = 0;
             let total_costo     = 0;
@@ -1260,6 +1295,7 @@ use App\Library\FuncionesGlobales;
             console.log('inicio calulcar',input_hora_inicio);
             console.log('termino calulcar',$(modal_clone).find('.input_hora_termino').val())
             if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
+                console.log('parametros verificar',modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
                 let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
                 if (hora_inicio['excede_horario'] == true){
                     console.log('hora_inicio dentro if',hora_inicio);
@@ -1279,6 +1315,18 @@ use App\Library\FuncionesGlobales;
                 console.log('profesionales a pintar',profesionales);
                 let text_day    = formatearFecha(fechaActual);
                 text_day        = text_day.split(",")[0];
+
+                let codigo_color    = '';
+                let max_costo       = 0;
+                $(modal_clone).find('.div_header_servicios').find('.select_servicios_modal').each(function(){
+                    if ($(this).val() != null && $(this).val() != ''){
+                        if ($(this).find('option:selected').data('costo') != max_costo){
+                            max_costo       = $(this).find('option:selected').data('costo');
+                            codigo_color    = $(this).find('option:selected').data('codigocolor');
+                        }
+                    }
+                });
+
                 let evento  = {
                     start   : $(modal_clone).find('.input_hora_inicio').val(),
                     end     : $(modal_clone).find('.input_hora_termino').val(),
@@ -1288,7 +1336,8 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita      : id_agenda_cita,
                     duracion            : total_duracion,
                     asistencia          : 1,
-                    id_profesional      : id_profesional * 1
+                    id_profesional      : id_profesional * 1,
+                    codigo_color        : codigo_color
                 };
                 
                 //  SE BORRA EL REGISTREO ACTUAL -1 
@@ -1328,7 +1377,7 @@ use App\Library\FuncionesGlobales;
                 for(let i in info_profesional['servicios']){
                     let service = info_profesional['servicios'][i];
 
-                    let option  = '<option value="'+service["id_servicio"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'">'+service["nombre"]+'</option>'
+                    let option  = '<option value="'+service["id_servicio"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'" data-codigocolor="'+service['codigo_color'] +'">'+service["nombre"]+'</option>'
                     $(div_clone).find('.select_servicios_modal').append(option);
 
                 }
@@ -1393,7 +1442,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_append_days_container').append(template_days_container);
             }
             //  ASIGNACION DE VARIABLES GLOBALES
-            
+            calcula_totales(modal_clone,id_profesional,id_agenda_cita);
 
             //  CITAS POR DIA
             tmp_citas_desglosadas = Object.fromEntries(
@@ -1635,7 +1684,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_header_citas').append(row_cita);
             });
 
-            $(modal_clone).on('blur', '.input_hora_inicio', function() {
+            $(modal_clone).on('change', '.input_hora_inicio', function() {
                 //@TODO OBTENER LA HORA INICIO ANTERIOR EN CASO DE EXISTIR EMPALMADOS
                 const valor = $(this).val(); // Obtener el valor del input
                 const patron = /^([01]\d|2[0-3]):([0-5]\d)$/; // Expresión regular para validar HH:MM
@@ -1803,6 +1852,8 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
                 let hora_inicio     = $(this).closest('.row_info').find('.agenda-time').text();
+                hora_inicio     = hora_inicio.split('-');
+                hora_inicio     = hora_inicio[0].trim(); 
                 let duracion    = $(modal_clone).find("#total_duracion").text();
 
                 duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
@@ -2427,6 +2478,12 @@ use App\Library\FuncionesGlobales;
             return h * 60 + m;
         }
 
+        function convertirMinutosAHora(minutos) {
+            const h = Math.floor(minutos / 60);
+            const m = minutos % 60;
+            return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+        }
+
         function sumarUnMinuto(hora, minutosASumar = 1) {
             // Dividir la hora en horas y minutos
             let [horas, minutos] = hora.split(":").map(Number);
@@ -2735,8 +2792,6 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#input_primer_apellido').val(info_cita['primer_apellido']).prop('disabled',true);
                 $(modal_clone).find('#input_segundo_apellido').val(info_cita['segundo_apellido']).prop('disabled',true);
                 $(modal_clone).find('#input_nombre').val(info_cita['nombre']).prop('disabled',true);
-
-                //calcula_totales(modal_clone,id_profesional,id_agenda_cita);
 
                 $(modal_clone).on('hidden.bs.modal', function (e) {
                     // Tu código aquí
