@@ -328,7 +328,8 @@ class FuncionesGlobales{
             5 => "Viernes", 6 => "Sábado", 7 => "Domingo"
         ];
 
-        $rangosNoDisponibles = [];
+        $rangosNoDisponibles    = [];
+        $arr_flag_vacio         = array();
 
         foreach ($diasSemana as $numeroDia => $nombreDia) {
             $horasLocacion = [];
@@ -338,6 +339,11 @@ class FuncionesGlobales{
                         $horasLocacion[] = [
                             "start" => strtotime($horario['hora_inicio']),
                             "end" => strtotime($horario['hora_termino'])
+                        ];
+                        $arr_flag_vacio[]   = [
+                            "start" => $horario['hora_inicio'],
+                            "end"   => $horario['hora_termino'],
+                            "day"   => $nombreDia
                         ];
                     }
                 }
@@ -405,6 +411,11 @@ class FuncionesGlobales{
             }
 
             $horariosAgrupados[] = $horarioActual;
+        }
+
+        //  SI ES VACIO RETORNARA EL HORARIO DE LA LOCACION COMO HORARIO NO DISPONIBLE
+        if (count($horariosAgrupados) == 0){
+            $horariosAgrupados[]    = $arr_flag_vacio;
         }
 
         return $horariosAgrupados;
