@@ -902,7 +902,7 @@ use App\Library\FuncionesGlobales;
                     ],
                     createdRow: function (row, data, dataIndex) {
                         // Guardar el objeto completo en la fila como data
-                        //console.log('data',data);
+                        console.log('data',data);
                         $(row).data('rowData', data);
                         if (data.activa == 0) {
                             $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
@@ -911,6 +911,11 @@ use App\Library\FuncionesGlobales;
                         if (data.activa == 1) {
                             $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
                         }
+
+                        if (data.codigo_color != null) {
+                            $(row).find('td:eq(2)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
+                        
                     }
                 });
             } else {
@@ -1619,6 +1624,7 @@ use App\Library\FuncionesGlobales;
             });
 
             $(modal_clone).find("#btn-hoy").on('click',function(){
+                //  SE REHACE LA INFORMACION DEL DIV DE FECHA
                 // Tu código aquí
                 fechaActual = tmp_fecha_actual;
 
@@ -1632,13 +1638,35 @@ use App\Library\FuncionesGlobales;
                 );
 
                 //  SE BORRAN LOS DIV FLOTANTES
-                console.log('borra evento-flotante ',7);
+                let diaActual   = fechaActual.getDay();
+                diaActual       = diaActual == 0 ? 7 : diaActual;
+                console.log('borra evento-flotante ',10);
                 $(modal_clone).find('.evento-flotante').remove();
+
+                $(modal_clone).find('.div_header_days_container').each(function(){
+                    let id_horario_atencion = $(this).data('idhorarioatencion');
+                    let diasPermitidos      = $(this).data('dias');
+                    if (!diasPermitidos.includes(diaActual)) {
+                        console.log('aqui pase',$(template_days_container).attr('id'));
+                        $(this).addClass('hide');
+                        return true;
+                    } else {
+                        $(this).removeClass('hide');
+                    }
+                    console.log('id_horario_atencion each',id_horario_atencion);
+                    console.log('citas_desglosadas',citas_desglosadas[id_horario_atencion]);
+                    horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                    console.log('citas_desglosadas 1',citas_desglosadas);
+                    if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
+                        citas_desglosadas[id_horario_atencion].forEach(rango => {
+                            rango['id_horario_atencion']    = id_horario_atencion; 
+                            cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
+                        });
+                    }
+                    show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,info_profesional['info_cita']['id_profesional']);
+                });
                 
-                horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
-                console.log('citas_desglosadas 2',citas_desglosadas);
-                citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
-                show_horario_no_disponible_profesional($(modal_clone));
+                
                 setTimeout(function(){
                     cambiarDia(null, fechaActual,$(modal_clone));
                     $(modal_clone).find('.input_hora_inicio').val($(modal_clone).find('.input_hora_inicio').data('hora'))
@@ -2056,8 +2084,28 @@ use App\Library\FuncionesGlobales;
                             console.log('data');
                             console.log(data);
 
-                            $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['fecha_actual']).val(data['last_fecha_limite']).trigger('change');
-                            $(modal_clone).find('#input_fecha_termino').attr('min' , data['fecha_actual']).prop('disabled',false);
+                            if (data['has_record']) {
+                                const fechaStr = data['last_fecha_limite'];
+
+                                // Dividir la cadena en año, mes y día
+                                const [anio, mes, dia] = fechaStr.split('-');
+
+                                // Crear un objeto Date
+                                const fecha = new Date(anio, mes - 1, dia);
+
+                                // Sumar 1 día
+                                fecha.setDate(fecha.getDate() + 1);
+
+                                // Formatear de nuevo como YYYY-MM-DD
+                                const fechaFormateada = fecha.toISOString().split('T')[0];
+
+                                // Asignar la nueva fecha formateada
+                                data['last_fecha_limite'] = fechaFormateada;
+                            }
+
+
+                            $(modal_clone).find('#input_fecha_inicio').prop('disabled',false).attr('min' , data['last_fecha_limite']).val(data['last_fecha_limite']).trigger('change');
+                            $(modal_clone).find('#input_fecha_termino').attr('min' , data['last_fecha_limite']).prop('disabled',false);
                         },
                         error       : function(error){
                             actionJsonError(error,btn);
