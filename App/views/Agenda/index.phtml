@@ -71,74 +71,61 @@ use App\Library\FuncionesGlobales;
     }
 
     .div_header_filters .navigation {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 20px;
-}
-
-.div_header_filters .navigation .left-section {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-}
-
-.div_header_filters .navigation .right-section {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-/* Botones con tamaño moderado */
-.div_header_filters .left-section button,
-.div_header_filters .right-section button {
-    padding: 6px 10px;
-    font-size: 0.9rem;
-    min-width: 40px;
-    white-space: nowrap;
-    line-height: 1.3;
-}
-
-/* Botón "Hoy" ligeramente más destacado */
-#btn-hoy {
-    padding: 6px 14px;
-    font-weight: bold;
-}
-
-/* Texto de la fecha */
-#fecha-actual {
-    margin: 0 10px;
-    font-size: 1rem;
-    white-space: nowrap;
-}
-
-/* Scrollbar visualmente más amigable */
-.div_header_filters .navigation .left-section::-webkit-scrollbar {
-    height: 6px;
-}
-.div_header_filters .navigation .left-section::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-}
-
-    /* .div_header_filters .navigation {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         margin: 20px;
-    } */
-    /* .div_header_filters .navigation .left-section {
+    }
+
+    .div_header_filters .navigation .left-section {
         display: flex;
         align-items: center;
-        gap: 10px; /* Espacio entre los botones */
-        width: 400px; /* Ancho fijo para left-section */
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .div_header_filters .navigation .right-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* Botones con tamaño moderado */
+    .div_header_filters .left-section button,
+    .div_header_filters .right-section button {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        min-width: 40px;
+        white-space: nowrap;
+        line-height: 1.3;
+    }
+
+    /* Botón "Hoy" ligeramente más destacado */
+    #btn-hoy {
+        padding: 6px 14px;
+        font-weight: bold;
+    }
+
+    /* Texto de la fecha */
+    #fecha-actual {
+        margin: 0 10px;
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    /* Scrollbar visualmente más amigable */
+    .div_header_filters .navigation .left-section::-webkit-scrollbar {
+        height: 6px;
+    }
+    .div_header_filters .navigation .left-section::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
     }
     .div_header_filters .navigation .right-section {
         display: flex;
@@ -483,29 +470,12 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 <div id="div_header_agenda">
-    <div class="container div_header_days_container container-calendar hide_container col-12">
-        <!-- Agenda -->
-        <div class="agenda-container" id="agenda-container">
-            <!-- Header -->
-            <div class="agenda-row agenda-header" id="agenda-header">
-                <div class="agenda-time">Hora</div>
-                <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
-            </div>
-            <!-- Las filas de horas se generarán dinámicamente aquí -->
-        </div>
+    <div id="div_append_days_container" class="div_append_days_container">
     </div>
-    <div id ="div_header_week_container" class="container mt-4 d-flex flex-column align-items-center div_header_week_container hide_container container-calendar col-12">
-        <div class="week-container div_principal">
-            <div class="grid-item header"></div>
-            <div class="grid-item header">Lunes</div>
-            <div class="grid-item header">Martes</div>
-            <div class="grid-item header">Miércoles</div>
-            <div class="grid-item header">Jueves</div>
-            <div class="grid-item header">Viernes</div>
-            <div class="grid-item header">Sábado</div>
-            <div class="grid-item header">Domingo</div>
-        </div>
+    <div id="div_append_weeks_container" class="div_append_weeks_container">
+
     </div>
+    
     <div class=" div_header_month_container hide_container container-calendar col-12">
         <div class="days">
             <div class="day">Dom</div>
@@ -517,6 +487,33 @@ use App\Library\FuncionesGlobales;
             <div class="day">Sáb</div>
         </div>
         <div class="calendar_month_dates" id="calendar_month_dates"></div>
+    </div>
+</div>
+
+<div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
+    <!-- Agenda -->
+     <div class="titulo" align="center"></div>
+    <div class="agenda-container" id="agenda-container">
+        <!-- Header -->
+        <div class="agenda-row agenda-header" id="agenda-header">
+            <div class="agenda-time">Hora</div>
+            <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+        </div>
+        <!-- Las filas de horas se generarán dinámicamente aquí -->
+    </div>
+</div>
+
+    <!--    AGREGAR clase d-flex    -->
+<div id ="template_week_container" class="container mt-4  flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
+    <div class="week-container div_principal">
+        <div class="grid-item header"></div>
+        <div class="grid-item header">Lunes</div>
+        <div class="grid-item header">Martes</div>
+        <div class="grid-item header">Miércoles</div>
+        <div class="grid-item header">Jueves</div>
+        <div class="grid-item header">Viernes</div>
+        <div class="grid-item header">Sábado</div>
+        <div class="grid-item header">Domingo</div>
     </div>
 </div>
 
@@ -1193,7 +1190,7 @@ use App\Library\FuncionesGlobales;
         }
 
         // Encontrar la fila correspondiente a la hora de inicio
-        const filaInicio = $(element_header).find(`.div_header_days_container .agenda-time:contains('${evento.start.split(":")[0].padStart(2, '0')}:00')`).closest(".agenda-row");
+        const filaInicio = $(element_header).find(`.agenda-time:contains('${evento.start.split(":")[0].padStart(2, '0')}:00')`).closest(".agenda-row");
         if (filaInicio.length) {
             let alturaPorHora   = 0; // Cada hora ocupa 100% de altura
             let alturaPorMinuto = 0; // Altura por minuto
@@ -1505,51 +1502,162 @@ use App\Library\FuncionesGlobales;
         }
     }
 
+    function print_container_calendar(modal_clone,template_days_container,intervalo_citas,min_hora_inicio,max_hora_inicio,id_profesional = null,rango_no_disponible = null,id_agenda_cita = null,recrear_servicios = false,info_cita = null){
+        //  CONTENEDOR DE LA AGENDA POR DIA
+        let id_horario_atencion = $(template_days_container).data('idhorarioatencion');
+        let agendaContainer = $(template_days_container).find("#agenda-container");
+        $(agendaContainer).find('.row_info').remove();
+        $(agendaContainer).find('#agenda-header').find('.agenda-service').remove();
+
+        horas = [];
+        let horaActual = moment(min_hora_inicio, "HH:mm");
+        let horaFinal  = moment(max_hora_inicio, "HH:mm");
+
+        while (true) {
+            let horaSiguiente = moment(horaActual).add(intervalo_citas, 'minutes');
+            if (horaSiguiente.isAfter(horaFinal)) break;
+
+            horas.push(horaActual.format("HH:mm"));
+            horaActual = horaSiguiente;
+        }
+
+        //  PARA EL CONTENEDOR DE AGENDA POR DIA
+        let row_fila        = '';
+        let agendaHeader    = $(template_days_container).find("#agenda-header");
+        console.log('profesionales print_container_calendar',profesionales);
+        profesionales.forEach(profesional => {
+            row_fila    += '<div class="agenda-service agenda-hours" data-idprofesional="'+profesional.id+'"></div>';
+
+            let servicios   = 'Servicios: \n';
+            for(let i in profesional.servicios){
+                servicios   += '*'+profesional.servicios[i]['nombre']+'\n';
+            }
+
+            const columna = $('<div>')
+                .addClass("agenda-service")
+                .text(profesional.nombre_completo)
+                .prop('title',servicios);
+            agendaHeader.append(columna);
+        });
+
+        horas.forEach(hora => {
+            const fila = $("<div>").addClass("agenda-row").addClass('row_info');
+            let horaInicio = moment(hora, "HH:mm");
+            let horaFin = moment(hora, "HH:mm").add(intervalo_citas, 'minutes');
+            let rangoTexto = `${horaInicio.format("HH:mm")}-${horaFin.format("HH:mm")}`;
+
+            const columnaHora = $("<div>").addClass("agenda-time").text(rangoTexto);
+            fila.append(columnaHora);
+            fila.append(row_fila);
+            agendaContainer.append(fila);
+        });
+
+        //  SE PINTAN LOS RECUADROS DE CITAS
+        horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(template_days_container),rango,background_tipo_cita(rango),'no_disponible'));
+        citas_desglosadas[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(template_days_container),rango,background_tipo_cita(rango),'flot_cita',null));
+    }
+
     //  FUNCTION PARA MOSTRAR INFORMACION AL SELECCIONAR UNA LOCACION
     function show_calendar(modal_clone,data,id_locacion){
-        let min_hora_inicio = parseInt(data['min_hora_inicio']);
-        let max_hora_inicio = parseInt(data['max_hora_inicio']);
-        profesionales       = data['all_professionals'];
-        console.log('data');
-        console.log(data);
 
         let tmp_cierre_fecha    = data['cierre_agenda']['last_fecha_limite'];
         tmp_cierre_fecha        = data['cierre_agenda']['last_fecha_limite'].split('-');
         cierre_agenda           = new Date(tmp_cierre_fecha[0],tmp_cierre_fecha[1] - 1,tmp_cierre_fecha[2]);
         exist_apertura_agenda   = data['cierre_agenda']['has_record'];
 
-        horas   = [];
-        for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
-            horas.push(`${i.toString().padStart(2, '0')}:00`);
+        let min_hora_inicio = parseInt(data['min_hora_inicio']);
+        let max_hora_inicio = parseInt(data['max_hora_inicio']);
+        profesionales       = data['all_professionals'];
+        console.log('data');
+        console.log(data);
+
+        let diaActual   = fechaActual.getDay();
+        diaActual       = diaActual == 0 ? 7 : diaActual;
+        console.log('diaActual',diaActual);
+
+        //  SE CREA EL TEMPLATE DEL HORARIO
+        console.log("data['horario_atencion']",data['horario_atencion']);
+        for(let i in data['horario_atencion']){
+            let info_horario    = data['horario_atencion'][i];
+
+            console.log('info_horario',info_horario);
+            horario_no_disponible[info_horario['id']]   = info_horario['rangos_no_incluidos'];
+            citas_desglosadas[info_horario['id']]       = info_horario['citas_paciente'];
+            let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
+
+            let template_days_container = $("#template_days_container").clone()
+                .removeAttr('id')
+                .removeClass('hide_container')
+                .attr('id', 'div_container_horario_' + info_horario['id'])
+                .data('idhorarioatencion', info_horario['id'])
+                .data('intervalocitas',info_horario['intervalo_citas'])
+                .data('minhorainicio',info_horario['min_hora_inicio'])
+                .data('maxhoratermino',info_horario['max_hora_termino'])
+                .show()
+                ;
+
+            $(template_days_container).find('.titulo').text(info_horario['titulo']);
+            //console.log('id_profesional',id_profesional);
+            //console.log("profesionales[id_profesional]['rango_no_disponible']",profesionales[id_profesional]['rango_no_disponible']);
+
+            let show_cuadros_flotantes  = true;
+            if (diasPermitidos.includes(diaActual)) {
+                console.log('aqui pase',$(template_days_container).hasClass('hide'));
+                $(template_days_container).removeClass('hide');
+                show_cuadros_flotantes  = false;
+            } else {
+               $(template_days_container).addClass('hide');
+            }
+
+            print_container_calendar(
+                modal_clone,
+                template_days_container,
+                info_horario['intervalo_citas'],
+                info_horario['min_hora_inicio'],
+                info_horario['max_hora_termino']
+            );
+
+            first_row = false;
+
+            
+            $(template_days_container).data('dias',diasPermitidos);
+            $(modal_clone).find('.div_append_days_container').append(template_days_container);
         }
 
-        const $weekContainer = $(modal_clone);
-        show_hours($weekContainer,$("#div_header_agenda"),data['min_hora_inicio'],data['max_hora_inicio'],profesionales,null);
-        horario_no_disponible   = data['rangos_no_incluidos'];
-
-        console.log(horario_no_disponible);
-
-        horario_no_disponible.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_locacion'));
-        horario_no_disponible.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'no_disponible'));
-        
-        show_horario_no_disponible_profesional();
         
 
-        //  SE PINTAN LAS CITAS DE TODA LA SEMANA
-        citas_agendadas = {};
-        citas_agendadas = unificarCitasAgendadas(data['citas_agendadas']);//typeof (data['citas_unificadas']) ? data['citas_unificadas'] : data['citas_agendadas'];
-        citas_desglosadas   = data['citas_agendadas'];
+        // horas   = [];
+        // for (let i = min_hora_inicio; i <= max_hora_inicio; i++) {
+        //     horas.push(`${i.toString().padStart(2, '0')}:00`);
+        // }
 
-        citas_agendadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_cita'));
-        citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
+        // const $weekContainer = $(modal_clone);
+        // show_hours($weekContainer,$("#div_header_agenda"),data['min_hora_inicio'],data['max_hora_inicio'],profesionales,null);
+        // horario_no_disponible   = data['rangos_no_incluidos'];
 
-        $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
-        $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
+        // console.log(horario_no_disponible);
 
-        $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
-        $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
+        // horario_no_disponible.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_locacion'));
+        // horario_no_disponible.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'no_disponible'));
+        
+        // show_horario_no_disponible_profesional();
+        
 
-        $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
+        // //  SE PINTAN LAS CITAS DE TODA LA SEMANA
+        // citas_agendadas = {};
+        // citas_agendadas = unificarCitasAgendadas(data['citas_agendadas']);//typeof (data['citas_unificadas']) ? data['citas_unificadas'] : data['citas_agendadas'];
+        // citas_desglosadas   = data['citas_agendadas'];
+
+        // citas_agendadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer.find(".week-container"),'flot_cita'));
+        // citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
+
+        // $(modal_clone).find('#select_profesionales_modal').data('minhora',data['min_hora_inicio']);
+        // $(modal_clone).find('#select_profesionales_modal').data('maxhora',data['max_hora_inicio']);
+
+        // $(modal_clone).find('#select_profesionales_modal').prop('disabled',true).val(null).trigger('change');
+        // $(modal_clone).find('#select_profesionales_modal').find('option').remove().append('<option></option>');
+
+        // $(modal_clone).find('#select_servicios_modal').prop('disabled',false);
 
         if (!$(".div_header_days_container").is(':visible') && 
             !$("#div_header_week_container").is(':visible') &&
@@ -1582,8 +1690,8 @@ use App\Library\FuncionesGlobales;
                 rango_fechas    : rango_semana_actual
             },
             success : function(data){
-                console.log('data info 1');
-                console.log(data);
+                // console.log('data info 1');
+                // console.log(data);
                 if (modal_clone == null){
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;

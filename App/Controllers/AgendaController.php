@@ -94,7 +94,18 @@ class AgendaController extends BaseController
                         'citas_programadas'     => array()
                     );
 
-                    $arr_return['all_professionals'][$index]['rango_no_disponible']  = FuncionesGlobales::obtenerRangosNoDisponiblesPorDia($arr_return['horario_atencion'],$horario_atencion_profesional,$hora_cierre);
+                    foreach ($arr_return['horario_atencion'] as $horario_local){
+                        $parametros_locacion    = array(
+                            'id'                => $horario_local['id'],
+                            'id_locacion'       => null,
+                            'id_profesional'    => null,
+                            'hora_inicio'       => $horario_local['min_hora_inicio'],
+                            'hora_termino'      => $horario_local['max_hora_termino'],
+                            'titulo'            => $horario_local['titulo'],
+                            'dias'              => $horario_local['dias']
+                        );
+                        $arr_return['all_professionals'][$index]['rango_no_disponible'][$horario_local['id']]   = FuncionesGlobales::obtenerRangosNoDisponiblesPorDia(array($parametros_locacion),$horario_atencion_profesional,$hora_cierre);
+                    }
                 }
 
 
@@ -269,10 +280,6 @@ class AgendaController extends BaseController
             return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
         }
 
-        $arr_return['horario_atencion'] = $horario_atencion;
-
-        $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
-
         $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
         $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
         $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
@@ -295,10 +302,17 @@ class AgendaController extends BaseController
         $_POST['get_servicios']         = 1;
         $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
-        //  SI VIENEN VACIOS ESTOS ESPACIOS, SE UNIFICAN LAS HORAS PARA QUE SEA UN SOLO DIV CORRIDO
-        // if (empty($_POST['id_profesional']) && empty($_POST['id_paciente'])) {
-        //     $arr_return['citas_unificadas'] =   $this->unificar_citas_agendadas($arr_return['citas_agendadas']);
-        // }
+        //  SE BUSCA EL INTERVALO DE CITAS POR HORARIO 
+        foreach($horario_atencion as $id => $horario){
+            $arr_return['horario_atencion'][$id]                    = FuncionesGlobales::allStructureSchedule(array($horario));
+            $arr_return['horario_atencion'][$id]['titulo']          = $horario['titulo'];
+            $arr_return['horario_atencion'][$id]['intervalo_citas'] = $horario['intervalo_citas'];
+            $arr_return['horario_atencion'][$id]['id']              = $horario['id'];
+            $arr_return['horario_atencion'][$id]['dias']            = $horario['dias'];
+
+            //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
+            $arr_return['horario_atencion'][$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
+        }
         
         return $arr_return;
     }
