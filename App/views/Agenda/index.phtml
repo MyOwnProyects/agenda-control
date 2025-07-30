@@ -1398,6 +1398,7 @@ use App\Library\FuncionesGlobales;
         }
 
         fechaActual = nuevaFecha;
+        console.log('nuevaFecha',nuevaFecha);
         actualizarFecha($(div_header));
         if (!$(div_header).hasClass('modal')){
             renderCalendarMes();
@@ -1674,6 +1675,11 @@ use App\Library\FuncionesGlobales;
                 .show()
                 ;
 
+            if ($("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).length > 0){
+                $("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).find('.evento-flotante').remove();
+                template_days_container = $("#div_append_days_container").find("#div_container_horario_"+info_horario['id']);
+            }
+
             $(template_days_container).find('.titulo').text(info_horario['titulo']);
             //console.log('id_profesional',id_profesional);
             //console.log("profesionales[id_profesional]['rango_no_disponible']",profesionales[id_profesional]['rango_no_disponible']);
@@ -1749,18 +1755,23 @@ use App\Library\FuncionesGlobales;
     //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
     function get_all_appointments(element,modal_clone = null,refresh_filtros = null){
         console.log('modal_clone',modal_clone);
+        console.log('element',element);
+        let id_locacion = $("#select_locaciones").val();
         if (modal_clone != null){
             $(modal_clone).find('.evento-flotante').remove();
+            id_locacion
         } else {
             $(".div_header_days_container").find('.evento-flotante').remove();
             $(".div_header_week_container").find('.flot_cita').remove();
         }
         
         get_rango_semana(fechaActual);
-        const id_locacion       = $(element).find("#select_locaciones").val();
-        const id_servicio       = $(element).find("#select_servicios").val();
-        const id_profesional    = $(element).find("#select_profesionales").val();
-        const id_paciente       = $(element).find("#id_paciente").val();
+        // const id_locacion       = $(element).find("#select_locaciones").val();
+        // const id_servicio       = $(element).find("#select_servicios").val();
+        // const id_profesional    = $(element).find("#select_profesionales").val();
+        // const id_paciente       = $(element).find("#id_paciente").val();
+        // console.log('id_locacion',id_locacion);
+        // console.log('rango_fechas',rango_semana_actual);
         $.ajax({
             url     : url_index,
             method  : 'post',
@@ -1770,8 +1781,8 @@ use App\Library\FuncionesGlobales;
                 rango_fechas    : rango_semana_actual
             },
             success : function(data){
-                // console.log('data info 1');
-                // console.log(data);
+                console.log('data info 1');
+                console.log(data);
                 if (modal_clone == null){
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;
@@ -3102,11 +3113,11 @@ use App\Library\FuncionesGlobales;
         }
 
         // Encapsulación de eventos dentro de .div_header_days_container
-        $('.div_header_days_container').on('mouseenter','.evento-flotante',function() {
+        $('#div_append_days_container').on('mouseenter','.evento-flotante',function() {
             $('.agenda-hours').addClass('no-hover-effect');
         });
 
-        $('.div_header_days_container').on('mouseleave','.evento-flotante', function() {
+        $('#div_append_days_container').on('mouseleave','.evento-flotante', function() {
             $('.agenda-hours').removeClass('no-hover-effect');
         });
 
@@ -3325,7 +3336,7 @@ use App\Library\FuncionesGlobales;
         });
 
         //  EVENTO PARA AGENDAR UNA CITA NUEVA
-        $("#agenda-container").on('click','.agenda-hours',function(event){
+        $(".agenda-container").on('click','.agenda-hours',function(event){
             if ($(event.target).closest('.flot_cita').length > 0) {
                 return; // no ejecutar si el clic vino desde un flot_cita
             }
@@ -3337,7 +3348,7 @@ use App\Library\FuncionesGlobales;
         const $infoBox      = $("#infoBox");
         const $closeModal   = $("#closeModal");
         // Mostrar el modal al pasar el mouse sobre el .flot_cita
-        $("#div_header_week_container").on("click",'.flot_cita',function () {
+        $(".div_header_week_container").on("click",'.flot_cita',function () {
             //show_info_cita($(this));
             let div_flot_cita   = $(this);
             let dia_cita        = $(this).data('day');
@@ -3392,7 +3403,7 @@ use App\Library\FuncionesGlobales;
 
         });
 
-        $(".div_header_days_container").on("click",'.flot_cita',function () {
+        $("#div_append_days_container").on("click",'.flot_cita',function () {
             event.stopPropagation(); // Esto evita que el clic se propague a los padres como .agenda-hours
             show_info_cita($(this));
         });
