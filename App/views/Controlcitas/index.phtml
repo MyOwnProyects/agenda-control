@@ -2268,7 +2268,8 @@ use App\Library\FuncionesGlobales;
 
             //  BUSQUEDA RAPIDA
             if (busqueda_pruebas){
-                let fecha_hoy = new Date().toISOString().split('T')[0];
+                let fecha_hoy = new Date().toLocaleDateString('en-CA');
+                console.log('fecha_hoy',fecha_hoy);
 
                 let fecha_30_dias = new Date();
                 fecha_30_dias.setDate(fecha_30_dias.getDate() + 30);
