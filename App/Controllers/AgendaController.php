@@ -256,6 +256,8 @@ class AgendaController extends BaseController
 
         $this->view->margen_minutos_empalmado   = $margen_minutos_empalmado;
 
+        //  
+
         //  MOTIVOS PARA CANCELAR UNA CITA
         $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
         $motivos_cancelacion_cita   = FuncionesGlobales::RequestApi('GET',$route);
@@ -265,6 +267,7 @@ class AgendaController extends BaseController
         $route              = $this->url_api.$this->rutas['tbagenda_citas']['get_today'];
         $result_today       = FuncionesGlobales::RequestApi('GET',$route);
         $this->view->today  = $result_today['today'];
+        $this->view->dia_limite_movimientos = $result_today['dia_limite_movimientos'];
     }
 
     function get_info_by_location(){
