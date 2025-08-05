@@ -2351,12 +2351,18 @@ use App\Library\FuncionesGlobales;
         //  TOTALES
         let total_duracion  = 0;
         let total_costo     = 0;
+        let has_servicio    = false;
 
         $(modal_clone).find('.header_servicio').each(function(){
             let val_duracion    = $(this).find('.duracion').val() != null && $(this).find('.duracion').val() != '' ? $(this).find('.duracion').val() : 0;
             let val_costo       = $(this).find('.costo').text() != null && $(this).find('.costo').text() != '' ? $(this).find('.costo').text() : 0;
             total_duracion      = parseInt(total_duracion) + parseInt(val_duracion);
             total_costo         = (parseFloat(total_costo) + parseFloat(val_costo)).toFixed(2);
+
+            if ($(this).find('.select_servicios_modal').val() != null && $(this).find('.select_servicios_modal').val() != ''){
+                has_servicio    = true;
+            }
+
         });
 
         $(modal_clone).find('#total_duracion').text(total_duracion);
@@ -2374,7 +2380,7 @@ use App\Library\FuncionesGlobales;
         console.log('id_agenda_cita',id_agenda_cita);
         console.log('inicio calulcar',input_hora_inicio);
         console.log('termino calulcar',$(modal_clone).find('.input_hora_termino').val())
-        if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != ''){
+        if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != '' && has_servicio){
             console.log('parametros verificar',modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
             let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
             if (hora_inicio['excede_horario'] == true){
@@ -2384,6 +2390,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.input_hora_termino').val('');
                 return false;
             } else {
+                console.log("input_hora_inicio != hora_inicio['hora_termino_empalmado']",input_hora_inicio != hora_inicio['hora_termino_empalmado'],input_hora_inicio , hora_inicio['hora_termino_empalmado']);
                 if (input_hora_inicio != hora_inicio['hora_termino_empalmado']){
                     $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
                     input_hora_inicio   = hora_inicio['hora_termino_empalmado'];
@@ -2476,20 +2483,24 @@ use App\Library\FuncionesGlobales;
 
 
     //  CALCULA LA HORA INICIO EN BASE A LA SOLICITADA Y QUE NO ESTE EMPALMADA
-    function verificarHoraInicio(modal_clone, start, end, id_agenda_cita = null, duracion,estricto) {
-        let hora_inicio_header = convertirHoraATiempo(start);
+    function verificarHoraInicio(modal_clone,start,end,id_agenda_cita = null,duracion,estricto){
+        console.log('verificarHoraInicio',modal_clone,start,end,id_agenda_cita,duracion,estricto)
+        let hora_inicio_header  = convertirHoraATiempo(start);
         let hora_termino_header = convertirHoraATiempo(end);
-        let flag_empalmados = false;
-        let hora_termino_empalmado = '';
-        let margen_minutos_empalmado = estricto ? 0 : margen_minutos_empalmado_global;
-
-        console.log('id_agenda_cita antes de verificar', id_agenda_cita);
-        console.log('horas header', hora_inicio_header, hora_termino_header);
-
+        let flag_empalmados             = false;
+        let hora_termino_empalmado      = '';
+        let margen_minutos_empalmado    = estricto ? 0 : margen_minutos_empalmado_global;
+        console.log('count flotantes verificarHoraInicio',$(modal_clone).find('.flot_cita').attr('class'));
         $(modal_clone).find('.evento-flotante').each(function () {
             let element = $(this);
+            console.log('clases element',$(this).attr('class'),$(element).data('horainicio'),$(element).data('horatermino'),$(element).closest('.div_header_days_container').attr('id'),$(element).data('idagendacita'),id_agenda_cita);
 
-            if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') === id_agenda_cita) {
+            if (!$(element).hasClass('no_disponible') && $(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') == id_agenda_cita) {
+                console.log('return true verificarHoraInicio',id_agenda_cita);
+                return true;
+            }
+
+            if ($(element).closest('.div_header_days_container').hasClass('hide')){
                 return true;
             }
 
@@ -2511,6 +2522,7 @@ use App\Library\FuncionesGlobales;
             // Verificar empalme con hora de inicio
             if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
                 console.log('empalmado hora_inicio_header');
+                console.log('eleemento empalmado',$(element).data('idagendacita'));
                 flag_empalmados = true;
                 hora_inicio_header = hora_termino;
                 hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
@@ -2538,28 +2550,44 @@ use App\Library\FuncionesGlobales;
                 return true;
             }
 
-            return false;
+            //return false;
         });
 
-        if (!flag_empalmados) {
-            hora_termino_empalmado = start;
+        if (!flag_empalmados){
+            hora_termino_empalmado  = start;
         }
 
-        // Verificar si excede horario de atención
-        let info_ultimo_row = $(modal_clone).find(".agenda-time:last").text();
-        let excede_horario = false;
+        //  SE VERIFICA SI EL HORARIO FINAL EXCEDE EL HORARIO DE ATENCION
+        let excede_horario  = false;
+        let info_ultimo_row = $(modal_clone).find('.div_header_days_container:last').not('.hide').find(".agenda-time:last").text();
+        console.log('info_ultimo_row',info_ultimo_row);
+        if (info_ultimo_row != "undefined" && info_ultimo_row != null && info_ultimo_row != ''){
+            let info_ultimo_row = $(modal_clone).find('.div_header_days_container').not('.hide').find(".agenda-time:last").text();
+            info_ultimo_row     = info_ultimo_row.split('-');
+            info_ultimo_row     = info_ultimo_row[1].trim();
 
-        if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado, duracion)) >= convertirHoraATiempo(info_ultimo_row)) {
-            excede_horario = true;
+            //  EXCEDE EL HORARIO DE ATENCION
+            if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)) >= convertirHoraATiempo(info_ultimo_row)){
+                console.log('hora_termino_empalmado',hora_termino_empalmado);
+                console.log('duracion',duracion);
+                console.log('info_ultimo_row',info_ultimo_row);
+                excede_horario  = true;
+            }
         }
 
-        console.log('flag_empalmados fin', flag_empalmados);
-        console.log('hora_termino_empalmado fin', hora_termino_empalmado);
-
+        console.log('flag_empalmados fin',flag_empalmados);
+        console.log('hora_termino_empalmado fin',hora_termino_empalmado);
+        console.log('excede_horario fin',excede_horario);
+        if (!excede_horario){
+            if (arr_solo_hora_inicio.indexOf(hora_termino_empalmado) === -1){
+                console.log('antes find');
+                hora_termino_empalmado  = arr_solo_hora_inicio.find(hora => hora > hora_termino_empalmado);
+            }
+        }
         return {
-            flag_empalmados: flag_empalmados,
-            hora_termino_empalmado: hora_termino_empalmado,
-            excede_horario: excede_horario
+            flag_empalmados : flag_empalmados,
+            hora_termino_empalmado  : hora_termino_empalmado,
+            excede_horario          : excede_horario
         };
     }
 
@@ -2592,7 +2620,9 @@ use App\Library\FuncionesGlobales;
         show_hours(template_days_container,template_days_container,min_hora_inicio,max_hora_inicio,[profesional],profesional['rango_no_disponible'],id_profesional);
 
         if (id_agenda_cita == null){
+            // verificarHoraInicio(modal_clone,start,end,id_agenda_cita = null,duracion,estricto)
             let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5,false);
+            console.log('hora_inicio print_modal_info_cita ',hora_inicio);
             
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
         } else {
@@ -2779,20 +2809,32 @@ use App\Library\FuncionesGlobales;
             ])
         );
 
+        //  SE LLENA COMBO DE PROFESIONALES
+        let options     = '<option></option>';
+        let selected    = '';
+        for(let i in profesionales){
+            let tmp_profesional = profesionales[i];
+            selected    = tmp_profesional["id"] == id_profesional ? 'selected' : '';
+            options += '<option value="'+tmp_profesional["id"]+'" '+selected+'>'+tmp_profesional["nombre_completo"]+'</option>';
+        }
+
+        $(modal_clone).find('#select_profesionales_modal').find('option').remove();
+        $(modal_clone).find('#select_profesionales_modal').append(options);
+
         if (id_agenda_cita != null){
             $(modal_clone).find('#select_profesionales_modal').removeAttr('required');
 
             //  SE LLENA COMBO DE PROFESIONALES
-            let options     = '<option></option>';
-            let selected    = '';
-            for(let i in profesionales){
-                let tmp_profesional = profesionales[i];
-                selected    = tmp_profesional["id"] == info_profesional['info_cita']['id_profesional'] ? 'selected' : '';
-                options += '<option value="'+tmp_profesional["id"]+'" '+selected+'>'+tmp_profesional["nombre_completo"]+'</option>';
-            }
+            // let options     = '<option></option>';
+            // let selected    = '';
+            // for(let i in profesionales){
+            //     let tmp_profesional = profesionales[i];
+            //     selected    = tmp_profesional["id"] == info_profesional['info_cita']['id_profesional'] ? 'selected' : '';
+            //     options += '<option value="'+tmp_profesional["id"]+'" '+selected+'>'+tmp_profesional["nombre_completo"]+'</option>';
+            // }
 
-            $(modal_clone).find('#select_profesionales_modal').find('option').remove();
-            $(modal_clone).find('#select_profesionales_modal').append(options);
+            // $(modal_clone).find('#select_profesionales_modal').find('option').remove();
+            // $(modal_clone).find('#select_profesionales_modal').append(options);
 
             $(modal_clone).find('#select_profesionales_modal').select2({
                 placeholder: 'Seleccione una opción',
@@ -3010,7 +3052,7 @@ use App\Library\FuncionesGlobales;
         let cadena_enviada  = '';
         $(modal_clone).find('#select_paciente_modal').select2({
             placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
+            dropdownParent: $(modal_clone).find('.div_select_paciente'),
             width: '50px',
             minimumInputLength: 5,
             ajax: {
@@ -3087,7 +3129,8 @@ use App\Library\FuncionesGlobales;
             const patron = /^([01]\d|2[0-3]):([0-5]\d)$/; // Expresión regular para validar HH:MM
 
             // Validar el formato de la hora
-            let input_termino_val   = $(modal_clone).find('.input_hora_termino').val();
+            //let input_termino_val   = $(modal_clone).find('.input_hora_termino').val();
+            $(modal_clone).find('.input_hora_termino').val('');
             if (patron.test(valor)) {
                 //  SE BUSCA QUE EXISTA AL MENOS UN VALOR DE SERVICIO ELEGIDO
                 let flag_servicio   = false;
@@ -3226,7 +3269,9 @@ use App\Library\FuncionesGlobales;
                     $(btn).prop('disabled',false);
                     $(modal_clone).modal('hide');
                     showAlert('success',data);
-                    $("#btnBuscar").trigger('click');
+                    //$("#btnBuscar").trigger('click');
+                    get_all_appointments($(".filters"),null,true);
+                    $("#btn-dia").trigger('click');
 
                 },
                 error : function(error){
@@ -3253,6 +3298,8 @@ use App\Library\FuncionesGlobales;
 
             duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
             hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion),id_agenda_cita,duracion,true);
+
+            console.log('hora_inicio hora_inicio',hora_inicio);
 
             if (hora_inicio['excede_horario']){
                 hora_inicio['hora_termino_empalmado']   = $(modal_clone).find('.input_hora_inicio').val();
@@ -3360,6 +3407,8 @@ use App\Library\FuncionesGlobales;
         let fecha_actual    = formatearFecha(fechaActual);
         fecha_actual        = fecha_actual.split(",");
         let hora_inicio     = $(element).closest('.row_info').find('.agenda-time').text();
+        hora_inicio         = hora_inicio.split('-');
+        hora_inicio         = hora_inicio[0].trim(); 
 
         if ($(element).hasClass('no-hover-effect')){
             return false;
