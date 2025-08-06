@@ -2591,21 +2591,8 @@ use App\Library\FuncionesGlobales;
         };
     }
 
-    // print_modal_info_cita(
-    //             modal_clone,
-    //             template_days_container,
-    //             info_horario['intervalo_citas'],
-    //             info_horario['min_hora_inicio'],
-    //             info_horario['max_hora_termino'],
-    //             id_profesional,
-    //             profesionales[id_profesional]['rango_no_disponible'],
-    //             id_agenda_cita,
-    //             first_row,
-    //             info_profesional['info_cita'],
-    //             hora_default
-    //         );
-
     function print_modal_info_cita(modal_clone,template_days_container,intervalo_citas,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita,hora_default){
+        console.log('print modal',modal_clone,template_days_container,intervalo_citas,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita,hora_default);
         //  SE BORRAN TODOS LOS REGISTROS DE LA AGENDA
         $(template_days_container).find('.agenda-service').remove();
         console.log('borra evento-flotante ',3);
@@ -2622,75 +2609,79 @@ use App\Library\FuncionesGlobales;
         if (id_agenda_cita == null){
             // verificarHoraInicio(modal_clone,start,end,id_agenda_cita = null,duracion,estricto)
             let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5,false);
-            console.log('hora_inicio print_modal_info_cita ',hora_inicio);
             
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
         } else {
-            console.log('citas_desglosadas print_modal_info_cita',citas_desglosadas,id_agenda_cita);
-            //let info_cita   = citas_desglosadas.find(row => row.id_agenda_cita == id_agenda_cita);
-            
-            $(modal_clone).find('.input_hora_inicio').val(info_cita.start).data('hora',info_cita.start);
-            $(modal_clone).find('.input_hora_termino').val(info_cita.end);
+            let info_cita = typeof horario_atencion[$(template_days_container).data('idhorarioatencion')] != "undefined" ? Object.values(horario_atencion[$(template_days_container).data('idhorarioatencion')]['citas_paciente']).flat().find(row => row.id_agenda_cita === id_agenda_cita) : null;
+            console.log('info_cita info_cita',info_cita);
 
-            //  SE CREAN LOS SERVICIOS
-            if (recrear_servicios){
-                console.log('info_cita recrear_servicios',info_cita,recrear_servicios);
-                for(let i in info_cita['servicios']){
-                    let servicio = info_cita['servicios'][i];
+            //  SIGNIFICA QUE LA CITA NO PERTENECE A ESTE HORARIO ATENCION
+            if (typeof info_cita != "undefined" && info_cita != null){
+                    
+                
+                $(modal_clone).find('.input_hora_inicio').val(info_cita.start).data('hora',info_cita.start);
+                $(modal_clone).find('.input_hora_termino').val(info_cita.end);
 
-                    $(modal_clone).find('.btn_add_service').trigger('click');
-                    console.log("$(modal_clone).find('.header_servicio')",$(modal_clone).find('.header_servicio').length);
-                    $(modal_clone).find('.header_servicio').each(function(){
-                        if ($(this).find('.select_servicios_modal').val() != '' && $(this).find('.select_servicios_modal').val() != null){
-                            return true;
-                        }
+                //  SE CREAN LOS SERVICIOS
+                if (recrear_servicios){
+                    console.log('info_cita recrear_servicios',info_cita,recrear_servicios);
+                    for(let i in info_cita['servicios']){
+                        let servicio = info_cita['servicios'][i];
 
-                        $(this).find('.select_servicios_modal').val(servicio['id_servicio']).trigger('change');
-                        $(this).find('.duracion').val(servicio['duracion']);
-                        $(this).find('.costo').text(servicio['costo']);
-                        return false;
-                    });
+                        $(modal_clone).find('.btn_add_service').trigger('click');
+                        console.log("$(modal_clone).find('.header_servicio')",$(modal_clone).find('.header_servicio').length);
+                        $(modal_clone).find('.header_servicio').each(function(){
+                            if ($(this).find('.select_servicios_modal').val() != '' && $(this).find('.select_servicios_modal').val() != null){
+                                return true;
+                            }
 
+                            $(this).find('.select_servicios_modal').val(servicio['id_servicio']).trigger('change');
+                            $(this).find('.duracion').val(servicio['duracion']);
+                            $(this).find('.costo').text(servicio['costo']);
+                            return false;
+                        });
+
+                    }
                 }
+                
+
+                $(modal_clone).find('.div_select_paciente').hide();
+                $(modal_clone).find('.div_datos_paciente').show();
+                $(modal_clone).find('#span_paciente').text(info_cita['celular'] + ' - ' + info_cita['primer_apellido'] + ' ' + info_cita['segundo_apellido']+ ' '+ info_cita['nombre'] );
+                $(modal_clone).find('#span_paciente').data('idagendacita',id_agenda_cita);
+                $(modal_clone).find('#span_paciente').data('idprofesional',id_profesional);
+
+                //  EVITA QUE RECALCULE LA FECHA CUANDO VIENE DESDE EL COMBO DE PROFESIONALES
+                if (recrear_servicios){
+                    console.log('info_cita',info_cita);
+                    let formato_fecha   = info_cita['fecha_cita'].split('-');
+
+                    $(modal_clone).find('#span_fecha_cita').text(formato_fecha[2]+'/'+formato_fecha[1]+'/'+formato_fecha[0]);
+                    $(modal_clone).find('#fecha-actual').text(formatearFecha(new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2])));
+                    fechaActual = new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2]);
+                }
+
+                $(modal_clone).find('.div_input_paciente').hide();
+                $(modal_clone).find('.div_text_paciente').show();
+                $(modal_clone).find('#input_celular').val(info_cita['celular']).prop('disabled',true);
+                $(modal_clone).find('#input_primer_apellido').val(info_cita['primer_apellido']).prop('disabled',true);
+                $(modal_clone).find('#input_segundo_apellido').val(info_cita['segundo_apellido']).prop('disabled',true);
+                $(modal_clone).find('#input_nombre').val(info_cita['nombre']).prop('disabled',true);
+
+                $(modal_clone).on('hidden.bs.modal', function (e) {
+                    // Tu código aquí
+                    fechaActual = tmp_fecha_actual;
+
+                    //  CITAS POR DIA
+                    //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
+                    citas_desglosadas = Object.fromEntries(
+                        Object.entries(tmp_citas_desglosadas).map(([key, arr]) => [
+                            key,
+                            arr.map(obj => ({ ...obj })) // copia cada objeto dentro del array
+                        ])
+                    );
+                });
             }
-            
-
-            $(modal_clone).find('.div_select_paciente').hide();
-            $(modal_clone).find('.div_datos_paciente').show();
-            $(modal_clone).find('#span_paciente').text(info_cita['celular'] + ' - ' + info_cita['primer_apellido'] + ' ' + info_cita['segundo_apellido']+ ' '+ info_cita['nombre'] );
-            $(modal_clone).find('#span_paciente').data('idagendacita',id_agenda_cita);
-            $(modal_clone).find('#span_paciente').data('idprofesional',id_profesional);
-
-            //  EVITA QUE RECALCULE LA FECHA CUANDO VIENE DESDE EL COMBO DE PROFESIONALES
-            if (recrear_servicios){
-                console.log('info_cita',info_cita);
-                let formato_fecha   = info_cita['fecha_cita'].split('-');
-
-                $(modal_clone).find('#span_fecha_cita').text(formato_fecha[2]+'/'+formato_fecha[1]+'/'+formato_fecha[0]);
-                $(modal_clone).find('#fecha-actual').text(formatearFecha(new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2])));
-                fechaActual = new Date(formato_fecha[0],formato_fecha[1] - 1,formato_fecha[2]);
-            }
-
-            $(modal_clone).find('.div_input_paciente').hide();
-            $(modal_clone).find('.div_text_paciente').show();
-            $(modal_clone).find('#input_celular').val(info_cita['celular']).prop('disabled',true);
-            $(modal_clone).find('#input_primer_apellido').val(info_cita['primer_apellido']).prop('disabled',true);
-            $(modal_clone).find('#input_segundo_apellido').val(info_cita['segundo_apellido']).prop('disabled',true);
-            $(modal_clone).find('#input_nombre').val(info_cita['nombre']).prop('disabled',true);
-
-            $(modal_clone).on('hidden.bs.modal', function (e) {
-                // Tu código aquí
-                fechaActual = tmp_fecha_actual;
-
-                //  CITAS POR DIA
-                //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
-                citas_desglosadas = Object.fromEntries(
-                    Object.entries(tmp_citas_desglosadas).map(([key, arr]) => [
-                        key,
-                        arr.map(obj => ({ ...obj })) // copia cada objeto dentro del array
-                    ])
-                );
-            });
 
         }
     }
@@ -2777,7 +2768,7 @@ use App\Library\FuncionesGlobales;
             }
 
             let tmp_rango_no_disponible = typeof profesionales[id_profesional] == "undefined" || typeof profesionales[id_profesional]['rango_no_disponible'] == "undefined" ? {} : profesionales[id_profesional]['rango_no_disponible'];
-
+            console.log('aqui uno print');
             print_modal_info_cita(
                 modal_clone,
                 template_days_container,
@@ -2788,7 +2779,7 @@ use App\Library\FuncionesGlobales;
                 tmp_rango_no_disponible,
                 id_agenda_cita,
                 first_row,
-                info_profesional['info_cita'],
+                null,
                 hora_default
             );
 
@@ -2881,7 +2872,7 @@ use App\Library\FuncionesGlobales;
                 //  AL PASAR SIGNIFICA QUE EL PROFESIONAL CUMPLE CON LOS SERVICIOS REQUERIDOS
                 console.log("combo",check_profesional['rango_no_disponible']);
                 $(modal_clone).find('.div_header_days_container').each(function(){
-                    
+                    console.log('aqui 2 print',info_profesional['info_cita']);
                     print_modal_info_cita(
                         modal_clone,
                         $(this),
