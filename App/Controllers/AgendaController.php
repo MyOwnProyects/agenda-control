@@ -307,14 +307,14 @@ class AgendaController extends BaseController
 
         //  SE BUSCA EL INTERVALO DE CITAS POR HORARIO 
         foreach($horario_atencion as $id => $horario){
-            $arr_return['horario_atencion'][$id]                    = FuncionesGlobales::allStructureSchedule(array($horario));
-            $arr_return['horario_atencion'][$id]['titulo']          = $horario['titulo'];
-            $arr_return['horario_atencion'][$id]['intervalo_citas'] = $horario['intervalo_citas'];
-            $arr_return['horario_atencion'][$id]['id']              = $horario['id'];
-            $arr_return['horario_atencion'][$id]['dias']            = $horario['dias'];
+            $arr_return['horario_atencion'][$horario['id']]                     = FuncionesGlobales::allStructureSchedule(array($horario));
+            $arr_return['horario_atencion'][$horario['id']]['titulo']           = $horario['titulo'];
+            $arr_return['horario_atencion'][$horario['id']]['intervalo_citas']  = $horario['intervalo_citas'];
+            $arr_return['horario_atencion'][$horario['id']]['id']               = $horario['id'];
+            $arr_return['horario_atencion'][$horario['id']]['dias']             = $horario['dias'];
 
             //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
-            $arr_return['horario_atencion'][$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
+            $arr_return['horario_atencion'][$horario['id']]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
         }
         
         return $arr_return;
