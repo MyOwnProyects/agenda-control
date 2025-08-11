@@ -1116,31 +1116,64 @@ use App\Library\FuncionesGlobales;
                     $(div_header).find(".div_header_days_container").find('.evento-flotante').remove();
                     let id_profesional  = null;
 
+                    arr_solo_hora_inicio    = [];
+                    for (let i in horario_atencion) {
+                        let info_horario    = horario_atencion[i];
+                        let h_inicio        = info_horario['min_hora_inicio'];
+                        let h_termino       = info_horario['max_hora_termino'];
+                        let intervalo_citas = info_horario['intervalo_citas'];
+
+                        let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
+
+                        if (!diasPermitidos.includes(diaActual)) {
+                            continue;
+                        }
+
+                        let minutosInicio  = convertirHoraAMinutos(h_inicio);
+                        const minutosFin   = convertirHoraAMinutos(h_termino);
+
+                        while (minutosInicio < minutosFin) {
+                            arr_solo_hora_inicio.push(convertirMinutosAHora(minutosInicio));
+                            minutosInicio += intervalo_citas;
+                        }
+                    }
+                    arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
+                    //  AL TEMPLATE DE SERVICIOS SE AGREGAN LAS HORAS
+                    let actual_value_input_inicio   = $(div_header).find('.input_hora_inicio').val();
+                    console.log('actual_value_input_inicio',actual_value_input_inicio);
+                    $(div_header).find('.input_hora_inicio').find('option').remove();
+                    let usar_valor_actual   = false;
+                    for(let i in arr_solo_hora_inicio){
+                        if (arr_solo_hora_inicio[i] == actual_value_input_inicio){
+                            usar_valor_actual   = true;
+                        }
+                        console.log('arr_solo_hora_inicio[i] == actual_value_input_inicio',arr_solo_hora_inicio[i] , actual_value_input_inicio)
+                        $(div_header).find('.input_hora_inicio').append('<option value="'+arr_solo_hora_inicio[i]+'">'+arr_solo_hora_inicio[i]+'</option>');
+                    }
+
+                    $(div_header).find('.input_hora_inicio').val(usar_valor_actual ? actual_value_input_inicio : arr_solo_hora_inicio[0]);
+                    console.log("$().find('.input_hora_inicio').val",$(div_header).find('.input_hora_inicio').val());
+
                     //  SE RECORRE TODOS LOS DIVS DE TURNOS PARA SABER CUAL SE DEBE DE MOSTRAR
                     $(div_header).find('.div_header_days_container').each(function(){
                         console.log('id',$(this).data('idhorarioatencion'),$(this).data('dias'));
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
-                        console.log('diasPermitidos',diasPermitidos,diaActual);
                         if (!diasPermitidos.includes(diaActual)) {
                             console.log('hide agregar clase',id_horario_atencion);
                             $(this).addClass('hide');
                             return true;
                         } else {
-                            console.log('hide remover clase',id_horario_atencion);
                             $(this).removeClass('hide');
                         }
 
                         if (div_header == '#div_header_agenda'){
-                            console.log('entre if');
                             horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(div_header),rango,background_tipo_cita,'no_disponible'));
                         } else {
                             id_profesional  = $(div_header).find('#span_paciente').data('idprofesional');
-                            console.log('entro else',id_horario_atencion);
-                            console.log('horario_no_disponible',id_horario_atencion,horario_no_disponible);
                             horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(div_header),rango,background_tipo_cita(rango),'no_disponible',null,true));
                         }
-                        console.log('id_horario_atencion show_horario_no_disponible_profesional',id_horario_atencion);
+                        console.log('show_horario_no_disponible_profesional 1');
                         show_horario_no_disponible_profesional($(div_header),id_horario_atencion,id_profesional);
 
                         console.log('citas_desglosadas 3',citas_desglosadas,id_horario_atencion);
@@ -1305,7 +1338,7 @@ use App\Library\FuncionesGlobales;
                 columnaProfesional.append(eventoDiv);
             } else {
                 // Encontrar la columna correspondiente al profesional
-                const profesionalIndex = profesionales.findIndex(p => p.id === evento.id_profesional);
+                const profesionalIndex = profesionales.findIndex(p => p.id == evento.id_profesional);
                 console.log('profesionalIndex',profesionalIndex);
                 if (profesionalIndex !== -1) {
                     console.log('lfrom_modal',from_modal,evento);
@@ -1557,6 +1590,7 @@ use App\Library\FuncionesGlobales;
 
 
     function show_horario_no_disponible_profesional(div_header = null,id_horario_atencion = null,id_profesional = null){
+        console.log('info horario profesional',$(div_header).attr('class'),id_horario_atencion,id_profesional);
         //  SE PINTA EL HORARIO NO DISPONIBLE POR PROFESIONAL POR DIA
         let header_id_profesional   = null;
         if (div_header != null && $(div_header).hasClass('modal')){
@@ -1566,10 +1600,13 @@ use App\Library\FuncionesGlobales;
         
         let profesional = {};
         if (header_id_profesional != null){
-            profesional =  [profesionales[header_id_profesional]];
+            profesional =  profesionales.find(p => p.id == header_id_profesional);
+            profesional = [profesional];
         } else {
             profesional = profesionales;
         }
+
+        console.log('header_id_profesional header_id_profesional',header_id_profesional,profesionales,profesional);
 
         for(let i in profesional){
             let rango_no_disponible = profesional[i]['rango_no_disponible'];
@@ -1589,7 +1626,13 @@ use App\Library\FuncionesGlobales;
                     if (div_header == null){
                         cuadroFlotantesDiario($("#div_header_agenda"),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
                     } else {
-                        cuadroFlotantesDiario($(div_header),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
+                        console.log('div_header div_header',$(div_header).attr('class'));
+                        if ($(div_header).hasClass('modal')){
+                            cuadroFlotantesDiario($(div_header),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible',false,true);
+                        } else {
+                            cuadroFlotantesDiario($(div_header),rango, background_tipo_cita(rango), 'no_disponible','Profesional no disponible');
+                        }
+                        
                     }
                 });
             }
@@ -1680,7 +1723,7 @@ use App\Library\FuncionesGlobales;
             evento.id_horario_atencion  = id_horario_atencion;
             cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer,'flot_cita');
         });
-
+        console.log('show_horario_no_disponible_profesional 2');
         show_horario_no_disponible_profesional(template_days_container,id_horario_atencion);
     }
 
@@ -1741,8 +1784,6 @@ use App\Library\FuncionesGlobales;
 
             $(template_days_container).find('.titulo').text(info_horario['titulo']);
             $(template_week_container).find('.titulo').text(info_horario['titulo']);
-            //console.log('id_profesional',id_profesional);
-            //console.log("profesionales[id_profesional]['rango_no_disponible']",profesionales[id_profesional]['rango_no_disponible']);
             console.log('diasPermitidos',diasPermitidos);
             if (diasPermitidos.includes(diaActual)) {
                 console.log('aqui pase',$(template_days_container).hasClass('hide'),$(template_days_container).is(':visible'));
@@ -1845,6 +1886,7 @@ use App\Library\FuncionesGlobales;
                     citas_desglosadas   = data['citas_agendadas'];
                     horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
                     citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
+                    console.log('show_horario_no_disponible_profesional 3');
                     show_horario_no_disponible_profesional($(modal_clone));
                     setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),500);
                 }
@@ -1929,7 +1971,6 @@ use App\Library\FuncionesGlobales;
         // Citas no disponibles y desglosadas
         console.log('horario_no_disponible_prof horario_no_disponible_prof',horario_no_disponible_prof);
         if (horario_no_disponible_prof){
-            //let id_profesional = profesionales[0]['id'];
             console.log('id_horario_atencion id_horario_atencion',id_horario_atencion);
             if (Array.isArray(horario_no_disponible_prof[id_horario_atencion]) && horario_no_disponible_prof[id_horario_atencion].length > 0) {
                 horario_no_disponible_prof[id_horario_atencion].forEach(rango => {
@@ -2389,14 +2430,14 @@ use App\Library\FuncionesGlobales;
             } else {
                 console.log("input_hora_inicio != hora_inicio['hora_termino_empalmado']",input_hora_inicio != hora_inicio['hora_termino_empalmado'],input_hora_inicio , hora_inicio['hora_termino_empalmado']);
                 if (input_hora_inicio != hora_inicio['hora_termino_empalmado']){
+                    console.log('optiones',$(modal_clone).find('.input_hora_inicio').find('option').length);
                     $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
                     input_hora_inicio   = hora_inicio['hora_termino_empalmado'];
                 }
             }
             
             $(modal_clone).find('.input_hora_termino').val(sumarUnMinuto(input_hora_inicio,total_duracion));
-            let profesional = profesionales[id_profesional];
-            console.log('profesionales a pintar',profesionales[id_profesional]);
+            let profesional = profesionales.find(p => p.id == id_profesional);
             let text_day    = formatearFecha(fechaActual);
             text_day        = text_day.split(",")[0];
 
@@ -2410,6 +2451,10 @@ use App\Library\FuncionesGlobales;
                     }
                 }
             });
+
+            // if ($(modal_clone).find('.input_hora_inicio').val() == null){
+            //     input_hora_termino
+            // }
 
             let evento  = {
                 start   : $(modal_clone).find('.input_hora_inicio').val(),
@@ -2485,102 +2530,111 @@ use App\Library\FuncionesGlobales;
         let hora_inicio_header  = convertirHoraATiempo(start);
         let hora_termino_header = convertirHoraATiempo(end);
         let flag_empalmados             = false;
-        let hora_termino_empalmado      = '';
+        let hora_termino_empalmado      = start;
         let margen_minutos_empalmado    = estricto ? 0 : margen_minutos_empalmado_global;
-        console.log('count flotantes verificarHoraInicio',$(modal_clone).find('.flot_cita').attr('class'));
-        $(modal_clone).find('.evento-flotante').each(function () {
-            let element = $(this);
-            console.log('clases element',$(this).attr('class'),$(element).data('horainicio'),$(element).data('horatermino'),$(element).closest('.div_header_days_container').attr('id'),$(element).data('idagendacita'),id_agenda_cita);
-
-            if (!$(element).hasClass('no_disponible') && $(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') == id_agenda_cita) {
-                console.log('return true verificarHoraInicio',id_agenda_cita);
-                return true;
-            }
-
-            if ($(element).closest('.div_header_days_container').hasClass('hide')){
-                return true;
-            }
-
-            let hora_inicio_str = $(element).data('horainicio');
-            let hora_termino_str = $(element).data('horatermino');
-
-            let hora_inicio = convertirHoraATiempo(hora_inicio_str);
-            let hora_termino = convertirHoraATiempo(hora_termino_str);
-
-            // Ajustar con margen usando sumarUnMinuto
-            let hora_inicio_mas_margen = convertirHoraATiempo(sumarUnMinuto(hora_inicio_str, margen_minutos_empalmado));
-            let hora_termino_menos_margen = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado));
-
-            // Si la cita existente termina antes de que inicie la nueva
-            if (hora_termino < hora_inicio_header) {
-                return true;
-            }
-
-            // Verificar empalme con hora de inicio
-            if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
-                console.log('empalmado hora_inicio_header');
-                console.log('eleemento empalmado',$(element).data('idagendacita'));
-                flag_empalmados = true;
-                hora_inicio_header = hora_termino;
-                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
-                hora_termino_empalmado = hora_termino_str;
-                return true;
-            }
-
-            // Verificar empalme con hora de término
-            if (hora_termino_header > hora_inicio_mas_margen && hora_termino_header <= hora_termino_menos_margen) {
-                console.log('empalmado hora termino');
-                flag_empalmados = true;
-                hora_inicio_header = hora_termino;
-                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
-                hora_termino_empalmado = hora_termino_str;
-                return true;
-            }
-
-            // Verificar empalme máximo
-            if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
-                console.log('empalmado maximo');
-                flag_empalmados = true;
-                hora_inicio_header = hora_termino;
-                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
-                hora_termino_empalmado = hora_termino_str;
-                return true;
-            }
-
-            //return false;
-        });
-
-        if (!flag_empalmados){
-            hora_termino_empalmado  = start;
-        }
-
-        //  SE VERIFICA SI EL HORARIO FINAL EXCEDE EL HORARIO DE ATENCION
         let excede_horario  = false;
-        let info_ultimo_row = $(modal_clone).find('.div_header_days_container:last').not('.hide').find(".agenda-time:last").text();
-        console.log('info_ultimo_row',info_ultimo_row);
-        if (info_ultimo_row != "undefined" && info_ultimo_row != null && info_ultimo_row != ''){
-            let info_ultimo_row = $(modal_clone).find('.div_header_days_container').not('.hide').find(".agenda-time:last").text();
-            info_ultimo_row     = info_ultimo_row.split('-');
-            info_ultimo_row     = info_ultimo_row[1].trim();
+        console.log('count flotantes verificarHoraInicio',$(modal_clone).find('.div_header_days_container').length);
+        $(modal_clone).find('.div_header_days_container').not('.hide').each(function(){
+            console.log('pase validar each');
+            $(this).find('.evento-flotante').each(function () {
+                let element = $(this);
+                console.log('clases element',$(element).attr('class'),$(element).data('horainicio'),$(element).data('horatermino'),$(element).closest('.div_header_days_container').attr('id'),$(element).data('idagendacita'),id_agenda_cita);
 
-            //  EXCEDE EL HORARIO DE ATENCION
-            if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)) >= convertirHoraATiempo(info_ultimo_row)){
-                console.log('hora_termino_empalmado',hora_termino_empalmado);
-                console.log('duracion',duracion);
-                console.log('info_ultimo_row',info_ultimo_row);
-                excede_horario  = true;
-            }
-        }
+                if (!$(element).hasClass('no_disponible') && $(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') == id_agenda_cita) {
+                    return true;
+                }
 
-        console.log('flag_empalmados fin',flag_empalmados);
-        console.log('hora_termino_empalmado fin',hora_termino_empalmado);
-        console.log('excede_horario fin',excede_horario);
-        if (!excede_horario){
-            if (arr_solo_hora_inicio.indexOf(hora_termino_empalmado) === -1){
-                console.log('antes find');
-                hora_termino_empalmado  = arr_solo_hora_inicio.find(hora => hora > hora_termino_empalmado);
+                if ($(element).closest('.div_header_days_container').hasClass('hide')){
+                    return true;
+                }
+
+                let hora_inicio_str = $(element).data('horainicio');
+                let hora_termino_str = $(element).data('horatermino');
+
+                let hora_inicio = convertirHoraATiempo(hora_inicio_str);
+                let hora_termino = convertirHoraATiempo(hora_termino_str);
+
+                // Ajustar con margen usando sumarUnMinuto
+                let hora_inicio_mas_margen = convertirHoraATiempo(sumarUnMinuto(hora_inicio_str, margen_minutos_empalmado));
+                let hora_termino_menos_margen = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado));
+
+                // Si la cita existente termina antes de que inicie la nueva
+                if (hora_termino < hora_inicio_header) {
+                    return true;
+                }
+
+                // Verificar empalme con hora de inicio
+                if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
+                    console.log('empalmado hora_inicio_header');
+                    console.log('eleemento empalmado',$(element).data('idagendacita'));
+                    flag_empalmados = true;
+                    hora_inicio_header = hora_termino;
+                    hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                    hora_termino_empalmado = hora_termino_str;
+                    return true;
+                }
+
+                // Verificar empalme con hora de término
+                if (hora_termino_header > hora_inicio_mas_margen && hora_termino_header <= hora_termino_menos_margen) {
+                    console.log('empalmado hora termino');
+                    flag_empalmados = true;
+                    hora_inicio_header = hora_termino;
+                    hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                    hora_termino_empalmado = hora_termino_str;
+                    return true;
+                }
+
+                // Verificar empalme máximo
+                if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
+                    console.log('empalmado maximo');
+                    flag_empalmados = true;
+                    hora_inicio_header = hora_termino;
+                    hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                    hora_termino_empalmado = hora_termino_str;
+                    return true;
+                }
+
+                //return false;
+            });
+
+            if (!flag_empalmados){
+                hora_termino_empalmado  = start;
             }
-        }
+
+            //  SE VERIFICA SI EL HORARIO FINAL EXCEDE EL HORARIO DE ATENCION
+            excede_horario  = false;
+            let ultimo_row  = $(modal_clone).find('.div_header_days_container').not('.hide').last();
+            ultimo_row      = $(ultimo_row).find(".agenda-time:last").text();
+            console.log('ultimo_row',ultimo_row);
+            if (ultimo_row != "undefined" && ultimo_row != null && ultimo_row != ''){
+                let info_ultimo_row = ultimo_row;
+                info_ultimo_row     = info_ultimo_row.split('-');
+                info_ultimo_row     = info_ultimo_row[1].trim();
+
+                //  EXCEDE EL HORARIO DE ATENCION
+                if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)) >= convertirHoraATiempo(info_ultimo_row)){
+                    console.log('hora_termino_empalmado',hora_termino_empalmado);
+                    console.log('duracion',duracion);
+                    console.log('info_ultimo_row',info_ultimo_row);
+                    excede_horario  = true;
+                }
+            }
+
+            console.log('flag_empalmados fin',flag_empalmados);
+            console.log('hora_termino_empalmado fin',hora_termino_empalmado);
+            console.log('excede_horario fin',excede_horario);
+            if (!excede_horario){
+                if (arr_solo_hora_inicio.indexOf(hora_termino_empalmado) === -1){
+                    console.log('antes find');
+                    hora_termino_empalmado  = arr_solo_hora_inicio.find(hora => hora > hora_termino_empalmado);
+                }
+            }
+            console.log('hora_termino_empalmado hora_termino_empalmado',hora_termino_empalmado);
+            hora_inicio_header  = convertirHoraATiempo(hora_termino_empalmado);
+            hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion));
+        });
+        
+
         return {
             flag_empalmados : flag_empalmados,
             hora_termino_empalmado  : hora_termino_empalmado,
@@ -2596,11 +2650,13 @@ use App\Library\FuncionesGlobales;
         $(template_days_container).find('.evento-flotante').remove();
         $(template_days_container).find('.row_info').remove();
         //  SECCION PARA PINTAR LA INFORMACION DE LA CITA
-        let profesional = profesionales.find(p => p.id === id_profesional);
+        let profesional = profesionales.find(p => p.id == id_profesional);
+        console.log('profesional profesional',id_profesional,profesionales,profesional);
         show_hours(template_days_container,template_days_container,min_hora_inicio,max_hora_inicio,[profesional],profesional['rango_no_disponible'],id_profesional);
 
         if (id_agenda_cita == null){
             let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5,false);
+            console.log('hora inicio verificarHoraInicio',hora_inicio);
             
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
         } else {
@@ -2758,7 +2814,9 @@ use App\Library\FuncionesGlobales;
                 $(template_days_container).addClass('hide');
             }
 
-            let tmp_rango_no_disponible = typeof profesionales[id_profesional] == "undefined" || typeof profesionales[id_profesional]['rango_no_disponible'] == "undefined" ? {} : profesionales[id_profesional]['rango_no_disponible'];
+            let tmp_profesional = profesionales.find(p => p.id == id_profesional);;
+
+            let tmp_rango_no_disponible = typeof tmp_profesional == "undefined" || typeof tmp_profesional['rango_no_disponible'] == "undefined" ? {} : tmp_profesional['rango_no_disponible'];
 
             $(modal_clone).find('.select_servicios_modal').each(function(){
                 if ($(this).val() != null && $(this).val() != ''){
@@ -2817,7 +2875,7 @@ use App\Library\FuncionesGlobales;
             }).on('select2:select',function(){
                 //  SE OBTIENE LA INFORMACION DEL PROFESIONAL
                 let id  = $(this).val();
-                let check_profesional   = profesionales[id];
+                let check_profesional   = profesionales.find(p => p.id == id);
                 console.log('check_profesional',check_profesional);
                 let tmp_servicios   = check_profesional['servicios'];
 
@@ -2845,7 +2903,6 @@ use App\Library\FuncionesGlobales;
 
                 if (!flag_cumple_servicios){
                     showAlert('danger','El profesional seleccionado no cumple con todos los servicios requeridos en esta cita');
-                    console.log('actual id_prof',info_profesional['info_cita']['id_profesional']);
                     $(modal_clone).find('#select_profesionales_modal').val(info_profesional['info_cita']['id_profesional']);
                     $(modal_clone).find('#select_profesionales_modal').trigger('change');
                     $(modal_clone).find('#select_profesionales_modal').trigger('select2:select');
@@ -2886,8 +2943,7 @@ use App\Library\FuncionesGlobales;
                 fechaActual = tmp_fecha_actual;
 
                 //  SE SELECCIONA NUEVAMENTE EL PROFESIONAL
-                console.log('id prof',info_profesional['info_cita']['id_profesional']);
-                $(modal_clone).find("#select_profesionales_modal").val(info_profesional['info_cita']['id_profesional']).trigger('change');
+                $(modal_clone).find("#select_profesionales_modal").val(id_profesional).trigger('change');
 
                 //  CITAS POR DIA
                 //citas_desglosadas   = tmp_citas_desglosadas.map(obj => ({ ...obj }));
@@ -2914,7 +2970,7 @@ use App\Library\FuncionesGlobales;
                     } else {
                         $(this).removeClass('hide');
                     }
-                    console.log('id_horario_atencion each',id_horario_atencion);
+                    console.log('id_horario_atencion each',id_horario_atencion,id_profesional);
                     console.log('citas_desglosadas',citas_desglosadas[id_horario_atencion]);
                     horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
                     console.log('citas_desglosadas 1',citas_desglosadas);
@@ -2924,7 +2980,8 @@ use App\Library\FuncionesGlobales;
                             cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
                         });
                     }
-                    show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,info_profesional['info_cita']['id_profesional']);
+                    console.log('show_horario_no_disponible_profesional 4');
+                    //show_horario_no_disponible_profesional($(this),id_horario_atencion,id_profesional);
                 });
                 
                 
@@ -2989,7 +3046,8 @@ use App\Library\FuncionesGlobales;
                         cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
                     });
                 }
-                show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,info_profesional['info_cita']['id_profesional']);
+                console.log('show_horario_no_disponible_profesional 5');
+                show_horario_no_disponible_profesional($(this),id_horario_atencion,id_profesional);
             });
             
             
@@ -3409,7 +3467,7 @@ use App\Library\FuncionesGlobales;
         arr_solo_hora_inicio    = [];
         let diaActual           = fechaActual.getDay();
         diaActual               = diaActual == 0 ? 7 : diaActual;
-
+        console.log('horario_atencion sort',horario_atencion);
         for (let i in horario_atencion) {
             let info_horario    = horario_atencion[i];
             let h_inicio        = info_horario['min_hora_inicio'];
@@ -3430,10 +3488,9 @@ use App\Library\FuncionesGlobales;
                 minutosInicio += intervalo_citas;
             }
         }
-
+        console.log('antes sort',arr_solo_hora_inicio);
         arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
-
-        console.log('arr_solo_hora_inicio',arr_solo_hora_inicio);
+        console.log('despues sort',arr_solo_hora_inicio);
         //  AL TEMPLATE DE SERVICIOS SE AGREGAN LAS HORAS
         $("#modal_save_class").find('.input_hora_inicio').find('option').remove();
         for(let i in arr_solo_hora_inicio){
