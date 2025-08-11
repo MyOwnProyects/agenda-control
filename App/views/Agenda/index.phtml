@@ -2655,7 +2655,7 @@ use App\Library\FuncionesGlobales;
         show_hours(template_days_container,template_days_container,min_hora_inicio,max_hora_inicio,[profesional],profesional['rango_no_disponible'],id_profesional);
 
         if (id_agenda_cita == null){
-            let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,5),id_agenda_cita,5,false);
+            let hora_inicio = verificarHoraInicio(modal_clone,hora_default,sumarUnMinuto(hora_default,intervalo_citas),id_agenda_cita,intervalo_citas,false);
             console.log('hora inicio verificarHoraInicio',hora_inicio);
             
             $(modal_clone).find('.input_hora_inicio').val(hora_inicio['hora_termino_empalmado']);
@@ -3275,6 +3275,11 @@ use App\Library\FuncionesGlobales;
             obj_info.hora_inicio    = $(modal_clone).find('.input_hora_inicio').val();
             obj_info.hora_termino   = $(modal_clone).find('.input_hora_termino').val();
 
+            let info_bitacora   = {
+                nombre      : $(modal_clone).find('#input_primer_apellido').val() + ' ' +$(modal_clone).find('#input_nombre').val(),
+                fecha_cita  : (diasSemana.indexOf(fecha_actual[0]) + 1) + ' ' +fecha_actual[1].trim()+' de '+$(modal_clone).find('.input_hora_inicio').val()+' a '+$(modal_clone).find('.input_hora_termino').val()
+            }
+
             console.log('obj_info');
             console.log(obj_info);
             //return false;
@@ -3283,8 +3288,9 @@ use App\Library\FuncionesGlobales;
                 url         : url_index,
                 method      : 'post',
                 data        : {
-                    obj_info    : obj_info,
-                    accion      : 'save_appoinment'
+                    obj_info        : obj_info,
+                    info_bitacora   : info_bitacora,
+                    accion          : 'save_appoinment'
                 },
                 success : function(data){
                     // Tu código aquí
@@ -3328,7 +3334,7 @@ use App\Library\FuncionesGlobales;
             hora_inicio     = hora_inicio[0].trim(); 
             let duracion    = $(modal_clone).find("#total_duracion").text();
 
-            duracion        = duracion == 0 || duracion == '' || duracion == null ? 5 : duracion;
+            duracion        = duracion == 0 || duracion == '' || duracion == null ? intervalo_citas : duracion;
             hora_inicio = verificarHoraInicio(modal_clone,hora_inicio,sumarUnMinuto(hora_inicio,duracion),id_agenda_cita,duracion,true);
 
             console.log('hora_inicio hora_inicio',hora_inicio);
@@ -3467,7 +3473,6 @@ use App\Library\FuncionesGlobales;
         arr_solo_hora_inicio    = [];
         let diaActual           = fechaActual.getDay();
         diaActual               = diaActual == 0 ? 7 : diaActual;
-        console.log('horario_atencion sort',horario_atencion);
         for (let i in horario_atencion) {
             let info_horario    = horario_atencion[i];
             let h_inicio        = info_horario['min_hora_inicio'];
@@ -3488,9 +3493,7 @@ use App\Library\FuncionesGlobales;
                 minutosInicio += intervalo_citas;
             }
         }
-        console.log('antes sort',arr_solo_hora_inicio);
         arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
-        console.log('despues sort',arr_solo_hora_inicio);
         //  AL TEMPLATE DE SERVICIOS SE AGREGAN LAS HORAS
         $("#modal_save_class").find('.input_hora_inicio').find('option').remove();
         for(let i in arr_solo_hora_inicio){
