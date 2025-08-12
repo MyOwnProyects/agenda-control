@@ -954,7 +954,8 @@ use App\Library\FuncionesGlobales;
     let citas_agendadas = {};
 
     //  CITAS POR DIA
-    let citas_desglosadas   = {};
+    let citas_desglosadas       = {};
+    let tmp_citas_desglosadas   = {};
 
     //  LISTA PROFESIONALES POR LOCACION
     let profesionales   = {};
@@ -1020,6 +1021,7 @@ use App\Library\FuncionesGlobales;
     const date_today    = "<?php echo $today; ?>";
     let split_today     = date_today.split('-');
     let fechaActual     = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
+    let tmp_fecha_actual    = '';
 
     const date_limit    = "<?php echo $dia_limite_movimientos; ?>";
     split_today = date_limit.split('-');
@@ -1095,7 +1097,7 @@ use App\Library\FuncionesGlobales;
 
     // Función para actualizar la fecha mostrada
     function actualizarFecha(div_header,id_agenda_cita = null) {
-        console.log('div_header',div_header);
+        console.log('div_header fechaActual',div_header,fechaActual);
         let div_fecha   = $(div_header).attr("id") == 'div_header_agenda' ? $(".div_principal_filter") : $(div_header);
         let diaActual   = fechaActual.getDay();
         diaActual       = diaActual == 0 ? 7 : diaActual;
@@ -1193,8 +1195,12 @@ use App\Library\FuncionesGlobales;
                     }, 50);
                     
                 } else {
-                    div_header  = $(div_header).hasClass('modal') ? $(div_header) : null;
-                    get_all_appointments(div_header);
+                    if ( $(div_header).hasClass('modal') ){
+                        get_all_appointments(div_header,div_header);
+                    } else {
+                        get_all_appointments();
+                    }
+                    
                 }
             }
             
@@ -1826,24 +1832,18 @@ use App\Library\FuncionesGlobales;
 
     //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
     function get_all_appointments(element,modal_clone = null,refresh_filtros = null){
-        console.log('modal_clone',modal_clone);
-        console.log('element',element);
+        console.log('modal_clone get_all_appointments',modal_clone);
+        console.log('elemen get_all_appointments',element);
         let id_locacion = $("#select_locaciones").val();
         if (modal_clone != null){
             $(modal_clone).find('.evento-flotante').remove();
-            id_locacion
         } else {
             $(".div_header_days_container").find('.evento-flotante').remove();
             $(".div_header_week_container").find('.flot_cita').remove();
         }
         
         get_rango_semana(fechaActual);
-        // const id_locacion       = $(element).find("#select_locaciones").val();
-        // const id_servicio       = $(element).find("#select_servicios").val();
-        // const id_profesional    = $(element).find("#select_profesionales").val();
-        // const id_paciente       = $(element).find("#id_paciente").val();
-        // console.log('id_locacion',id_locacion);
-        // console.log('rango_fechas',rango_semana_actual);
+
         $.ajax({
             url     : url_index,
             method  : 'post',
@@ -1882,13 +1882,35 @@ use App\Library\FuncionesGlobales;
                     setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
                 } else {
                     //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
+                    console.log('borra evento-flotante ',5);
                     $(modal_clone).find('.evento-flotante').remove();
-                    citas_desglosadas   = data['citas_agendadas'];
-                    horario_no_disponible.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
-                    citas_desglosadas.forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null));
-                    console.log('show_horario_no_disponible_profesional 3');
-                    show_horario_no_disponible_profesional($(modal_clone));
-                    setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),500);
+                    let id_profesional  = $(modal_clone).find('#select_profesionales_modal').val();
+
+                    let tmp_horario_atencion    = data['horario_atencion'];
+                    citas_desglosadas           = {};
+                    for(let i in tmp_horario_atencion){
+                        let info_horario_atencion   = tmp_horario_atencion[i];
+                        citas_desglosadas[info_horario_atencion['id']]  = info_horario_atencion['citas_paciente'];
+                    }
+
+                    console.log('citas_desglosadas citas_desglosadas',citas_desglosadas);
+
+                    $(modal_clone).find('.div_header_days_container').not('.hide').each(function(){
+                        let id_horario_atencion = $(this).data('idhorarioatencion');
+                        horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                        console.log('citas_desglosadas 4',citas_desglosadas);
+                        if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
+                            citas_desglosadas[id_horario_atencion].forEach(rango => {
+                                if (rango.id_profesional != id_profesional){
+                                    return;
+                                }
+                                rango['id_horario_atencion']    = id_horario_atencion;
+                                cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
+                            });
+                        }
+                        show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion);
+                        setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),50);
+                    });
                 }
                 
                 
@@ -2719,20 +2741,6 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#input_primer_apellido').val(info_cita['primer_apellido']).prop('disabled',true);
                 $(modal_clone).find('#input_segundo_apellido').val(info_cita['segundo_apellido']).prop('disabled',true);
                 $(modal_clone).find('#input_nombre').val(info_cita['nombre']).prop('disabled',true);
-
-                $(modal_clone).on('hidden.bs.modal', function (e) {
-                    // Tu código aquí
-                    fechaActual = tmp_fecha_actual;
-
-                    //  CITAS POR DIA
-                    //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
-                    citas_desglosadas = Object.fromEntries(
-                        Object.entries(tmp_citas_desglosadas).map(([key, arr]) => [
-                            key,
-                            arr.map(obj => ({ ...obj })) // copia cada objeto dentro del array
-                        ])
-                    );
-                });
             }
 
         }
@@ -3358,8 +3366,27 @@ use App\Library\FuncionesGlobales;
 
             $(this).removeClass('hide');
         })
+
+        $(modal_clone).on('hidden.bs.modal', function (e) {
+            console.log('cerro modal')
+            // Tu código aquí
+            console.log('tmp_fecha_actual fechaActual',tmp_fecha_actual,fechaActual);
+            fechaActual = tmp_fecha_actual;
+            get_rango_semana(fechaActual);
+
+            //  CITAS POR DIA
+            //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
+            citas_desglosadas = Object.fromEntries(
+                Object.entries(tmp_citas_desglosadas).map(([key, arr]) => [
+                    key,
+                    arr.map(obj => ({ ...obj })) // copia cada objeto dentro del array
+                ])
+            );
+        });
         $(modal_clone).find('.hide_container').removeClass('hide_container');
         $(modal_clone).modal('show');
+
+
     }
 
     function ubicar_citas_dia(element,div_header){
