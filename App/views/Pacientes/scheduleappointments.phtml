@@ -518,6 +518,8 @@ let module_schedule_appointments    = (function(){
     let intervalo_citas_locacion    = '';
     let options_hora_inicio_modal   = {};
 
+    let dias_horario_atencion_modal = {};
+
     function crearCuadroFlotante(evento, background, $weekContainer, tipo_flot, id_horario_cita = '') {
         if (id_horario_cita != '') {
             $($weekContainer).find('#' + id_horario_cita).remove();
@@ -860,10 +862,6 @@ let module_schedule_appointments    = (function(){
             }
         });
 
-        $("#btn_create").on('click',function(){
-            show_modal_citas();
-        });
-
         //  EVENTOS PARA APERTURA DE AGENDA
         $("#btn_agenda_opening").on('click',function(){
             let modal_clone = $("#modal_agenda_opening").clone().show();
@@ -1097,6 +1095,7 @@ let module_schedule_appointments    = (function(){
             success : function(data){
                 console.log('data ajax');
                 console.log(data);
+                dias_horario_atencion_modal = data['horario_atencion'][0]['dias'];
                 $(modal_clone).find('.floating-box').remove();
                 show_calendar(modal_clone,data,id_locacion);
             },
@@ -1234,7 +1233,13 @@ let module_schedule_appointments    = (function(){
                     const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
                     $(modal_clone).find('.flot_profesional').remove();
                     eventos['rango_no_disponible'].forEach(evento => crearCuadroFlotante(evento,'bg-secondary',$weekContainer,'flot_profesional'));
-                    eventos['citas_paciente'].forEach(evento => crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_profesional',id_cita_programada));
+                    eventos['citas_paciente'].forEach(evento => {
+                        const indexDia = diasSemana.indexOf(evento.day) + 1; // +1 porque tu d.dia empieza en 1
+                        const estaEnDias = dias_horario_atencion_modal.some(d => d.dia === indexDia);
+                        if (!estaEnDias) return;
+
+                        crearCuadroFlotante(evento,'bg-success',$weekContainer,'flot_profesional',id_cita_programada)
+                    });
 
                     $(modal_clone).find('.hide').removeClass('hide');
                     
@@ -1542,7 +1547,6 @@ let module_schedule_appointments    = (function(){
     }
 
     function show_calendar(modal_clone,data,id_locacion){
-        //console.log('data show_calendar',data);
         const $weekContainer = $(modal_clone).find("#div_header_week_container_modal").find(".week-container");
         show_hours($weekContainer,data['min_hora_inicio'],data['max_hora_inicio'],data['intervalo_citas']);
         let eventos = data['rangos_no_incluidos'];

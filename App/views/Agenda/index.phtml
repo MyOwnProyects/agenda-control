@@ -2343,7 +2343,9 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('#btnSave').prop('disabled',false);
                 },
                 error     : function(error){
+                    showAlert('danger',error.responseText);
                     $(modal_clone).find('#btnSave').prop('disabled',false);
+                    $(modal_clone).modal('hide');
                 }
             });
         });
@@ -4015,11 +4017,21 @@ use App\Library\FuncionesGlobales;
         });
 
         $("#infoBox").on('click','.btn_cancelar',function(){
+            let validar_limite_movimientos  = validar_fecha_limite(fechaActual);
+            if (validar_limite_movimientos != true){
+                showAlert('danger','No esta permitido agendar ni modificar citas con fecha menor a :'+date_limit);
+                return false;
+            }
             show_modal_cancelar_cita($(this));
             $("#closeModal").trigger('click');
         });
 
         $("#infoBox").on('click','.btn_asistencia',function(){
+            let validar_limite_movimientos  = validar_fecha_limite(fechaActual);
+            if (validar_limite_movimientos != true){
+                showAlert('danger','No esta permitido agendar ni modificar citas con fecha menor a :'+date_limit);
+                return false;
+            }
             show_modal_asistencia($(this));
             $("#closeModal").trigger('click');
         });
@@ -4103,7 +4115,7 @@ use App\Library\FuncionesGlobales;
             if (!has_servicio) return;
 
             const codigoColor = servicios?.[0]?.codigo_color || '#ccc';
-            const nombreEdadHTML = `<span data-color="${codigoColor}">${nombre} (${edad_actual})</span>`;
+            const nombreEdadHTML = `<span data-color="${codigoColor}" style="white-space: pre-line;">${nombre} (${edad_actual})<br>${start} - ${end}</span>`;
 
             if (!citasAgrupadas[day]) {
                 citasAgrupadas[day] = [{
