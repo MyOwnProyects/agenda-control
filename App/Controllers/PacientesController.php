@@ -508,7 +508,7 @@ class PacientesController extends BaseController
         $info_paciente  = $info_paciente[0];
 
         $this->view->id_paciente        = $info_paciente['id'];
-        $this->view->nombre_completo    = $info_paciente['nombre_completo'];
+        $this->view->nombre_completo    = $info_paciente['nombre_completo']."(".$info_paciente['edad_actual'].")" ;
 
         //  SE BUSCA LA INFORMACION DE LA LOCACION, ASI COMO SU HORARIO
         // $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];

@@ -212,8 +212,10 @@ use App\Library\FuncionesGlobales;
 </style>
 
 <div class="container div_principal_filter div_header_filters col-12">
-    <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
-
+    <h1 class="text-center my-4"><?php echo $translations['html_scheduleappoitment']; ?></h1>
+    <div class="row col-12 mb-2">
+        <span class="fw-bold text-primary">Paciente: <?php echo $nombre_completo; ?></span>
+    </div>
     <!-- Filtros de Servicios y Pacientes -->
     <div class="filters">
         <div class="col-3">
@@ -887,6 +889,7 @@ let module_schedule_appointments    = (function(){
 
                         if (data['has_record'] == 0){
                             showAlert('danger','No existe registro de apertura de agenda');
+                            $(modal_clone).modal('hide');
                             return false;
                         }
 

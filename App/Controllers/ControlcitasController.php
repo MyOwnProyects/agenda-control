@@ -40,25 +40,24 @@ class ControlcitasController extends BaseController
                 $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
                 $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
-                if ($num_registros == 0){
+                if (!is_numeric($num_registros)){
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
-                        "recordsFiltered"   => 10,
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
                         "data"              => $result
                     );
                 }
-
-                $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
-                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-        
-                $result = array(
-                    "draw"              => $this->request->getPost('draw'),
-                    "recordsTotal"      => $num_registros,
-                    "recordsFiltered"   => $num_registros,
-                    "data"              => $result
-                );
-        
             }
 
             if ($accion == 'fill_combo'){
@@ -94,7 +93,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');

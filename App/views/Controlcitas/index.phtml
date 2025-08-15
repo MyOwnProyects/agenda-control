@@ -745,7 +745,7 @@ use App\Library\FuncionesGlobales;
 <script>
     let module_control_citas    = (function(){
 
-        let busqueda_pruebas    = true;
+        let busqueda_pruebas    = false;
 
         let draw            = 0;
         let count_hours     = 0;
@@ -2027,15 +2027,18 @@ use App\Library\FuncionesGlobales;
 
             // EVENTO PARA BUSCAR CITAS
             $('#btnBuscar').on('click', function() {
-                if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
-                    showAlert('danger', translations['error_starting_date']);
-                    return false;
-                }
+                if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                    if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                        showAlert('danger', translations['error_starting_date']);
+                        return false;
+                    }
 
-                if ($('#input_rango_fecha_termino').val() == '') {
-                    showAlert('danger', translations['error_starting_date']);
-                    return false;
+                    if ($('#input_rango_fecha_termino').val() == '') {
+                        showAlert('danger', translations['error_starting_date']);
+                        return false;
+                    }
                 }
+                
                 cargarTabla();
             });
 
@@ -2482,12 +2485,14 @@ use App\Library\FuncionesGlobales;
                 console.log('profesional pase filaInicio',profesional);
                 if (profesional == null){
                     columnaProfesional = filaInicio.find(".agenda-service").eq(0);
+                    let tmp_hora_inicio_row = filaInicio.find(".agenda-time").text().trim();
+                    const [tmp_init_row, ftmp_fin_row] = tmp_hora_inicio_row.split("-");
 
                     const alturaPorBloque = 100;
                     const alturaPorMinuto = alturaPorBloque / intervalo_citas;
 
-                    const inicioBloqueMinutos = convertirHoraAMinutos("15:05"); // Inicio del bloque contenedor
-                    const inicioEventoMinutos = convertirHoraAMinutos("15:05"); // Hora real del evento
+                    const inicioBloqueMinutos = convertirHoraAMinutos(tmp_init_row); // Inicio del bloque contenedor
+                    const inicioEventoMinutos = convertirHoraAMinutos(evento.start); // Hora real del evento
 
                     const minutosRelativos = inicioEventoMinutos - inicioBloqueMinutos; // = 0
                     const top = minutosRelativos * alturaPorMinuto; // = 0%
@@ -2519,16 +2524,16 @@ use App\Library\FuncionesGlobales;
                     const profesionalIndex = typeof (profesionales[evento.id_profesional]) != "undefined" ? 0 : -1;
                     console.log('profesionalIndex',profesionalIndex);
                     if (profesionalIndex !== -1) {
-                        console.log('pase profesionalIndex',profesionalIndex);
-                        console.log('filaInicio.find(".agenda-service")',filaInicio.find(".agenda-service"));
+                        
                         columnaProfesional = filaInicio.find(".agenda-service").eq(0);
-                        console.log('columnaProfesional find',columnaProfesional);
+                        let tmp_hora_inicio_row = filaInicio.find(".agenda-time").text().trim();
+                        const [tmp_init_row, ftmp_fin_row] = tmp_hora_inicio_row.split("-");
 
                         const alturaPorBloque = 100;
                         const alturaPorMinuto = alturaPorBloque / intervalo_citas;
 
-                        const inicioBloqueMinutos = convertirHoraAMinutos("15:05"); // Inicio del bloque contenedor
-                        const inicioEventoMinutos = convertirHoraAMinutos("15:05"); // Hora real del evento
+                        const inicioBloqueMinutos = convertirHoraAMinutos(tmp_init_row); // Inicio del bloque contenedor
+                        const inicioEventoMinutos = convertirHoraAMinutos(evento.start); // Hora real del evento
 
                         const minutosRelativos = inicioEventoMinutos - inicioBloqueMinutos; // = 0
                         const top = minutosRelativos * alturaPorMinuto; // = 0%
@@ -2917,14 +2922,10 @@ use App\Library\FuncionesGlobales;
         function print_modal_info_cita(modal_clone,template_days_container,intervalo_citas,min_hora_inicio,max_hora_inicio,id_profesional,rango_no_disponible,id_agenda_cita,recrear_servicios,info_cita){
             //  SE BORRAN TODOS LOS REGISTROS DE LA AGENDA
             $(template_days_container).find('.agenda-service').remove();
-            console.log('borra evento-flotante ',3);
             $(template_days_container).find('.evento-flotante').remove();
             $(template_days_container).find('.row_info').remove();
             //  SECCION PARA PINTAR LA INFORMACION DE LA CITA
             let profesional = profesionales[id_profesional];
-            console.log('min_hora_inicio',min_hora_inicio);
-            console.log('max_hora_inicio',max_hora_inicio);
-            console.log('recrear_servicios',recrear_servicios);
             show_hours(template_days_container,template_days_container,min_hora_inicio,max_hora_inicio,[profesional],rango_no_disponible,intervalo_citas);
 
             if (id_agenda_cita == null){

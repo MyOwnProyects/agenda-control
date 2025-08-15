@@ -87,7 +87,7 @@ class LocacionesController extends BaseController
         $this->view->arr_servicios  = $arr_servicios;
         $this->view->create         = FuncionesGlobales::HasAccess("Locaciones","create");
         $this->view->update         = FuncionesGlobales::HasAccess("Locaciones","update");
-        $this->view->delete         = FuncionesGlobales::HasAccess("Locaciones","delete");
+        $this->view->delete         = false;//FuncionesGlobales::HasAccess("Locaciones","delete");
     }
 
     public function createAction(){

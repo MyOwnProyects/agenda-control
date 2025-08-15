@@ -428,6 +428,11 @@ use App\Library\FuncionesGlobales;
         position: absolute;
     }
 
+    .z-index-top {
+        z-index: 9999;
+        position: relative; /* Necesario para que el z-index tenga efecto */
+    }
+
 </style>
 <div class="container div_principal_filter div_header_filters col-12">
     <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
@@ -1302,12 +1307,15 @@ use App\Library\FuncionesGlobales;
             let columnaProfesional  = '';
             if (profesional == null){
                 columnaProfesional = filaInicio.find(".agenda-service").eq(0);
+                let tmp_hora_inicio_row = filaInicio.find(".agenda-time").text().trim();
+                const [tmp_init_row, ftmp_fin_row] = tmp_hora_inicio_row.split("-");
+                console.log('tmp_init_row tmp_init_row',tmp_init_row,evento.start);
 
                 const alturaPorBloque = 100;
                 const alturaPorMinuto = alturaPorBloque / intervalo_citas;
 
-                const inicioBloqueMinutos = convertirHoraAMinutos("15:05"); // Inicio del bloque contenedor
-                const inicioEventoMinutos = convertirHoraAMinutos("15:05"); // Hora real del evento
+                const inicioBloqueMinutos = convertirHoraAMinutos(tmp_init_row); // Inicio del bloque contenedor
+                const inicioEventoMinutos = convertirHoraAMinutos(evento.start); // Hora real del evento
 
                 const minutosRelativos = inicioEventoMinutos - inicioBloqueMinutos; // = 0
                 top = minutosRelativos * alturaPorMinuto; // = 0%
@@ -1338,15 +1346,16 @@ use App\Library\FuncionesGlobales;
                 const profesionalIndex = profesionales.findIndex(p => p.id == evento.id_profesional);
                 console.log('profesionalIndex',profesionalIndex);
                 if (profesionalIndex !== -1) {
-                    console.log('lfrom_modal',from_modal,evento);
                     columnaProfesional = filaInicio.find(".agenda-service").eq(from_modal ? 0 : profesionalIndex);
-                    console.log('columnaProfesional',columnaProfesional);
+                    let tmp_hora_inicio_row = filaInicio.find(".agenda-time").text().trim();
+                    const [tmp_init_row, ftmp_fin_row] = tmp_hora_inicio_row.split("-");
+                    console.log('tmp_init_row tmp_init_row',tmp_init_row,evento.start);
 
                     const alturaPorBloque = 100;
                     const alturaPorMinuto = alturaPorBloque / intervalo_citas;
 
-                    const inicioBloqueMinutos = convertirHoraAMinutos("15:05"); // Inicio del bloque contenedor
-                    const inicioEventoMinutos = convertirHoraAMinutos("15:05"); // Hora real del evento
+                    const inicioBloqueMinutos = convertirHoraAMinutos(tmp_init_row); // Inicio del bloque contenedor
+                    const inicioEventoMinutos = convertirHoraAMinutos(evento.start); // Hora real del evento
 
                     const minutosRelativos = inicioEventoMinutos - inicioBloqueMinutos; // = 0
                     top = minutosRelativos * alturaPorMinuto; // = 0%
@@ -3917,17 +3926,18 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         });
 
-        //  EVENTO PARA EXPANDIR
-        $("#div_append_weeks_container").on('mouseenter','.expand-on-hover',function() {
+        //  EVENTO PARA EXPANDIR DIV SEMANA Y CON Z IDNEX ALTO 
+        $("#div_append_weeks_container").on('mouseenter', '.expand-on-hover', function() {
             console.log('aqui 1');
             const nuevaAltura = $(this).attr('data-height-expandido');
             $(this).css('height', `${nuevaAltura}px`);
+            $(this).addClass('z-index-top');
         });
 
-        $("#div_append_weeks_container").on('mouseleave','.expand-on-hover',function() {
-            console.log('aqui 2');
+        $("#div_append_weeks_container").on('mouseleave', '.expand-on-hover', function() {
             const alturaOriginal = $(this).attr('data-height');
             $(this).css('height', `${alturaOriginal}px`);
+            $(this).removeClass('z-index-top');
         });
 
         //  EVENTO PARA AGENDAR UNA CITA NUEVA
