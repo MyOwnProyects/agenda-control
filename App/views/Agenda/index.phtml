@@ -73,13 +73,19 @@ use App\Library\FuncionesGlobales;
         font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
     }
 
-    .div_header_filters .navigation {
+    .div_principal_filter .navigation {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.5rem;
         margin: 20px;
+    }
+
+    .div_header_filters .navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .div_header_filters .navigation .left-section {
@@ -2930,7 +2936,7 @@ use App\Library\FuncionesGlobales;
 
                 if (!flag_cumple_servicios){
                     showAlert('danger','El profesional seleccionado no cumple con todos los servicios requeridos en esta cita');
-                    $(modal_clone).find('#select_profesionales_modal').val(info_profesional['info_cita']['id_profesional']);
+                    $(modal_clone).find('#select_profesionales_modal').val(id_profesional).trigger('change');
                     $(modal_clone).find('#select_profesionales_modal').trigger('change');
                     $(modal_clone).find('#select_profesionales_modal').trigger('select2:select');
                     return false;

@@ -164,16 +164,24 @@ use App\Library\FuncionesGlobales;
                 <div class="d-flex flex-wrap gap-2">
                     <?php
                     $colores = [
-                        '#ffc0cb', '#add8e6', '#b0f2c2', '#fdfd96', '#e6e6fa',
-                        '#ffd1dc', '#b2e2f2', '#dcd9f8', '#ffb7b2', '#f5f5dc'
+                        '#FFB6C1', // Rosa Pastel
+                        '#AEC6CF', // Azul Pastel
+                        '#C1E1C1', // Verde Pastel
+                        '#E6E6FA', // Lavanda
+                        '#B2F2BB', // Menta
+                        '#FFDAB9', // Melocotón
+                        '#D8BFD8', // Lila
+                        '#FFFACD', // Amarillo Suave
+                        '#FFB3BA', // Coral Pastel
+                        '#AFEEEE'  // Celeste
                     ];
                     foreach ($colores as $index => $color) {
                         echo "
                         <label class='color-swatch-wrapper position-relative' title='$color'>
-                        <input class='visually-hidden-radio' type='radio' name='color_pastel' value='$color'>
-                        <span class='color-swatch' style='background-color: $color;'>
-                            <span class='checkmark'>&#10003;</span>
-                        </span>
+                            <input class='visually-hidden-radio' type='radio' name='color_pastel' value='$color'>
+                            <span class='color-swatch' style='background-color: $color;'>
+                                <span class='checkmark'>&#10003;</span>
+                            </span>
                         </label>";
                     }
                     ?>
@@ -302,6 +310,11 @@ use App\Library\FuncionesGlobales;
                     createdRow: function (row, data, dataIndex) {
                         // Guardar el objeto completo en la fila como data
                         $(row).data('rowData', data);
+
+                        if (data.codigo_color != null && data.codigo_color != '') {
+                            $(row).find('td:eq(0)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(1)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
                     }
                 });
             } else {
