@@ -1835,23 +1835,7 @@ use App\Library\FuncionesGlobales;
                 $("#btn-dia").trigger('click');
             }
 
-        $('.floating-box span[data-color]').each(function() {
-            const color = $(this).data('color');
-            const textoColor = esColorClaro(color) ? '#000' : '#fff';
-
-            $(this).css({
-                'background-color': color,
-                'color': textoColor,
-                'padding': '2px 6px',
-                'border-radius': '4px',
-                'margin-bottom': '2px',
-                'font-weight': '500',
-                'max-width': '100%',
-                'overflow': 'hidden',
-                'text-overflow': 'ellipsis',
-                'white-space': 'nowrap',
-            });
-        });
+        colorear_div_semanas();
 
         //$("#btn-dia").trigger('click');
     }
@@ -3567,6 +3551,26 @@ use App\Library\FuncionesGlobales;
         
     }
 
+    function colorear_div_semanas(){
+        $('.floating-box span[data-color]').each(function() {
+            const color = $(this).data('color');
+            const textoColor = esColorClaro(color) ? '#000' : '#fff';
+
+            $(this).css({
+                'background-color': color,
+                'color': textoColor,
+                'padding': '2px 6px',
+                'border-radius': '4px',
+                'margin-bottom': '2px',
+                'font-weight': '500',
+                'max-width': '100%',
+                'overflow': 'hidden',
+                'text-overflow': 'ellipsis',
+                'white-space': 'nowrap',
+            });
+        });
+    }
+
     // Inicializar la agenda
     $(document).ready(function () {
 
@@ -3653,10 +3657,7 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
-            //$("#div_header_agenda").find('.flot_cita').remove();
-            // const $weekContainer = $(".div_header_week_container .week-container");
-            // obj_citas_unificadas.forEach(evento => cuadroFlotantesSemana(evento,background_tipo_cita(evento),$weekContainer,'flot_cita'));
-            // citas_desglosadas.forEach(rango => cuadroFlotantesDiario($("#div_header_agenda"),rango,background_tipo_cita(rango),'flot_cita',null));
+            colorear_div_semanas();
         }).on("select2:unselect",'.select_filtros',function(){
             //  SE BORRAN TODOS LOS REGISTROS DE CITAS
             $("#div_append_weeks_container").find('.div_header_week_container').not('.hide').each(function(){
@@ -3684,6 +3685,8 @@ use App\Library\FuncionesGlobales;
                     cuadroFlotantesDiario($dayContainer,rango,background_tipo_cita(rango),'flot_cita',null);
                 });
             });
+
+            colorear_div_semanas();
         });
 
         if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
@@ -3746,17 +3749,6 @@ use App\Library\FuncionesGlobales;
             if ($("#div_append_days_container").find('.div_header_days_container').not('.hide').length == 0){
                 showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
             }
-        });
-
-        // Eventos para los select de Servicios y Pacientes
-        divHeaderFilters.find("#select-servicios").on("change", function () {
-            const servicioSeleccionado = $(this).val();
-            // Aquí puedes implementar la lógica para filtrar por servicio
-        });
-
-        divHeaderFilters.find("#select-pacientes").on("change", function () {
-            const pacienteSeleccionado = $(this).val();
-            // Aquí puedes implementar la lógica para filtrar por paciente
         });
 
         actualizarFecha(divHeaderFilters); // Mostrar la fecha actual al cargar la página

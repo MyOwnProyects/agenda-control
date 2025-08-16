@@ -942,7 +942,8 @@ let module_schedule_appointments    = (function(){
                     nombre_locacion : $(modal_clone).find('#select_locaciones_modal').find('option:selected').text(),
                     fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
                     fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
-                    id_paciente     : id_paciente
+                    id_paciente     : id_paciente,
+                    nombre_completo : nombre_completo
                 };
 
                 console.log('obj_info');
