@@ -546,13 +546,13 @@ use App\Library\FuncionesGlobales;
     <div class="navigation">
         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
         <div class="left-section">
-            <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">Mes Ant.</button>
-            <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">Sem. Ant.</button>
-            <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">D&iacute;a Ant.</button>
+            <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">< Mes </button>
+            <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< Sem.</button>
+            <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">< D&iacute;a</button>
             <h3 id="fecha-actual"></h3>
-            <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia Sig.</button>
-            <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. Sig.</button>
-            <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes Sig.</button>
+            <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia ></button>
+            <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. ></button>
+            <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes ></button>
             <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
         </div>
 
@@ -702,14 +702,14 @@ use App\Library\FuncionesGlobales;
 <div id="infoBox" class="info-box">
     <div class="event-header mb-2">
         <div class="d-flex align-items-center">
-        <span class="dot"></span>
-        <span id="servicio" class="event-title"></span>
+            <span class="dot"></span>
+            <span id="servicio" class="event-title"></span>
         </div>
         <div>
-        <button class="icon-button btn_edit" title="Agregar/Quitar Servicios - Reagendar"><i class="bi bi-pencil-fill"></i></button>
-        <button class="icon-button btn_asistencia" title=""></button>
-        <button class="icon-button btn_cancelar" title="Cancelar"><i class="bi bi-calendar-x"></i></button>
-        <button id="closeModal" type="button" class="btn" ><i class="bi bi-x"></i></button>
+            <button class="icon-button btn_edit" title="Agregar/Quitar Servicios - Reagendar"><i class="bi bi-pencil-fill"></i></button>
+            <button class="icon-button btn_asistencia" title=""></button>
+            <button class="icon-button btn_cancelar" title="Cancelar"><i class="bi bi-calendar-x"></i></button>
+            <button id="closeModal" type="button" class="btn" ><i class="bi bi-x"></i></button>
         </div>
     </div>
 
@@ -869,11 +869,11 @@ use App\Library\FuncionesGlobales;
                     <div class="navigation" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior"><<</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" ><</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< Sem.</button>
+                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" >< D&iacute;a</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">>></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">D&iacute;a ></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">Sem. ></button>
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
