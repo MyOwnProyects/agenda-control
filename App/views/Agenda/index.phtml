@@ -409,6 +409,13 @@ use App\Library\FuncionesGlobales;
         justify-content: center;
     }
 
+    .month-title {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
     .div_header div {
         font-weight: 500;
     }
@@ -432,6 +439,34 @@ use App\Library\FuncionesGlobales;
         overflow: hidden;
         transition: height 0.3s ease-in-out;
         position: absolute;
+    }
+
+    .div_header_week_container .header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .div_header_week_container .header-date {
+        font-size: 1.1em;  /* Tamaño un 10% más grande que el texto base */
+        font-weight: bold; /* Opcional: negrita para mayor contraste */
+        color: #333;       /* Color más oscuro */
+        margin-bottom: 2px; /* Espaciado entre fecha y día */
+    }
+
+
+    /* Estilo para el nombre del día (opcional, si quieres reducirlo) */
+    .div_header_week_container .grid-item.header {
+        font-size: 0.9em;  /* Tamaño estándar o un 10% más pequeño */
+    }
+
+    .shift-title {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        background: #f0f0f0;
+        padding: 5px;
+        border-radius: 4px; /* Opcional: bordes redondeados */
     }
 
     .z-index-top {
@@ -511,6 +546,10 @@ use App\Library\FuncionesGlobales;
     </div>
     
     <div class=" div_header_month_container hide_container container-calendar col-12">
+        <!-- Nuevo elemento para mostrar el mes -->
+        <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
+            
+        </div>
         <div class="days">
             <div class="day">Dom</div>
             <div class="day">Lun</div>
@@ -539,15 +578,40 @@ use App\Library\FuncionesGlobales;
 
     <!--    AGREGAR clase d-flex    -->
 <div id ="template_week_container" class="container mt-4  flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
+    <!-- Nuevo div para el título del turno -->
+    <div class="shift-title" style="text-align: center; font-weight: bold; margin-bottom: 10px; background: #f0f0f0; padding: 5px;">
+        Turno: <!-- El texto se asignará dinámicamente al clonar -->
+    </div>
     <div class="week-container div_principal">
         <div class="grid-item header"></div>
-        <div class="grid-item header">Lunes</div>
-        <div class="grid-item header">Martes</div>
-        <div class="grid-item header">Miércoles</div>
-        <div class="grid-item header">Jueves</div>
-        <div class="grid-item header">Viernes</div>
-        <div class="grid-item header">Sábado</div>
-        <div class="grid-item header">Domingo</div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Lunes
+        </div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Martes
+        </div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Miércoles
+        </div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Jueves
+        </div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Viernes
+        </div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Sábado
+        </div>
+        <div class="grid-item header">
+            <div class="header-date"></div>
+            Domingo
+        </div>
     </div>
 </div>
 
@@ -964,6 +1028,12 @@ use App\Library\FuncionesGlobales;
 
     //  CODIGO PARA CALENDARIO POR SEMANA
     const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+    //  CODIGO DE TEXTO DEL MES
+    const nombre_meses  = [
+        "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+        "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+    ];
 
     //  HORARIO INHABIL POR SEMANA
     let horario_no_disponible   = {};
@@ -1510,6 +1580,7 @@ use App\Library\FuncionesGlobales;
         const year = fechaActual.getFullYear();
         const month = fechaActual.getMonth();
         const today = new Date();
+        $(".month-title").text(nombre_meses[month]);
 
         $dates.empty();
 
@@ -1720,6 +1791,20 @@ use App\Library\FuncionesGlobales;
             }
         });
 
+        //  ASIGNA LA FECHA POR DIA:
+        // Convertir fechas a Moment.js
+        const fechaInicio = moment(rango_semana_actual.fecha_inicio);
+        const fechaTermino = moment(rango_semana_actual.fecha_termino);
+
+        // Asignar fechas a los headers
+        $weekContainer.find('.header:not(:first-child)').each(function(index) {
+            const fecha = moment(fechaInicio).add(index, 'days');
+            const fechaFormateada = fecha.format('D/MMMM').split('/');
+            fechaFormateada[1] = fechaFormateada[1].toLowerCase(); // mes en minúsculas
+            
+            $(this).find('.header-date').text(fechaFormateada.join('/'));
+        });
+
         //  SE PINTAN LOS RECUADROS DE CITAS
         console.log('horario_no_disponible[id_horario_atencion]',horario_no_disponible[id_horario_atencion]);
         console.log('citas_desglosadas[id_horario_atencion]',citas_desglosadas[id_horario_atencion]);
@@ -1737,6 +1822,8 @@ use App\Library\FuncionesGlobales;
         });
         console.log('show_horario_no_disponible_profesional 2');
         show_horario_no_disponible_profesional(template_days_container,id_horario_atencion);
+
+        console.log('rango_fechas rango_fechas',rango_semana_actual);
     }
 
     function esColorClaro(hex) {
@@ -1803,7 +1890,7 @@ use App\Library\FuncionesGlobales;
             }
 
             $(template_days_container).find('.titulo').text(info_horario['titulo']);
-            $(template_week_container).find('.titulo').text(info_horario['titulo']);
+            $(template_week_container).find('.shift-title').text(info_horario['titulo']);
             console.log('diasPermitidos',diasPermitidos);
             if (diasPermitidos.includes(diaActual)) {
                 console.log('aqui pase',$(template_days_container).hasClass('hide'),$(template_days_container).is(':visible'));
