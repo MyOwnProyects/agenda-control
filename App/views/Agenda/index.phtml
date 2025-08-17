@@ -149,7 +149,7 @@ use App\Library\FuncionesGlobales;
     .div_header_filters .filters {
         display: flex;
         gap: 20px; /* Espacio entre los select */
-        margin: 20px;
+        /* margin: 20px; */
     }
     .div_header_filters .filters select {
         padding: 10px;
@@ -474,8 +474,28 @@ use App\Library\FuncionesGlobales;
         position: relative; /* Necesario para que el z-index tenga efecto */
     }
 
+    .div_principal_filter .legend-color {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        margin-right: 5px;
+        vertical-align: middle;
+        border: 1px solid rgba(0, 0, 0, 0.1); /* Borde negro muy sutil (10% de opacidad) */
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Opcional: sombra ligera para profundidad */
+    }
+
+    .div_principal_filter .legend-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.9em;
+        padding: 3px 8px;
+        background: #f8f9fa; /* Fondo gris claro para contraste */
+        border-radius: 4px;
+    }
+
 </style>
-<div class="container div_principal_filter div_header_filters col-12">
+<div class="container div_principal_filter div_header_filters col-11">
     <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
 
     <!-- Filtros de Servicios y Pacientes -->
@@ -510,6 +530,12 @@ use App\Library\FuncionesGlobales;
             </select>
         </div>
     </div>
+    <div class="color-legend mt-3" style="display:none;">
+        <h6>Indicadores:</h6>
+        <div class="d-flex flex-wrap div_append_label_servicios">
+            
+        </div>
+    </div>
     <?php if (false): ?>
     <div class="container col-12">
         <button id="btn_agenda_opening" type="button" class="btn btn-outline-dark"><?php echo $translations['html_agenda_opening']; ?></button>
@@ -520,13 +546,13 @@ use App\Library\FuncionesGlobales;
     <div class="navigation">
         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
         <div class="left-section">
-            <button id="btn-mes-anterior" class="btn btn-secondary"><<<</button>
-            <button id="btn-semana-anterior" class="btn btn-secondary"><<</button>
-            <button id="btn-anterior" class="btn btn-secondary"><</button>
+            <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">Mes Ant.</button>
+            <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">Sem. Ant.</button>
+            <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">D&iacute;a Ant.</button>
             <h3 id="fecha-actual"></h3>
-            <button id="btn-siguiente" class="btn btn-secondary">></button>
-            <button id="btn-semana-siguiente" class="btn btn-secondary">>></button>
-            <button id="btn-mes-siguiente" class="btn btn-secondary">>>></button>
+            <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia Sig.</button>
+            <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. Sig.</button>
+            <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes Sig.</button>
             <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
         </div>
 
@@ -561,6 +587,11 @@ use App\Library\FuncionesGlobales;
         </div>
         <div class="calendar_month_dates" id="calendar_month_dates"></div>
     </div>
+</div>
+
+<div id="template_label_servicios" class="legend-item me-3 mb-2" style="display:none">
+    <span class="legend-color"></span>
+    <span class="texto_servicio">Servicio</span>
 </div>
 
 <div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
@@ -838,11 +869,11 @@ use App\Library\FuncionesGlobales;
                     <div class="navigation" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary"><<</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary"><</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior"><<</button>
+                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" ><</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary">></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary">>></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">>></button>
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
@@ -1964,11 +1995,27 @@ use App\Library\FuncionesGlobales;
                     
                     if (refresh_filtros != null){
                          //  SE LLENAN LOS SELECTS
-                        let options = '<option></option>';
+                        $(".div_append_label_servicios").html('');
+                        let template_label  = $("#template_label_servicios").clone().removeAttr('id').show();
+                        $(template_label).find('.legend-color').css({
+                            'background': 'white',
+                            'border': '1px solid red'  // Borde rojo de 1px
+                        });
+                        $(template_label).find('.texto_servicio').text('Pago no registrado');
+                        $(".div_append_label_servicios").append(template_label);
+                        let options     = '<option></option>';
                         for(let i in data['all_services']){
                             let row = data['all_services'][i];
                             options += '<option value="'+row["id"]+'">'+row["nombre"]+'</option>';
+
+                            template_label  = $("#template_label_servicios").clone().removeAttr('id').show();
+                            $(template_label).find('.legend-color').css('background',row["codigo_color"]);
+                            $(template_label).find('.texto_servicio').text(row["nombre"]);
+                            $(".div_append_label_servicios").append(template_label);
                         }
+
+                        $(".color-legend").show();
+                        
                         $("#select_servicios").find('option').remove();
                         $("#select_servicios").append(options);
 
