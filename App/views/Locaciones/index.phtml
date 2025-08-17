@@ -61,10 +61,12 @@ use App\Library\FuncionesGlobales;
                         <i class="bi bi-search"></i> 
                         <?php echo $translations['html_btn_search']; ?>
                     </button>
+                    <?php if ($create): ?>
                     <button type="button" class="btn btn-outline-dark" id="btnCrear">
                         <i class="bi bi-plus-lg"></i> 
                         <?php echo $translations['html_new']; ?>
                     </button>
+                    <?php endif; ?>
                 </div> 
             </form>
         </div>
