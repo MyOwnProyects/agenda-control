@@ -198,14 +198,19 @@ use App\Library\FuncionesGlobales;
     .div_header_filters .navigation .left-section {
         display: flex;
         align-items: center;
-        gap: 10px; /* Espacio entre los botones */
-        width: 400px; /* Ancho fijo para left-section */
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
     }
     .div_header_filters .navigation .right-section {
         display: flex;
         align-items: center;
-        gap: 10px; /* Espacio entre los botones */
+        gap: 8px;
+        flex-wrap: wrap;
     }
+
     .div_header_filters .navigation button {
         padding: 10px 20px;
         font-size: 16px;
@@ -225,6 +230,29 @@ use App\Library\FuncionesGlobales;
 
     .evento-flotante.flot_cita span {
         color: #000 !important;
+    }
+
+    /* Botones con tamaño moderado */
+    .div_header_filters .left-section button,
+    .div_header_filters .right-section button {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        min-width: 40px;
+        white-space: nowrap;
+        line-height: 1.3;
+    }
+
+    /* Botón "Hoy" ligeramente más destacado */
+    #btn-hoy {
+        padding: 6px 14px;
+        font-weight: bold;
+    }
+
+    /* Texto de la fecha */
+    #fecha-actual {
+        margin: 0 10px;
+        font-size: 1rem;
+        white-space: nowrap;
     }
 
 </style>
@@ -618,11 +646,11 @@ use App\Library\FuncionesGlobales;
                     <div class="navigation" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary"><<</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary"><</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< Sem.</button>
+                            <button type="button" id="btn-anterior" class="btn btn-secondary" tile ="D&iacute;a Anterior">< D&iacute;a</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary">></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary">>></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguente">D&iacute;a ></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">Sem. ></button>
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
@@ -2646,102 +2674,111 @@ use App\Library\FuncionesGlobales;
             let hora_inicio_header  = convertirHoraATiempo(start);
             let hora_termino_header = convertirHoraATiempo(end);
             let flag_empalmados             = false;
-            let hora_termino_empalmado      = '';
+            let hora_termino_empalmado      = start;
             let margen_minutos_empalmado    = estricto ? 0 : margen_minutos_empalmado_global;
-            console.log('count flotantes verificarHoraInicio',$(modal_clone).find('.flot_cita').attr('class'));
-            $(modal_clone).find('.evento-flotante').each(function () {
-                let element = $(this);
-                console.log('clases element',$(this).attr('class'),$(element).data('horainicio'),$(element).data('horatermino'),$(element).closest('.div_header_days_container').attr('id'));
-
-                if ($(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') == id_agenda_cita) {
-                    console.log('return true verificarHoraInicio',id_agenda_cita);
-                    return true;
-                }
-
-                if ($(element).closest('.div_header_days_container').hasClass('hide')){
-                    return true;
-                }
-
-                let hora_inicio_str = $(element).data('horainicio');
-                let hora_termino_str = $(element).data('horatermino');
-
-                let hora_inicio = convertirHoraATiempo(hora_inicio_str);
-                let hora_termino = convertirHoraATiempo(hora_termino_str);
-
-                // Ajustar con margen usando sumarUnMinuto
-                let hora_inicio_mas_margen = convertirHoraATiempo(sumarUnMinuto(hora_inicio_str, margen_minutos_empalmado));
-                let hora_termino_menos_margen = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado));
-
-                // Si la cita existente termina antes de que inicie la nueva
-                if (hora_termino < hora_inicio_header) {
-                    return true;
-                }
-
-                // Verificar empalme con hora de inicio
-                if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
-                    console.log('empalmado hora_inicio_header');
-                    console.log('eleemento empalmado',$(element).data('idagendacita'));
-                    flag_empalmados = true;
-                    hora_inicio_header = hora_termino;
-                    hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
-                    hora_termino_empalmado = hora_termino_str;
-                    return true;
-                }
-
-                // Verificar empalme con hora de término
-                if (hora_termino_header > hora_inicio_mas_margen && hora_termino_header <= hora_termino_menos_margen) {
-                    console.log('empalmado hora termino');
-                    flag_empalmados = true;
-                    hora_inicio_header = hora_termino;
-                    hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
-                    hora_termino_empalmado = hora_termino_str;
-                    return true;
-                }
-
-                // Verificar empalme máximo
-                if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
-                    console.log('empalmado maximo');
-                    flag_empalmados = true;
-                    hora_inicio_header = hora_termino;
-                    hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
-                    hora_termino_empalmado = hora_termino_str;
-                    return true;
-                }
-
-                //return false;
-            });
-
-            if (!flag_empalmados){
-                hora_termino_empalmado  = start;
-            }
-
-            //  SE VERIFICA SI EL HORARIO FINAL EXCEDE EL HORARIO DE ATENCION
-            let info_ultimo_row = $(modal_clone).find('.div_header_days_container').not('.hide').find(".agenda-time:last").text();
-            info_ultimo_row     = info_ultimo_row.split('-');
-            info_ultimo_row     = info_ultimo_row[1].trim();
-
-            //  EXCEDE EL HORARIO DE ATENCION
             let excede_horario  = false;
-            console.log('duracion duracion',duracion,info_ultimo_row,convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)));
-            console.log('info_ultimo_row',info_ultimo_row);
-            console.log('param 1',convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)));
-            console.log('param 2',convertirHoraATiempo(info_ultimo_row));
-            if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)) >= convertirHoraATiempo(info_ultimo_row)){
-                console.log('hora_termino_empalmado',hora_termino_empalmado);
-                console.log('duracion',duracion);
-                console.log('info_ultimo_row',info_ultimo_row);
-                excede_horario  = true;
-            }
+            console.log('count flotantes verificarHoraInicio',$(modal_clone).find('.div_header_days_container').length);
+            $(modal_clone).find('.div_header_days_container').not('.hide').each(function(){
+                console.log('pase validar each');
+                $(this).find('.evento-flotante').each(function () {
+                    let element = $(this);
+                    console.log('clases element',$(element).attr('class'),$(element).data('horainicio'),$(element).data('horatermino'),$(element).closest('.div_header_days_container').attr('id'),$(element).data('idagendacita'),id_agenda_cita);
 
-            console.log('flag_empalmados fin',flag_empalmados);
-            console.log('hora_termino_empalmado fin',hora_termino_empalmado);
-            console.log('excede_horario fin',excede_horario);
-            if (!excede_horario){
-                if (arr_solo_hora_inicio.indexOf(hora_termino_empalmado) === -1){
-                    console.log('antes find');
-                    hora_termino_empalmado  = arr_solo_hora_inicio.find(hora => hora > hora_termino_empalmado);
+                    if (!$(element).hasClass('no_disponible') && $(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') == id_agenda_cita) {
+                        return true;
+                    }
+
+                    if ($(element).closest('.div_header_days_container').hasClass('hide')){
+                        return true;
+                    }
+
+                    let hora_inicio_str = $(element).data('horainicio');
+                    let hora_termino_str = $(element).data('horatermino');
+
+                    let hora_inicio = convertirHoraATiempo(hora_inicio_str);
+                    let hora_termino = convertirHoraATiempo(hora_termino_str);
+
+                    // Ajustar con margen usando sumarUnMinuto
+                    let hora_inicio_mas_margen = convertirHoraATiempo(sumarUnMinuto(hora_inicio_str, margen_minutos_empalmado));
+                    let hora_termino_menos_margen = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado));
+
+                    // Si la cita existente termina antes de que inicie la nueva
+                    if (hora_termino < hora_inicio_header) {
+                        return true;
+                    }
+
+                    // Verificar empalme con hora de inicio
+                    if (hora_inicio_header >= hora_inicio_mas_margen && hora_inicio_header < hora_termino_menos_margen) {
+                        console.log('empalmado hora_inicio_header');
+                        console.log('eleemento empalmado',$(element).data('idagendacita'));
+                        flag_empalmados = true;
+                        hora_inicio_header = hora_termino;
+                        hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                        hora_termino_empalmado = hora_termino_str;
+                        return true;
+                    }
+
+                    // Verificar empalme con hora de término
+                    if (hora_termino_header > hora_inicio_mas_margen && hora_termino_header <= hora_termino_menos_margen) {
+                        console.log('empalmado hora termino');
+                        flag_empalmados = true;
+                        hora_inicio_header = hora_termino;
+                        hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                        hora_termino_empalmado = hora_termino_str;
+                        return true;
+                    }
+
+                    // Verificar empalme máximo
+                    if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
+                        console.log('empalmado maximo');
+                        flag_empalmados = true;
+                        hora_inicio_header = hora_termino;
+                        hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_str, duracion));
+                        hora_termino_empalmado = hora_termino_str;
+                        return true;
+                    }
+
+                    //return false;
+                });
+
+                if (!flag_empalmados){
+                    hora_termino_empalmado  = start;
                 }
-            }
+
+                //  SE VERIFICA SI EL HORARIO FINAL EXCEDE EL HORARIO DE ATENCION
+                excede_horario  = false;
+                let ultimo_row  = $(modal_clone).find('.div_header_days_container').not('.hide').last();
+                ultimo_row      = $(ultimo_row).find(".agenda-time:last").text();
+                console.log('ultimo_row',ultimo_row);
+                if (ultimo_row != "undefined" && ultimo_row != null && ultimo_row != ''){
+                    let info_ultimo_row = ultimo_row;
+                    info_ultimo_row     = info_ultimo_row.split('-');
+                    info_ultimo_row     = info_ultimo_row[1].trim();
+
+                    //  EXCEDE EL HORARIO DE ATENCION
+                    if (convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion)) >= convertirHoraATiempo(info_ultimo_row)){
+                        console.log('hora_termino_empalmado',hora_termino_empalmado);
+                        console.log('duracion',duracion);
+                        console.log('info_ultimo_row',info_ultimo_row);
+                        excede_horario  = true;
+                    }
+                }
+
+                console.log('flag_empalmados fin',flag_empalmados);
+                console.log('hora_termino_empalmado fin',hora_termino_empalmado);
+                console.log('excede_horario fin',excede_horario);
+                if (!excede_horario){
+                    if (arr_solo_hora_inicio.indexOf(hora_termino_empalmado) === -1){
+                        console.log('antes find');
+                        hora_termino_empalmado  = arr_solo_hora_inicio.find(hora => hora > hora_termino_empalmado);
+                    }
+                }
+                console.log('hora_termino_empalmado hora_termino_empalmado',hora_termino_empalmado);
+                hora_inicio_header  = convertirHoraATiempo(hora_termino_empalmado);
+                hora_termino_header = convertirHoraATiempo(sumarUnMinuto(hora_termino_empalmado,duracion));
+            });
+            
+
             return {
                 flag_empalmados : flag_empalmados,
                 hora_termino_empalmado  : hora_termino_empalmado,
@@ -2845,7 +2882,6 @@ use App\Library\FuncionesGlobales;
 
         // Función para actualizar la fecha mostrada
         function actualizarFecha(div_header,id_agenda_cita = null) {
-            console.log('div_header',div_header);
             let div_fecha   = $(div_header).attr("id") == 'div_header_agenda' ? $(".div_principal_filter") : $(div_header);
             let diaActual   = fechaActual.getDay();
             diaActual       = diaActual == 0 ? 7 : diaActual;
@@ -2868,7 +2904,6 @@ use App\Library\FuncionesGlobales;
 
                         //  SE RECORRE TODOS LOS DIVS DE TURNOS PARA SABER CUAL SE DEBE DE MOSTRAR
                         $(div_header).find('.div_header_days_container').each(function(){
-                            console.log('id',$(this).data('idhorarioatencion'),$(this).data('dias'));
                             let id_horario_atencion = $(this).data('idhorarioatencion');
                             let diasPermitidos      = $(this).data('dias');
                             console.log('diasPermitidos',diasPermitidos,diaActual);
@@ -2897,7 +2932,6 @@ use App\Library\FuncionesGlobales;
                             if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
                                 citas_desglosadas[id_horario_atencion].forEach(rango => {
                                     if (id_profesional == null || rango.id_profesional == id_profesional) {
-                                        console.log('cita agendada a mostrar',rango);
                                         rango['id_horario_atencion']    = id_horario_atencion;
                                         cuadroFlotantesDiario($(div_header), rango, background_tipo_cita(rango), 'flot_cita', null);
                                     }
@@ -3043,6 +3077,8 @@ use App\Library\FuncionesGlobales;
                 success : function(data){
                     console.log('data info 1');
                     console.log(data);
+                    let diaActual               = fechaActual.getDay();
+                    diaActual                   = diaActual == 0 ? 7 : diaActual;
                     //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
                     console.log('borra evento-flotante ',5);
                     $(modal_clone).find('.evento-flotante').remove();
@@ -3052,13 +3088,25 @@ use App\Library\FuncionesGlobales;
                     for(let i in tmp_horario_atencion){
                         let info_horario_atencion   = tmp_horario_atencion[i];
                         citas_desglosadas[info_horario_atencion['id']]  = info_horario_atencion['citas_paciente'];
-                    }
 
-                    console.log('citas_desglosadas citas_desglosadas',citas_desglosadas);
+                        let diasPermitidos = info_horario_atencion['dias'].map(d => d.dia);
 
-                    $(modal_clone).find('.div_header_days_container').not('.hide').each(function(){
-                        let id_horario_atencion = $(this).data('idhorarioatencion');
-                        horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                        let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
+
+                        if (diasPermitidos.includes(diaActual)) {
+                            $(template_days_container).removeClass('hide');
+                            $(template_days_container).css('display','show');
+                        } else {
+                            $(template_days_container).addClass('hide');
+                            //return;
+                        }
+
+                        $(template_days_container).find('.evento-flotante').remove();
+
+                        let id_horario_atencion = info_horario_atencion['id'];
+                        console.log('id_horario_atencion id_horario_atencion',id_horario_atencion);
+                        
+                        //horario_no_disponible[id_horario_atencion].forEach(rango => {cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true)});
                         console.log('citas_desglosadas 4',citas_desglosadas);
                         if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
                             citas_desglosadas[id_horario_atencion].forEach(rango => {
@@ -3066,10 +3114,9 @@ use App\Library\FuncionesGlobales;
                                 cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
                             });
                         }
-                        show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion);
+                        show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,$(modal_clone).find("#select_profesionales_modal").val());
                         setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),50);
-                    });
-                    
+                    }
                 },
                 error   : function(error){
                     console.log('error');

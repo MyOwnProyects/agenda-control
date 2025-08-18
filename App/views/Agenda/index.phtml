@@ -494,6 +494,26 @@ use App\Library\FuncionesGlobales;
         border-radius: 4px;
     }
 
+    /* .div_append_days_container {
+        position: relative;
+        min-height: 200px; /* Ajusta según tu layout 
+        background-color: #f9f9f9;
+    } */
+
+    .watermark-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #999;
+        font-size: 1.2em;
+        font-style: italic;
+        pointer-events: none;
+        opacity: 0.6;
+        text-align: center;
+        white-space: nowrap;
+    }
+
 </style>
 <div class="container div_principal_filter div_header_filters col-11">
     <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
@@ -566,6 +586,7 @@ use App\Library\FuncionesGlobales;
 </div>
 <div id="div_header_agenda">
     <div id="div_append_days_container" class="div_append_days_container">
+        <!-- <div class="watermark-message">Día no disponible para la locación</div> -->
     </div>
     <div id="div_append_weeks_container" class="div_append_weeks_container">
 
@@ -889,7 +910,7 @@ use App\Library\FuncionesGlobales;
             </div>
             <div class="row col-md-12">
                 <div class="div_append_days_container col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
-                    
+                    <!-- <div class="watermark-message">Día no disponible para la locación</div> -->
                 </div>
                 <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
@@ -1320,7 +1341,11 @@ use App\Library\FuncionesGlobales;
     // Función para generar los eventos flotantes PARA CALENDARIO POR DIA
     function cuadroFlotantesDiario(element_header,evento,background,tipo_cuadro,mensaje = null,limit_width = false,from_modal = false) {
         console.log('-------------- cuadroFlotantesDiario   ---------------');
-        console.log('element header',$(element_header).attr('class'));
+        console.log('element header',$(element_header).attr('class'),$(element_header).attr('id'));
+        console.log('event',evento);
+        console.log('from_modal from_modal',from_modal);
+        from_modal          = $(element_header).hasClass('panel_modal') || $(element_header).attr('id') == 'modal_save_class' ;
+        console.log('from_modal from_modal',from_modal);
         let fecha_actual    = formatearFecha(fechaActual);
         fecha_actual        = fecha_actual.split(",");
 
@@ -1333,6 +1358,7 @@ use App\Library\FuncionesGlobales;
         const pagada            = evento?.pagada;
 
         if (eventoDayIndex != dayIndex){
+            console.log('return event',evento);
             return false;
         }
 
@@ -1452,11 +1478,12 @@ use App\Library\FuncionesGlobales;
                 // Encontrar la columna correspondiente al profesional
                 const profesionalIndex = profesionales.findIndex(p => p.id == evento.id_profesional);
                 console.log('profesionalIndex',profesionalIndex);
+                console.log('from_modal limit_width',from_modal,limit_width);
                 if (profesionalIndex !== -1) {
                     columnaProfesional = filaInicio.find(".agenda-service").eq(from_modal ? 0 : profesionalIndex);
                     let tmp_hora_inicio_row = filaInicio.find(".agenda-time").text().trim();
                     const [tmp_init_row, ftmp_fin_row] = tmp_hora_inicio_row.split("-");
-                    console.log('tmp_init_row tmp_init_row',tmp_init_row,evento.start);
+                    console.log('tmp_init_row tmp_init_row',tmp_init_row,evento.start,profesionalIndex);
 
                     const alturaPorBloque = 100;
                     const alturaPorMinuto = alturaPorBloque / intervalo_citas;
@@ -1556,8 +1583,12 @@ use App\Library\FuncionesGlobales;
             renderCalendarMes();
         }
 
-        //  AL CAMBIAR EL DIA ACTUAL, SE BUSCA LAS CITAS TANTO DE
-        //  ESE DIA COMO DEL RANGO DE SEMANA
+        if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
+            showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+            $(".watermark-message").show();
+        } else {
+            $(".watermark-message").hide();
+        }
     }
 
     function cambiarSemana(semanas,div_header = null) {
@@ -1895,6 +1926,7 @@ use App\Library\FuncionesGlobales;
             let template_days_container = $("#template_days_container").clone()
                 .removeAttr('id')
                 .removeClass('hide_container')
+                .addClass('panel_principal')
                 .attr('id', 'div_container_horario_' + info_horario['id'])
                 .data('idhorarioatencion', info_horario['id'])
                 .data('intervalocitas',info_horario['intervalo_citas'])
@@ -2031,23 +2063,38 @@ use App\Library\FuncionesGlobales;
                     // $(modal_clone).find('.floating-box').remove();
                     setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
                 } else {
+                    console.log('data info 1');
+                    console.log(data);
+                    let diaActual               = fechaActual.getDay();
+                    diaActual                   = diaActual == 0 ? 7 : diaActual;
                     //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
-                    console.log('borra evento-flotante ',5);
                     $(modal_clone).find('.evento-flotante').remove();
-                    let id_profesional  = $(modal_clone).find('#select_profesionales_modal').val();
 
+                    let id_profesional          = $(modal_clone).find("#select_profesionales_modal").val();
                     let tmp_horario_atencion    = data['horario_atencion'];
                     citas_desglosadas           = {};
                     for(let i in tmp_horario_atencion){
                         let info_horario_atencion   = tmp_horario_atencion[i];
                         citas_desglosadas[info_horario_atencion['id']]  = info_horario_atencion['citas_paciente'];
-                    }
 
-                    console.log('citas_desglosadas citas_desglosadas',citas_desglosadas);
+                        let diasPermitidos = info_horario_atencion['dias'].map(d => d.dia);
 
-                    $(modal_clone).find('.div_header_days_container').not('.hide').each(function(){
-                        let id_horario_atencion = $(this).data('idhorarioatencion');
-                        horario_no_disponible[id_horario_atencion].forEach(rango => cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true));
+                        let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
+
+                        if (diasPermitidos.includes(diaActual)) {
+                            $(template_days_container).removeClass('hide');
+                            $(template_days_container).css('display','show');
+                        } else {
+                            $(template_days_container).addClass('hide');
+                            //return;
+                        }
+
+                        $(template_days_container).find('.evento-flotante').remove();
+
+                        let id_horario_atencion = info_horario_atencion['id'];
+                        console.log('id_horario_atencion id_horario_atencion',id_horario_atencion);
+                        
+                        //horario_no_disponible[id_horario_atencion].forEach(rango => {cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'no_disponible',null,true)});
                         console.log('citas_desglosadas 4',citas_desglosadas);
                         if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
                             citas_desglosadas[id_horario_atencion].forEach(rango => {
@@ -2058,11 +2105,17 @@ use App\Library\FuncionesGlobales;
                                 cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
                             });
                         }
-                        show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion);
+                        show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,id_profesional);
                         setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),50);
-                    });
+                    }
                 }
                 
+                if ($(element).find('.div_header_days_container').not('.hide').length == 0){
+                    showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                    $(".watermark-message").show();
+                } else {
+                    $(".watermark-message").hide();
+                }
                 
             },
             error   : function(error){
@@ -2965,6 +3018,7 @@ use App\Library\FuncionesGlobales;
             let template_days_container = $("#template_days_container").clone()
                 .removeAttr('id')
                 .attr('id', 'div_container_horario_' + info_horario['id'])
+                .addClass('panel_modal')
                 .data('idhorarioatencion', info_horario['id'])
                 .data('intervalocitas',info_horario['intervalo_citas'])
                 .data('minhorainicio',info_horario['min_hora_inicio'])
@@ -3888,6 +3942,9 @@ use App\Library\FuncionesGlobales;
 
             if ($("#div_append_days_container").find('.div_header_days_container').not('.hide').length == 0){
                 showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                $(".watermark-message").show();
+            } else {
+                $(".watermark-message").hide();
             }
         });
 

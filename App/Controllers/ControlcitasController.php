@@ -207,8 +207,26 @@ class ControlcitasController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
-                $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREATE','Se programo la cita para el paciente: '.$nombre_paciente,$_PST['obj_info']);
+
+                $accion_bitacota    = '';
+                $accion_mensaje     = '';
+
+                if ($_POST['obj_info']['accion'] == 'crear_cita'){
+                    $accion_bitacota    = 'CREATE'; 
+                    $accion_mensaje     = 'programo';
+                }
+
+                if ($_POST['obj_info']['accion'] == 'reagendar_cita'){
+                    $accion_bitacota    = 'RESCHEDULE'; 
+                    $accion_mensaje     = 'Reagendo';
+                }
+
+                if ($_POST['obj_info']['accion'] == 'modificar_cita'){
+                    $accion_bitacota    = 'UPDATE'; 
+                    $accion_mensaje     = 'Modifico la fecha';
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día'. $_POST['info_bitacora']['fecha_cita'],$_POST['obj_info']);
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');
