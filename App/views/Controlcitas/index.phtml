@@ -255,6 +255,25 @@ use App\Library\FuncionesGlobales;
         white-space: nowrap;
     }
 
+    .div_append_days_container {
+        position: relative;
+        background-color: #f9f9f9;
+    }
+
+    .watermark-message {
+        position: absolute;
+        top: 75px; /* antes estaba en 50% */
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #999;
+        font-size: 1.2em;
+        font-style: italic;
+        pointer-events: none;
+        opacity: 0.6;
+        text-align: center;
+        white-space: nowrap;
+    }
+
 </style>
 
 <div class="container mt-4">
@@ -666,7 +685,7 @@ use App\Library\FuncionesGlobales;
             </div>
             <div class="row col-md-12">
                 <div class="div_append_days_container col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
-                    
+                    <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
                 </div>
                 <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
@@ -773,7 +792,7 @@ use App\Library\FuncionesGlobales;
 <script>
     let module_control_citas    = (function(){
 
-        let busqueda_pruebas    = false;
+        let busqueda_pruebas    = true;
 
         let draw            = 0;
         let count_hours     = 0;
@@ -2942,6 +2961,15 @@ use App\Library\FuncionesGlobales;
                         setTimeout(() => {
                             //calcula_totales($(div_header),id_profesional, id_agenda_cita);
                         }, 50);
+
+                        setTimeout(function(){
+                            if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
+                                //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                                $(".watermark-message").show();
+                            } else {
+                                $(".watermark-message").hide();
+                            }
+                        },500);
                         
                     } else {
                         div_header  = $(div_header).hasClass('modal') ? $(div_header) : null;
@@ -3117,6 +3145,15 @@ use App\Library\FuncionesGlobales;
                         show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,$(modal_clone).find("#select_profesionales_modal").val());
                         setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),50);
                     }
+
+                    setTimeout(function(){
+                        if ($(modal_clone).find('.div_header_days_container').not('.hide').length == 0){
+                            //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                            $(".watermark-message").show();
+                        } else {
+                            $(".watermark-message").hide();
+                        }
+                    },1000);
                 },
                 error   : function(error){
                     console.log('error');
