@@ -494,15 +494,14 @@ use App\Library\FuncionesGlobales;
         border-radius: 4px;
     }
 
-    /* .div_append_days_container {
+    .div_append_days_container {
         position: relative;
-        min-height: 200px; /* Ajusta según tu layout 
         background-color: #f9f9f9;
-    } */
+    }
 
     .watermark-message {
         position: absolute;
-        top: 50%;
+        top: 75px; /* antes estaba en 50% */
         left: 50%;
         transform: translate(-50%, -50%);
         color: #999;
@@ -586,7 +585,7 @@ use App\Library\FuncionesGlobales;
 </div>
 <div id="div_header_agenda">
     <div id="div_append_days_container" class="div_append_days_container">
-        <!-- <div class="watermark-message">Día no disponible para la locación</div> -->
+        <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
     </div>
     <div id="div_append_weeks_container" class="div_append_weeks_container">
 
@@ -910,7 +909,7 @@ use App\Library\FuncionesGlobales;
             </div>
             <div class="row col-md-12">
                 <div class="div_append_days_container col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
-                    <!-- <div class="watermark-message">Día no disponible para la locación</div> -->
+                    <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
                 </div>
                 <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
@@ -1314,9 +1313,14 @@ use App\Library\FuncionesGlobales;
                         }
                     });
                     console.log('id_agenda_cita id_agenda_cita',id_agenda_cita);
-                    setTimeout(() => {
-                        //calcula_totales($(div_header),id_profesional, id_agenda_cita);
-                    }, 50);
+                    setTimeout(function(){
+                        if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
+                            //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                            $(".watermark-message").show();
+                        } else {
+                            $(".watermark-message").hide();
+                        }
+                    },1000);
                     
                 } else {
                     if ( $(div_header).hasClass('modal') ){
@@ -1364,7 +1368,7 @@ use App\Library\FuncionesGlobales;
 
         console.log ('evento pase diario:',evento,pagada);
 
-        if ($(element_header).hasClass('div_header_days_container') && tipo_cuadro != 'no_disponible'){
+        if (!from_modal && tipo_cuadro != 'no_disponible'){
 
             let id_servicio_filtro      = $(".filters").find('#select_servicios').val()  == null || $(".filters").find('#select_servicios').val() == '' ? null : $(".filters").find('#select_servicios').val();
             let id_profesional_filtro   = $(".filters").find('#select_profesionales').val() == null || $(".filters").find('#select_profesionales').val() == '' ? null : $(".filters").find('#select_profesionales').val();
@@ -1582,13 +1586,7 @@ use App\Library\FuncionesGlobales;
         if (new_month !== last_month) {
             renderCalendarMes();
         }
-
-        if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
-            showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
-            $(".watermark-message").show();
-        } else {
-            $(".watermark-message").hide();
-        }
+        
     }
 
     function cambiarSemana(semanas,div_header = null) {
@@ -2110,12 +2108,18 @@ use App\Library\FuncionesGlobales;
                     }
                 }
                 
-                if ($(element).find('.div_header_days_container').not('.hide').length == 0){
-                    showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
-                    $(".watermark-message").show();
-                } else {
-                    $(".watermark-message").hide();
-                }
+                //  CODIGO A EJECUTAR AL TERMINAR LA PROMESA
+                setTimeout(function(){
+                    console.log('element element',element,modal_clone);
+                    element = modal_clone == null ? $("#div_append_days_container") : modal_clone;
+                    if ($(element).find('.div_header_days_container').not('.hide').length == 0){
+                        //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                        $(".watermark-message").show();
+                    } else {
+                        $(".watermark-message").hide();
+                    }
+                },50);
+                
                 
             },
             error   : function(error){
@@ -3921,6 +3925,10 @@ use App\Library\FuncionesGlobales;
         divHeaderFilters.find("#btn-mes").on("click", () => {
             $(".container-calendar").addClass('hide_container');
             $(".div_header_month_container").removeClass('hide_container');
+            $("#btn-anterior").hide();
+            $("#btn-siguiente").hide();
+            $("#btn-semana-anterior").hide();
+            $("#btn-semana-siguiente").hide();
         });
         divHeaderFilters.find("#btn-semana").on("click", () => {
             //alert("Cambiar a vista de Semana");
@@ -3930,6 +3938,9 @@ use App\Library\FuncionesGlobales;
 
             $("#btn-anterior").hide();
             $("#btn-siguiente").hide();
+            $("#btn-semana-anterior").show();
+            $("#btn-semana-siguiente").show();
+            $(".watermark-message").hide();
 
         });
         divHeaderFilters.find("#btn-dia").on("click", () => {
@@ -3941,7 +3952,7 @@ use App\Library\FuncionesGlobales;
             $("#btn-siguiente").show();
 
             if ($("#div_append_days_container").find('.div_header_days_container').not('.hide').length == 0){
-                showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
                 $(".watermark-message").show();
             } else {
                 $(".watermark-message").hide();
@@ -4169,13 +4180,15 @@ use App\Library\FuncionesGlobales;
             //  SE RECORRE LA LISTA DE CITAS AGENDADAS, AHI SE PINTA LA INFOMACION UN MODAL
             let id_row  = 0;
             for(let i in citas_desglosadas[id_horario_atencion]){
-                id_row  ++;
                 let cita    = citas_desglosadas[id_horario_atencion][i];
                 console.log('Cita array',cita);
                 console.log('lista_id_agenda_citas',lista_id_agenda_citas);
                 if (lista_id_agenda_citas.includes(cita['id_agenda_cita'])){
+                    id_row  ++;
                     console.log('Cita array',cita);
                     let row = $("#template_cita_dia").clone().removeAttr('id').show();
+
+                    $(row).find("#headingOne").css({backgroundColor: cita['codigo_color']});
 
                     $(row).find('.nombre_paciente').text(cita['nombre_completo']);
                     $(row).find('.nombre_profesional').text(cita['nombre_profesional']);
@@ -4183,6 +4196,10 @@ use App\Library\FuncionesGlobales;
 
                     $(row).find('.div_header').attr('data-bs-target', '#collapse'+id_row);
                     $(row).find('.collapse').attr('id','collapse'+id_row);
+
+                    if (id_row == 1) {
+                        $(row).find('.collapse').addClass('show');
+                    }
 
                     //  SE RECORREN LOS SERVICIOS
                     for(let x in cita['servicios']){
@@ -4200,7 +4217,6 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('#accordion').append(row);
                 }
             }
-
             $(modal_clone).modal('show');
 
         });
