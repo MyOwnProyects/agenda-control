@@ -61,10 +61,12 @@ use App\Library\FuncionesGlobales;
                         <i class="bi bi-search"></i> 
                         <?php echo $translations['html_btn_search']; ?>
                     </button>
+                    <?php if ($create): ?>
                     <button type="button" class="btn btn-outline-dark" id="btnCrear">
                         <i class="bi bi-plus-lg"></i> 
                         <?php echo $translations['html_new']; ?>
                     </button>
+                    <?php endif; ?>
                 </div> 
             </form>
         </div>
@@ -81,6 +83,7 @@ use App\Library\FuncionesGlobales;
                     <tr>
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
+                        <th><?php echo $translations['html_appointment_range']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -128,6 +131,10 @@ use App\Library\FuncionesGlobales;
                     <input type="text" class="form-control num_telefonico" id="input_celular" maxLength="10">
                 </div>
             </div>
+            <div class="col-md-12">
+                <label for="input_intervalo_citas" class="col-form-label"><?php echo $translations['html_appointment_range']; ?></label>
+                <input style="width:25%" type="number" class="form-control" id="input_intervalo_citas" min=0 required></textarea>
+            </div>
             <div class="container mt-3 col-md-12" style="overflow:scroll; height:150px;">
                 <!-- LISTA DE SERVICIOS -->
                 <label class="form-check-label" >
@@ -174,26 +181,19 @@ use App\Library\FuncionesGlobales;
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row">
-                <div class="col-md-6 fix-padding">
-                    <label for="btn_add_service" class="form-label"><?php echo $translations['html_title_add_hour']; ?></label>
-                    <button type="button" id="btn_add_hours" class="btn btn-outline-dark btn_add_hours"><i class="bi bi-plus"></i></button>
+                <!-- Columna 1 -->
+                <div class="col-md-6 fix-padding d-flex flex-column">
+                    <label for="input_intervalo_citas" class="form-label"><?php echo $translations['html_appointment_range']; ?></label>
+                    <label id="input_intervalo_citas" class="mt-1">45 Minutos</label> <!-- Añadí texto de ejemplo -->
                 </div>
-            </div>
-            <div class="row col-12 align-items-center">
-                <div class="col-2">
-                    <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
+                
+                <!-- Columna 2 -->
+                <div class="col-md-6 fix-padding d-flex flex-column">
+                    <label for="btn_add_hours" class="form-label"><?php echo $translations['html_title_add_hour']; ?></label>
+                    <button type="button" id="btn_add_hours" class="btn btn-outline-dark btn_add_hours mt-1 align-self-start">
+                        <i class="bi bi-plus"></i>
+                    </button>
                 </div>
-                <div class="col-2">
-                    <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
-                </div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_monday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thuesday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_wednesday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thursday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_friday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_saturday']; ?></label></div>
-                <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_sunday']; ?></label></div>
-                <div class="col-1">Acci&oacute;n</div>
             </div>
             <div class="row rows_table">
                 
@@ -218,6 +218,28 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <div id="template_horas" class="row col-12 hide div_header_hours" style="padding-top:5px;">
+    <div class="row col-12">
+        <div class="col-4">
+            <label>Titulo:</label>
+            <input class="titulo form-control" type="text" required/>
+        </div>
+    </div>
+    <div class="row col-12 align-items-center">
+        <div class="col-2">
+            <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
+        </div>
+        <div class="col-2">
+            <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
+        </div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_monday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thuesday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_wednesday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_thursday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_friday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_saturday']; ?></label></div>
+        <div class="col-1"><label class="col-form-label"><?php echo $translations['html_abre_sunday']; ?></label></div>
+        <div class="col-1">Acci&oacute;n</div>
+    </div>
     <div class="col-2">
         <input type="time" step="60" class="form-control input_hora_inicio" required>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
@@ -312,6 +334,7 @@ use App\Library\FuncionesGlobales;
                     columns: [
                         { data: 'clave' }, // Columna 1
                         { data: 'nombre' }, // Columna 1
+                        { data: 'intervalo_citas' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -330,7 +353,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>'+
-                                '<button class="btn btn-outline-dark btn-sm btn_opening_hours" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" title="'+translations['opening_hours'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_opening_hours" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+data['nombre']+'" data-intervalocitas="'+data['intervalo_citas']+'" title="'+translations['opening_hours'] +'">' +
                                     '<i class="bi bi-calendar2-event"></i>'+
                                 '</button>' : '';
 
@@ -425,6 +448,7 @@ use App\Library\FuncionesGlobales;
                 const id        = $(this).data('id');
                 const clave     = $(this).data('clave');
                 const nombre    = $(this).data('nombre');
+                const intervalo_citas   = $(this).data('intervalocitas');
                 let btn     = $(this);
                 $(btn).prop('disabled',true);
                 $.ajax({
@@ -438,7 +462,7 @@ use App\Library\FuncionesGlobales;
                         console.log('data');
                         console.log(data);
                         $(btn).prop('disabled',false);
-                        showModalOpeningHours(data,id,clave,nombre);
+                        showModalOpeningHours(data,id,clave,nombre,intervalo_citas);
                     },
                     error   : function(error){
                         actionJsonError(error,btn);
@@ -481,6 +505,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#input_direccion').val(data['direccion']);
                 $(modal_clone).find('#input_telefono').val(data['telefono']);
                 $(modal_clone).find('#input_celular').val(data['celular']);
+                $(modal_clone).find('#input_intervalo_citas').val(data['intervalo_citas']);
             }
 
             //  EVENTO PARA CHECK
@@ -562,14 +587,16 @@ use App\Library\FuncionesGlobales;
                         direccion   : $(modal_clone).find('#input_direccion').val(),
                         telefono    : $(modal_clone).find('#input_telefono').val(),
                         celular     : $(modal_clone).find('#input_celular').val(),
+                        intervalo_citas : $(modal_clone).find('#input_intervalo_citas').val(),
                         lista_servicios : lista_servicios
                     };
 
                     if (data != null){
                         obj_info['id']          = data['id'];
                         obj_info['clave_old']   = data['clave'];
-                        obj_info['nombre_old']  = data['clave'];
-                        obj_info['servicios_old']   = data['servicios'];
+                        obj_info['nombre_old']  = data['nombre'];
+                        obj_info['intervalo_citas_old'] = data['intervalo_citas'];
+                        obj_info['servicios_old']       = data['servicios'];
                     }
 
                     console.log('obj_info');
@@ -605,8 +632,49 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         }
 
-        function showModalOpeningHours(data,id_locacion,clave,nombre){
+        function verificarIntervalos(hora_inicio, hora_termino, intervalo_citas) {
+            const aMinutos = (horaStr) => {
+                const [h, m] = horaStr.split(':').map(Number);
+                return h * 60 + m;
+            };
+
+            const aHoraStr = (minTotales) => {
+                const h = Math.floor(minTotales / 60);
+                const m = minTotales % 60;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            };
+
+            const inicioMin = aMinutos(hora_inicio);
+            const terminoMin = aMinutos(hora_termino);
+            const diferencia = terminoMin - inicioMin;
+
+            if (diferencia <= 0) {
+                return {
+                    valido: false,
+                    mensaje: `La hora de término debe ser posterior a la de inicio.`
+                };
+            }
+
+            const resto = diferencia % intervalo_citas;
+            if (resto !== 0) {
+                const minutosFaltantes = intervalo_citas - resto;
+                const horaRecomendada = aHoraStr(terminoMin + minutosFaltantes);
+                return {
+                    valido: false,
+                    mensaje: `El horario de ${hora_inicio} a ${hora_termino} no cumple con el intervalo de ${intervalo_citas} minutos. Hora término recomendada: ${horaRecomendada}.`
+                };
+            }
+
+            return {
+                valido: true,
+                mensaje: `El horario de ${hora_inicio} a ${hora_termino} cumple con el intervalo de ${intervalo_citas} minutos.`
+            };
+        }
+
+        function showModalOpeningHours(data,id_locacion,clave,nombre,intervalo_citas){
             let modal_clone = $("#modal_opening_hours").clone().show();
+
+            $(modal_clone).find("#input_intervalo_citas").text(intervalo_citas+ ' Minutos');
 
             $(modal_clone).find('#label_modal_opening_hours').text($(modal_clone).find('#label_modal_opening_hours').text() +': '+nombre);
             console.log('data func');
@@ -618,6 +686,7 @@ use App\Library\FuncionesGlobales;
             } else {
                 for(let i in data){
                     let row_clone   = $("#template_horas").clone().removeAttr('id').removeClass('hide').attr('id','header_'+count_hours);
+                    $(row_clone).find('.titulo').val(data[i]['titulo']);
                     $(row_clone).find('.input_hora_inicio').val(data[i]['hora_inicio']);
                     $(row_clone).find('.input_hora_termino').val(data[i]['hora_termino']);
 
@@ -694,9 +763,10 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.div_header_hours').each(function(){
 
                         obj_info[index] = new Object();
-                        obj_info[index]['hora_inicio']  = $(this).find('.input_hora_inicio').val();
-                        obj_info[index]['hora_termino'] = $(this).find('.input_hora_termino').val();
-                        obj_info[index]['dias']         = [];
+                        obj_info[index]['titulo']           = $(this).find('.titulo').val();
+                        obj_info[index]['hora_inicio']      = $(this).find('.input_hora_inicio').val();
+                        obj_info[index]['hora_termino']     = $(this).find('.input_hora_termino').val();
+                        obj_info[index]['dias']             = [];
 
                         let id_header   = $(this).attr('id');
                         let hora_inicio_header  = convertirHoraATiempo($(this).find('.input_hora_inicio').val());
@@ -705,20 +775,17 @@ use App\Library\FuncionesGlobales;
                         if (hora_termino_header <= hora_inicio_header){
                             throw 'error_minus_ending_date';
                         }
+
+                        let verificar_intervalos    = verificarIntervalos($(this).find('.input_hora_inicio').val(),$(this).find('.input_hora_termino').val(),intervalo_citas);
+                        if (verificar_intervalos['valido'] == false){
+                            throw verificar_intervalos['mensaje'];
+                        }
                         //  SE BUSCAN LOS DIAS SELECCIONADOS
                         $(this).find('.selected').each(function(){
                             let dia_selected    = $(this).data('dia');
-                            console.log('dia_selected');
-                            console.log(dia_selected);
-                            console.log('busqueda');
-                            console.log('.dia_'+dia_selected);
-                            console.log($(modal_clone).find('.dia_'+dia_selected).length);
 
                             //  SE BUSCAN LOS ROWS CUYO DIA SELECCIONADO SEA IGUAL
                             $(modal_clone).find('.dia_'+dia_selected).each(function(){
-                                console.log('check id');
-                                console.log($(this).closest('.div_header_hours').attr('id'));
-                                console.log(id_header);
                                 if ($(this).closest('.div_header_hours').attr('id') == id_header){
                                     return true;
                                 }
@@ -731,8 +798,6 @@ use App\Library\FuncionesGlobales;
                                 let hora_termino    = convertirHoraATiempo($(this).closest('.div_header_hours').find('.input_hora_termino').val());
 
                                 //  SE VERIFICA QUE NO EXISTA EMPALADO DE LA HORA INICIAL
-                                console.log('hora_inicio_header >= hora_inicio');
-                                console.log(hora_inicio_header >= hora_inicio,hora_inicio);
                                 if (hora_inicio_header >= hora_inicio && hora_inicio_header < hora_termino){
                                     console.log('empalmado hora_inicio_header');
                                     throw 'error_opening_hours';
@@ -740,6 +805,11 @@ use App\Library\FuncionesGlobales;
 
                                 //  SE VERIFICA EL EMPALMADO CON LA HORA DE TERMINO
                                 if (hora_termino_header > hora_inicio && hora_termino_header <= hora_termino){
+                                    console.log('empalmado hora termino');
+                                    throw 'error_opening_hours';
+                                }
+
+                                if (hora_inicio_header <= hora_inicio && hora_termino_header >= hora_termino) {
                                     console.log('empalmado hora termino');
                                     throw 'error_opening_hours';
                                 }
@@ -756,8 +826,9 @@ use App\Library\FuncionesGlobales;
                     });
 
                 }catch(err){
-                    let msg_error   = error_list[err];
-                    if (err == 'error_empty_days') console.log('aqui'); msg_error += ' registro: '+(index + 1);
+                    let msg_error   = typeof error_list[err] == 'undefined' ? err : error_list[err];
+                    if (err == 'error_empty_days') console.log('aqui'); 
+                    msg_error += ' registro: '+(index + 1);
                     $(modal_clone).find('#alert_error').find('#msg_error').html(msg_error);
                     $(modal_clone).find('#alert_error').addClass('d-flex').show();
                     return false;
@@ -791,5 +862,6 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).modal('show');
         }
+
     })();
 </script>
