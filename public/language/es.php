@@ -137,6 +137,8 @@ return [
     'html_all_appoitments'          => 'Mostrar <b>TODAS</b> las citas',
     'html_active_appoitments'       => 'Mostrar solo citas <b>ACTIVAS</b>',
     'html_canceled_appoitments'     => 'Mostrar solo citas <b>CANCELADAS</b>',
+    'html_paid_appoitments'         => 'Citas <b>PAGADAS</b>',
+    'html_debt_appoitments'         => 'Citas <b>CON ADEUDO</b>',
     'html_info_appointment'         => 'Información de la cita',
     'html_close'                    => 'Cerrar',
     'html_hour'                     => 'Hora',
@@ -150,6 +152,27 @@ return [
     'html_change_professional'      => 'Cambiar profesional',
     'html_reschedule_appoitment'    => 'Reprogramar cita',
     'html_control_appoitment'       => 'Control de citas',
+    'html_select_color'             => 'Selecciona el color del servicio',
+    'html_active'                   => 'Activo',
+    'html_birthdate'                => 'Fecha de nacimiento',
+    'html_current_age'              => 'Edad actual',
+    'html_diagnosis_capture'        => 'Captura de diagnostico(s)',
+    'html_List_neurodevelopmental_disorders'    => 'Lista de transtornos de neurodesarrollo',
+    'html_registered_diagnoses'                 => 'Diagnosticos registrados',
+    'html_abrev'                                => 'Abrev.',
+    'html_diagnoses'                            => 'Diagnostico',
+    'html_evidence'                             => 'Presento evidencia',
+    'html_paid'                                 => 'Pagada',
+    'html_register_payment'                     => 'Registrar/Cancelar pago',
+    'html_service_cost'                         => 'Servicios / Costo Total',
+    'html_cancel_payment'                       => 'Cancelar pago',
+    'html_pay'                                  => 'Pagar',
+    'html_payment_date'                         => 'Fecha de pago',
+    'html_method_payment'                       => 'Forma de pago',
+    'html_pay_filters'                          => 'Filtros de pago',
+    'html_appointment_range'                    => 'Intervalo de citas (Min)',
+    'html_scheduleappoitment'                   => 'Programaci&oacute;n de citas',
+    
 
 
     //  MENSAJES DE ERROR
@@ -190,4 +213,6 @@ return [
     'html_error_attendance_status'      => 'Especifique el estatus de la asistencia',
     'html_error_enter_cellphone_name'   => 'Ingresa un numero de telefono o nombre del paciente',
     'html_error_day_spliced'            => 'La cita esta empalmada con otra cita o esta fuera del rango de horas de servicio',
+    'html_error_selected_color'         => 'Selecciona un color',
+    'html_error_birthdate'              => 'Formato de fecha invalido',
 ];

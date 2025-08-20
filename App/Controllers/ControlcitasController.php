@@ -40,25 +40,24 @@ class ControlcitasController extends BaseController
                 $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
                 $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
-                if ($num_registros == 0){
+                if (!is_numeric($num_registros)){
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
-                        "recordsFiltered"   => 10,
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
                         "data"              => $result
                     );
                 }
-
-                $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
-                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-        
-                $result = array(
-                    "draw"              => $this->request->getPost('draw'),
-                    "recordsTotal"      => $num_registros,
-                    "recordsFiltered"   => $num_registros,
-                    "data"              => $result
-                );
-        
             }
 
             if ($accion == 'fill_combo'){
@@ -94,7 +93,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -176,7 +175,18 @@ class ControlcitasController extends BaseController
                         'citas_programadas'     => array()
                     );
 
-                    $arr_return['all_professionals'][$index]['rango_no_disponible']  = FuncionesGlobales::obtenerRangosNoDisponiblesPorDia($arr_return['horario_atencion'],$horario_atencion_profesional,$hora_cierre);
+                    foreach ($arr_return['horario_atencion'] as $horario_local){
+                        $parametros_locacion    = array(
+                            'id'                => $horario_local['id'],
+                            'id_locacion'       => null,
+                            'id_profesional'    => null,
+                            'hora_inicio'       => $horario_local['min_hora_inicio'],
+                            'hora_termino'      => $horario_local['max_hora_termino'],
+                            'titulo'            => $horario_local['titulo'],
+                            'dias'              => $horario_local['dias']
+                        );
+                        $arr_return['all_professionals'][$index]['rango_no_disponible'][$horario_local['id']]   = FuncionesGlobales::obtenerRangosNoDisponiblesPorDia(array($parametros_locacion),$horario_atencion_profesional,$hora_cierre);
+                    }
                 }
 
 
@@ -197,8 +207,60 @@ class ControlcitasController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
+
+                $accion_bitacota    = '';
+                $accion_mensaje     = '';
+
+                if ($_POST['obj_info']['accion'] == 'crear_cita'){
+                    $accion_bitacota    = 'CREATE'; 
+                    $accion_mensaje     = 'programo';
+                }
+
+                if ($_POST['obj_info']['accion'] == 'reagendar_cita'){
+                    $accion_bitacota    = 'RESCHEDULE'; 
+                    $accion_mensaje     = 'Reagendo';
+                }
+
+                if ($_POST['obj_info']['accion'] == 'modificar_cita'){
+                    $accion_bitacota    = 'UPDATE'; 
+                    $accion_mensaje     = 'Modifico la fecha';
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día'. $_POST['info_bitacora']['fecha_cita'],$_POST['obj_info']);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+            $aqui = 1;
+
+            if ($accion == 'cancelar_pago' || $accion == 'capturar_pago'){
+                $info_cita  = $_POST['info_cita'];
+
+                $route  = '';
+
+                $mensaje_bitacora   = '';
+                if ($accion == 'capturar_pago'){
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['capturar_pago'];
+                    $mensaje_bitacora   = 'Se registro el pago del paciente: '.$info_cita['nombre_completo'].' de la cita con fecha: '.$info_cita['fecha_completa'];
+                }
+
+                if ($accion == 'cancelar_pago'){
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['cancelar_pago'];
+                    $mensaje_bitacora   = 'Se cancelo el pago del paciente: '.$info_cita['nombre_completo'].' de la cita con fecha: '.$info_cita['fecha_completa'];
+                }
+
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
                 $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREATE','Se programo la cita para el paciente: '.$nombre_paciente,$_PST['obj_info']);
+                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE',$mensaje_bitacora,$_POST);
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -216,7 +278,10 @@ class ControlcitasController extends BaseController
         $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('onlyallowed' => 1));
 
         $this->view->arr_locaciones     = $arr_locaciones; 
+        
+        //  PERMISOS     register_payment
         $this->view->apertura_agenda    = FuncionesGlobales::HasAccess("Controlcitas","agenda_opening");
+        $this->view->registrar_pago     = FuncionesGlobales::HasAccess("Controlcitas","register_payment");
 
         $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
         $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(
@@ -255,22 +320,6 @@ class ControlcitasController extends BaseController
         $arr_return = array(
             'horario_atencion'  => array()
         );
-        $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-        $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
-
-        $response = new Response();
-
-        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion) == 0){
-            return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
-        }
-
-        $arr_return['horario_atencion'] = $horario_atencion;
-
-        $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
-
-        $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
-        $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
-        $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
 
         //  SE BUSCA LA ULTIMA FECHA DISPONIBLE ANTES DEL CIERRE DE AGENDA
         $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
@@ -281,14 +330,52 @@ class ControlcitasController extends BaseController
         $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
 
         // INFORMACION DE LOS PROFESIONALES
-        $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
-        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+        $route              = $this->url_api.$this->rutas['ctprofesionales']['show'];
+        $all_professionals  = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+
+        foreach($all_professionals as $profesional){
+            $arr_return['all_professionals'][$profesional['id']]    = $profesional;
+        }
 
         //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
         $_POST['activa']                = 1;
         $_POST['get_servicios']         = 1;
         $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+        //  SE CREA LA ESTRUCTURA POR LOS HORARIOS DE ATENCION
+        $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+        $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+
+        $response = new Response();
+
+        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion) == 0){
+            return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
+        }
+
+        //  SE BUSCA EL INTERVALO DE CITAS POR LOCACION
+        $route          = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,array('id' => $_POST['id_locacion']));
+        $arr_locaciones = $arr_locaciones[0];
+
+        foreach($horario_atencion as $id => $horario){
+            $arr_return['horario_atencion'][$id]                    = FuncionesGlobales::allStructureSchedule(array($horario));
+            $arr_return['horario_atencion'][$id]['titulo']          = $horario['titulo'];
+            $arr_return['horario_atencion'][$id]['intervalo_citas'] = $arr_locaciones['intervalo_citas'];
+            $arr_return['horario_atencion'][$id]['id']              = $horario['id'];
+            $arr_return['horario_atencion'][$id]['dias']            = $horario['dias'];
+
+            //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
+            $arr_return['horario_atencion'][$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
+        }
+
+        //$arr_return['horario_atencion'] = $horario_atencion;
+
+        $arr_horas  = FuncionesGlobales::allStructureSchedule($horario_atencion);
+
+        // $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
+        // $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
+        // $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
 
         //  SI VIENEN VACIOS ESTOS ESPACIOS, SE UNIFICAN LAS HORAS PARA QUE SEA UN SOLO DIV CORRIDO
         // if (empty($_POST['id_profesional']) && empty($_POST['id_paciente'])) {

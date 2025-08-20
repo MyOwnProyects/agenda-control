@@ -16,6 +16,51 @@ use App\Library\FuncionesGlobales;
         padding: 0; /* Opcional: elimina el relleno interno si es necesario */
     }
 
+    .visually-hidden-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    }
+
+    .color-swatch-wrapper {
+    display: inline-block;
+    cursor: pointer;
+    margin: 8px;
+    }
+
+    .color-swatch {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s;
+    position: relative;
+    }
+
+    .color-swatch .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: #333;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+    }
+
+    input[type="radio"]:checked + .color-swatch .checkmark {
+    opacity: 1;
+    }
+
+    input[type="radio"]:checked + .color-swatch {
+    border-color: #555;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #555;
+    }
+
+
+
 </style>
 
 <div class="container mt-4">
@@ -64,6 +109,7 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_name']; ?></th>
                         <th><?php echo $translations['html_price']; ?></th>
                         <th><?php echo $translations['html_duration']; ?></th>
+                        <th><?php echo $translations['html_active']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -113,6 +159,35 @@ use App\Library\FuncionesGlobales;
                     <div class="invalid-feedback"><?php echo $translations['html_error_duration']; ?></div>
                 </div>
             </div>
+                <div class="mt-3">
+                <label class="form-label"><?php echo $translations['html_select_color']; ?></label>
+                <div class="d-flex flex-wrap gap-2">
+                    <?php
+                    $colores = [
+                        '#FFB6C1', // Rosa Pastel
+                        '#AEC6CF', // Azul Pastel
+                        '#C1E1C1', // Verde Pastel
+                        '#E6E6FA', // Lavanda
+                        '#B2F2BB', // Menta
+                        '#FFDAB9', // Melocotón
+                        '#D8BFD8', // Lila
+                        '#FFFACD', // Amarillo Suave
+                        '#FFB3BA', // Coral Pastel
+                        '#AFEEEE'  // Celeste
+                    ];
+                    foreach ($colores as $index => $color) {
+                        echo "
+                        <label class='color-swatch-wrapper position-relative' title='$color'>
+                            <input class='visually-hidden-radio' type='radio' name='color_pastel' value='$color'>
+                            <span class='color-swatch' style='background-color: $color;'>
+                                <span class='checkmark'>&#10003;</span>
+                            </span>
+                        </label>";
+                    }
+                    ?>
+                </div>
+            </div>
+
             
             <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -161,12 +236,14 @@ use App\Library\FuncionesGlobales;
             title_update    : "<?= $translations['html_edit_record'] ?>",
             title_delete    : "<?= $translations['html_delete_record'] ?>",
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
-            confirm_delete  : "<?= $translations['html_confirm_delete']?>"
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>"
         };
 
         //  LISTA DE ERRORES EN MODAL
         const error_list = {
-            price   : "<?php echo $translations['html_error_price']; ?>"
+            price                   : "<?php echo $translations['html_error_price']; ?>",
+            error_selected_color    : "<?php echo $translations['html_error_selected_color']; ?>",
         }
 
         // Variable global para almacenar la instancia de DataTable
@@ -203,6 +280,7 @@ use App\Library\FuncionesGlobales;
                         { data: 'nombre' }, // Columna 1
                         { data: 'costo' }, // Columna 1
                         { data: 'duracion_minutos' }, // Columna 1
+                        { data: 'label_activo' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -228,7 +306,16 @@ use App\Library\FuncionesGlobales;
                                 return btn_update + btn_delete;
                             }
                         }
-                    ]
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
+
+                        if (data.codigo_color != null && data.codigo_color != '') {
+                            $(row).find('td:eq(0)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(1)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
+                    }
                 });
             } else {
                 draw    ++;
@@ -248,11 +335,52 @@ use App\Library\FuncionesGlobales;
                 showModal();
             });
 
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_change_status',async function(){
+                let data        = $(this).closest('tr').data('rowData');
+                const id        = data['id'];
+                const estatus   = data['activo'];
+                let btn     = $(this);
+                $(btn).prop('disabled',true);
+                
+                let msg = translations['confirm_update'];
+                const respuesta = await window.modalConfirm(msg);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_update,
+                        method  : 'POST',
+                        data    :  {
+                            accion  : 'change_status',
+                            status_actual   : estatus,
+                            nuevo_status    : estatus == 1 ? 0 : 1,
+                            id      : id
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Edici&oacute;n exitoso!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
             $("#table_results").on('click','.btn_delete',async function() {
 
-                const id        = $(this).data('id');
-                const clave     = $(this).data('clave');
-                const nombre    = $(this).data('nombre');
+                let data = $(this).closest('tr').data('rowData');
+
+                const id        = data['id'];
+                const clave     = data['clave'];
+                const nombre    = data['nombre'];
                 const respuesta = await window.modalConfirm(translations['confirm_delete']);
                 let btn         = $(this);
 
@@ -264,8 +392,8 @@ use App\Library\FuncionesGlobales;
                         method  : 'POST',
                         data    : {
                             id      : id,
-                            clave   : clave,
-                            nombre  : nombre
+                            data_bitacora   : data
+
                         },
                         success : function(data){
                             console.log('data');
@@ -318,6 +446,13 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#textarea_descripcion').val(data['descripcion']);
                 $(modal_clone).find('#input_price').val(data['costo']);
                 $(modal_clone).find('#input_duration').val(data['duracion_minutos']);
+
+                //  SE SELECCIONA EL COLOR QUE YA VIENE
+                $(modal_clone).find('[name="color_pastel"]').each(function(){
+                    if ($(this).val() == data['codigo_color']){
+                        $(this).trigger('click');
+                    }
+                })
             }
             
 
@@ -334,11 +469,21 @@ use App\Library\FuncionesGlobales;
                     $(form).removeClass('was-validated');
                 }
 
+                //  VALIDA QUE LIGIERA UN COLOR
+                if ($(modal_clone).find('[name="color_pastel"]:checked').length == 0){
+                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_selected_color']);
+                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                    return false;
+                } else {
+                    $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
+                }
                 //  VALIDAR REGISTROS
                 if ($(modal_clone).find("#input_price").val() != '' && !validarCantidadMonetaria($(modal_clone).find("#input_price").val())){
                     $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['price']);
                     $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
                     return false;
+                } else {
+                    $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
                 }
 
                 if(flag_error){
@@ -351,6 +496,7 @@ use App\Library\FuncionesGlobales;
                     descripcion : $(modal_clone).find('#textarea_descripcion').val(),
                     costo       : $(modal_clone).find('#input_price').val(),
                     duracion    : $(modal_clone).find('#input_duration').val(),
+                    codigo_color    : $(modal_clone).find('[name="color_pastel"]:checked').val() 
                 };
 
                 if (data != null){
@@ -359,6 +505,7 @@ use App\Library\FuncionesGlobales;
                     obj_info['nombre_old']      = data['nombre'];
                     obj_info['costo_old']       = data['costo'];
                     obj_info['duracion_old']    = data['duracion_minutos'];
+                    obj_info['duracion_old']    = data['codigo_color'];
                 }
 
                 console.log('obj_info');

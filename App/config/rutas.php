@@ -30,7 +30,8 @@ return [
         'create'            => "/ctservicios/create",
         'delete'            => "/ctservicios/delete",
         'update'            => "/ctservicios/update",
-        'count'             => "/ctservicios/count"
+        'count'             => "/ctservicios/count",
+        'change_status'     => "/ctservicios/change_status",
     ],
     'ctlocaciones'  => [
         'show'              => "/ctlocaciones/show",
@@ -66,6 +67,8 @@ return [
         'get_program_date'  => "/ctpacientes/get_program_date",
         'delete_program_date'   => "/ctpacientes/delete_program_date",
         'fill_combo'            => '/ctpacientes/fill_combo',
+        'save_express'          => '/ctpacientes/save_express',
+        'save_diagnoses'        => '/ctpacientes/save_diagnoses'
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
@@ -80,10 +83,15 @@ return [
         'cancelar_cita'         => '/tbagenda_citas/cancelar_cita',
         'modificar_asistencia'  => '/tbagenda_citas/modificar_asistencia',
         'save'                  => '/tbagenda_citas/save',
-        'get_today'             => '/tbagenda_citas/get_today'
+        'get_today'             => '/tbagenda_citas/get_today',
+        'capturar_pago'         => '/tbagenda_citas/capturar_pago',
+        'cancelar_pago'         => '/tbagenda_citas/cancelar_pago',
     ),
     'ctmotivos_cancelacion_cita'    => array(
         'show'  => '/ctmotivos_cancelacion_cita/show'
+    ),
+    'cttranstornos_neurodesarrollo' => array(
+        'show'  => '/cttranstornos_neurodesarrollo/show'
     ),
 
 ];
