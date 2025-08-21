@@ -60,18 +60,15 @@ use App\Library\FuncionesGlobales;
     .div_header_days_container .evento-flotante span {
         color: #fff;
         text-align: center;
-        font-size: 14px;
+        font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
         line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         margin-right: 8px; /* Espacio entre spans */
+        display: block;
     }
 
-    /* Reducción dinámica del tamaño del texto si es necesario */
-    .div_header_days_container .evento-flotante span {
-        font-size: clamp(10px, 2vw, 14px); /* Adaptar el tamaño del texto dinámicamente */
-    }
 
     .div_principal_filter .navigation {
         display: flex;
@@ -184,6 +181,7 @@ use App\Library\FuncionesGlobales;
     .div_header_week_container .grid-item.header {
         background-color: #f8f9fa;
         font-weight: bold;
+        cursor: pointer;
     }
     .div_header_week_container .grid-item.hour {
         background-color: #f8f9fa;
@@ -1021,7 +1019,7 @@ use App\Library\FuncionesGlobales;
         </form>
       </div>
       <div class="modal-footer">
-        <button id="btn_go_day" type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_go_day']; ?></button>
+        <button id="btn_go_day" type="button" class="btn btn-primary" data-bs-dismiss="modal"><?php echo $translations['html_go_day']; ?></button>
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
       </div>
     </div>
@@ -1851,19 +1849,23 @@ use App\Library\FuncionesGlobales;
             }
         });
 
-        //  ASIGNA LA FECHA POR DIA:
-        // Convertir fechas a Moment.js
+       // ASIGNA LA FECHA POR DIA:
         const fechaInicio = moment(rango_semana_actual.fecha_inicio);
         const fechaTermino = moment(rango_semana_actual.fecha_termino);
 
-        // Asignar fechas a los headers
         $weekContainer.find('.header:not(:first-child)').each(function(index) {
             const fecha = moment(fechaInicio).add(index, 'days');
+
+            // Formato visual: D/MMMM (ej. 20/agosto)
             const fechaFormateada = fecha.format('D/MMMM').split('/');
-            fechaFormateada[1] = fechaFormateada[1].toLowerCase(); // mes en minúsculas
-            
-            $(this).find('.header-date').text(fechaFormateada.join('/'));
+            fechaFormateada[1] = fechaFormateada[1].toLowerCase();
+
+            // Asignar texto y atributo data-day
+            const $headerDate = $(this).find('.header-date');
+            $headerDate.text(fechaFormateada.join('/'));
+            $(this).attr('data-day', fecha.format('YYYY-MM-DD')).prop('title','Ir al día: '+fechaFormateada.join('/'));
         });
+
 
         //  SE PINTAN LOS RECUADROS DE CITAS
         console.log('horario_no_disponible[id_horario_atencion]',horario_no_disponible[id_horario_atencion]);
@@ -3982,6 +3984,9 @@ use App\Library\FuncionesGlobales;
             ubicar_citas_dia($(this),$("#div_header_agenda"));
         });
 
+        $("#div_append_weeks_container").on('click', '.grid-item.header', function () {
+            ubicar_citas_dia($(this),$("#div_header_agenda"));
+        });
 
         renderCalendarMes();
 
