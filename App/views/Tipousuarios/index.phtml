@@ -227,6 +227,9 @@ var mod_tipo_usuario    = (function(){
                             '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+tableTranslations['title_delete'] +'">' +
                                 '<i class="bi bi-trash3-fill"></i>'+
                             '</button>' : '';
+                            if (data['clave'] == 'user_admin'){
+                                btn_update  = '';
+                            }
                             return btn_preview + btn_update + btn_delete;
                         }
                     }
@@ -353,7 +356,7 @@ var mod_tipo_usuario    = (function(){
 
     //  FUNCION PARA MOSTRAR MODAL DE CREACION
     function show_modal_data(data,info = null,preview){
-        console.log('preview',preview);
+        console.log('preview',data,info ,preview);
 
         let modal_clone = $("#modal_create").clone();
 
@@ -454,11 +457,13 @@ var mod_tipo_usuario    = (function(){
 
             if ($(modal_clone).find('.check_sublist:checked').length == 0){
                 $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                flag_error  = true;
             } else {
                 $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
             }
 
             if (flag_error){
+                $(btn).prop('disabled',false);
                 return false;
             }
 
@@ -467,9 +472,8 @@ var mod_tipo_usuario    = (function(){
                 permissions_list.push($(this).data('id'));
             });
 
-            console.log('list');
-            console.log(permissions_list);
-
+            //  VERIFICAR LISTA DE PERMISOS PARA SABER CUALES PERMISOS FUERON REMOVIDOS 
+            //  Y CUALES FUERON AGREGADOS
             let obj_info    = {
                 clave   : $(modal_clone).find('#input_clave').val(),
                 nombre  : $(modal_clone).find('#input_nombre').val(),
@@ -483,9 +487,25 @@ var mod_tipo_usuario    = (function(){
                 obj_info['nombre_old']  = info['nombre'];
                 obj_info['descripcion_old'] = info['descripcion'];
                 obj_info['permisos_old']    = info['permisos'];
+
+                const permisosPrevios = Array.isArray(info?.permisos)
+                    ? info.permisos.map(p => p.id_permiso)
+                    : typeof info?.permisos === 'object' && info.permisos !== null
+                        ? Object.values(info.permisos).map(p => p.id_permiso)
+                        : [];
+
+                const nuevosPermisos = permissions_list.filter(p => !permisosPrevios.includes(p));
+                const permisosEliminados = permisosPrevios.filter(p => !permissions_list.includes(p));
+
+                console.log("Nuevos permisos:", nuevosPermisos);
+                console.log("Permisos eliminados:", permisosEliminados);
+                obj_info['permisos_nuevos']     = nuevosPermisos;
+                obj_info['permisos_eliminar']   = permisosEliminados;
+
             }
 
             console.log(obj_info);
+            //return false;
 
             //  AJAX SAVE
             $.ajax({
