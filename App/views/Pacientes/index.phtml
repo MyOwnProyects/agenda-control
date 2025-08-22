@@ -32,6 +32,10 @@ use App\Library\FuncionesGlobales;
         width: 5rem; /* Ajusta el ancho del switch */
     }
 
+    .row_selected{
+        background-color: #3fd83fff;
+    }
+
 </style>
 <div class="container mt-4">
     <!-- Section 1: Search Filters -->
@@ -386,10 +390,8 @@ use App\Library\FuncionesGlobales;
             //  EVENTO BOTON EDITAR
             $("#table_results").on('click','.btn_program_date',function(){
 
-                let status  = $(this).closest('.text-center').find('.btn_change_status').data('estatus');
-
-                if (status != 1){
-                    showAlert('El paciente debe de estar activo para poder asignarle un horario de citas.');
+                let flag_baja   = check_baja($(this));
+                if (!flag_baja){
                     return false;
                 }
 
@@ -422,7 +424,7 @@ use App\Library\FuncionesGlobales;
                             console.log('data');
                             console.log(data);
                             $(btn).prop('disabled',false);
-                            showAlert('success',"Edici&oacute;n exitoso!");
+                            showAlert('success',"Edici&oacute;n exitosa!");
                             cargarTabla();
                         },
                         error   : function(error){
@@ -435,17 +437,35 @@ use App\Library\FuncionesGlobales;
             });
 
             $("#table_results").on('click','.btn_edit',function(){
-                let data    = $(this).closest('tr').data('rowData');
-                console.log('data',data);
-                show_modal_creacion(data);
+                let flag_baja   = check_baja($(this));
+                if (!flag_baja){
+                    return false;
+                }
+                show_modal_creacion($(this).closest('tr').data('rowData'));
+            });
+
+            $("#table_results").on('click','.btn_preview',function(){
+                show_modal_creacion($(this).closest('tr').data('rowData'),true);
             });
 
             $("#table_results").on('click','.btn_diagnoses',function(){
-                let data    = $(this).closest('tr').data('rowData');
-                console.log('data',data);
-                show_modal_diagnoses(data);
+                let flag_baja   = check_baja($(this));
+                if (!flag_baja){
+                    return false;
+                }
+                show_modal_diagnoses($(this).closest('tr').data('rowData'));
             });
         });
+
+        //  VALIDA SI EL ALUMNO ESTA MARCADO COMO BAJA
+        function check_baja(element){
+            let data    = $(element).closest('tr').data('rowData');
+            if (data['estatus'] != 1){
+                showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                return false;
+            }
+            return true;
+        }
 
         //  FUNCION PARA LLENAR COMBO DE PROFESIONALES
         function fill_profesionales(header_template,id_locacion_registro,id_servicio,id_profesional = null){
@@ -653,7 +673,7 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function show_modal_creacion(data = null){
+        function show_modal_creacion(data = null,preview = false){
             let modal_clone = $("#modal_create").clone().show();
 
             $(modal_clone).find('#select_locaciones').select2({
@@ -703,7 +723,8 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
                 }
 
-                const fecha_nacimiento  = $(modal_clone).find('#input_fecha_nacimiento').val();
+                let fecha_nacimiento    = $(modal_clone).find('#input_fecha_nacimiento').val();
+                fecha_nacimiento        = moment(fecha_nacimiento, 'YYYY-MM-DD').format('DD/MM/YYYY');
 
                 if (flag_error){
                     return false;
@@ -749,6 +770,12 @@ use App\Library\FuncionesGlobales;
                 })
             });
 
+            if (preview){
+                $(modal_clone).find('input').prop('disabled',true);
+                $(modal_clone).find('#btnSave').remove();
+                $(modal_clone).find('#label_modal_create').text(translations['title_preview'])
+            }
+
             $(modal_clone).modal('show');
         }
 
@@ -759,7 +786,7 @@ use App\Library\FuncionesGlobales;
             if (data != null && Object.keys(data['diagnosticos']).length > 0){
                 for(let i in data['diagnosticos']){
                     $(modal_clone).find('#diagnostico_'+data['diagnosticos'][i]['id'])
-                        .addClass('bg-success')
+                        .addClass('row_selected')
                         .find('.input_evidencia')
                         .prop('disabled',false)
                         .prop('checked',data['diagnosticos'][i]['presento_evidencia'] == 1 ? true : false);
@@ -773,11 +800,11 @@ use App\Library\FuncionesGlobales;
                 if ($(event.target).is('input')) {
                     return;
                 }
-                if ($(this).hasClass('bg-success')){
-                    $(this).removeClass('bg-success');
+                if ($(this).hasClass('row_selected')){
+                    $(this).removeClass('row_selected');
                     $(this).find('input').prop('disabled',true).prop('checked',false)
                 } else {
-                    $(this).addClass('bg-success');
+                    $(this).addClass('row_selected');
                     $(this).find('input').prop('disabled',false);
                 }
             });
@@ -788,7 +815,7 @@ use App\Library\FuncionesGlobales;
 
                 let obj_info    = [];
 
-                $(modal_clone).find('.div_diagnostico.bg-success').each(function(){
+                $(modal_clone).find('.div_diagnostico.row_selected').each(function(){
                     let id_transtorno       = $(this).data('id');
                     let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
                     obj_info.push({

@@ -260,7 +260,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
                 $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
-                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE',$mensaje_bitacora,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE',$mensaje_bitacora,array());
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');

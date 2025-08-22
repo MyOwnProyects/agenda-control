@@ -53,7 +53,7 @@ class LoginController extends Controller
             $request    = FuncionesGlobales::RequestApi('GET',$route,$params);
             $response = new Response();
             if (!$request || isset($request['error'])){
-                $request['error']   = 'Usuario o contrase&ntilde;a invalido';
+                $request['error']   = empty($request['error']) ? 'Usuario o contrase&ntilde;a invalido' : $request['error'];
                 $response->setStatusCode(400, "Error");
                 $response->setJsonContent($request['error']);
             } else {

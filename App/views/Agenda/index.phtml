@@ -3313,7 +3313,7 @@ use App\Library\FuncionesGlobales;
             placeholder: 'Seleccione una opción',
             dropdownParent: $(modal_clone).find('.div_select_paciente'),
             width: '50px',
-            minimumInputLength: 5,
+            minimumInputLength: 3,
             ajax: {
                 url: url_index,
                 method: 'post',
@@ -3783,7 +3783,7 @@ use App\Library\FuncionesGlobales;
         $('.div_principal_filter').find('#select_pacientes').select2({
             placeholder: 'Seleccione una opción',
             width: '50px',
-            minimumInputLength: 5,
+            minimumInputLength: 3,
             allowClear : true,
             ajax: {
                 url: url_index,
