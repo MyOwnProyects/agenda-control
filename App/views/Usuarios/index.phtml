@@ -306,6 +306,12 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
+
+                                if (data['clave'] == 'superuser'){
+                                    btn_update  = '';
+                                    btn_delete  = '';
+                                }
+
                                 return btn_preview + btn_update + btn_delete;
                             }
                         }
@@ -350,7 +356,7 @@ use App\Library\FuncionesGlobales;
                         console.log('data');
                         console.log(data);
                         $(btn).prop('disabled',false);
-                        showAlert('success',"Edici&oacute;n exitoso!");
+                        showAlert('success',"Edici&oacute;n exitosa!");
                         cargarTabla();
                     },
                     error   : function(error){
