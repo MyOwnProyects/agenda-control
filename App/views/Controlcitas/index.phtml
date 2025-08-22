@@ -792,7 +792,7 @@ use App\Library\FuncionesGlobales;
 <script>
     let module_control_citas    = (function(){
 
-        let busqueda_pruebas    = true;
+        let busqueda_pruebas    = false;
 
         let draw            = 0;
         let count_hours     = 0;
@@ -1009,9 +1009,17 @@ use App\Library\FuncionesGlobales;
 
                         $(modal_clone).find('#btnSave').prop('disabled',false);
 
-                        if ("#input_rango_fecha_inicio" != null && $("#input_rango_fecha_inicio").val() != '' && $("#input_rango_fecha_termino").val() != null && $("#input_rango_fecha_termino").val() != ''){
-                            cargarTabla();
+                        if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                            if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                                return false;
+                            }
+
+                            if ($('#input_rango_fecha_termino').val() == '') {
+                                return false;
+                            }
                         }
+                        
+                        cargarTabla();
                     },
                     error     : function(error){
                         console.log('error',error);
@@ -1189,9 +1197,17 @@ use App\Library\FuncionesGlobales;
                         success : function(data){
                             $(modal_clone).modal('hide');
                             showAlert('success','Captura exitosa!');
-                            if ("#input_rango_fecha_inicio" != null && $("#input_rango_fecha_inicio").val() != '' && $("#input_rango_fecha_termino").val() != null && $("#input_rango_fecha_termino").val() != ''){
-                                cargarTabla();
+                            if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                                if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                                    return false;
+                                }
+
+                                if ($('#input_rango_fecha_termino').val() == '') {
+                                    return false;
+                                }
                             }
+                            
+                            cargarTabla();
 
                         },
                         error   : function(error){
@@ -1749,7 +1765,7 @@ use App\Library\FuncionesGlobales;
                 placeholder: 'Seleccione una opción',
                 dropdownParent: $(modal_clone),
                 width: '50px',
-                minimumInputLength: 5,
+                minimumInputLength: 3,
                 ajax: {
                     url: url_index,
                     method: 'post',
@@ -2038,7 +2054,7 @@ use App\Library\FuncionesGlobales;
             $('#select_pacientes').select2({
                 placeholder: translations['error_selected_patient'],
                 width: '50px',
-                minimumInputLength: 5,
+                minimumInputLength: 3,
                 allowClear : true,
                 ajax: {
                     url: url_index,
@@ -2239,9 +2255,17 @@ use App\Library\FuncionesGlobales;
                             $(btn).prop('disabled',false);
                             $(modal_clone).modal('hide');
                             showAlert('success',data);
-                            if ("#input_rango_fecha_inicio" != null && $("#input_rango_fecha_inicio").val() != '' && $("#input_rango_fecha_termino").val() != null && $("#input_rango_fecha_termino").val() != ''){
-                                cargarTabla();
+                            if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                                if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                                    return false;
+                                }
+
+                                if ($('#input_rango_fecha_termino').val() == '') {
+                                    return false;
+                                }
                             }
+                            
+                            cargarTabla();
                         },
                         error     : function(error){
                             actionJsonError(error,btn);
