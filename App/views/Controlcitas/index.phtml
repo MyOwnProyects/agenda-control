@@ -382,8 +382,9 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_title_professional']; ?></th>
                         <th><?php echo $translations['html_service_cost']; ?></th>
                         <th><?php echo $translations['html_appointment_date']; ?></th>
-                        <th><?php echo $translations['html_paid']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
+                        <th><?php echo $translations['html_attendance_status']; ?></th>
+                        <th><?php echo $translations['html_paid']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -792,7 +793,7 @@ use App\Library\FuncionesGlobales;
 <script>
     let module_control_citas    = (function(){
 
-        let busqueda_pruebas    = false;
+        let busqueda_pruebas    = true;
 
         let draw            = 0;
         let count_hours     = 0;
@@ -804,6 +805,7 @@ use App\Library\FuncionesGlobales;
             0   : 'FALTA',
             1   : 'ASISTENCIA',
             2   : 'RETARDO',
+            3   : 'ACTIVIDAD EN CASA',   
             null    : 'Sin asignar' 
         };
 
@@ -912,8 +914,9 @@ use App\Library\FuncionesGlobales;
                         { data: 'nombre_profesional' }, // Columna 1
                         { data: 'num_servicios_costo' }, // Columna 1
                         { data: 'fecha_completa' }, // Columna 1
-                        { data: 'label_pagada' }, // Columna 1
                         { data: 'estatus' }, // Columna 1
+                        { data: 'label_asistencia' }, // Columna 1
+                        { data: 'label_pagada' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -951,12 +954,29 @@ use App\Library\FuncionesGlobales;
                         // Guardar el objeto completo en la fila como data
                         console.log('data',data);
                         $(row).data('rowData', data);
+                        
                         if (data.activa == 0) {
-                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(4)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
                         }
 
                         if (data.activa == 1) {
+                            $(row).find('td:eq(4)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 1 || data.asistencia == 3) {
                             $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 0) {
+                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 0) {
+                            $(row).find('td:eq(6)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 1){
+                            $(row).find('td:eq(6)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
                         }
 
                         if (data.codigo_color != null) {

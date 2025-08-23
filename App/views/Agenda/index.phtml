@@ -810,8 +810,8 @@ use App\Library\FuncionesGlobales;
                     <select id="select_asistencia" required>
                         <option></option>
                         <option id="estatus_1" value="1">ASISTENCIA</option>
-                        <option id="estatus_2" value="2">RETARDO</option>
                         <option id="estatus_0" value="0">FALTA</option>
+                        <option id="estatus_3" value="3">ACTIVIDAD EN CASA</option>
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_attendance_status']; ?></div>
                 </div>
@@ -2560,6 +2560,7 @@ use App\Library\FuncionesGlobales;
             '1'     : 'ASISTENCIA',
             '2'     : 'RETARDO',
             '0'     : 'FALTA',
+            '3'     : 'ACTIVIDAD EN CASA',
             null    : 'Sin asignar' 
         }
 
@@ -4280,6 +4281,10 @@ use App\Library\FuncionesGlobales;
         
         if ($(element).data('asistencia') == 2){
             $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Retardo').append('<i class="bi bi-person-fill-exclamation"></i>');
+        }
+
+        if ($(element).data('asistencia') == 3){
+            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Actividad en casa').append('<i class="bi bi-house-check-fill"></i>');
         }
 
         if ($(element).data('asistencia') == 0){
