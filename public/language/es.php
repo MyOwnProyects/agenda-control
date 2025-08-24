@@ -215,4 +215,5 @@ return [
     'html_error_day_spliced'            => 'La cita esta empalmada con otra cita o esta fuera del rango de horas de servicio',
     'html_error_selected_color'         => 'Selecciona un color',
     'html_error_birthdate'              => 'Formato de fecha invalido',
+    'html_error_movement_type'          => 'Selecciona un tipo de movimiento',
 ];
