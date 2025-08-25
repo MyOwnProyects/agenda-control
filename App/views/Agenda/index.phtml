@@ -2581,7 +2581,7 @@ use App\Library\FuncionesGlobales;
                 },
                 success     : function(data){
                     $(modal_clone).modal('hide');
-                    showAlert('success',tipo_movimiento == 'cancelar' ? 'Cancelación exitosa!' : 'Cita modificada exitosamente!');
+                    showAlert('success',$(modal_clone).find('.tipo_movimiento:checked').val() == 'cancelar' ? 'Cancelación exitosa!' : 'Cita modificada exitosamente!');
 
                     $(".flot_cita").each(function(){
                         if ($(this).data('idagendacita') == id_agenda_cita){
@@ -2599,11 +2599,11 @@ use App\Library\FuncionesGlobales;
             });
         });
 
-        $(modal_clone).find('#select_motivo_cancelacion').select2({
-            placeholder: 'Seleccione una opción',
-            dropdownParent: $(modal_clone),
-            width: '50px'
-        });
+        // $(modal_clone).find('#select_motivo_cancelacion').select2({
+        //     placeholder: 'Seleccione una opción',
+        //     dropdownParent: $(modal_clone),
+        //     width: '50px'
+        // });
 
         $(modal_clone).modal('show');
     }
