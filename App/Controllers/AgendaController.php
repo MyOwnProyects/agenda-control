@@ -126,8 +126,9 @@ class AgendaController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
-
-                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita: '.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'] ,$_POST);
+                $mensaje_inicial    = $_POST['tipo_movimiento'] == 'cancelar' ? 'Se realizó la cancelación de la cita: ' : 'Se marco la cita como pendiente a reagendar: ';
+                $accion             = $_POST['tipo_movimiento'] == 'cancelar' ? 'DELETE' : 'UPDATE';
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$mensaje_inicial.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'] ,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
