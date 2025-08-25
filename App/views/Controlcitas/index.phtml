@@ -335,6 +335,12 @@ use App\Library\FuncionesGlobales;
                         </label>
                     </div>
                     <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filtro_citas" id="radio_pendientes" value="pendientes">
+                        <label class="form-check-label" for="radio_pendientes">
+                            <?php echo $translations['html_pending_appoitments']; ?>
+                        </label>
+                    </div>
+                    <div class="form-check">
                         <input class="form-check-input" type="radio" name="filtro_citas" id="radio_canceladas" value="canceladas">
                         <label class="form-check-label" for="radio_canceladas">
                             <?php echo $translations['html_canceled_appoitments']; ?>
@@ -342,15 +348,21 @@ use App\Library\FuncionesGlobales;
                     </div>
                     <label class="form-label"><b><?php echo $translations['html_pay_filters']; ?></b></label>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_pagadas" value="canceladas">
+                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_pagadas" value="">
                         <label class="form-check-label" for="check_pagadas">
                             <?php echo $translations['html_paid_appoitments']; ?>
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_adeudo" value="canceladas">
+                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_adeudo" value="">
                         <label class="form-check-label" for="check_adeudo">
                             <?php echo $translations['html_debt_appoitments']; ?>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_pagadas_rango" value="">
+                        <label class="form-check-label" for="check_adeudo">
+                            <?php echo $translations['html_paid_appoitments_date_range']; ?>
                         </label>
                     </div>
                 </div>
@@ -382,8 +394,9 @@ use App\Library\FuncionesGlobales;
                         <th><?php echo $translations['html_title_professional']; ?></th>
                         <th><?php echo $translations['html_service_cost']; ?></th>
                         <th><?php echo $translations['html_appointment_date']; ?></th>
-                        <th><?php echo $translations['html_paid']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
+                        <th><?php echo $translations['html_attendance_status']; ?></th>
+                        <th><?php echo $translations['html_paid']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -804,6 +817,7 @@ use App\Library\FuncionesGlobales;
             0   : 'FALTA',
             1   : 'ASISTENCIA',
             2   : 'RETARDO',
+            3   : 'ACTIVIDAD EN CASA',   
             null    : 'Sin asignar' 
         };
 
@@ -840,6 +854,17 @@ use App\Library\FuncionesGlobales;
             pay                     : "<?= $translations['html_pay']?>",
             cancel_payment          : "<?= $translations['html_cancel_payment']?>",
         };
+
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
+            error_spliced           : "<?php echo $translations['html_error_spliced']; ?>",
+            error_range_date        : "<?php echo $translations['html_error_range_date']; ?>",
+            error_day_spliced       : "<?php echo $translations['html_error_day_spliced']; ?>",
+        }
 
         // Variable global para almacenar la instancia de DataTable
         let table;
@@ -905,6 +930,7 @@ use App\Library\FuncionesGlobales;
                             d.tipo_busqueda     = $('input[name="filtro_citas"]:checked').val() || 'todas'; // Obtiene el valor del radio seleccionado
                             d.citas_pagadas     = $("#check_pagadas").prop('checked') == true ? 1 : 0;
                             d.citas_adeudo      = $("#check_adeudo").prop('checked') == true ? 1 : 0;
+                            d.citas_pagadas_rango   = $("#check_pagadas_rango").prop('checked') == true ? 1 : 0;
                         }
                     },
                     columns: [
@@ -912,8 +938,9 @@ use App\Library\FuncionesGlobales;
                         { data: 'nombre_profesional' }, // Columna 1
                         { data: 'num_servicios_costo' }, // Columna 1
                         { data: 'fecha_completa' }, // Columna 1
-                        { data: 'label_pagada' }, // Columna 1
                         { data: 'estatus' }, // Columna 1
+                        { data: 'label_asistencia' }, // Columna 1
+                        { data: 'label_pagada' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -928,17 +955,17 @@ use App\Library\FuncionesGlobales;
                                     '<i class="bi bi-search"></i> '+
                                 '</button>';
 
-                                let btn_update  = data['vencida'] == 1 || data['activa'] != 1 ? '' : 
+                                let btn_update  = data['activa'] == 0 || (data['vencida'] == 1 && data['activa'] == 1) ? '' : 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['appoinment_edit'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>';
 
-                                let btn_delete  = data['vencida'] == 1 || data['activa'] != 1 ? '' : 
+                                let btn_delete  = data['activa'] == 0 || (data['vencida'] == 1 && data['activa'] == 1) ? '' : 
                                 '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" title="'+translations['cancel_appointment'] +'">' +
                                     '<i class="bi bi-calendar-x"></i>'+
                                 '</button>';
 
-                                let btn_registrar_pago  = !registrar_pago || data['activa'] != 1 ? '' :
+                                let btn_registrar_pago  = !registrar_pago || data['activa'] == 0 ? '' :
                                 '<button class="btn btn-outline-dark btn-sm btn_registrar_pago" data-id="'+data['id_agenda_cita']+'" title="'+translations['register_payment'] +'">' +
                                     '<i class="bi bi-cash"></i>'+
                                 '</button>';
@@ -951,12 +978,33 @@ use App\Library\FuncionesGlobales;
                         // Guardar el objeto completo en la fila como data
                         console.log('data',data);
                         $(row).data('rowData', data);
+                        
                         if (data.activa == 0) {
-                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(4)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
                         }
 
                         if (data.activa == 1) {
+                            $(row).find('td:eq(4)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.activa == 2) {
+                            $(row).find('td:eq(4)').css('background-color', '#d9e757ff'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 1 || data.asistencia == 3) {
                             $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 0) {
+                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 0) {
+                            $(row).find('td:eq(6)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 1){
+                            $(row).find('td:eq(6)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
                         }
 
                         if (data.codigo_color != null) {
@@ -1028,11 +1076,12 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
-            $(modal_clone).find('#select_motivo_cancelacion').select2({
-                placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone),
-                width: '50px'
-            });
+            // $(modal_clone).find('#select_motivo_cancelacion').select2({
+            //     placeholder: 'Seleccione una opción',
+            //     dropdownParent: $(modal_clone),
+            //     width: '50px'
+            // });
+
 
             $(modal_clone).modal('show');
         }
@@ -1497,7 +1546,6 @@ use App\Library\FuncionesGlobales;
 
                 let show_cuadros_flotantes  = true;
                 if (diasPermitidos.includes(diaActual)) {
-                    console.log('aqui pase',$(template_days_container).hasClass('hide'));
                     $(template_days_container).removeClass('hide');
                     show_cuadros_flotantes  = false;
                 }
@@ -1645,7 +1693,6 @@ use App\Library\FuncionesGlobales;
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
                         if (!diasPermitidos.includes(diaActual)) {
-                            console.log('aqui pase',$(template_days_container).attr('id'));
                             $(this).addClass('hide');
                             return true;
                         } else {
@@ -1710,7 +1757,6 @@ use App\Library\FuncionesGlobales;
                     let id_horario_atencion = $(this).data('idhorarioatencion');
                     let diasPermitidos      = $(this).data('dias');
                     if (!diasPermitidos.includes(diaActual)) {
-                        console.log('aqui pase',$(template_days_container).attr('id'));
                         $(this).addClass('hide');
                         return true;
                     } else {
@@ -1894,8 +1940,6 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-                console.log('pase 1');
-
                 //  VALIDAR ESTRUCTURA DE DATOS
                 if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
                     $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
@@ -1941,7 +1985,6 @@ use App\Library\FuncionesGlobales;
                     obj_info['accion']  = $(modal_clone).find('.input_modify_day').prop('checked') ? 'reagendar_cita' : 'modificar_cita';
                 }
                 
-                console.log('pase 2')
                 obj_info.id_profesional = $(modal_clone).find("#select_profesionales_modal").val();
                 obj_info.id_locacion    = $("#select_locaciones").val();
                 
@@ -2098,6 +2141,11 @@ use App\Library\FuncionesGlobales;
 
                     if ($('#input_rango_fecha_termino').val() == '') {
                         showAlert('danger', translations['error_starting_date']);
+                        return false;
+                    }
+                } else {
+                    if ($("#check_pagadas_rango").prop('checked') && ($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null || $('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)){
+                        showAlert('danger', error_list['error_range_date']);
                         return false;
                     }
                 }
