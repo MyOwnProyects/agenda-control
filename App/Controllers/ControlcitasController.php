@@ -223,10 +223,10 @@ class ControlcitasController extends BaseController
 
                 if ($_POST['obj_info']['accion'] == 'modificar_cita'){
                     $accion_bitacota    = 'UPDATE'; 
-                    $accion_mensaje     = 'Modifico la fecha';
+                    $accion_mensaje     = 'Modifico la fecha de';
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día'. $_POST['info_bitacora']['fecha_cita'],$_POST['obj_info']);
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día y hora: '. $_POST['info_bitacora']['fecha_cita'].' de '.$_POST['info_bitacora']['hora_inicio'].' a '.$_POST['info_bitacora']['hora_termino'],$_POST['obj_info']);
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');

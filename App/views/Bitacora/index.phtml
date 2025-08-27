@@ -1,0 +1,220 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
+
+    .hide{
+        display: none;
+    }
+
+    .div_label_accion {
+        margin-bottom: 5px; /* Reduce el espacio vertical entre los elementos */
+        padding: 0; /* Opcional: elimina el relleno interno si es necesario */
+    }
+
+    .visually-hidden-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    }
+
+    .color-swatch-wrapper {
+    display: inline-block;
+    cursor: pointer;
+    margin: 8px;
+    }
+
+    .color-swatch {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s;
+    position: relative;
+    }
+
+    .color-swatch .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: #333;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+    }
+
+    input[type="radio"]:checked + .color-swatch .checkmark {
+    opacity: 1;
+    }
+
+    input[type="radio"]:checked + .color-swatch {
+    border-color: #555;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #555;
+    }
+
+
+
+</style>
+
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_services']); ?></h2>
+    </div>
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_access_key']; ?></label>
+                    <input type="text" class="form-control" id="input_clave" placeholder="<?php echo $translations['html_title_access_key']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
+                        <i class="bi bi-plus-lg"></i> 
+                        <?php echo $translations['html_new']; ?>
+                    </button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_access_key']; ?></th>
+                        <th><?php echo $translations['html_name']; ?></th>
+                        <th><?php echo $translations['html_price']; ?></th>
+                        <th><?php echo $translations['html_duration']; ?></th>
+                        <th><?php echo $translations['html_active']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    let module_servicios    = (function(){
+        let draw            = 0;
+        //  URL
+        const controller    = '/Bitacora';
+        const url_index     = controller+"/index";
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>"
+        };
+
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            price                   : "<?php echo $translations['html_error_price']; ?>",
+            error_selected_color    : "<?php echo $translations['html_error_selected_color']; ?>",
+        }
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
+        // Función para inicializar o recargar la tabla
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.clave     = $("#input_clave").val();
+                            d.nombre    = $("#input_nombre").val();
+                        }
+                    },
+                    columns: [
+                        { data: 'clave' }, // Columna 1
+                        { data: 'nombre' }, // Columna 1
+                        { data: 'costo' }, // Columna 1
+                        { data: 'duracion_minutos' }, // Columna 1
+                        { data: 'label_activo' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                return '';
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                    }
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
+        $(document).ready(function(){
+            cargarTabla();
+
+            // Evento click del botón "Buscar"
+            $("#header_filters").on('click',"#btnBuscar",function() {
+                cargarTabla();
+            });
+
+            $("#header_filters").on('click',"#btnCrear",function() {
+                showModal();
+            });
+        });
+    })();
+</script>
