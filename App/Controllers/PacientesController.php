@@ -190,14 +190,17 @@ class PacientesController extends BaseController
                 $route  = $this->url_api.$this->rutas['ctpacientes']['change_status'];
                 $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
                 $response = new Response();
-    
+
                 if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
                     $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del paciente: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+                $last_estatus   = $_POST['estatus'] == 1 ? 'ACTIVO' : 'INACTIVO';
+                $new_estatus    = $_POST['estatus'] == 1 ? 'INACTIVO' : 'ACTIVO';
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del paciente: '.$_POST['nombre_completo'].' de '.$last_estatus.' a '.$new_estatus.' el cual contaba con '.$_POST['num_servicios'].' servicios(s) asignado(s)'  ,$_POST);
 
                 $response->setJsonContent('Edición exitosa');
                 $response->setStatusCode(200, 'OK');
@@ -233,7 +236,7 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                $solicitud  = count($_POST['data_old']) == 0 ? 'CREACION' : 'EDICION';  
+                $solicitud  = count($_POST['data_old']) == 0 ? 'CREAR' : 'EDITAR';  
                 FuncionesGlobales::saveBitacora($this->bitacora,$solicitud,'Se ejecuto la '.$solicitud.' del diagnostico del paciente: '.$_POST['data_old']['nombre_completo'],$_POST);
 
                 $response->setJsonContent('Edición exitosa');

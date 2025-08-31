@@ -93,7 +93,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CALENDAR OPENS','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -112,7 +112,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -141,7 +141,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'DELETE','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se realizó la cancelación de la cita con identificar: '.$_POST['id_agenda_cita'],$obj_info);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -212,17 +212,17 @@ class ControlcitasController extends BaseController
                 $accion_mensaje     = '';
 
                 if ($_POST['obj_info']['accion'] == 'crear_cita'){
-                    $accion_bitacota    = 'CREATE'; 
+                    $accion_bitacota    = 'CREAR'; 
                     $accion_mensaje     = 'programo';
                 }
 
                 if ($_POST['obj_info']['accion'] == 'reagendar_cita'){
-                    $accion_bitacota    = 'RESCHEDULE'; 
+                    $accion_bitacota    = 'REAGENDAR'; 
                     $accion_mensaje     = 'Reagendo';
                 }
 
                 if ($_POST['obj_info']['accion'] == 'modificar_cita'){
-                    $accion_bitacota    = 'UPDATE'; 
+                    $accion_bitacota    = 'EDITAR'; 
                     $accion_mensaje     = 'Modifico la fecha de';
                 }
 
@@ -260,7 +260,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
                 $nombre_paciente    = $_POST['primer_apellido'].' '. $_POST['segundo_apellido'].' '.$_POST['nombre'];
-                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE',$mensaje_bitacora,array());
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR',$mensaje_bitacora,array());
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');
