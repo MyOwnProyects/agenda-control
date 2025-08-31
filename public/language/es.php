@@ -174,6 +174,9 @@ return [
     'html_pay_filters'                          => 'Filtros de pago',
     'html_appointment_range'                    => 'Intervalo de citas (Min)',
     'html_scheduleappoitment'                   => 'Programaci&oacute;n de citas',
+    'html_module'                               => 'Modulo',
+    'html_movement_log'                         => 'Bitacora de movimientos',
+    'html_log'                                  => 'Bitacora',
     
 
 
