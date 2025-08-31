@@ -16,57 +16,12 @@ use App\Library\FuncionesGlobales;
         padding: 0; /* Opcional: elimina el relleno interno si es necesario */
     }
 
-    .visually-hidden-radio {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    }
-
-    .color-swatch-wrapper {
-    display: inline-block;
-    cursor: pointer;
-    margin: 8px;
-    }
-
-    .color-swatch {
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s;
-    position: relative;
-    }
-
-    .color-swatch .checkmark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 16px;
-    color: #333;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-    pointer-events: none;
-    }
-
-    input[type="radio"]:checked + .color-swatch .checkmark {
-    opacity: 1;
-    }
-
-    input[type="radio"]:checked + .color-swatch {
-    border-color: #555;
-    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #555;
-    }
-
-
-
 </style>
 
 <div class="container mt-4">
     <!-- Section 1: Search Filters -->
     <div>
-        <h2><?php echo FuncionesGlobales::UpperString($translations['html_services']); ?></h2>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_movement_log']); ?></h2>
     </div>
     <div id="header_filters" class="card mb-4">
         <div class="card-header">
@@ -75,21 +30,45 @@ use App\Library\FuncionesGlobales;
         <div class="card-body">
             <form id="searchForm" class="row g-3">
                 <div class="col-md-4">
-                    <label for="nameFilter" class="form-label"><?php echo $translations['html_access_key']; ?></label>
-                    <input type="text" class="form-control" id="input_clave" placeholder="<?php echo $translations['html_title_access_key']; ?>">
+                    <label for="select_usuarios" class="form-label"><?php echo $translations['html_user']; ?></label>
+                    <select id="select_usuarios">
+                        <option></option>
+                        <?php foreach($usuarios as $usuario): ?>
+                            <option value="<?php echo $usuario['clave']; ?>"><?php echo $usuario['nombre_completo']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="nameFilter" class="form-label"><?php echo $translations['html_name']; ?></label>
-                    <input type="text" class="form-control" id="input_nombre" placeholder="<?php echo $translations['html_title_name']; ?>">
+                    <label for="select_controladores" class="form-label"><?php echo $translations['html_module']; ?></label>
+                    <select id="select_controladores">
+                        <option></option>
+                        <?php foreach($bitacora_acciones['lista_controladores'] as $controlador): ?>
+                        <option value="<?php echo $controlador; ?>" data-acciones="<?php echo json_encode($bitacora_acciones['todos_registros'][$controlador]); ?>"><?php echo $controlador; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_acciones" class="form-label"><?php echo $translations['html_action']; ?></label>
+                    <select id="select_acciones">
+                        <option></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_appointment_date']; ?></label>
+                    <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_appointment_date']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
+                </div>
+                 <div class="col-md-8">
+                    <label for="input_mensaje" class="form-label"><?php echo $translations['html_description']; ?></label>
+                    <input type="text" class="form-control" id="input_mensaje" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_description']; ?>">
                 </div>
                 <div class="col-md-12 text-end">
                     <button type="button" class="btn btn-outline-dark" id="btnBuscar">
                         <i class="bi bi-search"></i> 
                         <?php echo $translations['html_btn_search']; ?>
-                    </button>
-                    <button type="button" class="btn btn-outline-dark" id="btnCrear">
-                        <i class="bi bi-plus-lg"></i> 
-                        <?php echo $translations['html_new']; ?>
                     </button>
                 </div> 
             </form>
@@ -97,6 +76,7 @@ use App\Library\FuncionesGlobales;
     </div>
 
     <!-- Section 2: Data Table -->
+
     <div class="card">
         <div class="card-header">
             <h5><?php echo $translations['html_header_results']; ?></h5>
@@ -105,12 +85,11 @@ use App\Library\FuncionesGlobales;
             <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
                 <thead>
                     <tr>
-                        <th><?php echo $translations['html_access_key']; ?></th>
-                        <th><?php echo $translations['html_name']; ?></th>
-                        <th><?php echo $translations['html_price']; ?></th>
-                        <th><?php echo $translations['html_duration']; ?></th>
-                        <th><?php echo $translations['html_active']; ?></th>
+                        <th><?php echo $translations['html_user']; ?></th>
+                        <th><?php echo $translations['html_module']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
+                        <th><?php echo $translations['html_date']; ?></th>
+                        <th><?php echo $translations['html_description']; ?></th>
                     </tr>
                 </thead>
             </table>
@@ -123,6 +102,9 @@ use App\Library\FuncionesGlobales;
         //  URL
         const controller    = '/Bitacora';
         const url_index     = controller+"/index";
+
+        //  LISTA DE ACCIONES
+        let lista_acciones  = <?php echo $json_bitacora_acciones; ?>;
 
         //  language
         const translations  = {
@@ -174,16 +156,20 @@ use App\Library\FuncionesGlobales;
                             d.offset    = d.start == null || d.start == '' ? 0 : d.start;
                             d.draw      = draw;
                             d.accion    = 'get_rows';
-                            d.clave     = $("#input_clave").val();
-                            d.nombre    = $("#input_nombre").val();
+                            d.clave_usuario = $("#select_usuarios").val();
+                            d.controlador   = $("#select_controladores").val();
+                            d.movimiento    = $("#select_acciones").val();
+                            d.fecha_inicio  = $("#input_rango_fecha_inicio").val();
+                            d.fecha_limite  = $("#input_rango_fecha_termino").val();
+                            d.mensaje       = $("#input_mensaje").val();
                         }
                     },
                     columns: [
-                        { data: 'clave' }, // Columna 1
-                        { data: 'nombre' }, // Columna 1
-                        { data: 'costo' }, // Columna 1
-                        { data: 'duracion_minutos' }, // Columna 1
-                        { data: 'label_activo' }, // Columna 1
+                        { data: 'clave_usuario' }, // Columna 1
+                        { data: 'controlador' }, // Columna 1
+                        { data: 'accion' }, // Columna 1
+                        { data: 'fecha_hora' }, // Columna 1
+                        { data: 'mensaje' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -205,15 +191,47 @@ use App\Library\FuncionesGlobales;
         }
 
         $(document).ready(function(){
-            cargarTabla();
-
-            // Evento click del botón "Buscar"
-            $("#header_filters").on('click',"#btnBuscar",function() {
-                cargarTabla();
+            $(".container").find('#select_usuarios').select2({
+                placeholder: 'Seleccione una opción',
+                allowClear  : true,
+                width: '50px'
             });
 
-            $("#header_filters").on('click',"#btnCrear",function() {
-                showModal();
+            $(".container").find('#select_controladores').select2({
+                placeholder: 'Seleccione una opción',
+                allowClear  : true,
+                width: '50px'
+            }).on('select2:select',function(){
+                console.log(lista_acciones[$(this).val()]);
+
+                $(".container").find('#select_acciones').val(null).trigger('change');
+                $(".container").find('#select_acciones').find('option').remove();
+                let acciones    = lista_acciones[$(this).val()];
+                let options     = '<option></option>';
+                for(let i in acciones){
+                    options += `<option value="${acciones[i]['accion']}">${acciones[i]['accion']}</option>`;
+                }
+                $(".container").find('#select_acciones').append(options);
+            });
+
+            $(".container").find('#select_acciones').select2({
+                placeholder: 'Seleccione una opción',
+                allowClear  : true,
+                width: '50px'
+            });
+
+            $("#btnBuscar").on('click',function(){
+                if ($("#input_rango_fecha_inicio").val() == null || $("#input_rango_fecha_inicio").val() == ''){
+                    showAlert('danger','Ingresa la fecha inicio');
+                    return false;
+                }
+
+                if ($("#input_rango_fecha_termino").val() == null || $("#input_rango_fecha_termino").val() == ''){
+                    showAlert('danger','Ingresa la fecha limite');
+                    return false;
+                }
+
+                cargarTabla();
             });
         });
     })();

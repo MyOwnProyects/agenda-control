@@ -40,7 +40,7 @@ class ControlcitasController extends BaseController
                 $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
                 $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
-                if (!is_numeric($num_registros)){
+                if (!is_numeric($num_registros) || $num_registros == 0){
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
@@ -93,7 +93,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CALENDAR OPENS','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');
