@@ -60,7 +60,7 @@ class AgendaController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -127,7 +127,7 @@ class AgendaController extends BaseController
                     return $response;
                 }
                 $mensaje_inicial    = $_POST['tipo_movimiento'] == 'cancelar' ? 'Se realizó la cancelación de la cita: ' : 'Se marco la cita como pendiente a reagendar: ';
-                $accion             = $_POST['tipo_movimiento'] == 'cancelar' ? 'DELETE' : 'UPDATE';
+                $accion             = $_POST['tipo_movimiento'] == 'cancelar' ? 'BORRAR' : 'EDITAR';
                 FuncionesGlobales::saveBitacora($this->bitacora,$accion,$mensaje_inicial.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'] ,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
@@ -156,7 +156,7 @@ class AgendaController extends BaseController
 
                 $estatus_asistencia_actual  = $estatus_asistencia[$_POST['estatus_asistencia_actual']];
                 $estatus_nuevo_estatus      = $estatus_asistencia[$_POST['nuevo_estatus_asistencia']];
-                FuncionesGlobales::saveBitacora($this->bitacora,'UPDATE','Se realizó la modificación del estatus de asistencia de la cita: '.$_POST['id_agenda_cita']. ' ' .$_POST['info_cita'].' de '.$estatus_asistencia_actual.' a '.$estatus_nuevo_estatus,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se realizó la modificación del estatus de asistencia de la cita: '.$_POST['id_agenda_cita']. ' ' .$_POST['info_cita'].' de '.$estatus_asistencia_actual.' a '.$estatus_nuevo_estatus,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -233,17 +233,17 @@ class AgendaController extends BaseController
                 $accion_mensaje     = '';
 
                 if ($_POST['obj_info']['accion'] == 'crear_cita'){
-                    $accion_bitacota    = 'CREATE'; 
+                    $accion_bitacota    = 'CREAR'; 
                     $accion_mensaje     = 'programo';
                 }
 
                 if ($_POST['obj_info']['accion'] == 'reagendar_cita'){
-                    $accion_bitacota    = 'RESCHEDULE'; 
+                    $accion_bitacota    = 'REAGENDAR'; 
                     $accion_mensaje     = 'Reagendo';
                 }
 
                 if ($_POST['obj_info']['accion'] == 'modificar_cita'){
-                    $accion_bitacota    = 'UPDATE'; 
+                    $accion_bitacota    = 'EDITAR'; 
                     $accion_mensaje     = 'Modifico la fecha';
                 }
 

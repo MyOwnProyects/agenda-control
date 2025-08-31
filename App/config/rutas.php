@@ -23,7 +23,7 @@ return [
     'tbbitacora_movimientos'   => array(
         'create'    => '/tbbitacora_movimientos/create',
         'count'     => "/tbbitacora_movimientos/count",
-        'show'      => "/tbbitacora_movimientos/count"
+        'show'      => "/tbbitacora_movimientos/show"
     ),
     'ctservicios'    => [
         'show'              => "/ctservicios/show",
@@ -93,5 +93,8 @@ return [
     'cttranstornos_neurodesarrollo' => array(
         'show'  => '/cttranstornos_neurodesarrollo/show'
     ),
+    'ctbitacora_acciones'   => array(
+        'show'  => '/ctbitacora_acciones/show'
+    )
 
 ];

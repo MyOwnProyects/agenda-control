@@ -1,0 +1,238 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    .list-group-item {
+      border: none; /* Elimina los bordes */
+      cursor: pointer; /* Cambia el cursor al pasar por el div padre */
+    }
+
+    .hide{
+        display: none;
+    }
+
+    .div_label_accion {
+        margin-bottom: 5px; /* Reduce el espacio vertical entre los elementos */
+        padding: 0; /* Opcional: elimina el relleno interno si es necesario */
+    }
+
+</style>
+
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_movement_log']); ?></h2>
+    </div>
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-4">
+                    <label for="select_usuarios" class="form-label"><?php echo $translations['html_user']; ?></label>
+                    <select id="select_usuarios">
+                        <option></option>
+                        <?php foreach($usuarios as $usuario): ?>
+                            <option value="<?php echo $usuario['clave']; ?>"><?php echo $usuario['nombre_completo']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_controladores" class="form-label"><?php echo $translations['html_module']; ?></label>
+                    <select id="select_controladores">
+                        <option></option>
+                        <?php foreach($bitacora_acciones['lista_controladores'] as $controlador): ?>
+                        <option value="<?php echo $controlador; ?>" data-acciones="<?php echo json_encode($bitacora_acciones['todos_registros'][$controlador]); ?>"><?php echo $controlador; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_acciones" class="form-label"><?php echo $translations['html_action']; ?></label>
+                    <select id="select_acciones">
+                        <option></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_appointment_date']; ?></label>
+                    <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_appointment_date']; ?>">
+                </div>
+                <div class="col-md-4">
+                    <label for="rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
+                </div>
+                 <div class="col-md-8">
+                    <label for="input_mensaje" class="form-label"><?php echo $translations['html_description']; ?></label>
+                    <input type="text" class="form-control" id="input_mensaje" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_description']; ?>">
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_user']; ?></th>
+                        <th><?php echo $translations['html_module']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                        <th><?php echo $translations['html_date']; ?></th>
+                        <th><?php echo $translations['html_description']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    let module_servicios    = (function(){
+        let draw            = 0;
+        //  URL
+        const controller    = '/Bitacora';
+        const url_index     = controller+"/index";
+
+        //  LISTA DE ACCIONES
+        let lista_acciones  = <?php echo $json_bitacora_acciones; ?>;
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>"
+        };
+
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            price                   : "<?php echo $translations['html_error_price']; ?>",
+            error_selected_color    : "<?php echo $translations['html_error_selected_color']; ?>",
+        }
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
+        // Función para inicializar o recargar la tabla
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.clave_usuario = $("#select_usuarios").val();
+                            d.controlador   = $("#select_controladores").val();
+                            d.movimiento    = $("#select_acciones").val();
+                            d.fecha_inicio  = $("#input_rango_fecha_inicio").val();
+                            d.fecha_limite  = $("#input_rango_fecha_termino").val();
+                            d.mensaje       = $("#input_mensaje").val();
+                        }
+                    },
+                    columns: [
+                        { data: 'clave_usuario' }, // Columna 1
+                        { data: 'controlador' }, // Columna 1
+                        { data: 'accion' }, // Columna 1
+                        { data: 'fecha_hora' }, // Columna 1
+                        { data: 'mensaje' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                return '';
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                    }
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
+        $(document).ready(function(){
+            $(".container").find('#select_usuarios').select2({
+                placeholder: 'Seleccione una opción',
+                allowClear  : true,
+                width: '50px'
+            });
+
+            $(".container").find('#select_controladores').select2({
+                placeholder: 'Seleccione una opción',
+                allowClear  : true,
+                width: '50px'
+            }).on('select2:select',function(){
+                console.log(lista_acciones[$(this).val()]);
+
+                $(".container").find('#select_acciones').val(null).trigger('change');
+                $(".container").find('#select_acciones').find('option').remove();
+                let acciones    = lista_acciones[$(this).val()];
+                let options     = '<option></option>';
+                for(let i in acciones){
+                    options += `<option value="${acciones[i]['accion']}">${acciones[i]['accion']}</option>`;
+                }
+                $(".container").find('#select_acciones').append(options);
+            });
+
+            $(".container").find('#select_acciones').select2({
+                placeholder: 'Seleccione una opción',
+                allowClear  : true,
+                width: '50px'
+            });
+
+            $("#btnBuscar").on('click',function(){
+                if ($("#input_rango_fecha_inicio").val() == null || $("#input_rango_fecha_inicio").val() == ''){
+                    showAlert('danger','Ingresa la fecha inicio');
+                    return false;
+                }
+
+                if ($("#input_rango_fecha_termino").val() == null || $("#input_rango_fecha_termino").val() == ''){
+                    showAlert('danger','Ingresa la fecha limite');
+                    return false;
+                }
+
+                cargarTabla();
+            });
+        });
+    })();
+</script>

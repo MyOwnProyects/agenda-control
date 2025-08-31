@@ -1987,6 +1987,13 @@ use App\Library\FuncionesGlobales;
                 
                 obj_info.id_profesional = $(modal_clone).find("#select_profesionales_modal").val();
                 obj_info.id_locacion    = $("#select_locaciones").val();
+
+                let info_bitacora   = {
+                    nombre          : $(modal_clone).find('#span_paciente').text(),
+                    fecha_cita      : $(modal_clone).find('#fecha-actual').text(),
+                    hora_inicio     : $(modal_clone).find('.input_hora_inicio').val(),
+                    hora_termino    : $(modal_clone).find('.input_hora_termino').val(),
+                };
                 
                 //  OBTENER FECHA DE LA CITA
                 let fecha_actual    = formatearFecha(fechaActual);
@@ -2004,8 +2011,9 @@ use App\Library\FuncionesGlobales;
                     url         : url_index,
                     method      : 'post',
                     data        : {
-                        obj_info    : obj_info,
-                        accion      : 'save_appoinment'
+                        obj_info        : obj_info,
+                        info_bitacora   : info_bitacora,
+                        accion          : 'save_appoinment'
                     },
                     success : function(data){
                         // Tu código aquí

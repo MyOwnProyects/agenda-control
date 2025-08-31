@@ -404,8 +404,10 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_change_status',async function(){
                 const id        = $(this).data('id');
                 const estatus   = $(this).data('estatus');
+                let data        = $(this).closest('tr').data('rowData');
                 let btn     = $(this);
                 $(btn).prop('disabled',true);
+                console.log('data',data);
                 
                 let msg = estatus == 1 ? translations['deactivate_patient'] : translations['activate_patient'];
                 const respuesta = await window.modalConfirm(msg);
@@ -418,7 +420,10 @@ use App\Library\FuncionesGlobales;
                         method  : 'POST',
                         data    :  {
                             accion  : 'change_status',
-                            id      : id
+                            estatus : estatus,
+                            nombre_completo : data['nombre_completo'],
+                            id              : id,
+                            num_servicios   : data['num_servicios']
                         },
                         success : function(data){
                             console.log('data');

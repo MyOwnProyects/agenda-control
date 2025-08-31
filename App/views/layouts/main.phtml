@@ -51,6 +51,7 @@
     $pacientes      = \App\Library\FuncionesGlobales::HasAccess('Pacientes', 'index');
     $agenda         = \App\Library\FuncionesGlobales::HasAccess('Agenda', 'index');
     $control_citas  = \App\Library\FuncionesGlobales::HasAccess('Controlcitas', 'index');
+    $bitacora       = \App\Library\FuncionesGlobales::HasAccess('Bitacora', 'index');
   ?>
   <?php
       // Obtén el despachador desde el contenedor de dependencias
@@ -185,6 +186,14 @@
                 <a href="/Usuarios/" aria-current="page" class="nav-link text-white">
                   <i class="bi bi-person-circle me-2"></i>
                   <span><?php echo $translations['html_title_users']; ?></span>
+                </a>
+              </li>
+              <?php endif; ?>
+              <?php if($bitacora): ?>
+              <li class="nav-item" title="<?php echo $translations['html_log']; ?>">
+                <a href="/Bitacora/" aria-current="page" class="nav-link text-white">
+                  <i class="bi bi-card-list me-2"></i>
+                  <span><?php echo $translations['html_log']; ?></span>
                 </a>
               </li>
               <?php endif; ?>
