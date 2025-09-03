@@ -89,6 +89,13 @@ class FuncionesGlobales{
             if (curl_errno($ch) || $httpStatus >= 400) {
                 $error = curl_error($ch);
                 curl_close($ch);
+                $msg_error  = $response;
+                try{
+                    $response   = json_decode($response);
+                } catch(\Exception $ex){
+                    $response   = $msg_error;
+                }
+                
                 return ['error' => $response,'status_code' => 400];
             }
 
