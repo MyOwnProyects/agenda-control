@@ -247,7 +247,7 @@ class AgendaController extends BaseController
                     $accion_mensaje     = 'Modifico la fecha';
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día'. $_POST['info_bitacora']['fecha_cita'],$_POST['obj_info']);
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día: '. $_POST['info_bitacora']['fecha_cita'],$_POST['obj_info']);
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');

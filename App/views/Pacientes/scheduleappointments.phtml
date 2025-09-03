@@ -976,7 +976,7 @@ let module_schedule_appointments    = (function(){
                     success     : function(data){
                         $(btn).prop('disabled',false);
                         $(modal_clone).modal('hide');
-                        showAlert('success',data);
+                        showAlert('success',data,8000);
                         
                     },
                     error     : function(error){

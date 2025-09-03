@@ -32,20 +32,30 @@ function actionJsonError(error,btn = null){
     
 }
 
+//  PARA MODIFICAR ACENTOS DE MENSAJE DE ERROR
+function decodeUnicode(str) {
+    return str.replace(/\\u[\dA-F]{4}/gi, function (match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+    });
+}
+
 /**
  * FUNCION PARA MOSTRAR MENSAJE DE ALERTA FLOTANTE
  * @param {string} type TIPO DE ALERTA
  * @param {String} message MENSAJE A MOSTRAR
  */
-function showAlert(type = 'success' , message) {
+function showAlert(type = 'success' , message,timer = null) {
+    console.log('message message',message,decodeUnicode(message));
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-fixed`;
     alertDiv.style.display = 'none';
-    alertDiv.innerHTML = message;
+    alertDiv.innerHTML = decodeUnicode(message);
 
     document.body.appendChild(alertDiv);
 
-    let timer   = type == 'danger' ? 7000 : 3000;
+    if (timer == null){
+        timer   = type == 'danger' ? 5000 : 3000;
+    }
 
     $(alertDiv).fadeIn();
     setTimeout(() => {
