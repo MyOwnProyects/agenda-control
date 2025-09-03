@@ -2310,7 +2310,7 @@ use App\Library\FuncionesGlobales;
                         success     : function(data){
                             $(btn).prop('disabled',false);
                             $(modal_clone).modal('hide');
-                            showAlert('success',data);
+                            showAlert('success',data,8000);
                             if (!$("[name='filtro_citas_pago']:checked").length > 0){
                                 if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
                                     return false;

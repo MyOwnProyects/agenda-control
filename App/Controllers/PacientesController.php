@@ -315,9 +315,9 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se realizó la programacion de citas para el paciente: '.$obj_info['nombre_completo'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'PROGRAMAR CITAS','Se realizó la programacion de citas para el paciente: '.$obj_info['nombre_completo'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'].' Mensaje de ejecución: '.$result['MSG'],$obj_info);
 
-                $response->setJsonContent('Generacion de citas exitosa!');
+                $response->setJsonContent($result['MSG']);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
