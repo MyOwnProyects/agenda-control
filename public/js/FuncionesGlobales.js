@@ -34,9 +34,14 @@ function actionJsonError(error,btn = null){
 
 //  PARA MODIFICAR ACENTOS DE MENSAJE DE ERROR
 function decodeUnicode(str) {
-    return str.replace(/\\u[\dA-F]{4}/gi, function (match) {
-        return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
-    });
+    if (typeof str !== 'string') return str;
+    try{
+        return str.replace(/\\u[\dA-F]{4}/gi, function (match) {
+            return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+        });
+    } catch(err){
+        return str;
+    }
 }
 
 /**
