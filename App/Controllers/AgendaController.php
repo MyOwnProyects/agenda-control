@@ -275,7 +275,19 @@ class AgendaController extends BaseController
 
         $this->view->margen_minutos_empalmado   = $margen_minutos_empalmado;
 
-        //  
+        //  PARA SABER SI EL USUARIO PERMITE MAS DE UN SERVICIO POR CITA
+        $route          = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
+        $multiservicios = FuncionesGlobales::RequestApi('GET',$route,array(
+            'clave' => 'multiservicios'  
+        ));
+
+        if (!is_array($multiservicios)){
+            $multiservicios = 1;
+        } else {
+            $multiservicios = $multiservicios[0]['valor'];
+        }
+
+        $this->view->multiservicios   = $multiservicios;
 
         //  MOTIVOS PARA CANCELAR UNA CITA
         $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
