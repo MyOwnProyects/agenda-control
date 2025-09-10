@@ -138,8 +138,9 @@ class ServiciosController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
-
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del servicio: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+                $estatus_actual = $_POST['status_actual'] == 1 ? 'ACTIVO' : 'INACTIVO';
+                $nuevo_estatus  = $_POST['nuevo_status'] == 1 ? 'ACTIVO' : 'INACTIVO';
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del servicio: '.$_POST['servicio'].' de '.$estatus_actual.' a '.$nuevo_estatus  ,$_POST);
 
                 $response->setJsonContent('Edición exitosa');
                 $response->setStatusCode(200, 'OK');
@@ -156,7 +157,7 @@ class ServiciosController extends BaseController
                 return $response;
             }
             
-            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el servico: Clave :'.$_POST['clave_old'].' por '.$_POST['clave'].' con nombre: '.$_POST['nombre_old'].' por '.$_POST['nombre_old'].' con costo: '.$_POST['costo_old'].' a '.$_POST['costo'].' con duracion: '.$_POST['duracion_old'].' a '.$_POST['duracion'] ,$_POST);
+            FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el servico con Clave :'.$_POST['clave_old'].' por '.$_POST['clave'].' con nombre: '.$_POST['nombre_old'].' por '.$_POST['nombre_old'].' con costo: '.$_POST['costo_old'].' a '.$_POST['costo'].' con duracion: '.$_POST['duracion_old'].' a '.$_POST['duracion'].' con color de'.$_POST['color_old'].' por '.$_POST['codigo_color'] ,$_POST);
 
 
             $response->setJsonContent('Captura exitosa');
