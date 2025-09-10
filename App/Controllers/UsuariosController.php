@@ -44,7 +44,7 @@ class UsuariosController extends BaseController
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
-                        "recordsFiltered"   => 10,
+                        "recordsFiltered"   => 0,
                         "data"              => $result
                     );
                 } else {
