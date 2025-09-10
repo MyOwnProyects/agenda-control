@@ -41,25 +41,24 @@ class PacientesController extends BaseController
                 $route          = $this->url_api.$this->rutas['ctpacientes']['count'];
                 $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
-                if ($num_registros == 0){
+                if (!is_numeric($num_registros) || $num_registros == 0){
                     $result = array(
                         "draw"              => $this->request->getPost('draw'),
                         "recordsTotal"      => count($result),
                         "recordsFiltered"   => 0,
                         "data"              => $result
                     );
+                } else {
+                    $route  = $this->url_api.$this->rutas['ctpacientes']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
                 }
-
-                $route  = $this->url_api.$this->rutas['ctpacientes']['show'];
-                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-        
-                $result = array(
-                    "draw"              => $this->request->getPost('draw'),
-                    "recordsTotal"      => $num_registros,
-                    "recordsFiltered"   => $num_registros,
-                    "data"              => $result
-                );
-        
             }
 
             if ($accion == 'get_services'){
