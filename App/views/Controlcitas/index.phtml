@@ -702,49 +702,49 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
-                        <div class="col-md-4" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '6'; ?>" style="padding-right:5px;">
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
                             <select class="form-select input_hora_inicio" required></select>
                             <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
                         </div>
                         <!-- Campo Nombre -->
-                        <div class="col-md-4" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '6'; ?>" style="padding-right:5px;">
                             <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
                             <input type="time" step="60" class="form-control input_hora_termino" required disabled>
                             <div class="invalid-feedback"><?php echo $translations['html_error_ending_hour']; ?></div>
                         </div>
-                        <div class="col-md-4 d-flex flex-column align-items-center" align="center">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '0'; ?> d-flex flex-column align-items-center" align="center" <?php echo $multiservicios == 1 ? '' : 'style="display:none!important;"'; ?>>
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_options']; ?></label>
                             <button type="button" class="btn btn-outline-dark btn_add_service"><?php echo $translations['html_add_service']; ?></button>
                         </div>
                     </div>
                     <div class="row div_header_labels">
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_service']; ?></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_duration']; ?></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_price']; ?></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '0'; ?>" style="padding-right:5px;<?php echo $multiservicios == 1 ? '' : 'display:none!important;'; ?>">
                             <label class="col-form-label"><?php echo $translations['html_option']; ?></label>
                         </div>
                     </div>
                     <div class="row div_header_servicios">
                     </div>
                     <div class="row div_header_total border-top" align="center">
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_totals']; ?>:</label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><span id="total_duracion">0</span> min</label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
                             <label class="col-form-label total_costo">$<span id ="total_costo">0</span></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '0'; ?>" style="padding-right:5px;<?php echo $multiservicios == 1 ? '' : 'display:none!important;'; ?>">
                             
                         </div>
                     </div>
@@ -783,21 +783,21 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <div id="template_servicio" class="row" style="display:none;">
-    <div class="col-md-3" style="padding-right:5px;">
+    <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
         <select class="select_servicios_modal" required>
             <option></option>
         </select>
         <div class="invalid-feedback"><?php echo $translations['html_error_service']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;">
+    <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;">
         <input type="number" class="form-control duracion" required/>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;" align="center">
+    <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '4'; ?>" style="padding-right:5px;" align="center">
         <span class="costo"></span>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;" align="center">
+    <div class="col-md-<?php echo $multiservicios == 1 ? '3' : '0'; ?>" style="padding-right:5px;<?php echo $multiservicios == 1 ? '' : 'display:none!important;'; ?>" align="center">
         <button type="button" class="btn btn-outline-dark btn_delete_servicio btn-close"></button>
     </div>
 </div>

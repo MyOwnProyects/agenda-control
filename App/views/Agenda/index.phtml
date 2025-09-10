@@ -744,6 +744,10 @@ use App\Library\FuncionesGlobales;
     </div>
 
     <div class="event-detail d-flex align-items-center" title="Estatus de cobro">
+        <i class="icon_asistencia bi"></i>&nbsp<span id="asistencia"></span>
+    </div>
+
+    <div class="event-detail d-flex align-items-center" title="Estatus de cobro">
         <i class="bi bi-cash"></i>&nbsp<span id="pagada"></span>
     </div>
 </div>
@@ -956,49 +960,49 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <div class="div_header_citas col-md-6 hide" style="max-height: 50vh;overflow-y: auto;">
                     <div id="" class="row">
-                        <div class="col-md-4" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '6'; ?>" style="padding-right:5px;">
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
                             <select class="form-select input_hora_inicio" required></select>
                             <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
                         </div>
                         <!-- Campo Nombre -->
-                        <div class="col-md-4" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '6'; ?>" style="padding-right:5px;">
                             <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
                             <input type="time" step="60" class="form-control input_hora_termino" required disabled>
                             <div class="invalid-feedback"><?php echo $translations['html_error_ending_hour']; ?></div>
                         </div>
-                        <div class="col-md-4 d-flex flex-column align-items-center" align="center">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '0'; ?> d-flex flex-column align-items-center" align="center" <?php echo $multiservicios == 1 ? '' : 'style="display:none!important"'; ?>>
                             <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_options']; ?></label>
                             <button type="button" class="btn btn-outline-dark btn_add_service"><?php echo $translations['html_add_service']; ?></button>
                         </div>
                     </div>
                     <div class="row div_header_labels">
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_service']; ?></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_duration']; ?></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_price']; ?></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 0; ?>" style="padding-right:5px;<?php echo $multiservicios ? '' : 'display:none!important;'; ?>">
                             <label class="col-form-label"><?php echo $translations['html_option']; ?></label>
                         </div>
                     </div>
                     <div class="row div_header_servicios">
                     </div>
                     <div class="row div_header_total border-top" align="center">
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><?php echo $translations['html_totals']; ?>:</label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
                             <label class="col-form-label"><span id="total_duracion">0</span> min</label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
                             <label class="col-form-label total_costo">$<span id ="total_costo">0</span></label>
                         </div>
-                        <div class="col-md-3" style="padding-right:5px;">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 0; ?>" style="padding-right:5px;">
                             
                         </div>
                     </div>
@@ -1024,21 +1028,21 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <div id="template_servicio" class="row" style="display:none;">
-    <div class="col-md-3" style="padding-right:5px;">
+    <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
         <select class="select_servicios_modal" required>
             <option></option>
         </select>
         <div class="invalid-feedback"><?php echo $translations['html_error_service']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;">
+    <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
         <input type="number" class="form-control duracion" required/>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;" align="center">
+    <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;" align="center">
         <span class="costo"></span>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
-    <div class="col-md-3" style="padding-right:5px;" align="center">
+    <div class="col-md-<?php echo $multiservicios ? '3' : 0; ?>" style="padding-right:5px;<?php echo $multiservicios ? '' : 'display:none!important'; ?>" align="center">
         <button type="button" class="btn btn-outline-dark btn_delete_servicio btn-close"></button>
     </div>
 </div>
@@ -4329,25 +4333,36 @@ use App\Library\FuncionesGlobales;
         $("#infoBox").find("#horario").text(horario);
         $("#infoBox").find('#pagada').text($(element).data('pagada') == 1 ? 'Cita pagada' : 'Cita con adeudo');
 
+        let icono_asistencia    = '';
+        let texto_asistencia    = '';
         if ($(element).data('asistencia') == null){
-            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Sin asignar').append('<i class="bi bi-person-fill"></i>');
+            icono_asistencia    = 'bi-person-fill';
+            texto_asistencia    = 'Sin asignar';
         } 
 
         if ($(element).data('asistencia') == 1){
-            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Asistencia').append('<i class="bi bi-person-check-fill"></i>');
+            icono_asistencia    = 'bi-person-check-fill';
+            texto_asistencia    = 'Asistencia';
         }  
         
         if ($(element).data('asistencia') == 2){
-            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Retardo').append('<i class="bi bi-person-fill-exclamation"></i>');
+            icono_asistencia    = 'bi-person-fill-exclamation';
+            texto_asistencia    = 'Retardo';
         }
 
         if ($(element).data('asistencia') == 3){
-            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Actividad en casa').append('<i class="bi bi-house-check-fill"></i>');
+            icono_asistencia    = 'bi-house-check-fill';
+            texto_asistencia    = 'Actividad en casa';
         }
 
         if ($(element).data('asistencia') == 0){
-            $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: Falta').append('<i class="bi bi-person-dash-fill"></i>');
+            icono_asistencia    = 'bi-person-dash-fill';
+            texto_asistencia    = 'Falta';
         }
+
+        $("#infoBox").find('.btn_asistencia').html('').prop('title','Modificar estatus actual: '+texto_asistencia).append('<i class="bi '+icono_asistencia+'"></i>');
+        $("#infoBox").find('.icon_asistencia').removeClass().addClass('icon_asistencia').addClass('bi').addClass(icono_asistencia);
+        $("#infoBox").find('#asistencia').text(texto_asistencia);
 
         $("#infoBox").find(".icon-button")
             .data('idagendacita',$(element).data('idagendacita'))
