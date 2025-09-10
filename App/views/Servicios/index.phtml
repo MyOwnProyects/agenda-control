@@ -341,7 +341,6 @@ use App\Library\FuncionesGlobales;
                 const id        = data['id'];
                 const estatus   = data['activo'];
                 let btn     = $(this);
-                $(btn).prop('disabled',true);
                 
                 let msg = translations['confirm_update'];
                 const respuesta = await window.modalConfirm(msg);
@@ -356,6 +355,7 @@ use App\Library\FuncionesGlobales;
                             accion  : 'change_status',
                             status_actual   : estatus,
                             nuevo_status    : estatus == 1 ? 0 : 1,
+                            servicio        : data['clave'] + ' - ' +data['nombre'],
                             id      : id
                         },
                         success : function(data){
@@ -505,7 +505,7 @@ use App\Library\FuncionesGlobales;
                     obj_info['nombre_old']      = data['nombre'];
                     obj_info['costo_old']       = data['costo'];
                     obj_info['duracion_old']    = data['duracion_minutos'];
-                    obj_info['duracion_old']    = data['codigo_color'];
+                    obj_info['color_old']       = data['codigo_color'];
                 }
 
                 console.log('obj_info');
