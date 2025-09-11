@@ -75,7 +75,7 @@ $di->set('config',function(){
 $di->setShared('session',function(){
     $session    = new Manager();
     $session->setAdapter(new Stream([
-        'savePath' => BASE_PATH.'/public/tmp', // Puedes ajustar el directorio donde se almacenarán las sesiones
+        'savePath' => BASE_PATH.'/storage/sessions', // Puedes ajustar el directorio donde se almacenarán las sesiones
     ]));
     $session->start();
     return $session;
