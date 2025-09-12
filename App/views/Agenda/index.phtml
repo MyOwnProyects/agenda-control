@@ -884,7 +884,7 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <div class="modal fade modal-xl" id="modal_save_class" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-fullscreen-md-down">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="label_modal_agenda_opening"><?php echo FuncionesGlobales::UpperString($translations['html_schedule_an_appointment']); ?></h5>
@@ -4221,6 +4221,11 @@ use App\Library\FuncionesGlobales;
         const $closeModal   = $("#closeModal");
         // Mostrar el modal al pasar el mouse sobre el .flot_cita
         $("#div_append_weeks_container").on("click",'.flot_cita',function () {
+            //  EVENTO PARA REMOVER CLASE DE EXPANDIR
+            const alturaOriginal = $(this).attr('data-height');
+            $(this).css('height', `${alturaOriginal}px`);
+            $(this).removeClass('z-index-top');
+            
             //show_info_cita($(this));
             let div_flot_cita   = $(this);
             let dia_cita        = $(this).data('day');
