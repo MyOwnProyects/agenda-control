@@ -743,7 +743,7 @@ use App\Library\FuncionesGlobales;
         <i class="bi bi-person-fill"></i>&nbsp<span id="profesional"></span>
     </div>
 
-    <div class="event-detail d-flex align-items-center" title="Estatus de cobro">
+    <div class="event-detail d-flex align-items-center" title="Estatus de asistencia">
         <i class="icon_asistencia bi"></i>&nbsp<span id="asistencia"></span>
     </div>
 
@@ -1035,7 +1035,7 @@ use App\Library\FuncionesGlobales;
         <div class="invalid-feedback"><?php echo $translations['html_error_service']; ?></div>
     </div>
     <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
-        <input type="number" class="form-control duracion" required/>
+        <input type="text" class="form-control duracion" disabled required/>
         <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
     </div>
     <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;" align="center">
