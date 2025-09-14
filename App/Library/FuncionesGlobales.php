@@ -172,25 +172,28 @@ class FuncionesGlobales{
             $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 
             //  CONSTRUCCION DE LA RUTA
-            // OBTENER EL CONTENEDOR DE DEPENDENCIAS
-            // OBTENER EL CONTENEDOR DE DEPENDENCIAS
             $di = Di::getDefault(); // Se usa en lugar de $this->getDI()
 
             // OBTENER CONFIGURACIONES
-            $rutas = $di->get('rutas');
-            $config = $di->get('config');
-            $url_api = $config['BASEAPI'];
+            $rutas      = $di->get('rutas');
+            $config     = $di->get('config');
+            $url_api    = $config['BASEAPI'];
+
+            //  INFORMACION DEL NAVEGADOR OBTENIDA DE SESION
+            $session    = $di->get('session');
+            $bfp        = $session->get('bfp');
+            $navegador  = $session->get('navegador');
 
 
             //  CONSTRUCCION DEL ARRAY
-            // $method,$route,$params = null,$headers = null
-
             $arr_params = array(
                 'controlador'   => $controlador,
                 'accion'        => $accion,
                 'mensaje'       => $mensaje,
                 'data'          => $data,
-                'ip_cliente'    => $ipAddress
+                'ip_cliente'    => $ipAddress,
+                'bfp'           => $bfp,
+                'navegador'     => $navegador
             );
 
             $captura    = self::RequestApi('POST',$url_api.$rutas['tbbitacora_movimientos']['create'],$arr_params);

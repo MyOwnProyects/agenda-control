@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agenda Control</title>
+  <title>Control de agenda</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -52,6 +52,9 @@
     $agenda         = \App\Library\FuncionesGlobales::HasAccess('Agenda', 'index');
     $control_citas  = \App\Library\FuncionesGlobales::HasAccess('Controlcitas', 'index');
     $bitacora       = \App\Library\FuncionesGlobales::HasAccess('Bitacora', 'index');
+    $di             = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
+    $session        = $di->getShared('session');
+    $nombre_usuario = $session->has('nombre') ? $session->get('nombre') : '';
   ?>
   <?php
       // Obtén el despachador desde el contenedor de dependencias
@@ -110,7 +113,7 @@
         <!--<main>
           <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">-->
           <div class="rc_brand">
-            <label><small>Agenda</small>Control</label>
+            <label><small>Control de</small>Agenda</label>
             <!--<li class="nav-item <?php echo $currentController == 'Menu' ? 'text-center' : 'text-left'; ?>">-->
               <a id="toggle-aside">
                 <i class="bi <?php echo $currentController == 'Menu' ? 'bi-arrow-left-short' : 'bi-arrow-right-short'; ?>"></i>
@@ -206,6 +209,7 @@
 
       <div class="mc_user_dropdown">
          <div class="dropdown">
+            <label id="show_nombre_usuario"><?php echo $nombre_usuario; ?></label>
             <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="material-icons-round">manage_accounts</span>
             </button>
