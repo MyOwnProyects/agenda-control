@@ -64,9 +64,13 @@ body.modal-open .r_container > main.main_content {overflow: hidden;}
 .rc_brand > a {cursor: pointer; font-size: 28px; color: #fff !important;}
 .rc_brand > a > i {font-size: inherit;}
 
-.mc_user_dropdown {position: absolute; top: 1em; right: 1em; z-index: 2;}
+.mc_user_dropdown {position: absolute; top: 1em; right: 1em; z-index: 2; align-items: center;}
+/* PARA MOSTRAR NOMBRE DEL USUARIO A LA IZQUIERDA DEL BOTON DE MI PERFIL */
+.mc_user_dropdown > .dropdown {display: flex;align-items: center;gap: 10px;}
+#show_nombre_usuario {font-weight: 500;color: #333;margin-bottom: 0;}
+
 .mc_user_dropdown > div {}
-.mc_user_dropdown > div > button {padding: 0; height: 40px; width: 40px; border-radius: 10px; display: flex ; align-items: center;
+.mc_user_dropdown > div > button {order: 2;padding: 0; height: 40px; width: 40px; border-radius: 10px; display: flex ; align-items: center;
   justify-content: center;}
 .mc_user_dropdown > div > button:after {display: none;}
 .mc_user_dropdown > div > button > span {font-size: 24px; margin-left: 2px;}
