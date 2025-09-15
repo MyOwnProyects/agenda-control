@@ -73,7 +73,7 @@ class LoginController extends Controller
                     return $response;
                 }
 
-                $tmp_navegador  = $this->get_browser_info($_SERVER['HTTP_USER_AGENT']);
+                $navegador  = $this->get_browser_info($this->request->getUserAgent());
 
                 $this->session->set("clave",$request[0]['clave']);
                 $this->session->set("primer_apellido",$request[0]['primer_apellido']);
@@ -84,7 +84,7 @@ class LoginController extends Controller
                 $this->session->set("permisos",array());
                 $this->session->set("language",'es');
                 $this->session->set("bfp",$bfp);
-                $this->session->set("navegador",$this->get_browser_info($_SERVER['HTTP_USER_AGENT']));
+                $this->session->set("navegador",$navegador);
 
                 //  CREACION DE SESION
                 $route      = $this->url_api.$this->rutas['ctusuarios']['get_info_usuario'];
@@ -95,7 +95,7 @@ class LoginController extends Controller
 
                 $this->session->set("permisos",$request['permisos']);
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'ACCESO','Acceso a plataforma',array());
+                FuncionesGlobales::saveBitacora($this->bitacora,'ACCESO','Acceso a plataforma usando: '.$navegador,array());
 
                 $response->setStatusCode(200, "OK");
                 $response->setJsonContent([
