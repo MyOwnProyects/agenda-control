@@ -33,3 +33,6 @@ Thumbs.db
 
 # CARPETA DE SESIONES
 /storage/sessions
+
+# IGNORA CONFIG
+/App/config/config.php
