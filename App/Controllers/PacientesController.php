@@ -156,10 +156,7 @@ class PacientesController extends BaseController
                 $result = FuncionesGlobales::RequestApi('POST',$route,array(
                     'id_paciente'   => $_POST['id_paciente'],
                     'id_locacion'   => $_POST['id_locacion'],
-                    'obj_info'      => $_POST['obj_info'],
-                    'generar_citas' => $_POST['generar_citas'],
-                    'fecha_inicio'  => $_POST['fecha_inicio'],
-                    'fecha_termino' => $_POST['fecha_termino'],
+                    'obj_info'      => $_POST['obj_info']
                 )); 
                 
                 $response = new Response();
@@ -174,7 +171,7 @@ class PacientesController extends BaseController
                 $servicios  = count($_POST['obj_info']);
                 $msg_generar_citas  = '';
 
-                if ($_POST['generar_citas']){
+                if (isset ($_POST['generar_citas']) && $_POST['generar_citas']){
                     $msg_generar_citas  = ', y se programaron citas desde el ' . $_POST['fecha_inicio'].' Al '.$_POST['fecha_termino'];
                 }
 
@@ -353,7 +350,7 @@ class PacientesController extends BaseController
 
                 //  INFORMACION DE LOS SERVICIOS
                 $route                      = $this->url_api.$this->rutas['ctservicios']['show'];
-                $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $info_paciente['id_locacion_registro']));
+                $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
 
                 $response = new Response();
                 if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($arr_return['all_services']) == 0){
@@ -424,9 +421,6 @@ class PacientesController extends BaseController
                     'id_paciente'   => $_POST['id_paciente'],
                     'id_locacion'   => $_POST['id_locacion'],
                     'obj_info'      => $_POST['obj_info'],
-                    'generar_citas' => $_POST['generar_citas'],
-                    'fecha_inicio'  => $_POST['fecha_inicio'],
-                    'fecha_termino' => $_POST['fecha_termino'],
                     'id_cita_programada_servicio_horario'   => $_POST['id_cita_programada_servicio_horario'] ?? null
                 )); 
                 
@@ -442,7 +436,7 @@ class PacientesController extends BaseController
                 $servicios  = count($_POST['obj_info']);
                 $msg_generar_citas  = '';
 
-                if ($_POST['generar_citas']){
+                if (isset($_POST['generar_citas']) && $_POST['generar_citas']){
                     $msg_generar_citas  = ', y se programaron citas desde el ' . $_POST['fecha_inicio'].' Al '.$_POST['fecha_termino'];
                 }
 
