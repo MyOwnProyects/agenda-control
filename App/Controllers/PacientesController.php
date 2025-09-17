@@ -574,4 +574,24 @@ class PacientesController extends BaseController
         return $citas_paciente;
     }
 
+    public function deleteAction(){
+        if ($this->request->isAjax()){
+            $route  = $this->url_api.$this->rutas['ctpacientes']['delete'];
+            $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+            $response = new Response();
+
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
+                return $response;
+            }
+
+            FuncionesGlobales::saveBitacora($this->bitacora,'ELIMINAR','Se elimino el registro del paciente: '.$_POST['nombre_completo'],$_POST);
+
+            $response->setJsonContent('Borrado exitoso');
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+    }
+
 }

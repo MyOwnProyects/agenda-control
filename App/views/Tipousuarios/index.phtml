@@ -352,6 +352,13 @@ var mod_tipo_usuario    = (function(){
                 $(btn).prop('disabled',false);
             }
         });
+
+        //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+        $(document).on('keydown', function(e) {
+            if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                $("#btnBuscar").trigger('click');
+            }
+        });
     });
 
     //  FUNCION PARA MOSTRAR MODAL DE CREACION
