@@ -469,8 +469,9 @@ class PacientesController extends BaseController
                 }
 
                 $nombre     = $_POST['nombre_completo'];
+                $label_cita = $_POST['label_servicio'].' el día '.$_POST['label_horario'];
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CITA PROGRAMADA','Se creo/modifico el registro de citas programadas para el paciente: '.$nombre.' el cual tendrá '.$servicios.' servicios programados'.$msg_generar_citas,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CITA PROGRAMADA','Se elimino el registro de cita programada para el paciente: '.$nombre.' la cual era: '.$label_cita,$_POST);
 
                 $response->setJsonContent('Captura exitosa');
                 $response->setStatusCode(200, 'OK');

@@ -2526,7 +2526,7 @@ use App\Library\FuncionesGlobales;
         console.log('spanCount spanCount',spanCount);
         if (spanCount > 1) {
             const alturaOriginal = height;
-            const alturaExpandida = alturaOriginal + (spanCount - 1) * 18; // Ajusta 18px por línea adicional
+            const alturaExpandida = alturaOriginal + (spanCount - 1) * 28; // Ajusta 18px por línea adicional
 
             $floatingBox
                 .attr('data-height-expandido', alturaExpandida)
@@ -4198,12 +4198,22 @@ use App\Library\FuncionesGlobales;
             console.log('aqui 1');
             const nuevaAltura = $(this).attr('data-height-expandido');
             $(this).css('height', `${nuevaAltura}px`);
+
+            //  ANCHO X2 PARA MEJORAR LA VISUALIZACION
+            const anchoActual = $(this).width(); // obtiene el ancho actual
+            $(this).attr('data-width-original',anchoActual);
+            const nuevoAncho = anchoActual * 2;  // lo multiplica por 2
+            $(this).css('width', `${nuevoAncho}px`); // lo asigna al elemento
             $(this).addClass('z-index-top');
         });
 
         $("#div_append_weeks_container").on('mouseleave', '.expand-on-hover', function() {
             const alturaOriginal = $(this).attr('data-height');
             $(this).css('height', `${alturaOriginal}px`);
+
+            //  REGRESAR ANCHO
+            const nuevoAncho = $(this).attr('data-width-original');
+            $(this).css('width', `${nuevoAncho}px`); // lo asigna al elemento
             $(this).removeClass('z-index-top');
         });
 
@@ -4225,6 +4235,10 @@ use App\Library\FuncionesGlobales;
             const alturaOriginal = $(this).attr('data-height');
             $(this).css('height', `${alturaOriginal}px`);
             $(this).removeClass('z-index-top');
+
+            //  EPARA REMOVER ANCHO
+            const ancho_original    = $(this).attr('data-width-original');
+            $(this).css('width', `${ancho_original}px`); // lo asigna al elemento
             
             //show_info_cita($(this));
             let div_flot_cita   = $(this);
