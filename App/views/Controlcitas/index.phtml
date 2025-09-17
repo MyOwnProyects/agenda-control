@@ -2409,7 +2409,12 @@ use App\Library\FuncionesGlobales;
                 $("#btnBuscar").trigger('click');
             }
             
-            
+            //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+            $(document).on('keydown', function(e) {
+                if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                    $("#btnBuscar").trigger('click');
+                }
+            });
         });
 
         function show_hours(header_agenda, div_days, min_hora_inicio, max_hora_inicio, profesionales, horario_no_disponible_prof = null, intervalo_citas){

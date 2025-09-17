@@ -449,6 +449,37 @@ use App\Library\FuncionesGlobales;
                 show_modal_creacion($(this).closest('tr').data('rowData'));
             });
 
+            $("#table_results").on('click','.btn_delete',async function(){
+                const data  = $(this).closest('tr').data('rowData');
+                console.log('data',data);
+
+                if (data['estatus'] == 1){
+                    showAlert('danger','El paciente solo puede ser borrado si esta en estatus de INACTIVO');
+                    return false;
+                }
+                
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                if (respuesta){
+                    $.ajax({
+                        url     : url_delete,
+                        method  : 'post',
+                        data    : {
+                            id_paciente     : data['id'],
+                            nombre_completo : data['nombre_completo']
+                        },
+                        success : function(data){
+                            showAlert('success',data);
+                            $("#btnBuscar").trigger('click');
+                        },
+                        error   : function(error){
+                            console.log('error',error);
+                            showAlert('danger',error.responseText);
+                        }
+                    })
+                }
+            });
+
             $("#table_results").on('click','.btn_preview',function(){
                 show_modal_creacion($(this).closest('tr').data('rowData'),true);
             });
@@ -459,6 +490,13 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
                 show_modal_diagnoses($(this).closest('tr').data('rowData'));
+            });
+
+            //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+            $(document).on('keydown', function(e) {
+                if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                    $("#btnBuscar").trigger('click');
+                }
             });
         });
 

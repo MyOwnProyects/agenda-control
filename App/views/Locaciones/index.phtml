@@ -493,6 +493,13 @@ use App\Library\FuncionesGlobales;
                     }
                 });
             });
+
+            //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+            $(document).on('keydown', function(e) {
+                if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                    $("#btnBuscar").trigger('click');
+                }
+            });
         });
 
         function showModal(data = null,preview = null){
