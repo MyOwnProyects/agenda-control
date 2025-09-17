@@ -1025,6 +1025,9 @@ let module_schedule_appointments    = (function(){
             const btn   = $(this);
             const id_cita_programada_servicio_horario   = $(this).data('idcitaprogramadaserviciohorario');
             const respuesta = await window.modalConfirm(translations['confirm_delete']);
+            const label_servicio    = $("#infoBox").find("#servicio").text();
+            const label_dia         = $("#infoBox").find("#dia").text();
+            const label_horario     = $("#infoBox").find("#horario").text();
             if (respuesta){
                 $.ajax({
                     url     : url_scheduleappointments,
@@ -1032,7 +1035,9 @@ let module_schedule_appointments    = (function(){
                     data    : {
                         accion : 'delete_program_date',
                         id_cita_programada_servicio_horario : id_cita_programada_servicio_horario,
-                        nombre_completo : nombre_completo
+                        nombre_completo : nombre_completo,
+                        label_servicio  : label_servicio,
+                        label_horario   : label_dia+' '+label_horario
                     },
                     success : function(data){
                         console.log('data aqui');
