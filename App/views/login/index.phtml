@@ -117,5 +117,12 @@
                 $('.eye_button').addClass('bi-eye');
             }
         });
+
+        //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+        $(document).on('keydown', function(e) {
+            if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                $("#loginForm").trigger('click');
+            }
+        });
     });
 </script>
