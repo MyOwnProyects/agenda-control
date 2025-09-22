@@ -112,25 +112,25 @@ class LocacionesController extends BaseController
         }
     }
 
-    public function deleteAction(){
-        if ($this->request->isAjax()){
-            $route  = $this->url_api.$this->rutas['ctlocaciones']['delete'];
-            $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
-            $response = new Response();
+    // public function deleteAction(){
+    //     if ($this->request->isAjax()){
+    //         $route  = $this->url_api.$this->rutas['ctlocaciones']['delete'];
+    //         $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+    //         $response = new Response();
 
-            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
-                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
-                $response->setStatusCode(404, 'Error');
-                return $response;
-            }
+    //         if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+    //             $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+    //             $response->setStatusCode(404, 'Error');
+    //             return $response;
+    //         }
 
-            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino la locacion '.$_POST['clave'].' - '.$_POST['nombre'],$_POST);
+    //         FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino la locacion '.$_POST['clave'].' - '.$_POST['nombre'],$_POST);
 
-            $response->setJsonContent('Captura exitosa');
-            $response->setStatusCode(200, 'OK');
-            return $response;
-        }
-    }
+    //         $response->setJsonContent('Captura exitosa');
+    //         $response->setStatusCode(200, 'OK');
+    //         return $response;
+    //     }
+    // }
 
     public function updateAction(){
         if ($this->request->isAjax()){
@@ -150,7 +150,8 @@ class LocacionesController extends BaseController
                 }
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se CREO/MODIFICO el horario de atención de la locacion: Clave :'.$_POST['clave'].' - '.$_POST['nombre'],$_POST['obj_info']);
-
+                FuncionesGlobales::deleteCache('info_location_'.$_POST['id']);
+                
                 $response->setJsonContent('Captura exitosa');
                 $response->setStatusCode(200, 'OK');
                 return $response;
@@ -185,6 +186,8 @@ class LocacionesController extends BaseController
             $servicios_old      = isset($_POST['servicios_old']) ? count($_POST['servicios_old']) : 0;
             $lista_servicios    = isset($_POST['lista_servicios']) ? count($_POST['lista_servicios']) : 0;
             FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito la locacion: Clave :'.$_POST['clave_old'].' por '.$_POST['clave'].' con nombre: '.$_POST['nombre_old'].' anteriormente tenia '.$servicios_old.' servicios, ahora cuenta con '.$lista_servicios.' servicios',$_POST);
+
+            FuncionesGlobales::deleteCache('info_location_'.$_POST['id']);
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');

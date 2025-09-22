@@ -98,6 +98,7 @@ class ServiciosController extends BaseController
             }
 
             FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el servicio: '.$_POST['clave'].' - '.$_POST['nombre'].' con un costo de : $'.$_POST['costo'].' y una duracion en Minutos: '.$_POST['duracion'],$_POST);
+            FuncionesGlobales::deleteCacheByPattern('info_location_');
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
@@ -118,6 +119,7 @@ class ServiciosController extends BaseController
             }
 
             FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se elimino el Servicio '.$_POST['data_bitacora']['clave'].' - '.$_POST['data_bitacora']['nombre'],$_POST['data_bitacora']);
+            FuncionesGlobales::deleteCacheByPattern('info_location_');
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
@@ -141,7 +143,8 @@ class ServiciosController extends BaseController
                 $estatus_actual = $_POST['status_actual'] == 1 ? 'ACTIVO' : 'INACTIVO';
                 $nuevo_estatus  = $_POST['nuevo_status'] == 1 ? 'ACTIVO' : 'INACTIVO';
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del servicio: '.$_POST['servicio'].' de '.$estatus_actual.' a '.$nuevo_estatus  ,$_POST);
-
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
+                
                 $response->setJsonContent('Edición exitosa');
                 $response->setStatusCode(200, 'OK');
                 return $response;
@@ -158,7 +161,7 @@ class ServiciosController extends BaseController
             }
             
             FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el servico con Clave :'.$_POST['clave_old'].' por '.$_POST['clave'].' con nombre: '.$_POST['nombre_old'].' por '.$_POST['nombre_old'].' con costo: '.$_POST['costo_old'].' a '.$_POST['costo'].' con duracion: '.$_POST['duracion_old'].' a '.$_POST['duracion'].' con color de'.$_POST['color_old'].' por '.$_POST['codigo_color'] ,$_POST);
-
+            FuncionesGlobales::deleteCacheByPattern('info_location_');
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');

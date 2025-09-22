@@ -31,8 +31,8 @@ Thumbs.db
 # ARCHIVOS PARA PRUEBAS
 /public/html_test.phtml
 
-# CARPETA DE SESIONES
-/storage/sessions
+# CARPETA STORAGE
+/storage/
 
 # IGNORA CONFIG
 /App/config/config.php
