@@ -1584,23 +1584,29 @@ use App\Library\FuncionesGlobales;
     }
 
     function sumarUnMinuto(hora, minutosASumar = 1) {
-        // Dividir la hora en horas y minutos
         let [horas, minutos] = hora.split(":").map(Number);
 
-        // Sumar los minutos
         minutos += Number(minutosASumar);
 
-        // Calcular cuántas horas extra hay y ajustar
-        horas += Math.floor(minutos / 60);
-        minutos = minutos % 60;
+        // Ajustar minutos negativos o mayores a 59
+        while (minutos < 0) {
+            minutos += 60;
+            horas -= 1;
+        }
+        while (minutos >= 60) {
+            minutos -= 60;
+            horas += 1;
+        }
 
-        // Ajustar formato de dos dígitos
-        horas = horas % 24; // Opcional, si quieres mantenerlo en formato 24 hrs
+        // Ajustar horas dentro de 0-23
+        horas = (horas + 24) % 24;
+
         let horasFormateadas = horas.toString().padStart(2, "0");
         let minutosFormateados = minutos.toString().padStart(2, "0");
 
         return `${horasFormateadas}:${minutosFormateados}`;
     }
+
 
     // Función para cambiar el día (anterior o siguiente)
     function cambiarDia(dias, nueva_fecha, div_header) {
@@ -2069,12 +2075,27 @@ use App\Library\FuncionesGlobales;
                 rango_fechas    : rango_semana_actual
             },
             success : function(data){
-                console.log('data info 1');
-                console.log(data);
+                try {
+                    console.log('data info 1', typeof data);
+
+                    // Si es objeto, conviértelo a string seguro
+                    if (typeof data === 'object') {
+                        console.log('keys:', Object.keys(data));
+                        console.log('primeras 3 claves:', Object.keys(data).slice(0, 3));
+                        console.log('json seguro:', JSON.stringify(data).slice(0, 500));
+                    } else {
+                        console.log('texto:', data.slice(0, 500));
+                    }
+
+                    console.log('pase info 1');
+                } catch (err) {
+                    console.error('Error procesando data', err, data);
+                }
                 if (modal_clone == null){
+                    console.log('data info '+1);
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;
-                    
+                    console.log('data info '+2);
                     if (refresh_filtros != null){
                          //  SE LLENAN LOS SELECTS
                         $(".div_append_label_servicios").html('');
@@ -2109,11 +2130,11 @@ use App\Library\FuncionesGlobales;
                         $("#select_profesionales").find('option').remove();
                         $("#select_profesionales").append(options);
                     }
-
+                    console.log('data info '+3);
                     // $(modal_clone).find('.floating-box').remove();
                     setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
                 } else {
-                    console.log('data info 1');
+                    console.log('segundo data info 1');
                     console.log(data);
                     let diaActual               = fechaActual.getDay();
                     diaActual                   = diaActual == 0 ? 7 : diaActual;
@@ -2721,8 +2742,10 @@ use App\Library\FuncionesGlobales;
         console.log('inicio calulcar',input_hora_inicio);
         console.log('termino calulcar',$(modal_clone).find('.input_hora_termino').val())
         if ($(modal_clone).find('.input_hora_inicio').val() != null && $(modal_clone).find('.input_hora_inicio').val() != '' && has_servicio){
+            console.log('-------    inicio --------------');
             console.log('parametros verificar',modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
             let hora_inicio = verificarHoraInicio(modal_clone,input_hora_inicio,sumarUnMinuto(input_hora_inicio,total_duracion),id_agenda_cita,total_duracion,false);
+            console.log('-------    fin --------------');
             if (hora_inicio['excede_horario'] == true){
                 console.log('hora_inicio dentro if',hora_inicio,id_agenda_cita);
                 showAlert('danger','El valor ingresado esta fuera del horario de atenci&oacute;n');
@@ -2843,10 +2866,12 @@ use App\Library\FuncionesGlobales;
                 console.log('clases element',$(element).attr('class'),$(element).data('horainicio'),$(element).data('horatermino'),$(element).closest('.div_header_days_container').attr('id'),$(element).data('idagendacita'),id_agenda_cita);
 
                 if (!$(element).hasClass('no_disponible') && $(element).data('idagendacita') != "undefined" && $(element).data('idagendacita') == id_agenda_cita) {
+                    console.log('clases element return true');
                     return true;
                 }
 
                 if ($(element).closest('.div_header_days_container').hasClass('hide')){
+                    console.log('clases element return true');
                     return true;
                 }
 
@@ -2888,6 +2913,13 @@ use App\Library\FuncionesGlobales;
 
                 // Verificar empalme máximo
                 if (hora_inicio_header <= hora_inicio_mas_margen && hora_termino_header >= hora_termino_menos_margen) {
+                    console.log('hora_inicio_header',hora_inicio_header);
+                    console.log('hora_inicio_mas_margen',hora_inicio_mas_margen);
+                    console.log('hora_termino_header',hora_termino_header);
+                    console.log('hora_termino_menos_margen',hora_termino_menos_margen);
+                    console.log('funcion 1',sumarUnMinuto(hora_termino_str, -margen_minutos_empalmado),hora_termino_str,-margen_minutos_empalmado);
+                    console.log('regla 1 ',hora_inicio_header <= hora_inicio_mas_margen);
+                    console.log('regla 2 ',hora_termino_header >= hora_termino_menos_margen)
                     console.log('empalmado maximo');
                     flag_empalmados = true;
                     hora_inicio_header = hora_termino;
@@ -3048,8 +3080,14 @@ use App\Library\FuncionesGlobales;
             $(div_clone).find('.select_servicios_modal').append('<option></option>');
             for(let i in info_profesional['servicios']){
                 let service = info_profesional['servicios'][i];
+                console.log('servicio info',service);
 
-                let option  = '<option value="'+service["id_servicio"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'" data-codigocolor="'+service['codigo_color'] +'">'+service["nombre"]+'</option>'
+                if (id_agenda_cita == null && service['activo'] != 1){
+                    continue;
+                }
+
+                let not_active  = service['activo'] != 1 ? 'disabled' : '';
+                let option  = '<option value="'+service["id_servicio"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'" data-codigocolor="'+service['codigo_color'] +'" '+not_active+'>'+service["nombre"]+'</option>'
                 $(div_clone).find('.select_servicios_modal').append(option);
 
             }
