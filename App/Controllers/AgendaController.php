@@ -302,33 +302,48 @@ class AgendaController extends BaseController
     }
 
     function get_info_by_location(){
-        $arr_return = array(
-            'horario_atencion'  => array()
-        );
-        $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-        $horario_atencion   = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+        $cacheKey   = 'info_location_'.$_POST['id_locacion'];
 
-        $response = new Response();
+        $arr_return = FuncionesGlobales::searchCache($cacheKey);
+        $horario_atencion   = array();
 
-        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion) == 0){
-            return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
+        if ($arr_return == null){
+            $arr_return = array(
+                'horario_atencion'  => array()
+            );
+            $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
+            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+            $horario_atencion               = $arr_return['horario_atencion'];
+
+            $response = new Response();
+
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400) || count($horario_atencion) == 0){
+                return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
+            }
+
+            $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
+            $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
+            $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
+
+            //  SE BUSCA LA ULTIMA FECHA DISPONIBLE ANTES DEL CIERRE DE AGENDA
+            $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
+            $arr_return['cierre_agenda']    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+            //  INFORMACION DE LOS SERVICIOS
+            $route                      = $this->url_api.$this->rutas['ctservicios']['show'];
+            $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+
+            // INFORMACION DE LOS PROFESIONALES
+            $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
+            $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+
+            FuncionesGlobales::saveCache($cacheKey,$arr_return);
+        } else {
+            $arr_return = FuncionesGlobales::cacheToArray($arr_return);
+            $horario_atencion   = $arr_return['horario_atencion'];
         }
 
-        $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
-        $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
-        $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
-
-        //  SE BUSCA LA ULTIMA FECHA DISPONIBLE ANTES DEL CIERRE DE AGENDA
-        $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
-        $arr_return['cierre_agenda']    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
-
-        //  INFORMACION DE LOS SERVICIOS
-        $route                      = $this->url_api.$this->rutas['ctservicios']['show'];
-        $arr_return['all_services'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
-
-        // INFORMACION DE LOS PROFESIONALES
-        $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
-        $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+        $arr_return['horario_atencion'] = array();
 
         //  SE BUSCAN LAS CITAS AGENDADAS EN EL RANGO DE FECHAS
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];

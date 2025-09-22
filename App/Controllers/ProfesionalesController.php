@@ -172,6 +172,7 @@ class ProfesionalesController extends BaseController
                 }
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
             } 
 
             if (!empty($accion) && $accion == 'save_edit'){
@@ -198,6 +199,7 @@ class ProfesionalesController extends BaseController
                     'new_data'  => $_POST
                 );
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el profesional: '.$_POST['current_clave'],$arr_save);
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
             }
 
             //  RUTA PARA GUARDAR EL HORARIO DE ATENCION
@@ -213,6 +215,7 @@ class ProfesionalesController extends BaseController
                 }
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se CREO/MODIFICO el horario de atención del profesional: Clave :'.$_POST['clave'].' - '.$_POST['nombre'].' para la locación: '.$_POST['locacion'],$_POST['obj_info']);
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
 
                 $response->setJsonContent('Captura exitosa');
                 $response->setStatusCode(200, 'OK');

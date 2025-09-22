@@ -475,5 +475,141 @@ class FuncionesGlobales{
         return $cita_locacion;
     }
 
+    // Crear función helper
+    public static function cacheToArray($data)
+    {
+        $aqui = 1;
+        if (is_null($data)) {
+            return null;
+        }
+        
+        // Si es array, recorrer cada elemento recursivamente
+        if (is_array($data)) {
+            $result = [];
+            foreach ($data as $key => $value) {
+                $result[$key] = SELF::cacheToArray($value); // Llamada recursiva
+            }
+            return $result;
+        }
+        
+        // Si es objeto
+        if (is_object($data)) {
+            // Si es stdClass, convertir a array
+            if ($data instanceof \stdClass) {
+                $array = (array) $data;
+                // Recorrer recursivamente cada propiedad
+                $result = [];
+                foreach ($array as $key => $value) {
+                    $result[$key] = SELF::cacheToArray($value); // Llamada recursiva
+                }
+                return $result;
+            }
+            
+            // Si es modelo o resultset de Phalcon
+            if (method_exists($data, 'toArray')) {
+                $array = $data->toArray();
+                // Recorrer recursivamente por si hay objetos anidados
+                return SELF::cacheToArray($array);
+            }
+            
+            // Para otros tipos de objeto, convertir a array y procesar recursivamente
+            $array = (array) $data;
+            $result = [];
+            foreach ($array as $key => $value) {
+                $result[$key] = SELF::cacheToArray($value); // Llamada recursiva
+            }
+            return $result;
+        }
+        
+        // Si es un tipo primitivo (string, int, float, bool)
+        return $data;
+    }
+
+    /*  FUNCION PARA BUSCAR EL ARCHIVO CACHE
+        
+        @PARAM  $cacheKey   (String)    Nombre del archivo cache
+        RETURN CLASS/NULL
+    */
+    public static function searchCache($cacheKey){
+        try{
+
+            $di = Di::getDefault();
+            $cache  = $di->get('cache');
+            return $cache->get($cacheKey);
+
+        }catch(\Exception $e){
+            return null;
+        }
+    }
+
+    /*  FUNCION PARA GUARDAR LA INFORMACION EN EL ARCHIVO CACHE
+        
+        @PARAM  $cacheKey   (String)    Nombre del archivo cache
+        @PARAM  $data       (Array)     Array con la informacion a guardar
+        RETURN TRUE
+    */
+    public static function saveCache($cacheKey,$data){
+
+        try{
+
+            $di     = Di::getDefault();
+            $cache  = $di->get('cache');
+            $cache->set($cacheKey, $data);
+            return true;
+
+        }catch(\Exception $e){
+            return null;
+        }
+    }
+
+    /*  FUNCION PARA BORRAR LA INFORMACION DE UN ARCHIVO CACHE
+        
+        @PARAM  $cacheKey   (String)    Nombre del archivo cache
+        RETURN TRUE
+    */
+    public static function deleteCache($cacheKey){
+        try{
+            $di     = Di::getDefault();
+            $cache  = $di->get('cache');
+            $cache->delete($cacheKey);
+            return true;
+        }catch(\Exception $e){
+            return null;
+        }
+    }
+
+    /*  FUNCION PARA BORRAR LA INFORMACION DE UN ARCHIVO CACHE QUE
+        CONCUERDE CON LA VARIABLE PATTERN
+        
+        @PARAM  $cacheKey   (String)    Nombre del archivo cache
+        RETURN TRUE
+    */
+    public static function deleteCacheByPattern(string $pattern): bool
+    {
+        try {
+            $storageDir = BASE_PATH . '/storage/cache/';
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($storageDir, \FilesystemIterator::SKIP_DOTS)
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $filename = $file->getFilename();
+
+                    if (strpos($filename, $pattern) !== false) {
+                        @unlink($file->getPathname());
+                    }
+                }
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+
 
 }

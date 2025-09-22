@@ -7,7 +7,9 @@ use Phalcon\Mvc\Url as UrlProvider;
 use Phalcon\Http\Response;
 use Phalcon\Http\Request;
 use Phalcon\Session\Manager;
-use Phalcon\Session\Adapter\Stream;
+use Phalcon\Session\Adapter\Stream as SessionStream;  // ✅ Alias para sesiones
+use Phalcon\Storage\Adapter\Stream as CacheStream;    // ✅ Alias para caché
+use Phalcon\Storage\SerializerFactory;
 
 // Create a DI
 $di = new FactoryDefault();
@@ -74,9 +76,29 @@ $di->set('config',function(){
 // CREACION DE INSTANCIA DE SESION
 $di->setShared('session',function(){
     $session    = new Manager();
-    $session->setAdapter(new Stream([
+    $session->setAdapter(new SessionStream([
         'savePath' => BASE_PATH.'/storage/sessions', // Puedes ajustar el directorio donde se almacenarán las sesiones
     ]));
     $session->start();
     return $session;
+});
+
+// US ODE CACHE
+//  86400 24 horas
+//  259200 3 días
+//  604800 7 días
+//  2592000 30 días
+// Configuración de CACHÉ (nueva)
+$di->setShared('cache', function () {
+    $serializerFactory = new SerializerFactory();
+    
+    $options = [
+        'storageDir' => BASE_PATH . '/storage/cache/',
+        'defaultSerializer' => 'Json',
+        'lifetime' => 604800,
+        'prefix' => '',  // ✅ Sin prefijo = sin carpeta app_
+        'suffix' => '.cache'  // ✅ Añadir extensión .cache
+    ];
+    
+    return new CacheStream($serializerFactory, $options);
 });

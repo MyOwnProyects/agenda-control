@@ -2754,18 +2754,23 @@ use App\Library\FuncionesGlobales;
         }
 
         function sumarUnMinuto(hora, minutosASumar = 1) {
-            // Dividir la hora en horas y minutos
             let [horas, minutos] = hora.split(":").map(Number);
 
-            // Sumar los minutos
             minutos += Number(minutosASumar);
 
-            // Calcular cuántas horas extra hay y ajustar
-            horas += Math.floor(minutos / 60);
-            minutos = minutos % 60;
+            // Ajustar minutos negativos o mayores a 59
+            while (minutos < 0) {
+                minutos += 60;
+                horas -= 1;
+            }
+            while (minutos >= 60) {
+                minutos -= 60;
+                horas += 1;
+            }
 
-            // Ajustar formato de dos dígitos
-            horas = horas % 24; // Opcional, si quieres mantenerlo en formato 24 hrs
+            // Ajustar horas dentro de 0-23
+            horas = (horas + 24) % 24;
+
             let horasFormateadas = horas.toString().padStart(2, "0");
             let minutosFormateados = minutos.toString().padStart(2, "0");
 
