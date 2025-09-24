@@ -8,7 +8,8 @@ return [
         'change_status'     => "/ctusuarios/change_status",
         'delete'            => "/ctusuarios/delete",
         'update'            => "/ctusuarios/update",
-        'count'             => "/ctusuarios/count"
+        'count'             => "/ctusuarios/count",
+        'change_password'   => '/ctusuarios/change_password'
     ],
     'cttipo_usuarios'   => array(
         'show'      => '/cttipo_usuarios/show',

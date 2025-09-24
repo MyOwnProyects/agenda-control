@@ -177,6 +177,8 @@ return [
     'html_module'                               => 'Modulo',
     'html_movement_log'                         => 'Bitacora de movimientos',
     'html_log'                                  => 'Bitacora',
+    'html_change_password'                      => 'Cambiar contraseña',
+    'html_new_password'                         => 'Nueva contrase&ntilde;a',
     
 
 
