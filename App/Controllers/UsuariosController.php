@@ -48,6 +48,7 @@ class UsuariosController extends BaseController
                         "data"              => $result
                     );
                 } else {
+                    $_POST['fromCatalog']   = 1;
                     $route  = $this->url_api.$this->rutas['ctusuarios']['show'];
                     $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
             
@@ -195,6 +196,19 @@ class UsuariosController extends BaseController
                 }
                 $info   = $_POST['info'];
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el usuario: Celular antiguo :'.$info['clave'].' por '.$_POST['obj_info']['clave'],$_POST);
+            }
+
+            if (!empty($accion) && $accion == 'change_password'){
+                $route  = $this->url_api.$this->rutas['ctusuarios']['change_password'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                FuncionesGlobales::saveBitacora($this->bitacora,'CAMBIOCONTRASENA','Se editó la contraseña del usuario: '.$_POST['clave'],array());
             }
 
 
