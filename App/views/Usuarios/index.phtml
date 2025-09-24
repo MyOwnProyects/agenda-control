@@ -164,7 +164,7 @@ use App\Library\FuncionesGlobales;
                     </div>
                 </div>
             </div>
-            <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                 </svg>
@@ -198,6 +198,49 @@ use App\Library\FuncionesGlobales;
     <span class="span_accion"></span>
 </label>
 
+<div class="modal fade" id="modal_change_password" tabindex="-1" aria-labelledby="modal_change_password" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_change_password"><?php echo FuncionesGlobales::UpperString($translations['html_change_password']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-12 ">
+                    <label for="label_nombre" class="col-form-label"><?php echo $translations['html_user']; ?></label><br>
+                    <span id="span_nombre_usuario"></span>
+                </div>
+                <div class="col-md-6 div_contrasena">
+                    <label for="input_contrasena" class="col-form-label"><?php echo $translations['html_password']; ?></label>
+                    <input type="password" class="form-control" id="input_contrasena" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_password']; ?></div>
+                </div>
+                <div class="col-md-6 div_contrasena">
+                    <label for="input_confirmar_contrasena" class="col-form-label"><?php echo $translations['html_confirm_password']; ?></label>
+                    <input type="password" class="form-control" id="input_confirmar_contrasena" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_second_password']; ?></div>
+                </div>
+            </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     let modulo_usuarios = (function(){
         let draw            = 1;
@@ -229,7 +272,10 @@ use App\Library\FuncionesGlobales;
             title_delete    : "<?= $translations['html_delete_record'] ?>",
             title_preview   : "<?= $translations['html_preview_record'] ?>",
             title_change    : "<?= $translations['html_active_deactivate'] ?>",
-            confirm_delete  : "<?= $translations['html_confirm_delete']?>"
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            change_password     : "<?= $translations['html_change_password']?>",
+            new_password        : "<?= $translations['html_new_password']?>",
+            confirm_password    : "<?= $translations['html_confirm_password']?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -298,6 +344,9 @@ use App\Library\FuncionesGlobales;
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
+                                '</button>'  +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_password" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['change_password'] +'">' +
+                                    '<i class="bi bi-lock-fill"></i>'+
                                 '</button>'
                                 
                                 : '';
@@ -315,7 +364,11 @@ use App\Library\FuncionesGlobales;
                                 return btn_preview + btn_update + btn_delete;
                             }
                         }
-                    ]
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
+                    }
                 });
             } else {
                 draw    ++;
@@ -446,6 +499,11 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_change_password',function(){
+                show_modal_change_password($(this).closest('tr').data('rowData'));
+            });
+
             //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
             $(document).on('keydown', function(e) {
                 if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
@@ -556,26 +614,26 @@ use App\Library\FuncionesGlobales;
                     }
 
                     if ($(modal_clone).find('.div_header_permisos').find('.check_sublist:checked').length == 0){
-                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['sin_permisos']);
-                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['sin_permisos']);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
                         return false;
                     } else {
-                        $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
+                        $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
                     }
 
                     if ($(modal_clone).find('.div_header_locaciones').find('.header_check:checked').length == 0){
-                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_less_one_location']);
-                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_less_one_location']);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
                         return false;
                     } else {
-                        $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
+                        $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
                     }
 
                     //  VALIDAR ESTRUCTURA DE DATOS
                     if (parseInt($(modal_clone).find('#input_celular').val().length) != parseInt(10)){
                         console.log('pase1');
-                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_celular']);
-                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_celular']);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
                         return false;
                     }
 
@@ -587,21 +645,21 @@ use App\Library\FuncionesGlobales;
 
                     // Using test we can check if the text match the pattern
                     if(emailField != '' && emailField != null && !validEmail.test(emailField) ){
-                        $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_email']);
-                        $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_email']);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
                         return false;
                     }
 
                     if (info == null){
                         if ($(modal_clone).find('#input_contrasena').val().length < 8){
-                            $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_length_contrasena']);
-                            $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                            $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_length_contrasena']);
+                            $(modal_clone).find('#alert_error').addClass('d-flex').show();
                             return false;
                         }
 
                         if ($(modal_clone).find('#input_contrasena').val() !== $(modal_clone).find('#input_confirmar_contrasena').val()){
-                            $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_contrasena']);
-                            $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
+                            $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_contrasena']);
+                            $(modal_clone).find('#alert_error').addClass('d-flex').show();
                             return false;
                         }
                     }
@@ -707,6 +765,62 @@ use App\Library\FuncionesGlobales;
 
                 $(modal_clone).find('.div_header_permisos').append(div_padre);
             }
+        }
+
+        function show_modal_change_password(info_usuario){
+            let modal_clone = $("#modal_change_password").clone().removeAttr('id').show();
+            $(modal_clone).find('#span_nombre_usuario').text(info_usuario['clave'] +' - '+info_usuario['nombre_completo']);
+            $(modal_clone).on('click',"#btnSave",function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    return false;
+                }
+
+                if ($(modal_clone).find('#input_contrasena').val().trim().length < 8){
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_length_contrasena']);
+                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                    return false;
+                }
+
+                if ($(modal_clone).find('#input_contrasena').val().trim() !== $(modal_clone).find('#input_confirmar_contrasena').val().trim()){
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_contrasena']);
+                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                    return false;
+                }
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        id          : info_usuario['id'],
+                        contrasena  : $(modal_clone).find('#input_contrasena').val().trim(),
+                        accion      : 'change_password',
+                        clave       : info_usuario['clave'],
+                    },
+                    success : function(data){
+                        showAlert('success','Edición exitosa!');
+                        $(modal_clone).modal('hide');
+                        cargarTabla();
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                        $(btn).prop('disable',false);
+                    }
+                });
+            });
+
+            $(modal_clone).modal('show');
         }
     })();
 </script>
