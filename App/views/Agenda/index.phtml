@@ -2673,7 +2673,7 @@ use App\Library\FuncionesGlobales;
                 return false;
             }
 
-            let texto_cita  = limpiarCadena($(element).closest('#infoBox').find('#servicio').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text());
+            let texto_cita  = limpiarCadena($(element).closest('#infoBox').find('#servicio').text() + ' ' +$(element).closest('#infoBox').find('#dia').text()+ ' ' +$(element).closest('#infoBox').find('#horario').text());
 
             $.ajax({
                 url         : url_index,
