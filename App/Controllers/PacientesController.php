@@ -594,4 +594,8 @@ class PacientesController extends BaseController
         }
     }
 
+    public function digitalRecordAction(){
+        
+    }
+
 }
