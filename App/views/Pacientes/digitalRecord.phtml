@@ -338,7 +338,7 @@ $dias_semana = [
                             <h2 class="h4 fw-bold">Añadir Nueva Nota</h2>
                             <p class="text-muted small mb-0">Registre la evolución del paciente.</p>
                             </div>
-                            <button class="btn btn-sm btn-outline-secondary">
+                            <button class="btn btn-sm btn-outline-secondary btn_expandir">
                             <span class="material-icons">fullscreen</span>
                             </button>
                         </div>
@@ -445,12 +445,13 @@ $dias_semana = [
         });
 
         //  ------------------- NOTAS   ---------------------------------   //
-        $(".btn-outline-secondary").on("click", function(e) {
-            e.preventDefault(); // Opcional, depende si quieres prevenir submit o enlace
+        $(".btn_expandir").on("click", function(e) {
+            e.preventDefault(); // opcional
 
             let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
             let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
             let $historial = $("section:has(h2:contains('Historial de Notas'))");
+            let $icon = $(this).find("span.material-icons");
 
             // Si las columnas extra están visibles → ocultarlas y ajustar ancho
             if ($tabla.find("th:nth-child(n+3)").is(":visible")) {
@@ -460,6 +461,8 @@ $dias_semana = [
                 $nota.removeClass("col-lg-6").addClass("col-lg-8");
                 $historial.removeClass("col-lg-6").addClass("col-lg-4");
 
+                // Cambiar icono a "reducir"
+                $icon.text("fullscreen_exit");
             } else {
                 // Mostrar columnas extra de nuevo
                 $tabla.find("th:nth-child(n+3), td:nth-child(n+3)").show();
@@ -467,8 +470,12 @@ $dias_semana = [
                 // Restaurar anchos originales
                 $nota.removeClass("col-lg-8").addClass("col-lg-6");
                 $historial.removeClass("col-lg-4").addClass("col-lg-6");
+
+                // Cambiar icono a "expandir"
+                $icon.text("fullscreen");
             }
         });
+
 
         
     });
