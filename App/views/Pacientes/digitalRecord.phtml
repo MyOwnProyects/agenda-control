@@ -60,38 +60,6 @@
         display: none;
     }
     
-    /* Responsive Design
-    @media (max-width: 992px) {
-        #container_digital_record .sidebar {
-            transform: translateX(-100%);
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        
-        #container_digital_record .sidebar.show {
-            transform: translateX(0);
-        }
-        
-        #container_digital_record .main-content {
-            margin-left: 0;
-            width: 100%;
-            max-width: 100%;
-            padding: 1rem;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        #container_digital_record .main-content {
-            width: 100%;
-            max-width: 100%;
-            padding: 0.75rem;
-            padding-top: 4rem;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-    } */
-    
     /* Contenedor principal - MEJORADO */
     #container_digital_record .container-fluid {
         width: 100%;
@@ -139,6 +107,16 @@
 
     #container_digital_record .div_notas .card {
         min-height: 80vh; /* 80% del alto de la ventana */
+    }
+
+    .note-editable {
+        height: calc(100vh - 200px) !important; /* Example: 100% of viewport height minus some offset */
+        /* Or, if within a container: */
+        /* height: 100% !important; */
+    }
+
+    .hide_input {
+        display: none, !important;
     }
 
 </style>
@@ -204,131 +182,160 @@ $dias_semana = [
 
             <!-- Contenido principal -->
             <main class="main-content p-4 div_resumen">
-                <div class="mb-4">
-                    <h2 class="h3 fw-bold mb-1">Resumen del Expediente</h2>
-                    <p class="text-muted mb-0">Datos personales y resumen de citas</p>
-                </div>
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Resumen del Expediente</h2>
+                        <p class="text-muted mb-0">Datos personales y resumen de citas</p>
+                    </div>
 
-                <!-- Información Personal -->
-                <section class="mb-5">
-                    <h3 class="h4 fw-semibold mb-3">Información Personal</h3>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div class="col-sm-6 col-lg-4">
-                                    <p class="small text-muted mb-1">Nombre completo</p>
-                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['nombre_completo']; ?></p>
-                                </div>
-                                <div class="col-sm-6 col-lg-4">
-                                    <p class="small text-muted mb-1">Fecha de Nacimiento</p>
-                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?></p>
-                                </div>
-                                <div class="col-sm-6 col-lg-4">
-                                    <p class="small text-muted mb-1">Edad</p>
-                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['edad_actual']; ?> años</p>
-                                </div>
-                                <div class="col-sm-6 col-lg-4">
-                                    <p class="small text-muted mb-1">Género</p>
-                                    <p class="fw-medium mb-0"><?php echo $genero[$info_digital_record['info_paciente']['genero']]; ?></p>
-                                </div>
-                                <div class="col-sm-6 col-lg-4">
-                                    <p class="small text-muted mb-1">Teléfono</p>
-                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['celular']; ?></p>
-                                </div>
-                                <div class="col-sm-6 col-lg-4">
-                                    <p class="small text-muted mb-1">Correo Electrónico</p>
-                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['correo_electronico']; ?></p>
-                                </div>
-                                <div class="col-12">
-                                    <p class="small text-muted mb-1">Dirección</p>
-                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['direccion']; ?></p>
+                    <!-- Información Personal -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-semibold mb-3">Información Personal</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-sm-6 col-lg-4">
+                                        <p class="small text-muted mb-1">Nombre completo</p>
+                                        <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['nombre_completo']; ?></p>
+                                        <input type="text" class="input_editar_datos form-control" data-datooriginal="<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>" value="<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>" />
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <p class="small text-muted mb-1">Fecha de Nacimiento</p>
+                                        <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?></p>
+                                        <input type="date" class="input_editar_datos form-control" data-datooriginal="<?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?>" value="<?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?>" />
+                                    </div>
+                                    <div class="col-sm-6 col-lg-2">
+                                        <p class="small text-muted mb-1">Edad</p>
+                                        <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['edad_actual']; ?> años</p>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-2">
+                                        <div class="d-flex flex-column align-items-end gap-1">
+                                            <button type="button" class="btn btn-xs">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-xs">
+                                                <i class="bi bi-floppy"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-xs">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <p class="small text-muted mb-1">Género</p>
+                                        <p class="fw-medium mb-0"><?php echo $genero[$info_digital_record['info_paciente']['genero']]; ?></p>
+                                        <select class="form-select">
+                                            <option value="" <?php echo $genero[$info_digital_record['info_paciente']['genero']] == 'S/A' ? 'selected' : ''; ?>>Sin asignar</option>
+                                            <option value="F" <?php echo $genero[$info_digital_record['info_paciente']['genero']] == 'Femenino' ? 'selected' : ''; ?>>Femenino</option>
+                                            <option value="M" <?php echo $genero[$info_digital_record['info_paciente']['genero']] == 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <p class="small text-muted mb-1">Teléfono</p>
+                                        <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['celular']; ?></p>
+                                        <input type="text" class="input_editar_datos form-control" data-datooriginal="<?php echo $info_digital_record['info_paciente']['celular']; ?>" value="<?php echo $info_digital_record['info_paciente']['celular']; ?>" />
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <p class="small text-muted mb-1">Correo Electrónico</p>
+                                        <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['correo_electronico']; ?></p>
+                                        <input type="text" class="input_editar_datos form-control" data-datooriginal="<?php echo $info_digital_record['info_paciente']['correo_electronico']; ?>" value="<?php echo $info_digital_record['info_paciente']['correo_electronico']; ?>" />
+                                    </div>
+                                    <div class="col-12">
+                                        <p class="small text-muted mb-1">Dirección</p>
+                                        <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['direccion']; ?></p>
+                                        <input type="text" class="input_editar_datos form-control" data-datooriginal="<?php echo $info_digital_record['info_paciente']['direccion']; ?>" value="<?php echo $info_digital_record['info_paciente']['direccion']; ?>" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- Historial de Citas -->
-                <section class="mb-5">
-                    <h3 class="h4 fw-semibold mb-3">Citas programadas</h3>
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="p-3">D&iacute;a</th>
-                                        <th class="p-3">Hora</th>
-                                        <th class="p-3">Servicio</th>
-                                        <th class="p-3">Profesional</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $citas_programadas    = $info_digital_record['info_citas_programadas']; ?>
-                                    <?php foreach($citas_programadas as $cita): ?>
-                                    <tr>
-                                        <td class="p-3"><?php echo $dias_semana[$cita['dia']]; ?></td>
-                                        <td class="p-3"><?php echo $cita['hora_inicio'].' a '.$cita['hora_termino']; ?></td>
-                                        <td class="p-3" style="background-color: <?php echo $cita['codigo_color']; ?>"><?php echo $cita['clave_servicio'] ?></td>
-                                        <td class="p-3"><?php echo $cita['nombre_profesional'] ?></td>
-                                    </tr>
+                    <!-- Historial de Citas -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-semibold mb-3">Citas programadas</h3>
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-3">D&iacute;a</th>
+                                            <th class="p-3">Hora</th>
+                                            <th class="p-3">Servicio</th>
+                                            <th class="p-3">Profesional</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $citas_programadas    = $info_digital_record['info_citas_programadas']; ?>
+                                        <?php foreach($citas_programadas as $cita): ?>
+                                        <tr>
+                                            <td class="p-3"><?php echo $dias_semana[$cita['dia']]; ?></td>
+                                            <td class="p-3"><?php echo $cita['hora_inicio'].' a '.$cita['hora_termino']; ?></td>
+                                            <td class="p-3" style="background-color: <?php echo $cita['codigo_color']; ?>"><?php echo $cita['clave_servicio'] ?></td>
+                                            <td class="p-3"><?php echo $cita['nombre_profesional'] ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Diagnósticos y Tratamientos -->
+                    <section class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="h4 fw-semibold mb-0">Diagnósticos</h3>
+                                <a class="btn btn-link text-primary text-decoration-none p-0" href="#">
+                                    Ver todos
+                                    <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title h6 fw-semibold mb-3">Diagnóstico</h5>
+                                    <?php if (count($info_digital_record['diagnosticos']) > 0): ?>
+                                    <?php foreach($info_digital_record['diagnosticos'] as $diagnostico): ?>
+                                    <div class="border-start border-primary border-3 ps-3">
+                                        <p class="fw-medium mb-1"><?php echo $diagnostico['nombre']; ?></p>
+                                        <p class="small text-muted mb-0"><?php echo 'El paciente <b>'.($diagnostico['presento_evidencia'] == 1 ? 'SI' : 'NO').'</b> presento evidencia de este diagnostico.'; ?></p>
+                                    </div>
                                     <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Diagnósticos y Tratamientos -->
-                <section class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3 class="h4 fw-semibold mb-0">Diagnósticos</h3>
-                            <a class="btn btn-link text-primary text-decoration-none p-0" href="#">
-                                Ver todos
-                                <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
-                            </a>
-                        </div>
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title h6 fw-semibold mb-3">Diagnóstico</h5>
-                                <?php if (count($info_digital_record['diagnosticos']) > 0): ?>
-                                <?php foreach($info_digital_record['diagnosticos'] as $diagnostico): ?>
-                                <div class="border-start border-primary border-3 ps-3">
-                                    <p class="fw-medium mb-1"><?php echo $diagnostico['nombre']; ?></p>
-                                    <p class="small text-muted mb-0"><?php echo 'El paciente <b>'.($diagnostico['presento_evidencia'] == 1 ? 'SI' : 'NO').'</b> presento evidencia de este diagnostico.'; ?></p>
-                                </div>
-                                <?php endforeach; ?>
-                                <?php else: ?>
-                                <div class="border-start border-primary border-3 ps-3">
-                                    <p class="fw-medium mb-1">Paciente sin diagnostico</p>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3 class="h4 fw-semibold mb-0">Tratamientos</h3>
-                            <a class="btn btn-link text-primary text-decoration-none p-0" href="#">
-                                Ver todos
-                                <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
-                            </a>
-                        </div>
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title h6 fw-semibold mb-3">Tratamiento actual</h5>
-                                <div class="border-start border-success border-3 ps-3">
-                                    <p class="fw-medium mb-1">Sumatriptán 50mg</p>
-                                    <p class="small text-muted mb-0">Tomar al inicio de la migraña, máximo 2 dosis al día.</p>
+                                    <?php else: ?>
+                                    <div class="border-start border-primary border-3 ps-3">
+                                        <p class="fw-medium mb-1">Paciente sin diagnostico</p>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                        
+                        <div class="col-lg-6">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="h4 fw-semibold mb-0">Tratamientos</h3>
+                                <a class="btn btn-link text-primary text-decoration-none p-0" href="#">
+                                    Ver todos
+                                    <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
+                                </a>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title h6 fw-semibold mb-3">Tratamiento actual</h5>
+                                    <div class="border-start border-success border-3 ps-3">
+                                        <p class="fw-medium mb-1">Sumatriptán 50mg</p>
+                                        <p class="small text-muted mb-0">Tomar al inicio de la migraña, máximo 2 dosis al día.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </main>
             <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
-                <div class="row g-4">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Notas</h2>
+                        <p class="text-muted mb-0">Notas compartidas</p>
+                    </div>
                     <!-- Añadir Nueva Nota -->
                     <section class="col-12 col-lg-6">
                     <div class="card shadow-sm h-100">
@@ -344,7 +351,7 @@ $dias_semana = [
                         </div>
                         <form class="d-flex flex-column flex-grow-1">
                             <div class="flex-grow-1 mb-3">
-                            <textarea class="form-control resizable-textarea" placeholder="Escriba aquí la nota de evolución del paciente..."></textarea>
+                            <div id="summernote"></div>
                             </div>
                             <div class="form-check mb-3">
                             <input type="checkbox" class="form-check-input" id="private-note"/>
@@ -358,49 +365,49 @@ $dias_semana = [
 
                     <!-- Historial de Notas -->
                     <section class="col-12 col-lg-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body">
-                        <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                <th scope="col">Fecha</th>
-                                <th scope="col">Autor</th>
-                                <th scope="col">Extracto</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                <td>2024-07-29</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-1">
-                                    Dra. Isabel Reyes
-                                    <span class="material-icons text-warning" style="font-size:18px;">lock</span>
-                                    </div>
-                                </td>
-                                <td class="text-muted">Paciente refiere mejoría en...</td>
-                                </tr>
-                                <tr>
-                                <td>2024-07-15</td>
-                                <td>Dr. Carlos Ponce</td>
-                                <td class="text-muted">Se ajusta medicación para...</td>
-                                </tr>
-                                <tr>
-                                <td>2024-07-01</td>
-                                <td>Dra. Isabel Reyes</td>
-                                <td class="text-muted">Evaluación inicial. Pacien...</td>
-                                </tr>
-                                <tr>
-                                <td>2024-06-20</td>
-                                <td>Dr. Alan Martinez</td>
-                                <td class="text-muted">Resultados de laboratorio...</td>
-                                </tr>
-                            </tbody>
-                            </table>
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                            <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Autor</th>
+                                    <th scope="col">Extracto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>2024-07-29</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1">
+                                        Dra. Isabel Reyes
+                                        <span class="material-icons text-warning" style="font-size:18px;">lock</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-muted">Paciente refiere mejoría en...</td>
+                                    </tr>
+                                    <tr>
+                                    <td>2024-07-15</td>
+                                    <td>Dr. Carlos Ponce</td>
+                                    <td class="text-muted">Se ajusta medicación para...</td>
+                                    </tr>
+                                    <tr>
+                                    <td>2024-07-01</td>
+                                    <td>Dra. Isabel Reyes</td>
+                                    <td class="text-muted">Evaluación inicial. Pacien...</td>
+                                    </tr>
+                                    <tr>
+                                    <td>2024-06-20</td>
+                                    <td>Dr. Alan Martinez</td>
+                                    <td class="text-muted">Resultados de laboratorio...</td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
                         </div>
-                        </div>
-                    </div>
                     </section>
                 </div>
                 </main>
@@ -410,20 +417,24 @@ $dias_semana = [
 
 <script>
     $(document).ready(function() {
-        // Funcionalidad del sidebar móvil
-        function toggleSidebar() {
-            $('#sidebar').toggleClass('show');
-            $('#sidebarOverlay').toggleClass('show');
-        }
+
+        //  CREAR SUMMERNOTE
+        $('#summernote').summernote({
+            lang: 'es-ES',
+            placeholder: 'Escribe tu nota aquí...',
+            tabsize: 2,
+            height: 100,
+            toolbar: [
+                // Grupo más básico y funcional
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']]
+            ],
+            disableResizeEditor: true
+        });
+
         
-        function closeSidebar() {
-            $('#sidebar').removeClass('show');
-            $('#sidebarOverlay').removeClass('show');
-        }
-        
-        // Event listeners con jQuery
-        $('#sidebarToggle').on('click', toggleSidebar);
-        $('#sidebarOverlay').on('click', closeSidebar);
         
         // Navegación entre secciones
         $('#container_digital_record').on('click','.nav-link',function(e) {
