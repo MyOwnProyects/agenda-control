@@ -595,7 +595,39 @@ class PacientesController extends BaseController
     }
 
     public function digitalRecordAction(){
+        //  EN CASO DE QUE SEA PETICION AJAX
+        if($this->request->isAjax()){
+
+        }
+
+        //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
+        $id_paciente    = $_GET['id'];
+
+        if (empty($id_paciente) || !is_numeric($id_paciente)){
+            if (!is_array($arr_info_profesional) || count($arr_info_profesional) == 0){
+                $response   = $this->getDI()->get('response');
+                // Redirigir a login/index si es una solicitud normal
+                $response->redirect('Menu/route404');
+                $response->send();
+                exit;
+            }
+        }
+
+        //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
+        $route  = $this->url_api.$this->rutas['ctpacientes']['get_digital_record'];
+        $result = FuncionesGlobales::RequestApi('GET',$route,array('id_paciente' => $id_paciente));
         
+        $response = new Response();
+        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        $this->view->info_digital_record    = $result;
+
     }
 
 }

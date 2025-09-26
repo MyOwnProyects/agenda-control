@@ -179,6 +179,7 @@ return [
     'html_log'                                  => 'Bitacora',
     'html_change_password'                      => 'Cambiar contraseña',
     'html_new_password'                         => 'Nueva contrase&ntilde;a',
+    'html_digital_record'                       => 'Expediente digital',
     
 
 

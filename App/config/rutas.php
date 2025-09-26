@@ -69,7 +69,8 @@ return [
         'delete_program_date'   => "/ctpacientes/delete_program_date",
         'fill_combo'            => '/ctpacientes/fill_combo',
         'save_express'          => '/ctpacientes/save_express',
-        'save_diagnoses'        => '/ctpacientes/save_diagnoses'
+        'save_diagnoses'        => '/ctpacientes/save_diagnoses',
+        'get_digital_record'    => '/ctpacientes/get_digital_record'
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'

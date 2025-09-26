@@ -14,8 +14,9 @@
     
     #container_digital_record .sidebar {
         width: 220px;
-        min-height: 100vh;
+        height: 100%;
         position: fixed;
+        top: 0;
         z-index: 1000;
         transition: transform 0.3s ease;
     }
@@ -27,6 +28,7 @@
         border-radius: 0.5rem;
         margin-bottom: 0.25rem;
         transition: all 0.2s ease;
+        cursor: pointer;
     }
     
     #container_digital_record .nav-link:hover {
@@ -43,20 +45,22 @@
         font-size: 1.2rem;
     }
     
+    /* === CORRECCIÓN DEFINITIVA === */
     #container_digital_record .main-content {
         margin-left: 220px;
-        width: auto;
+        width: calc(100% - 220px); /* ← KEY CHANGE */
         min-height: 100vh;
-        max-width: none;
+        max-width: calc(100% - 220px); /* ← KEY CHANGE */
         padding: 1rem;
         overflow-x: hidden;
+        box-sizing: border-box;
     }
     
     #container_digital_record .sidebar-toggle {
         display: none;
     }
     
-    /* Responsive Design */
+    /* Responsive Design
     @media (max-width: 992px) {
         #container_digital_record .sidebar {
             transform: translateX(-100%);
@@ -71,23 +75,9 @@
             margin-left: 0;
             width: 100%;
             max-width: 100%;
-            padding: 2rem;
+            padding: 1rem;
             overflow-x: hidden;
-            padding-top: 4rem;
-        }
-        
-        #container_digital_record .sidebar-toggle {
-            display: block;
-            position: fixed;
-            top: 1rem;
-            /* left: 1rem; */
-            z-index: 1001;
-            background: #0d6efd;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
     }
     
@@ -98,85 +88,79 @@
             padding: 0.75rem;
             padding-top: 4rem;
             overflow-x: hidden;
+            box-sizing: border-box;
         }
-        
-        #container_digital_record .table-responsive {
-            font-size: 0.875rem;
-        }
-        
-        #container_digital_record .card-body {
-            padding: 1rem !important;
-        }
-        
-        #container_digital_record h2.h3 {
-            font-size: 1.5rem;
-        }
-        
-        #container_digital_record h3.h4 {
-            font-size: 1.25rem;
-        }
-    }
+    } */
     
-    /* Contenedor principal */
+    /* Contenedor principal - MEJORADO */
     #container_digital_record .container-fluid {
         width: 100%;
         max-width: 100%;
         padding: 0;
         margin: 0;
+        overflow-x: hidden;
     }
     
-    #container_digital_record .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
-    }
-    
-    #container_digital_record .sidebar-overlay.show {
-        display: block;
-    }
-    
-    /* Table improvements */
-    #container_digital_record .table th {
-        background-color: #f8f9fa;
-        border: none;
-        font-weight: 600;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    #container_digital_record .table td {
-        border: none;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
-    }
-    
-    #container_digital_record .table tbody tr:hover {
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-    
-    /* Card improvements */
+    /* === NUEVAS REGLAS CRÍTICAS === */
     #container_digital_record .card {
         border: none;
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         border-radius: 0.75rem;
+        max-width: 100%;
+        overflow: hidden;
     }
     
     #container_digital_record .card-body {
         padding: 1.5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+        width: 100%;
     }
     
-    /* Button improvements */
-    #container_digital_record .btn-link {
-        font-weight: 500;
-        font-size: 0.875rem;
+    #container_digital_record .row {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
     }
+    
+    #container_digital_record [class*="col-"] {
+        max-width: 100%;
+        flex-shrink: 1;
+        min-width: 0; /* ← CRÍTICO */
+    }
+    
+    #container_digital_record .fw-medium {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    #container_digital_record .div_notas .card {
+        min-height: 80vh; /* 80% del alto de la ventana */
+    }
+
 </style>
+<?php 
+//  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
+$genero = array(
+    'F'     => 'Femenino',
+    'M'     => 'Masculino',
+    null    => 'S/A'
+);
+
+$dias_semana = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado', 
+    7 => 'Domingo'
+];
+
+?>
 
 <div id="container_digital_record">
     <!-- Botón toggle para móvil -->
@@ -190,43 +174,39 @@
     <div class="container-fluid p-0">
         <div class="row g-5">
             <!-- Sidebar -->
-            <aside class="sidebar bg-light border-end d-flex flex-column" id="sidebar">
+            <aside class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
                 <div class="p-3">
                     <div class="mb-4">
                         <h1 class="h5 fw-bold mb-1">Expediente Digital</h1>
-                        <p class="small text-muted mb-0">Paciente: Sofía Rodríguez</p>
+                        <p class="small text-muted mb-0">Paciente: <?php echo $info_digital_record['info_paciente']['primer_apellido'].' '.$info_digital_record['info_paciente']['nombre']; ?></p>
                     </div>
                     
                     <nav class="nav flex-column nav-pills">
-                        <a class="nav-link active" href="#" data-section="resumen">
-                            <span class="material-icons">description</span>
+                        <a class="nav-link active bg-primary text-white" data-section="resumen">
+                            <i class="bi bi-card-list"></i>
                             Resumen
                         </a>
-                        <a class="nav-link text-dark" href="#" data-section="citas">
-                            <span class="material-icons">calendar_month</span>
+                        <a class="nav-link text-dark" data-section="citas" style="display:none;">
+                            <i class="bi bi-calendar"></i>
                             Citas
                         </a>
-                        <a class="nav-link text-dark" href="#" data-section="diagnosticos">
-                            
-                            Diagnósticos
-                        </a>
-                        <a class="nav-link text-dark" href="#" data-section="tratamientos">
-                            
-                            Tratamientos
-                        </a>
-                        <a class="nav-link text-dark" href="#" data-section="documentos">
-                            <span class="material-icons">attachment</span>
+                        <a class="nav-link text-dark" data-section="documentos" style="display:none;">
+                            <i class="bi bi-file"></i>
                             Documentos
+                        </a>
+                        <a class="nav-link text-dark" data-section="notas">
+                            <i class="bi bi-journal"></i>
+                            Notas
                         </a>
                     </nav>
                 </div>
             </aside>
 
             <!-- Contenido principal -->
-            <main class="main-content">
+            <main class="main-content p-4 div_resumen">
                 <div class="mb-4">
                     <h2 class="h3 fw-bold mb-1">Resumen del Expediente</h2>
-                    <p class="text-muted mb-0">Información completa del paciente</p>
+                    <p class="text-muted mb-0">Datos personales y resumen de citas</p>
                 </div>
 
                 <!-- Información Personal -->
@@ -237,31 +217,31 @@
                             <div class="row g-4">
                                 <div class="col-sm-6 col-lg-4">
                                     <p class="small text-muted mb-1">Nombre completo</p>
-                                    <p class="fw-medium mb-0">Sofía Rodríguez</p>
+                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['nombre_completo']; ?></p>
                                 </div>
                                 <div class="col-sm-6 col-lg-4">
                                     <p class="small text-muted mb-1">Fecha de Nacimiento</p>
-                                    <p class="fw-medium mb-0">15 de Marzo de 1988</p>
+                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?></p>
                                 </div>
                                 <div class="col-sm-6 col-lg-4">
                                     <p class="small text-muted mb-1">Edad</p>
-                                    <p class="fw-medium mb-0">35 años</p>
+                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['edad_actual']; ?> años</p>
                                 </div>
                                 <div class="col-sm-6 col-lg-4">
                                     <p class="small text-muted mb-1">Género</p>
-                                    <p class="fw-medium mb-0">Femenino</p>
+                                    <p class="fw-medium mb-0"><?php echo $genero[$info_digital_record['info_paciente']['genero']]; ?></p>
                                 </div>
                                 <div class="col-sm-6 col-lg-4">
                                     <p class="small text-muted mb-1">Teléfono</p>
-                                    <p class="fw-medium mb-0">555-1234</p>
+                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['celular']; ?></p>
                                 </div>
                                 <div class="col-sm-6 col-lg-4">
                                     <p class="small text-muted mb-1">Correo Electrónico</p>
-                                    <p class="fw-medium mb-0">sofia.rodriguez@email.com</p>
+                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['correo_electronico']; ?></p>
                                 </div>
                                 <div class="col-12">
                                     <p class="small text-muted mb-1">Dirección</p>
-                                    <p class="fw-medium mb-0">Calle Principal 123, Ciudad</p>
+                                    <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['direccion']; ?></p>
                                 </div>
                             </div>
                         </div>
@@ -270,37 +250,28 @@
 
                 <!-- Historial de Citas -->
                 <section class="mb-5">
-                    <h3 class="h4 fw-semibold mb-3">Historial de Citas Recientes</h3>
+                    <h3 class="h4 fw-semibold mb-3">Citas programadas</h3>
                     <div class="card">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th class="p-3">Fecha</th>
+                                        <th class="p-3">D&iacute;a</th>
                                         <th class="p-3">Hora</th>
-                                        <th class="p-3">Motivo</th>
-                                        <th class="p-3">Médico</th>
+                                        <th class="p-3">Servicio</th>
+                                        <th class="p-3">Profesional</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <?php $citas_programadas    = $info_digital_record['info_citas_programadas']; ?>
+                                    <?php foreach($citas_programadas as $cita): ?>
                                     <tr>
-                                        <td class="p-3">10 Ene 2023</td>
-                                        <td class="p-3">10:00 AM</td>
-                                        <td class="p-3">Consulta general</td>
-                                        <td class="p-3">Dr. Carlos López</td>
+                                        <td class="p-3"><?php echo $dias_semana[$cita['dia']]; ?></td>
+                                        <td class="p-3"><?php echo $cita['hora_inicio'].' a '.$cita['hora_termino']; ?></td>
+                                        <td class="p-3" style="background-color: <?php echo $cita['codigo_color']; ?>"><?php echo $cita['clave_servicio'] ?></td>
+                                        <td class="p-3"><?php echo $cita['nombre_profesional'] ?></td>
                                     </tr>
-                                    <tr>
-                                        <td class="p-3">15 Mar 2023</td>
-                                        <td class="p-3">11:30 AM</td>
-                                        <td class="p-3">Dolor de espalda</td>
-                                        <td class="p-3">Dra. Ana García</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="p-3">20 May 2023</td>
-                                        <td class="p-3">09:00 AM</td>
-                                        <td class="p-3">Seguimiento</td>
-                                        <td class="p-3">Dr. Carlos López</td>
-                                    </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -319,11 +290,19 @@
                         </div>
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title h6 fw-semibold mb-3">Diagnóstico más reciente</h5>
+                                <h5 class="card-title h6 fw-semibold mb-3">Diagnóstico</h5>
+                                <?php if (count($info_digital_record['diagnosticos']) > 0): ?>
+                                <?php foreach($info_digital_record['diagnosticos'] as $diagnostico): ?>
                                 <div class="border-start border-primary border-3 ps-3">
-                                    <p class="fw-medium mb-1">Migraña Crónica</p>
-                                    <p class="small text-muted mb-0">Diagnosticado el 20 de Mayo de 2023 por Dra. Ana García.</p>
+                                    <p class="fw-medium mb-1"><?php echo $diagnostico['nombre']; ?></p>
+                                    <p class="small text-muted mb-0"><?php echo 'El paciente <b>'.($diagnostico['presento_evidencia'] == 1 ? 'SI' : 'NO').'</b> presento evidencia de este diagnostico.'; ?></p>
                                 </div>
+                                <?php endforeach; ?>
+                                <?php else: ?>
+                                <div class="border-start border-primary border-3 ps-3">
+                                    <p class="fw-medium mb-1">Paciente sin diagnostico</p>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -348,6 +327,83 @@
                     </div>
                 </section>
             </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
+                <div class="row g-4">
+                    <!-- Añadir Nueva Nota -->
+                    <section class="col-12 col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                            <h2 class="h4 fw-bold">Añadir Nueva Nota</h2>
+                            <p class="text-muted small mb-0">Registre la evolución del paciente.</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary">
+                            <span class="material-icons">fullscreen</span>
+                            </button>
+                        </div>
+                        <form class="d-flex flex-column flex-grow-1">
+                            <div class="flex-grow-1 mb-3">
+                            <textarea class="form-control resizable-textarea" placeholder="Escriba aquí la nota de evolución del paciente..."></textarea>
+                            </div>
+                            <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="private-note"/>
+                            <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
+                            </div>
+                            <button type="submit" class="btn btn-info text-white fw-semibold">Añadir Nota</button>
+                        </form>
+                        </div>
+                    </div>
+                    </section>
+
+                    <!-- Historial de Notas -->
+                    <section class="col-12 col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                        <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Autor</th>
+                                <th scope="col">Extracto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <td>2024-07-29</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1">
+                                    Dra. Isabel Reyes
+                                    <span class="material-icons text-warning" style="font-size:18px;">lock</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted">Paciente refiere mejoría en...</td>
+                                </tr>
+                                <tr>
+                                <td>2024-07-15</td>
+                                <td>Dr. Carlos Ponce</td>
+                                <td class="text-muted">Se ajusta medicación para...</td>
+                                </tr>
+                                <tr>
+                                <td>2024-07-01</td>
+                                <td>Dra. Isabel Reyes</td>
+                                <td class="text-muted">Evaluación inicial. Pacien...</td>
+                                </tr>
+                                <tr>
+                                <td>2024-06-20</td>
+                                <td>Dr. Alan Martinez</td>
+                                <td class="text-muted">Resultados de laboratorio...</td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                    </section>
+                </div>
+                </main>
         </div>
     </div>
 </div>
@@ -378,18 +434,43 @@
             
             // Añadir clase active al enlace clickeado
             $(this).removeClass('text-dark').addClass('active bg-primary text-white');
+
+            $(".main-content").hide();
+            $(".div_"+$(this).data('section')).show();
             
-            // Cerrar sidebar en móvil
-            if ($(window).width() < 992) {
-                closeSidebar();
+            // // Cerrar sidebar en móvil
+            // if ($(window).width() < 992) {
+            //     closeSidebar();
+            // }
+        });
+
+        //  ------------------- NOTAS   ---------------------------------   //
+        $(".btn-outline-secondary").on("click", function(e) {
+            e.preventDefault(); // Opcional, depende si quieres prevenir submit o enlace
+
+            let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
+            let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
+            let $historial = $("section:has(h2:contains('Historial de Notas'))");
+
+            // Si las columnas extra están visibles → ocultarlas y ajustar ancho
+            if ($tabla.find("th:nth-child(n+3)").is(":visible")) {
+                $tabla.find("th:nth-child(n+3), td:nth-child(n+3)").hide();
+
+                // Expandir "Añadir Nota" y reducir "Historial de Notas"
+                $nota.removeClass("col-lg-6").addClass("col-lg-8");
+                $historial.removeClass("col-lg-6").addClass("col-lg-4");
+
+            } else {
+                // Mostrar columnas extra de nuevo
+                $tabla.find("th:nth-child(n+3), td:nth-child(n+3)").show();
+
+                // Restaurar anchos originales
+                $nota.removeClass("col-lg-8").addClass("col-lg-6");
+                $historial.removeClass("col-lg-4").addClass("col-lg-6");
             }
         });
+
         
-        // Cerrar sidebar al redimensionar ventana
-        $(window).on('resize', function() {
-            if ($(window).width() >= 992) {
-                closeSidebar();
-            }
-        });
     });
+
 </script>

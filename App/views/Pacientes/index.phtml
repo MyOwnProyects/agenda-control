@@ -353,7 +353,8 @@ use App\Library\FuncionesGlobales;
             thursday: "<?php echo $translations['html_thursday'];   ?>",
             friday: "<?php echo $translations['html_friday'];     ?>",
             saturday: "<?php echo $translations['html_saturday'];   ?>",     
-            diagnosis_capture  :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -490,6 +491,11 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
                 show_modal_diagnoses($(this).closest('tr').data('rowData'));
+            });
+
+            $("#table_results").on('click','.btn_digital_record',function(){
+                const id             = $(this).data('id');
+                window.location.href = '/Pacientes/digitalRecord?id='+id;
             });
 
             //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
@@ -688,7 +694,10 @@ use App\Library\FuncionesGlobales;
                                 '</button>'+
                                 '<button class="btn btn-outline-dark btn-sm btn_diagnoses" data-id="'+data['id']+'" title="'+translations['diagnosis_capture'] +'">' +
                                     '<i class="bi bi-card-list"></i>'+
-                                '</button>' 
+                                '</button>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_digital_record" data-id="'+data['id']+'" title="'+translations['digital_record'] +'">' +
+                                    '<i class="bi bi-archive"></i>'+
+                                '</button>'
                                 : '';
 
                                 let btn_schedule_appointment    = action_schedule_appointments ? 
