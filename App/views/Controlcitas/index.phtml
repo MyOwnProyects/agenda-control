@@ -2197,20 +2197,24 @@ use App\Library\FuncionesGlobales;
 
             // EVENTO PARA BUSCAR CITAS
             $('#btnBuscar').on('click', function() {
-                if (!$("[name='filtro_citas_pago']:checked").length > 0){
-                    if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
-                        showAlert('danger', translations['error_starting_date']);
-                        return false;
-                    }
+                //  SI SE QUIEREN BUSCAR LAS CITAS PENDIENTES POR REAGENAR
+                //  NO ES NECESARIO QUE INGRESE FECHAS
+                if (!$("#radio_pendientes").is(':checked')){
+                    if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                        if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                            showAlert('danger', translations['error_starting_date']);
+                            return false;
+                        }
 
-                    if ($('#input_rango_fecha_termino').val() == '') {
-                        showAlert('danger', translations['error_starting_date']);
-                        return false;
-                    }
-                } else {
-                    if ($("#check_pagadas_rango").prop('checked') && ($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null || $('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)){
-                        showAlert('danger', error_list['error_range_date']);
-                        return false;
+                        if ($('#input_rango_fecha_termino').val() == '') {
+                            showAlert('danger', translations['error_starting_date']);
+                            return false;
+                        }
+                    } else {
+                        if ($("#check_pagadas_rango").prop('checked') && ($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null || $('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)){
+                            showAlert('danger', error_list['error_range_date']);
+                            return false;
+                        }
                     }
                 }
                 
