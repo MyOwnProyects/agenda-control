@@ -97,6 +97,13 @@ return [
     ),
     'ctbitacora_acciones'   => array(
         'show'  => '/ctbitacora_acciones/show'
+    ),
+    'tbnotas'   => array(
+        'show'      => "/tbnotas/show",
+        'create'    => "/tbnotas/create",
+        'delete'    => "/tbnotas/delete",
+        'update'    => "/tbnotas/update",
+        'count'     => "/tbnotas/count",
     )
 
 ];

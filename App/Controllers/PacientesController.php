@@ -597,20 +597,52 @@ class PacientesController extends BaseController
     public function digitalRecordAction(){
         //  EN CASO DE QUE SEA PETICION AJAX
         if($this->request->isAjax()){
+            $accion = $this->request->getPost('accion', 'string');
+            $result = array();
+            if($accion == 'get_rows'){
 
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 0,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['tbnotas']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbnotas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+            }
         }
 
         //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
         $id_paciente    = $_GET['id'];
 
         if (empty($id_paciente) || !is_numeric($id_paciente)){
-            if (!is_array($arr_info_profesional) || count($arr_info_profesional) == 0){
-                $response   = $this->getDI()->get('response');
-                // Redirigir a login/index si es una solicitud normal
-                $response->redirect('Menu/route404');
-                $response->send();
-                exit;
-            }
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
         }
 
         //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
@@ -626,7 +658,16 @@ class PacientesController extends BaseController
             exit;
         }
 
+        //  GET LISTA DE TRANSTORNOS
+        $route              = $this->url_api.$this->rutas['cttranstornos_neurodesarrollo']['show'];
+        $arr_transtornos    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $this->view->arr_transtornos    = $arr_transtornos;
+
+        $this->view->id_paciente            = $id_paciente;
         $this->view->info_digital_record    = $result;
+        $this->view->update                 = FuncionesGlobales::HasAccess("Pacientes","update");
+        $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
+        $this->view->diagnosticos           = json_encode($result['diagnosticos']);
 
     }
 
