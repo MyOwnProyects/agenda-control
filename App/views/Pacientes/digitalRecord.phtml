@@ -386,7 +386,7 @@ function cambiarFormatoFecha($fecha) {
                 <div class="row g-2">
                     <div class="mb-4">
                         <h2 class="h3 fw-bold mb-1">Notas</h2>
-                        <p class="text-muted mb-0">Notas compartidas</p>
+                        <p class="text-muted mb-0">Notas privadas y compartidas</p>
                     </div>
                     <!-- Añadir Nueva Nota -->
                     <section class="col-12 col-lg-6">
@@ -413,8 +413,14 @@ function cambiarFormatoFecha($fecha) {
                             <input type="checkbox" class="form-check-input" id="private-note"/>
                             <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
                             </div>
-                            <button type="submit" class="btn btn-info text-white fw-semibold">Añadir Nota</button>
+                            <button type="button" class="btn btn-info text-white fw-semibold btn_save_nota">Añadir Nota</button>
+                            
                         </form>
+                        <!-- Contenedor para los botones alineados a la derecha -->
+                        <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn_edit_nota btn_cancelar_edit" style="display:none;">Cancelar</button>
+                            <button type="button" class="btn btn-sm btn-success btn_edit_nota text-white btn_save_nota" style="display:none;">Guardar</button>
+                        </div>
                         </div>
                     </div>
                     </section>
@@ -423,45 +429,16 @@ function cambiarFormatoFecha($fecha) {
                     <section class="col-12 col-lg-6">
                         <div class="card shadow-sm h-100">
                             <div class="card-body">
-                            <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
-                            <div class="table-responsive">
-                                <table class="table align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                    <th scope="col">Fecha</th>
-                                    <th scope="col">Autor</th>
-                                    <th scope="col">Extracto</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                    <td>2024-07-29</td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-1">
-                                        Dra. Isabel Reyes
-                                        <span class="material-icons text-warning" style="font-size:18px;">lock</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-muted">Paciente refiere mejoría en...</td>
-                                    </tr>
-                                    <tr>
-                                    <td>2024-07-15</td>
-                                    <td>Dr. Carlos Ponce</td>
-                                    <td class="text-muted">Se ajusta medicación para...</td>
-                                    </tr>
-                                    <tr>
-                                    <td>2024-07-01</td>
-                                    <td>Dra. Isabel Reyes</td>
-                                    <td class="text-muted">Evaluación inicial. Pacien...</td>
-                                    </tr>
-                                    <tr>
-                                    <td>2024-06-20</td>
-                                    <td>Dr. Alan Martinez</td>
-                                    <td class="text-muted">Resultados de laboratorio...</td>
-                                    </tr>
-                                </tbody>
+                                <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
+                                <table id="table_results" class="display table table-hover table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_title']; ?></th>
+                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                        </tr>
+                                    </thead>
                                 </table>
-                            </div>
                             </div>
                         </div>
                     </section>
@@ -475,7 +452,7 @@ function cambiarFormatoFecha($fecha) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        
+        <h5 class="modal-title" id="label_modal_diagnostico">Captura de diagnostico(s)</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
@@ -524,19 +501,87 @@ function cambiarFormatoFecha($fecha) {
   </div>
 </div>
 
+<div class="modal fade" id="modal_preview_nota" tabindex="-1" aria-labelledby="label_modal_preview_nota" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h3 class="modal-title" id="label_modal_diagnostico">Nota</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <!-- Campo Clave -->
+                <div class="col-md-12">
+                    <label><?php echo $translations['html_title_professional']; ?>:</label>
+                    <div id="nombre_profesional" class="d-block"></div>
+                </div>
+                <div class="col-md-12">
+                    <label><?php echo $translations['html_title']; ?>:</label>
+                    <div id="titulo" class="d-block"></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-12 div_show_nota" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btn_delete" class="btn btn-danger" ><?php echo $translations['html_delete_record']; ?></button>
+        <button type="button" id="btn_edit" class="btn btn-success"><?php echo $translations['html_edit_record']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-    $(document).ready(function() {
+    let modulo_digital_record   = (function(){
         //  ID DEL PACIENTE
         const id_paciente   = '<?php echo $id_paciente; ?>';
         const estatus       = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
         const nombre_completo   = '<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>';
         let diagnosticos        = '<?php echo $diagnosticos ?>';
         diagnosticos            = JSON.parse(diagnosticos);
-        console.log('diagnosticos',diagnosticos);
 
         //  URL
         const controller    = '/Pacientes';
+        const url_digital   = controller+'/digitalRecord'
         const url_update    = controller+"/update";
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+        let draw            = 1;
+
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            deactivate_patient      : "<?= $translations['html_deactivate_patient']?>",
+            activate_patient        : "<?= $translations['html_activate_patient']?>",
+            schedule_appointments   : "<?= $translations['html_schedule_appointments']?>",
+            monday: "<?php echo $translations['html_monday'];     ?>",
+            thuesday: "<?php echo $translations['html_thuesday'];   ?>",
+            wednesday: "<?php echo $translations['html_wednesday'];  ?>",
+            thursday: "<?php echo $translations['html_thursday'];   ?>",
+            friday: "<?php echo $translations['html_friday'];     ?>",
+            saturday: "<?php echo $translations['html_saturday'];   ?>",     
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
+        };
 
         //  MENSAJES DE ERROR
         const error_list = {
@@ -551,252 +596,418 @@ function cambiarFormatoFecha($fecha) {
             question_return             : "<?php echo $translations['html_question_return']?>",
         }
 
-        //  CREAR SUMMERNOTE
-        $('#summernote').summernote({
-            lang: 'es-ES',
-            placeholder: 'Escribe tu nota aquí...',
-            tabsize: 2,
-            height: 100,
-            toolbar: [
-                // Grupo más básico y funcional
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['fontsize', ['fontsize']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']]
-            ],
-            disableResizeEditor: true
-        });
-
-        
-        
-        // Navegación entre secciones
-        $('#container_digital_record').on('click','.nav-link',function(e) {
-            e.preventDefault();
-            
-            // Remover clase active de todos los enlaces
-            $('#container_digital_record').find('.nav-link').removeClass('active bg-primary text-white').addClass('text-dark');
-            
-            // Añadir clase active al enlace clickeado
-            $(this).removeClass('text-dark').addClass('active bg-primary text-white');
-
-            $(".main-content").hide();
-            $(".div_"+$(this).data('section')).show();
-            
-            // // Cerrar sidebar en móvil
-            // if ($(window).width() < 992) {
-            //     closeSidebar();
-            // }
-        });
-
-        //  ------------------- INFORMACION PERSONAL    ----------------    //
-
-        $(".btn_edit_info_personal").on('click',function(){
-            $(".btn_edit_info_personal").addClass('hide_element');
-            $(".btn_save_info_personal").removeClass('hide_element');
-            $(".btn_revert_info_personal").removeClass('hide_element');
-
-            $(".input_editar_datos").removeClass('hide_element');
-            $(".p_datos").addClass('hide_element');
-        });
-
-        $(".btn_revert_info_personal").on('click',function(){
-            $(".btn_edit_info_personal").removeClass('hide_element');
-            $(".btn_save_info_personal").addClass('hide_element');
-            $(".btn_revert_info_personal").addClass('hide_element');
-
-            $(".input_editar_datos").addClass('hide_element');
-            $(".p_datos").removeClass('hide_element');
-        });
-
-        $(".btn_save_info_personal").on('click', function(){
-            const form = $('#form_info_personal')[0];
-            let flag_error = false;
-            
-            if (form.checkValidity() === false) {
-                $(form).addClass('was-validated');
-                flag_error = true;
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url: url_digital,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_notes';
+                            d.id_paciente   = id_paciente;
+                        },
+                        dataSrc: function (json) {
+                            console.log("DataTables Response:", json); // <---- Depuración
+                            return json.data;
+                        }
+                    },
+                    columns: [
+                        { data: 'titulo' },
+                        { data: 'nombre_profesional' }, // Columna 1
+                        { data: 'label_fecha_creacion' } // Columna 1
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
+                        $(row).css('cursor','pointer');
+                        $(row).addClass('row_notas');
+                    }
+                });
             } else {
-                $(form).removeClass('was-validated');
-                // Proceder con el guardado
+                draw    ++;
+                table.ajax.reload();
             }
-            
-            //  VALIDACION DE DATOS
-            if ($('.input_celular').val() != '' && $('.input_celular').val().length != 10){
-                //  ACTIVAR DE FORMA MANUAL ERROR DE FORM
-                $('.input_celular')[0].setCustomValidity(error_list['error_celular']);
-                $('.input_celular').addClass('is-invalid').removeClass('is-valid');
-                return false;
-            } else {
-                //REMOVER CLASE DE ERROR FORM
-                $('.input_celular')[0].setCustomValidity('');
-                $('.input_celular').removeClass('is-invalid');
-            }
+        }
 
-            if ($('.input_correo_electronico').val() != '' && !validarEmail($('.input_correo_electronico').val())){
-                $('.input_correo_electronico')[0].setCustomValidity(error_list['error_email']);
-                $('.input_correo_electronico').addClass('is-invalid').removeClass('is-valid');
-                return false;
-            } else {
-                $('.input_correo_electronico')[0].setCustomValidity('');
-                $('.input_correo_electronico').removeClass('is-invalid');
-            }
+        $(document).ready(function() {
+            cargarTabla();
 
-            let obj_info    = {
-                id                  : id_paciente,
-                primer_apellido     : $(".input_primer_apellido").val(),
-                segundo_apellido    : $(".input_segundo_apellido").val(),
-                nombre              : $(".input_nombre").val(),
-                fecha_nacimiento    : $(".input_fecha_nacimiento").val(),
-                genero              : $(".select_genero").val(),
-                celular             : $(".input_celular").val(),
-                correo_electronico  : $(".input_correo_electronico").val(),
-                direccion           : $(".input_direccion").val()
-            };
-
-            $.ajax({
-                url     : url_update,
-                method  : 'post',
-                data    : {
-                    obj_info    : obj_info,
-                    accion      : 'save_express'
-                },
-                success : function(data){
-                    showAlert('success','Edición exitosa!');
-                    setTimeout(function(){
-                        window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
-                    },2000);
-                },
-                error   : function(error){
-                    showAlert('danger',error.responseText);
-                }
-            })
-        });
-
-        //  EVENTO PARA MODOFICAR DIAGNOSTICO
-        $(".btn_diagnoses").on('click',function(){
-            if (estatus != 1){
-                showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
-                return false;
-            }
-            show_modal_diagnoses();
-        });
-
-        //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
-        $("#form_info_personal").on('keypress','.input_celular',function(e) {
-            if(isNaN(this.value + String.fromCharCode(e.charCode))) 
-            return false;
-        })
-        .on("cut copy paste",function(e){
-            e.preventDefault();
-        });
-
-        //  ------------------- NOTAS   ---------------------------------   //
-        $(".btn_expandir").on("click", function(e) {
-            e.preventDefault(); // opcional
-
-            let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
-            let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
-            let $historial = $("section:has(h2:contains('Historial de Notas'))");
-            let $icon = $(this).find("span.material-icons");
-
-            // Si las columnas extra están visibles → ocultarlas y ajustar ancho
-            if ($tabla.find("th:nth-child(n+3)").is(":visible")) {
-                $tabla.find("th:nth-child(n+3), td:nth-child(n+3)").hide();
-
-                // Expandir "Añadir Nota" y reducir "Historial de Notas"
-                $nota.removeClass("col-lg-6").addClass("col-lg-8");
-                $historial.removeClass("col-lg-6").addClass("col-lg-4");
-
-                // Cambiar icono a "reducir"
-                $icon.text("fullscreen_exit");
-            } else {
-                // Mostrar columnas extra de nuevo
-                $tabla.find("th:nth-child(n+3), td:nth-child(n+3)").show();
-
-                // Restaurar anchos originales
-                $nota.removeClass("col-lg-8").addClass("col-lg-6");
-                $historial.removeClass("col-lg-4").addClass("col-lg-6");
-
-                // Cambiar icono a "expandir"
-                $icon.text("fullscreen");
-            }
-        });
-
-
-        //  --------------  FUNCIONES   ---------------------   //
-
-        //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
-        function show_modal_diagnoses(){
-            let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
-
-            if (diagnosticos != null && Object.keys(diagnosticos).length > 0){
-                for(let i in diagnosticos){
-                    $(modal_clone).find('#diagnostico_'+diagnosticos[i]['id'])
-                        .addClass('row_selected')
-                        .find('.input_evidencia')
-                        .prop('disabled',false)
-                        .prop('checked',diagnosticos[i]['presento_evidencia'] == 1 ? true : false);
-                }
-            }
-
-            $(modal_clone).find('#nombre_paciente').text(nombre_completo);
-
-            $(modal_clone).on('click','.div_diagnostico',function(event){
-                // Evita que el evento se dispare si el clic fue en el input
-                if ($(event.target).is('input')) {
-                    return;
-                }
-                if ($(this).hasClass('row_selected')){
-                    $(this).removeClass('row_selected');
-                    $(this).find('input').prop('disabled',true).prop('checked',false)
-                } else {
-                    $(this).addClass('row_selected');
-                    $(this).find('input').prop('disabled',false);
+            //  CREAR SUMMERNOTE
+            $('#summernote').summernote({
+                lang: 'es-ES',
+                placeholder: 'Escribe tu nota aquí...',
+                tabsize: 2,
+                height: 100,
+                toolbar: [
+                    // Grupo más básico y funcional
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']]
+                ],
+                disableResizeEditor: true,
+                callbacks: {
+                    onPaste: function(e) {
+                        // Limpiar contenido pegado
+                        var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                        e.preventDefault();
+                        document.execCommand('insertText', false, bufferText);
+                    }
                 }
             });
             
-            $(modal_clone).on('click','#btnSave',function(){
-                let btn         = $(this);
-                $(btn).prop('disabled',true);
+            
+            // Navegación entre secciones
+            $('#container_digital_record').on('click','.nav-link',function(e) {
+                e.preventDefault();
+                
+                // Remover clase active de todos los enlaces
+                $('#container_digital_record').find('.nav-link').removeClass('active bg-primary text-white').addClass('text-dark');
+                
+                // Añadir clase active al enlace clickeado
+                $(this).removeClass('text-dark').addClass('active bg-primary text-white');
 
-                let obj_info    = [];
+                $(".main-content").hide();
+                $(".div_"+$(this).data('section')).show();
+                
+                // // Cerrar sidebar en móvil
+                // if ($(window).width() < 992) {
+                //     closeSidebar();
+                // }
+            });
 
-                $(modal_clone).find('.div_diagnostico.row_selected').each(function(){
-                    let id_transtorno       = $(this).data('id');
-                    let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
-                    obj_info.push({
-                        id_transtorno,
-                        presento_evidencia
-                    })
-                });
+            //  ------------------- INFORMACION PERSONAL    ----------------    //
 
-                console.log('obj_info',obj_info);
+            $(".btn_edit_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").addClass('hide_element');
+                $(".btn_save_info_personal").removeClass('hide_element');
+                $(".btn_revert_info_personal").removeClass('hide_element');
+
+                $(".input_editar_datos").removeClass('hide_element');
+                $(".p_datos").addClass('hide_element');
+            });
+
+            $(".btn_revert_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").removeClass('hide_element');
+                $(".btn_save_info_personal").addClass('hide_element');
+                $(".btn_revert_info_personal").addClass('hide_element');
+
+                $(".input_editar_datos").addClass('hide_element');
+                $(".p_datos").removeClass('hide_element');
+            });
+
+            $(".btn_save_info_personal").on('click', function(){
+                const form = $('#form_info_personal')[0];
+                let flag_error = false;
+                
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                    // Proceder con el guardado
+                }
+                
+                //  VALIDACION DE DATOS
+                if ($('.input_celular').val() != '' && $('.input_celular').val().length != 10){
+                    //  ACTIVAR DE FORMA MANUAL ERROR DE FORM
+                    $('.input_celular')[0].setCustomValidity(error_list['error_celular']);
+                    $('.input_celular').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    //REMOVER CLASE DE ERROR FORM
+                    $('.input_celular')[0].setCustomValidity('');
+                    $('.input_celular').removeClass('is-invalid');
+                }
+
+                if ($('.input_correo_electronico').val() != '' && !validarEmail($('.input_correo_electronico').val())){
+                    $('.input_correo_electronico')[0].setCustomValidity(error_list['error_email']);
+                    $('.input_correo_electronico').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    $('.input_correo_electronico')[0].setCustomValidity('');
+                    $('.input_correo_electronico').removeClass('is-invalid');
+                }
+
+                let obj_info    = {
+                    id                  : id_paciente,
+                    primer_apellido     : $(".input_primer_apellido").val(),
+                    segundo_apellido    : $(".input_segundo_apellido").val(),
+                    nombre              : $(".input_nombre").val(),
+                    fecha_nacimiento    : $(".input_fecha_nacimiento").val(),
+                    genero              : $(".select_genero").val(),
+                    celular             : $(".input_celular").val(),
+                    correo_electronico  : $(".input_correo_electronico").val(),
+                    direccion           : $(".input_direccion").val()
+                };
 
                 $.ajax({
                     url     : url_update,
                     method  : 'post',
                     data    : {
-                        accion      : 'save_diagnoses',
                         obj_info    : obj_info,
-                        id_paciente : id_paciente,
-                        data_old    : diagnosticos
+                        accion      : 'save_express'
                     },
                     success : function(data){
-                        showAlert('success','Captura exitosa!');
-                        $(modal_clone).modal('hide');
+                        showAlert('success','Edición exitosa!');
                         setTimeout(function(){
                             window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
                         },2000);
                     },
                     error   : function(error){
-                        actionJsonError(error,btn);
+                        showAlert('danger',error.responseText);
+                    }
+                })
+            });
+
+            //  EVENTO PARA MODOFICAR DIAGNOSTICO
+            $(".btn_diagnoses").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+                show_modal_diagnoses();
+            });
+
+            //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
+            $("#form_info_personal").on('keypress','.input_celular',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
+
+            //  ------------------- NOTAS   ---------------------------------   //
+            $(".btn_expandir").on("click", function(e) {
+                e.preventDefault();
+
+                let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
+                let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
+                let $historial = $("section:has(h2:contains('Historial de Notas'))");
+                let $icon = $(this).find("span.material-icons");
+
+                // Obtener la instancia de DataTable
+                let dataTable = $('#table_results').DataTable();
+
+                // Verificar si la columna 2 (índice 2) está visible
+                if (dataTable.column(2).visible()) {
+                    // Ocultar columna 2 (tercera columna)
+                    dataTable.column(2).visible(false);
+
+                    // Expandir "Añadir Nota" y reducir "Historial de Notas"
+                    $nota.removeClass("col-lg-6").addClass("col-lg-8");
+                    $historial.removeClass("col-lg-6").addClass("col-lg-4");
+
+                    // Cambiar icono a "reducir"
+                    $icon.text("fullscreen_exit");
+                } else {
+                    // Mostrar columna 2 (tercera columna)
+                    dataTable.column(2).visible(true);
+
+                    // Restaurar anchos originales
+                    $nota.removeClass("col-lg-8").addClass("col-lg-6");
+                    $historial.removeClass("col-lg-4").addClass("col-lg-6");
+
+                    // Cambiar icono a "expandir"
+                    $icon.text("fullscreen");
+                }
+            });
+
+            //  GUARDAR UNA NOTA
+            $(".btn_save_nota").on('click',function(){
+                if ($(".input_titulo_nota").val().trim() == null || $(".input_titulo_nota").val().trim() == ''){
+                    showAlert('danger','Ingrese el titulo de la nota');
+                    return false;
+                }
+
+                if ($('#summernote').summernote('isEmpty')) {
+                    showAlert('danger','Ingresa un contenido a la nota');
+                    return false;
+                }
+
+                // Get the formatted HTML first
+                var htmlContent = $('#summernote').summernote('code');
+
+                let id_nota = $(this).data('idnota');
+                let accion  = id_nota != null && id_nota != '' ? 'update_nota' : 'create_nota';
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : accion,
+                        titulo      : $(".input_titulo_nota").val().trim(),
+                        id_paciente : id_paciente,
+                        texto       : htmlContent,
+                        nombre_completo : nombre_completo,
+                        nota_privada    : $("#private-note").is(':checked') ? 1 : 0,
+                        id_nota         : id_nota
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                    }
+                })
+
+            });
+
+            //  CANCELAR EDICION
+            $(".btn_cancelar_edit").on('click',async function(){
+                const respuesta = await window.modalConfirm('Iniciaste la edici&oacute;n de una nota, al continuar se perderá el avance de dicha nota. ¿Desea continuar?');
+
+                if (respuesta){
+                    $(".input_titulo_nota").val('');
+                    $('#summernote').summernote('code', '');
+                    $("#private-note").prop('checked',0);
+
+                    $(".btn_edit_nota").hide();
+                    $(".btn_save_nota").show();
+                }
+            });
+
+            //  GET INFO DE UNA NOTA
+            $(".div_notas").on('click','.row_notas',function(){
+                let row_data    = $(this).data('rowData');
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion  : 'get_notes',
+                        id_nota : row_data['id']
+                    },
+                    success : function(data){
+                        show_modal_notas(data['data'][0]);
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                        return false;
+                    }
+                })
+            });
+
+
+            //  --------------  FUNCIONES   ---------------------   //
+
+            //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
+            function show_modal_diagnoses(){
+                let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
+
+                if (diagnosticos != null && Object.keys(diagnosticos).length > 0){
+                    for(let i in diagnosticos){
+                        $(modal_clone).find('#diagnostico_'+diagnosticos[i]['id'])
+                            .addClass('row_selected')
+                            .find('.input_evidencia')
+                            .prop('disabled',false)
+                            .prop('checked',diagnosticos[i]['presento_evidencia'] == 1 ? true : false);
+                    }
+                }
+
+                $(modal_clone).find('#nombre_paciente').text(nombre_completo);
+
+                $(modal_clone).on('click','.div_diagnostico',function(event){
+                    // Evita que el evento se dispare si el clic fue en el input
+                    if ($(event.target).is('input')) {
+                        return;
+                    }
+                    if ($(this).hasClass('row_selected')){
+                        $(this).removeClass('row_selected');
+                        $(this).find('input').prop('disabled',true).prop('checked',false)
+                    } else {
+                        $(this).addClass('row_selected');
+                        $(this).find('input').prop('disabled',false);
                     }
                 });
-            })
+                
+                $(modal_clone).on('click','#btnSave',function(){
+                    let btn         = $(this);
+                    $(btn).prop('disabled',true);
 
-            $(modal_clone).modal('show');
-        }
-        
-    });
+                    let obj_info    = [];
 
+                    $(modal_clone).find('.div_diagnostico.row_selected').each(function(){
+                        let id_transtorno       = $(this).data('id');
+                        let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
+                        obj_info.push({
+                            id_transtorno,
+                            presento_evidencia
+                        })
+                    });
+
+                    console.log('obj_info',obj_info);
+
+                    $.ajax({
+                        url     : url_update,
+                        method  : 'post',
+                        data    : {
+                            accion      : 'save_diagnoses',
+                            obj_info    : obj_info,
+                            id_paciente : id_paciente,
+                            data_old    : diagnosticos
+                        },
+                        success : function(data){
+                            showAlert('success','Captura exitosa!');
+                            $(modal_clone).modal('hide');
+                            setTimeout(function(){
+                                window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                            },2000);
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                })
+
+                $(modal_clone).modal('show');
+            }
+
+            function show_modal_notas(data){
+                console.log('data',data);
+                let modal_clone = $("#modal_preview_nota").clone().removeAttr('id').show();
+
+                $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
+                $(modal_clone).find("#titulo").text(data['titulo']);
+                $(modal_clone).find(".div_show_nota").html(data['texto']);
+
+                $(modal_clone).on('click','#btn_edit',async function(){
+                    if ($(".input_titulo_nota").val().trim() != '' || !$('#summernote').summernote('isEmpty')){
+                        const respuesta = await window.modalConfirm('Iniciaste la creación de una nota, al continuar se perderá el avance de dicha nota. ¿Desea continuar?');
+
+                        if (!respuesta){
+                            return false;
+                        }
+                    }
+
+                    $(".input_titulo_nota").val(data['titulo']);
+                    $("#private-note").prop('checked',data['nota_privada'] == 1);
+                    $('#summernote').summernote('code', '');
+                    $('#summernote').summernote('code', data['texto']);
+                    $(".btn_save_nota").hide();
+                    $(".btn_edit_nota").data('idnota',data['id']).show();
+
+                    $(modal_clone).modal('hide');
+                });
+
+                $(modal_clone).modal('show');
+            }
+            
+        });
+    })();
 </script>

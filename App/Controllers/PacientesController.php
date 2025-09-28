@@ -599,7 +599,7 @@ class PacientesController extends BaseController
         if($this->request->isAjax()){
             $accion = $this->request->getPost('accion', 'string');
             $result = array();
-            if($accion == 'get_rows'){
+            if($accion == 'get_notes'){
 
                 $arr_return = array(
                     "draw"              => $this->request->getPost('draw'),
@@ -631,6 +631,29 @@ class PacientesController extends BaseController
                         "data"              => $result
                     );
                 }
+
+                $response = new Response();
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'create_note'){
+                $route  = $this->url_api.$this->rutas['tbnotas']['create'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARNOTA','Se creo una nota para el paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'],array());
+
+                $response->setJsonContent('Creación exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
             }
         }
 
