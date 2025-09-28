@@ -842,7 +842,7 @@ function cambiarFormatoFecha($fecha) {
                 var htmlContent = $('#summernote').summernote('code');
 
                 let id_nota = $(this).data('idnota');
-                let accion  = id_nota != null && id_nota != '' ? 'update_nota' : 'create_nota';
+                let accion  = id_nota != null && id_nota != '' ? 'update_note' : 'create_note';
 
                 $.ajax({
                     url     : url_digital,
@@ -858,9 +858,11 @@ function cambiarFormatoFecha($fecha) {
                     },
                     success : function(data){
                         showAlert('success','Captura exitosa!');
-                        setTimeout(function(){
-                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
-                        },2000);
+                        $(".input_titulo_nota").val('');
+                        $('#summernote').summernote('code', '');
+                        $("#private-note").prop('checked',0);
+
+                        cargarTabla();
                     },
                     error   : function(error){
                         showAlert('danger',error.responseText);
@@ -891,7 +893,8 @@ function cambiarFormatoFecha($fecha) {
                     method  : 'post',
                     data    : {
                         accion  : 'get_notes',
-                        id_nota : row_data['id']
+                        id_nota : row_data['id'],
+                        nombre_completo : nombre_completo
                     },
                     success : function(data){
                         show_modal_notas(data['data'][0]);
@@ -1003,6 +1006,32 @@ function cambiarFormatoFecha($fecha) {
                     $(".btn_edit_nota").data('idnota',data['id']).show();
 
                     $(modal_clone).modal('hide');
+                });
+
+                $(modal_clone).on('click','#btn_delete', async function(){
+                    const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                    if (respuesta){
+                        $.ajax({
+                            url     : url_digital,
+                            method  : 'post',
+                            data    : {
+                                accion  : 'delete_note',
+                                id_nota : data['id'],
+                                titulo  : data['titulo'],
+                                fecha_creacion  : data['fecha_creacion'],
+                                nombre_completo : nombre_completo
+                            },
+                            success : function(data){
+                                showAlert('success','Borrado exitoso!');
+                                $(modal_clone).modal('hide');
+                                cargarTabla();
+                            },
+                            error   : function(error){
+                                showAlert('danger',error.responseText);
+                            }
+                        })
+                    }
                 });
 
                 $(modal_clone).modal('show');

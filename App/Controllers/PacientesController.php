@@ -596,6 +596,7 @@ class PacientesController extends BaseController
 
     public function digitalRecordAction(){
         //  EN CASO DE QUE SEA PETICION AJAX
+        $aqui = 1;
         if($this->request->isAjax()){
             $accion = $this->request->getPost('accion', 'string');
             $result = array();
@@ -650,6 +651,42 @@ class PacientesController extends BaseController
                 }
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'CREARNOTA','Se creo una nota para el paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'],array());
+
+                $response->setJsonContent('Creación exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'update_note'){
+                $route  = $this->url_api.$this->rutas['tbnotas']['update'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITARNOTA','Se editó la nota para el paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'],array());
+
+                $response->setJsonContent('Edición exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'delete_note'){
+                $route  = $this->url_api.$this->rutas['tbnotas']['delete'];
+                $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se borro la nota del paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'].' creada el día: '.$_POST['fecha_creacion'],array());
 
                 $response->setJsonContent('Creación exitosa!');
                 $response->setStatusCode(200, 'OK');
