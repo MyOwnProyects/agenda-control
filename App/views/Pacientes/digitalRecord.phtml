@@ -115,6 +115,39 @@
         /* height: 100% !important; */
     }
 
+    #summernote, .note-editable {
+        font-weight: normal !important;
+    }
+
+    .note-fontsize .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important; /* Asegura que esté encima del editor pero debajo del botón */
+    }
+
+    .note-btn-group.btn-group {
+        position: relative !important;
+    }
+
+    .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important;
+        min-width: 120px; /* opcional para evitar que se colapse */
+    }
+
+    /* Aplica solo al dropdown que sigue a un botón con aria-label="Paragraph" */
+    button[aria-label="Paragraph"] + .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 0 !important;
+        z-index: 1050 !important;
+        transform: translateX(-20px); /* Ajusta según el espacio disponible */
+    }
+
     .hide_element {
         display: none !important;
     }
@@ -180,10 +213,12 @@ function cambiarFormatoFecha($fecha) {
                             <i class="bi bi-file"></i>
                             Documentos
                         </a>
+                        <?php if ($info_digital_record['citas_activas'] == 1): ?>
                         <a class="nav-link text-dark" data-section="notas">
                             <i class="bi bi-journal"></i>
                             Notas
                         </a>
+                        <?php endif; ?>
                     </nav>
                 </div>
             </aside>
@@ -502,7 +537,7 @@ function cambiarFormatoFecha($fecha) {
 </div>
 
 <div class="modal fade" id="modal_preview_nota" tabindex="-1" aria-labelledby="label_modal_preview_nota" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
         <h3 class="modal-title" id="label_modal_diagnostico">Nota</h3>
@@ -513,12 +548,16 @@ function cambiarFormatoFecha($fecha) {
             <div class="row mb-3">            
                 <!-- Campo Clave -->
                 <div class="col-md-12">
+                    <label><?php echo $translations['html_title']; ?>:</label>
+                    <div id="titulo" class="d-block"></div>
+                </div>
+                <div class="col-md-6">
                     <label><?php echo $translations['html_title_professional']; ?>:</label>
                     <div id="nombre_profesional" class="d-block"></div>
                 </div>
-                <div class="col-md-12">
-                    <label><?php echo $translations['html_title']; ?>:</label>
-                    <div id="titulo" class="d-block"></div>
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_private_note']; ?>:</label>
+                    <div id="nota_privada" class="d-block"></div>
                 </div>
                 <!-- Campo Nombre -->
                 <div class="col-md-12 div_show_nota" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
@@ -633,6 +672,14 @@ function cambiarFormatoFecha($fecha) {
                         $(row).data('rowData', data);
                         $(row).css('cursor','pointer');
                         $(row).addClass('row_notas');
+                        
+                        if (data['nota_privada'] == 1) {
+                            // Aplica el fondo a toda la fila
+                            $(row).attr('title','Nota privada');
+                            $(row).css('background-color', '#F7F157');
+                            // Aplica el fondo a cada celda individualmente
+                            $('td', row).css('background-color', '#F7F157');
+                        }
                     }
                 });
             } else {
@@ -653,8 +700,8 @@ function cambiarFormatoFecha($fecha) {
                 toolbar: [
                     // Grupo más básico y funcional
                     ['style', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontsize', ['fontsize']],
                     ['color', ['color']],
+                    ['fontsize', ['fontsize']],
                     ['para', ['ul', 'ol', 'paragraph']]
                 ],
                 disableResizeEditor: true,
@@ -668,7 +715,35 @@ function cambiarFormatoFecha($fecha) {
                 }
             });
             
-            
+            $('#summernote').summernote('code', '');
+
+            // Color
+            $(document).on('click', '.note-color .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide(); // Cierra otros menús
+                menu.toggle(); // Abre/cierra el actual
+            });
+
+            // Font size
+            $(document).on('click', '.note-fontsize .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
+            // Paragraph
+            $(document).on('click', 'button[aria-label="Paragraph"]', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.note-dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
             // Navegación entre secciones
             $('#container_digital_record').on('click','.nav-link',function(e) {
                 e.preventDefault();
@@ -987,6 +1062,7 @@ function cambiarFormatoFecha($fecha) {
 
                 $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
                 $(modal_clone).find("#titulo").text(data['titulo']);
+                $(modal_clone).find("#nota_privada").text(data['nota_privada'] == 1 ? 'SI' : 'NO');
                 $(modal_clone).find(".div_show_nota").html(data['texto']);
 
                 $(modal_clone).on('click','#btn_edit',async function(){

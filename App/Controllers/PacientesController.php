@@ -116,6 +116,7 @@ class PacientesController extends BaseController
         $this->view->delete = FuncionesGlobales::HasAccess("Pacientes","delete");
         $this->view->preview    = FuncionesGlobales::HasAccess("Pacientes","preview");
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
+        $this->view->digital_record         = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
     }
 
     public function createAction(){
