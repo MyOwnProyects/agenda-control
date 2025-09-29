@@ -216,3 +216,21 @@ function convertirHoraATiempo(hora) {
     fechaHora.setHours(horas, minutos, 0, 0); // Establecer horas y minutos, segundos y milisegundos a 0
     return fechaHora;
 }
+
+//  FUNCION PARA FORMATEAR DINERO
+function formatoDinero(numero) {
+    
+    // Convertir a número por si viene como string
+    const num = parseFloat(numero);
+    
+    // Verificar si es un número válido
+    if (isNaN(num)) {
+        return "0.00";
+    }
+    
+    // Formatear con separadores de miles y 2 decimales
+    return num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
