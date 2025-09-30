@@ -81,6 +81,7 @@ class LoginController extends Controller
                 $this->session->set("nombre",$request[0]['nombre']);
                 $this->session->set("clave_tipo_usuario",$request[0]['clave_tipo_usuario']);
                 $this->session->set("nombre_tipo_usuario",$request[0]['nombre_tipo_usuario']);
+                $this->session->set("id_profesional",$request[0]['id_profesional']);
                 $this->session->set("permisos",array());
                 $this->session->set("language",'es');
                 $this->session->set("bfp",$bfp);

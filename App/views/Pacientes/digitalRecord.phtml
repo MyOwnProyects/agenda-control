@@ -153,7 +153,17 @@
     }
 
     .row_selected{
-        background-color: #3fd83fff;
+        background-color: #288d28ff;
+        color: white;
+    }
+
+    .row_disabled{
+        background-color: #a1d4a1ff!important;
+        color: black!important;
+    }
+
+    .row_selected div {
+        color: white;
     }
 
 </style>
@@ -174,6 +184,9 @@ $dias_semana = [
     6 => 'Sábado', 
     7 => 'Domingo'
 ];
+
+//  ARRAY DE AREAS YA ASIGNADAS AL PACIENTE
+$arr_subarea_paciente   = array();
 
 function cambiarFormatoFecha($fecha) {
     return date('d/m/Y', strtotime($fecha));
@@ -396,21 +409,32 @@ function cambiarFormatoFecha($fecha) {
                         
                         <div class="col-lg-6">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="h4 fw-semibold mb-0">Tratamiento</h3>
-                                <?php if ($update): ?>
-                                <a class="btn btn-link btn_diagnoses text-primary text-decoration-none p-0">
-                                    Modificar diagn&oacute;stico
+                                <h3 class="h4 fw-semibold mb-0">Áreas de enfoque</h3>
+                                <?php if ($update && $info_digital_record['citas_activas'] == 1): ?>
+                                <a class="btn btn-link btn_focus text-primary text-decoration-none p-0">
+                                    Modificar registros
                                     <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
                                 </a>
                                 <?php endif; ?>
                             </div>
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title h6 fw-semibold mb-3">Tratamiento actual</h5>
-                                    <div class="border-start border-success border-3 ps-3">
-                                        <p class="fw-medium mb-1">Sumatriptán 50mg</p>
-                                        <p class="small text-muted mb-0">Tomar al inicio de la migraña, máximo 2 dosis al día.</p>
-                                    </div>
+                                    <h5 class="card-title h6 fw-semibold mb-3">Áreas asignadas</h5>
+                                    <?php if(count($info_digital_record['areas_enfoque']) > 0): ?>
+                                        <?php foreach($info_digital_record['areas_enfoque'] as $area_enfoque): ?>
+                                        <div class="border-start border-success border-3 ps-3">
+                                            <p class="fw-medium mb-1"><?php echo $area_enfoque['info']['nombre']; ?></p>
+                                            <?php foreach($area_enfoque['subarea'] as $subarea): ?>
+                                            <?php $arr_subarea_paciente[$subarea['id_subarea_enfoque']] = $subarea['id_profesional_registro']; ?>
+                                            <p class="small text-muted mb-0"><?php echo $subarea['nombre_subarea']; ?></p>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="border-start border-success border-3 ps-3">
+                                            <label>Sin área asignada</label>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -448,7 +472,7 @@ function cambiarFormatoFecha($fecha) {
                             <input type="checkbox" class="form-check-input" id="private-note"/>
                             <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
                             </div>
-                            <button type="button" class="btn btn-info text-white fw-semibold btn_save_nota">Añadir Nota</button>
+                            <button type="button" class="btn btn-success text-white fw-semibold btn_save_nota">Añadir Nota</button>
                             
                         </form>
                         <!-- Contenedor para los botones alineados a la derecha -->
@@ -493,15 +517,6 @@ function cambiarFormatoFecha($fecha) {
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3">            
-                <!-- Campo Clave -->
-                <div class="col-md-12">
-                    <label><?php echo $translations['html_title_patient']; ?>:</label>
-                    <div id="nombre_paciente" class="d-block"></div>
-                </div>
-                <!-- Campo Nombre -->
-                <div class="col-md-12">
-                    <label for="input_diagnoses" class="col-form-label"><?php echo $translations['html_registered_diagnoses']; ?></label>
-                </div>
                 <div class="div_lista_diagnosticos col-md-12">
                     <div class="row">
                         <div class="col-md-2"><?php echo $translations['html_abrev']; ?></div>
@@ -517,13 +532,49 @@ function cambiarFormatoFecha($fecha) {
                         </div>
                     <?php endforeach; ?>
                 </div>
-            
-                <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                    </svg>
-                <div id="msg_error">
-                    
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_focus" tabindex="-1" aria-labelledby="label_modal_focus" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_focus">Captura de Areas de enfoque</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <div class="div_lista_enfoques col-md-12">
+                    <div class="border rounded" style="overflow-y: auto; height: 400px;">
+                        <?php foreach($arr_areas_enfoque as $index => $area_enfoque): ?>
+                            <div class="border-bottom">
+                                <div class="p-3 bg-light div_header" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#collapseArea<?php echo $index; ?>" 
+                                    style="cursor: pointer">
+                                    <span class="fw-semibold"><?php echo $area_enfoque['info']['nombre']; ?></span>
+                                </div>
+                                <div id="collapseArea<?php echo $index; ?>" class="collapse">
+                                    <div class="p-0">
+                                        <?php foreach($area_enfoque['subarea'] as $subarea): ?>
+                                            <div class="p-3 ps-5 border-bottom div_subarea" data-id="<?php echo $subarea['id_subarea_enfoque']; ?>" style="cursor:pointer">
+                                                <?php echo $subarea['nombre']; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </form>
@@ -578,11 +629,16 @@ function cambiarFormatoFecha($fecha) {
 <script>
     let modulo_digital_record   = (function(){
         //  ID DEL PACIENTE
-        const id_paciente   = '<?php echo $id_paciente; ?>';
-        const estatus       = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
+        const id_paciente       = '<?php echo $id_paciente; ?>';
+        const id_profesional    = '<?php echo $id_profesional; ?>';
+        const estatus           = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
         const nombre_completo   = '<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>';
         let diagnosticos        = '<?php echo $diagnosticos ?>';
         diagnosticos            = JSON.parse(diagnosticos);
+
+        let arr_subarea_paciente    = '<?php echo json_encode($arr_subarea_paciente); ?>';
+        arr_subarea_paciente        = JSON.parse(arr_subarea_paciente);
+        console.log('arr_subarea_paciente',arr_subarea_paciente);
 
         //  URL
         const controller    = '/Pacientes';
@@ -856,6 +912,15 @@ function cambiarFormatoFecha($fecha) {
                 show_modal_diagnoses();
             });
 
+            //  EVENTO PARA MOSTRAR AREAS DE ENFOQUE
+            $(".btn_focus").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+                show_modal_focus();
+            });
+
             //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
             $("#form_info_personal").on('keypress','.input_celular',function(e) {
                 if(isNaN(this.value + String.fromCharCode(e.charCode))) 
@@ -1052,6 +1117,74 @@ function cambiarFormatoFecha($fecha) {
                         }
                     });
                 })
+
+                $(modal_clone).modal('show');
+            }
+
+            function show_modal_focus(){
+                let modal_clone = $("#modal_focus").clone().removeAttr('id').show();
+
+                $(modal_clone).on('click','.div_subarea',function(){
+                    if ($(this).hasClass('row_disabled')){
+                        return false;
+                    }
+                    if ($(this).hasClass('row_selected')){
+                        $(this).removeClass('row_selected');
+                    } else {
+                        $(this).addClass('row_selected').data('idprofesional',id_profesional);
+                    }
+                });
+
+                $(modal_clone).on('click','#btnSave',function(){
+                    let btn         = $(this);
+                    $(btn).prop('disabled',true);
+                    
+                    let obj_info    = [];
+
+                    $(modal_clone).find('.row_selected').each(function(){
+                        console.log('prof',$(this).data('idprofesional'));
+                        if ($(this).data('idprofesional') == id_profesional){
+                            obj_info.push($(this).data('id'));
+                        }
+                    });
+
+                    $.ajax({
+                        url     : url_digital,
+                        method  : 'post',
+                        data    : {
+                            accion      : 'save_subareas_focus',
+                            obj_info    : obj_info,
+                            nombre_completo : nombre_completo,
+                            id_paciente     : id_paciente
+                        },
+                        success : function(data){
+                            showAlert('success','Captura exitosa!');
+                            $(modal_clone).modal('hide');
+                            setTimeout(function(){
+                                window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                            },2000);
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    })
+                });
+
+                //  SE RECORREO EL ARRAY PARA MARCAR LOS YA ASIGNADOS
+                $(modal_clone).find('.div_subarea').each(function(){
+                    if (typeof (arr_subarea_paciente[$(this).data('id')]) != "undefined"){
+                        $(this).addClass('row_selected');
+                        $(this).data('idprofesional',arr_subarea_paciente[$(this).data('id')]);
+                        var $collapse = $(this).closest('.collapse');
+                        if ($collapse.length) {
+                            $collapse.collapse('show');
+                        }
+
+                        if (arr_subarea_paciente[$(this).data('id')] != id_profesional){
+                            $(this).addClass('row_disabled').prop('disabled',true).attr('title','Registro realizado por otro profesional');
+                        }
+                    }
+                });
 
                 $(modal_clone).modal('show');
             }

@@ -70,7 +70,8 @@ return [
         'fill_combo'            => '/ctpacientes/fill_combo',
         'save_express'          => '/ctpacientes/save_express',
         'save_diagnoses'        => '/ctpacientes/save_diagnoses',
-        'get_digital_record'    => '/ctpacientes/get_digital_record'
+        'get_digital_record'    => '/ctpacientes/get_digital_record',
+        'save_subareas_focus'   => '/ctpacientes/save_subareas_focus'
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
@@ -104,6 +105,9 @@ return [
         'delete'    => "/tbnotas/delete",
         'update'    => "/tbnotas/update",
         'count'     => "/tbnotas/count",
+    ),
+    'ctareas_enfoque'   => array(
+        'show'  => '/ctareas_enfoque/show',
     )
 
 ];

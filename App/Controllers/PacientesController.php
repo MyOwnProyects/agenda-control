@@ -693,6 +693,24 @@ class PacientesController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'save_subareas_focus'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_subareas_focus'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se modificaron los registros de área de enfoque del paciente: '.$_POST['nombre_completo'].' dejando en total '.count($_POST['obj_ifo']).' registros propios',$_POST['obj_ifo']);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
 
         //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
@@ -724,11 +742,17 @@ class PacientesController extends BaseController
         $arr_transtornos    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         $this->view->arr_transtornos    = $arr_transtornos;
 
+        //  GET AREAS DE DESARROLLO
+        $route              = $this->url_api.$this->rutas['ctareas_enfoque']['show'];
+        $arr_areas_enfoque  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $this->view->arr_areas_enfoque    = $arr_areas_enfoque;
+
         $this->view->id_paciente            = $id_paciente;
         $this->view->info_digital_record    = $result;
         $this->view->update                 = FuncionesGlobales::HasAccess("Pacientes","update");
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
+        $this->view->id_profesional         = $this->session->get('id_profesional');
 
     }
 
