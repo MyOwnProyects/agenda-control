@@ -29,8 +29,8 @@ Thumbs.db
 
 
 # ARCHIVOS PARA PRUEBAS
-/public/html_test.phtml
-
+/public/test.phtml
+/public/test
 # CARPETA STORAGE
 /storage/
 

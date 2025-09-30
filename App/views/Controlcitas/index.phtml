@@ -36,7 +36,7 @@ use App\Library\FuncionesGlobales;
     }
 
     /* ESTILO PARA MODAL DE INFORMACION */
-    #modal_info_cita .modal-header {
+    .modal_info_cita .modal-header {
     background-color: #343a40;
     color: #fff;
     border-bottom: 1px solid #dee2e6;
@@ -45,13 +45,13 @@ use App\Library\FuncionesGlobales;
     }
 
     /* Labels dentro del body */
-    #modal_info_cita .modal-body label {
+    .modal_info_cita .modal-body label {
     font-weight: 600;
     color: #495057;
     }
 
     /* Spans dentro del body */
-    #modal_info_cita .modal-body span {
+    .modal_info_cita .modal-body span {
     display: inline-block;
     margin-top: 0.25rem;
     font-weight: 500;
@@ -59,14 +59,14 @@ use App\Library\FuncionesGlobales;
     }
 
     /* Separadores de secciones */
-    #modal_info_cita .row.mb-3 {
+    .modal_info_cita .row.mb-3 {
     padding: 10px 0;
     border-bottom: 1px dashed #ced4da;
     margin-bottom: 15px;
     }
 
     /* Información de cancelación */
-    #modal_info_cita .div_info_cancelacion {
+    .modal_info_cita .div_info_cancelacion {
     background-color: #fff3cd;
     border: 1px solid #ffeeba;
     padding: 15px;
@@ -74,14 +74,14 @@ use App\Library\FuncionesGlobales;
     margin-top: 15px;
     }
 
-    #modal_info_cita .div_info_cancelacion label {
+    .modal_info_cita .div_info_cancelacion label {
     font-weight: bold;
     color: #856404;
     margin-bottom: 10px;
     }
 
     /* Lista de servicios */
-    #modal_info_cita .div_servicios {
+    .modal_info_cita .div_servicios {
     /*background-color: #f1f3f5;  Fondo uniforme para toda la sección */
     border: 1px solid #ced4da;
     padding: 15px;
@@ -89,35 +89,35 @@ use App\Library\FuncionesGlobales;
     margin-top: 20px;
     }
 
-    #modal_info_cita .div_servicios label {
+    .modal_info_cita .div_servicios label {
     font-weight: bold;
     margin-bottom: 10px;
     display: block;
     color: #495057;
     }
 
-    #modal_info_cita .div_servicios .d-flex {
+    .modal_info_cita .div_servicios .d-flex {
     align-items: center;
     }
 
     /* Quitamos el fondo de las filas de encabezado de servicios */
-    #modal_info_cita .div_servicios .div_header_servicios .d-flex {
+    .modal_info_cita .div_servicios .div_header_servicios .d-flex {
     background-color: transparent;
     }
 
     /* Total en servicios */
-    #modal_info_cita .div_servicios .total {
+    .modal_info_cita .div_servicios .total {
     font-size: 1.1rem;
     color: #343a40;
     }
 
     /* Footer del modal */
-    #modal_info_cita .modal-footer {
+    .modal_info_cita .modal-footer {
     border-top: none;
     }
 
     /* Botón de cancelar */
-    #modal_info_cita .btn-outline-dark {
+    .modal_info_cita .btn-outline-dark {
     border-radius: 0.5rem;
     padding: 6px 20px;
     }
@@ -311,11 +311,22 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <div class="col-md-4">
                     <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_appointment_date']; ?></label>
-                    <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_appointment_date']; ?>">
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_appointment_date']; ?>">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_clear_fecha_inicio">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
                 </div>
+
                 <div class="col-md-4">
-                    <label for="rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
-                    <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
+                    <label for="input_rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_clear_fecha_termino">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     
@@ -386,10 +397,26 @@ use App\Library\FuncionesGlobales;
         <div class="card-header">
             <h5><?php echo $translations['html_header_results']; ?></h5>
         </div>
+        <div id="div_multiselector" class="alert alert-info m-0 rounded-0" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    <span id="selected_count">0</span> 
+                    <span id="selected_text">elementos seleccionados</span>
+                </span>
+                <div>
+                    <?php if ($registrar_pago): ?>
+                    <button class="btn btn-sm btn-success" id="btn_pagar_todas">Pagar</button>
+                    <?php endif; ?>
+                    <button class="btn btn-sm btn-warning" id="btn_reagendar_todas">Reagendar/cancelar citas</button>
+                    <button class="btn btn-sm btn-danger" id="btn_regresar_todas">Regresar</button>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
                 <thead>
                     <tr>
+                        <th><input type="checkbox" id="check_select_all" /></th>
                         <th><?php echo $translations['html_title_patient']; ?></th>
                         <th><?php echo $translations['html_title_professional']; ?></th>
                         <th><?php echo $translations['html_service_cost']; ?></th>
@@ -543,7 +570,7 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
-<div class="modal fade" id="modal_info_cita" tabindex="-1" aria-labelledby="label_modal_info_cita" aria-hidden="true">
+<div class="modal fade modal_info_cita" id="modal_info_cita" tabindex="-1" aria-labelledby="label_modal_info_cita" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -662,8 +689,54 @@ use App\Library\FuncionesGlobales;
 
 <div id="template_servicio_cita_diaria" class=" py-2 border-bottom hide">
     <div class="flex-fill servicio">Lenguaje</div>
-    <div class="flex-fill"><span class="duracion"></span> Min</div>
+    <div class="flex-fill div_duracion"><span class="duracion"></span> Min</div>
     <div class="flex-fill costo">$<span clas="costo"></span></div>
+</div>
+
+<div class="modal fade modal_info_cita" id="modal_multipay" tabindex="-1" aria-labelledby="label_modal_multipay" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_multipay"><?php echo FuncionesGlobales::UpperString('Información de pago'); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-12 div_servicios">
+                    <div class="col-md-12"><label>Lista de servicios</label></div>
+                    <div class="d-flex border-bottom fw-bold py-2 mt-3">
+                        <div class="flex-fill">Servicio</div>
+                        <div class="flex-fill">Costo</div>
+                    </div>
+
+                    <!-- Primera fila de datos -->
+                    <div class="div_header_servicios">
+                    </div>
+
+                    <!-- Total -->
+                    <div class="d-flex justify-content-end fw-bold py-2 mt-2">
+                        <div>Total: $<span class="total"></span></div>
+                    </div>
+                    <?php if ($registrar_pago): ?>
+                    <div class="col-md-12 div_forma_pago show_by_pay" align="center">
+                        <label>Forma de pago</label>
+                        <input type="radio" name="forma_pago" value="EFECTIVO"  checked/> Efectivo
+                        <input type="radio" name="forma_pago" value="TRANSFERENCIA"  /> Transferencia
+                    </div>
+                    <?php endif;?>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <?php if ($registrar_pago): ?>
+        <button type="button" class="btn btn_registrar_pago show_by_pay"></button>
+        <?php endif;?>
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_close']; ?></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade modal-xl" id="modal_save_class" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
@@ -945,6 +1018,7 @@ use App\Library\FuncionesGlobales;
             
             draw    ++;
             if (!table) {
+                //  REINICIAR CONTADOR DE SELECCIONADOS A 0
                 table = new DataTable('#table_results', {
                     dom: 'lrtip',
                     paging: true,
@@ -953,6 +1027,7 @@ use App\Library\FuncionesGlobales;
                     language: translations,
                     ordering: false,
                     serverSide: true,
+                    pageLength: 20,
                     ajax: {
                         url     : url_index,
                         method  : 'POST',
@@ -975,6 +1050,18 @@ use App\Library\FuncionesGlobales;
                         }
                     },
                     columns: [
+                        {
+                            data: null, 
+                            className: "text-center",
+                            orderable: false,
+                            render: function (data, type, row) {
+                                let button_check    = '<input type="checkbox" class="check_multiselect" data-id="'+data['id']+'" data-pagada="'+data['pagada']+'" data-activa="'+data['activa']+'" />';
+                                if (data['activa'] == 0){
+                                    button_check    = '';
+                                }
+                                return button_check;
+                            }
+                        },
                         { data: 'nombre_completo' }, // Columna 1
                         { data: 'nombre_profesional' }, // Columna 1
                         { data: 'num_servicios_costo' }, // Columna 1
@@ -1019,37 +1106,38 @@ use App\Library\FuncionesGlobales;
                         // Guardar el objeto completo en la fila como data
                         //console.log('data',data);
                         $(row).data('rowData', data);
+                        console.log('rowData',data);
                         
                         if (data.activa == 0) {
-                            $(row).find('td:eq(4)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
-                        }
-
-                        if (data.activa == 1) {
-                            $(row).find('td:eq(4)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
-                        }
-
-                        if (data.activa == 2) {
-                            $(row).find('td:eq(4)').css('background-color', '#d9e757ff'); // La sexta columna tiene índice 5
-                        }
-
-                        if (data.asistencia == 1 || data.asistencia == 3) {
-                            $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
-                        }
-
-                        if (data.asistencia == 0) {
                             $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
                         }
 
-                        if (data.pagada == 0) {
-                            $(row).find('td:eq(6)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        if (data.activa == 1) {
+                            $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
                         }
 
-                        if (data.pagada == 1){
+                        if (data.activa == 2) {
+                            $(row).find('td:eq(5)').css('background-color', '#d9e757ff'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 1 || data.asistencia == 3) {
                             $(row).find('td:eq(6)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
                         }
 
+                        if (data.asistencia == 0) {
+                            $(row).find('td:eq(6)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 0) {
+                            $(row).find('td:eq(7)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 1){
+                            $(row).find('td:eq(7)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
                         if (data.codigo_color != null) {
-                            $(row).find('td:eq(2)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                            $(row).find('td:eq(3)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
                         }
                         
                     }
@@ -1060,7 +1148,7 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function show_modal_cancelar_cita(element){
+        function show_modal_cancelar_cita(element,multiappoitment){
             let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
             let id_agenda_cita  = $(element).data('id');
             let row_data        = $(element).closest('tr').data('rowData');
@@ -1093,7 +1181,17 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-                let texto_cita  = row_data['nombre_completo']+' del día '+row_data['fecha_completa'];
+                let texto_cita  = multiappoitment ? '' : row_data['nombre_completo']+' del día '+row_data['fecha_completa'];
+
+                let arr_id_agenda_cita  = [$(element).data('id')];
+
+                if (multiappoitment){
+                    arr_id_agenda_cita  = [];
+                    $("#table_results").find('.check_multiselect:checked').each(function(){
+                        let row_data    = $(this).closest('tr').data('rowData');
+                        arr_id_agenda_cita.push(row_data['id_agenda_cita']);
+                    });
+                }
 
                 $.ajax({
                     url         : url_index,
@@ -1103,9 +1201,10 @@ use App\Library\FuncionesGlobales;
                         accion          : 'cancelar_cita',
                         id_motivo_cancelacion       : $(modal_clone).find("#select_motivo_cancelacion").val(),
                         observaciones_cancelacion   : $(modal_clone).find("#textarea_observaciones_cancelacion").val(),
-                        id_agenda_cita              : $(element).data('id'),
+                        arr_id_agenda_cita          : arr_id_agenda_cita,
                         tipo_movimiento             : $(modal_clone).find('.tipo_movimiento:checked').val(),
-                        texto_cita                  : texto_cita
+                        texto_cita                  : texto_cita,
+                        multiappoitment             : multiappoitment
                     },
                     success     : function(data){
                         $(modal_clone).modal('hide');
@@ -1127,17 +1226,10 @@ use App\Library\FuncionesGlobales;
                     },
                     error     : function(error){
                         console.log('error',error);
-                        //$(modal_clone).find('#btnSave').prop('disabled',false);
+                        actionJsonError(error,btn);
                     }
                 });
             });
-
-            // $(modal_clone).find('#select_motivo_cancelacion').select2({
-            //     placeholder: 'Seleccione una opción',
-            //     dropdownParent: $(modal_clone),
-            //     width: '50px'
-            // });
-
 
             $(modal_clone).modal('show');
         }
@@ -2139,10 +2231,126 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         }
 
+        function show_hide_multibutton(){
+            let flag_hide_pay           = false;
+            let flag_hide_reschedule    = false;
+            $("#table_results").find('.check_multiselect:checked').each(function(){
+                //if ()
+                //  RECORRER PARA SABER SI ES NECESARIO OCULTAR ALGUN BOTON
+                
+                if ($(this).data('pagada') == 1){
+                    flag_hide_pay   = true;
+                }
+
+                if ($(this).data('activa') == 2){
+                    flag_hide_reschedule    = true;
+                }
+            });
+
+            if (flag_hide_pay){
+                $("#btn_pagar_todas").hide();
+            } else {
+                $("#btn_pagar_todas").show();
+            }
+
+            if (flag_hide_reschedule){
+                $("#btn_reagendar_todas").hide();
+            } else {
+                $("#btn_reagendar_todas").show();
+            }
+        }
+
+        function show_modal_list_pay(){
+            let modal_clone = $("#modal_multipay").clone().removeAttr('id');
+            let total_pagar     = 0;
+            let obj_servicios   = {};
+            let arr_id_citas    = [];
+            $("#table_results").find('.check_multiselect:checked').each(function(){
+                let row_data    = $(this).closest('tr').data('rowData');
+
+
+                for(let i in row_data['servicios']){
+                    let servicio    = row_data['servicios'][i];
+                    if(typeof obj_servicios[servicio['clave']] == "undefined"){
+                        obj_servicios[servicio['clave']]    = {
+                            nombre  : '',
+                            costo   : 0
+                        }
+                        obj_servicios[servicio['clave']]['nombre']  = servicio['nombre_servicio'];
+                        obj_servicios[servicio['clave']]['costo']   = servicio['costo'];
+                    } else {
+                        obj_servicios[servicio['clave']]['costo']   = ((parseFloat(servicio['costo']) * 100) + (parseFloat(obj_servicios[servicio['clave']]['costo']) * 100)) / 100;
+                    }
+
+                    total_pagar = ((parseFloat(servicio['costo']) * 100) + (parseFloat(total_pagar) * 100)) / 100;
+                }
+
+                arr_id_citas.push(row_data['id_agenda_cita']);
+            });
+
+            //template_servicio_cita_diaria
+            for(let i in obj_servicios){
+                let row_servicio    = $("#template_servicio_cita_diaria").clone().removeAttr('id').addClass('d-flex').removeClass('hide');
+                $(row_servicio).find('.servicio').text(obj_servicios[i]['nombre']);
+                $(row_servicio).find('.costo').text('$'+formatoDinero(obj_servicios[i]['costo']));
+                $(row_servicio).find('.div_duracion').hide();
+
+                $(modal_clone).find('.div_header_servicios').append(row_servicio);
+            }
+
+            $(modal_clone).find('.btn_registrar_pago').addClass('btn-success').text('Pagar');
+            $(modal_clone).find('.total').text(formatoDinero(total_pagar));
+
+            //  EVENTO PARA PAGAR
+            $(modal_clone).on('click','.btn_registrar_pago',function(){
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+                $.ajax({
+                    url     : url_index,
+                    method  : 'post',
+                    data    : {
+                        accion              : 'captura_multipago',
+                        arr_id_agenda_cita  : arr_id_citas,
+                        forma_pago          : $(modal_clone).find('[name="forma_pago"]:checked').val(),
+                        total_pagar         : '$'+formatoDinero(total_pagar)
+                    },
+                    success : function(data){
+                        $(modal_clone).modal('hide');
+                        showAlert('success','Captura exitosa!');
+                        if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                            if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                                return false;
+                            }
+
+                            if ($('#input_rango_fecha_termino').val() == '') {
+                                return false;
+                            }
+                        }
+                        
+                        cargarTabla();
+
+                    },
+                    error   : function(error){
+                        $(btn).prop('disabled',false);
+                        console.log('error');
+                        //console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+            $(modal_clone).modal('show');
+        }
+
         $(document).ready(function() {
 
-            // $("#input_rango_fecha_inicio").val('2025-06-21');
-            // $("#input_rango_fecha_termino").val('2025-06-30');
+            //  BOTONES PARA LIMPIAR FECHAS
+            $('#btn_clear_fecha_inicio').on('click', function() {
+                $('#input_rango_fecha_inicio').val('');
+            });
+
+            $('#btn_clear_fecha_termino').on('click', function() {
+                $('#input_rango_fecha_termino').val('');
+            });
             
             // Initialize the select elements
             $('.select_locaciones').select2({
@@ -2468,6 +2676,71 @@ use App\Library\FuncionesGlobales;
                 $("#input_rango_fecha_termino").val(fecha_30_dias);
                 $("#btnBuscar").trigger('click');
             }
+
+            //  EVENTO PARA MULTISELECTOR
+            $("#table_results").on('click','.check_multiselect',function(){
+                // Obtener los datos almacenados en la fila
+                let data = $(this).closest('tr').data('rowData');
+                
+                //  SE MUESTRA EL MULTISELECTOR
+                let selected_count  = $("#table_results").find('.check_multiselect:checked').length;
+
+                if (selected_count > 0 && !$("#div_multiselector").is(':visible')){
+                    $("#div_multiselector").show();
+                }
+
+                if (selected_count == 0){
+                    $("#div_multiselector").hide();
+                }
+
+                $("#selected_count").text(selected_count);
+
+                show_hide_multibutton();
+                
+            });
+
+            $("#table_results").on('click','#check_select_all',function(){
+
+                let prop_check  = $(this).is(':checked');
+                $("#table_results").find('.check_multiselect').prop('checked',prop_check);
+
+                if (!prop_check){
+                    $('#div_multiselector').hide();
+                    $('#selected_count').text(0);
+                } else {
+                    let selected_count  = $("#table_results").find('.check_multiselect:checked').length;
+
+                    if (selected_count > 0 && !$("#div_multiselector").is(':visible')){
+                        $("#div_multiselector").show();
+                    }
+
+                    $("#selected_count").text(selected_count);
+                }
+
+                show_hide_multibutton();
+                
+            });
+
+            $('#table_results').on('draw.dt', function() {
+                $('#div_multiselector').hide();
+                $('#selected_count').text(0);
+                $('#check_select_all').prop('checked', false);
+            });
+
+            $("#btn_pagar_todas").on('click',function(){
+                show_modal_list_pay();
+            });
+
+            $("#btn_reagendar_todas").on('click',function(){
+                show_modal_cancelar_cita($(this),true);
+            });
+
+            $("#btn_regresar_todas").on('click',function(){
+                $('#div_multiselector').hide();
+                $('#selected_count').text(0);
+                $('#check_select_all').prop('checked', false);
+                $('#table_results').find(".check_multiselect").prop('checked',false);
+            });
             
             //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
             $(document).on('keydown', function(e) {
