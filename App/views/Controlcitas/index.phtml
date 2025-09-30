@@ -404,9 +404,11 @@ use App\Library\FuncionesGlobales;
                     <span id="selected_text">elementos seleccionados</span>
                 </span>
                 <div>
+                    <?php if ($registrar_pago): ?>
                     <button class="btn btn-sm btn-success" id="btn_pagar_todas">Pagar</button>
-                    <button class="btn btn-sm btn-warning" id="btn_reagendar_todas">Reagendar</button>
-                    <button class="btn btn-sm btn-danger" id="btn_cancelar_todas">Cancelar</button>
+                    <?php endif; ?>
+                    <button class="btn btn-sm btn-warning" id="btn_reagendar_todas">Reagendar/cancelar citas</button>
+                    <button class="btn btn-sm btn-danger" id="btn_regresar_todas">Regresar</button>
                 </div>
             </div>
         </div>
@@ -917,7 +919,7 @@ use App\Library\FuncionesGlobales;
 <script>
     let module_control_citas    = (function(){
 
-        let busqueda_pruebas    = true;
+        let busqueda_pruebas    = false;
 
         let draw            = 0;
         let count_hours     = 0;
@@ -1146,7 +1148,7 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function show_modal_cancelar_cita(element){
+        function show_modal_cancelar_cita(element,multiappoitment){
             let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
             let id_agenda_cita  = $(element).data('id');
             let row_data        = $(element).closest('tr').data('rowData');
@@ -1179,7 +1181,17 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-                let texto_cita  = row_data['nombre_completo']+' del día '+row_data['fecha_completa'];
+                let texto_cita  = multiappoitment ? '' : row_data['nombre_completo']+' del día '+row_data['fecha_completa'];
+
+                let arr_id_agenda_cita  = [$(element).data('id')];
+
+                if (multiappoitment){
+                    arr_id_agenda_cita  = [];
+                    $("#table_results").find('.check_multiselect:checked').each(function(){
+                        let row_data    = $(this).closest('tr').data('rowData');
+                        arr_id_agenda_cita.push(row_data['id_agenda_cita']);
+                    });
+                }
 
                 $.ajax({
                     url         : url_index,
@@ -1189,9 +1201,10 @@ use App\Library\FuncionesGlobales;
                         accion          : 'cancelar_cita',
                         id_motivo_cancelacion       : $(modal_clone).find("#select_motivo_cancelacion").val(),
                         observaciones_cancelacion   : $(modal_clone).find("#textarea_observaciones_cancelacion").val(),
-                        id_agenda_cita              : $(element).data('id'),
+                        arr_id_agenda_cita          : arr_id_agenda_cita,
                         tipo_movimiento             : $(modal_clone).find('.tipo_movimiento:checked').val(),
-                        texto_cita                  : texto_cita
+                        texto_cita                  : texto_cita,
+                        multiappoitment             : multiappoitment
                     },
                     success     : function(data){
                         $(modal_clone).modal('hide');
@@ -1217,13 +1230,6 @@ use App\Library\FuncionesGlobales;
                     }
                 });
             });
-
-            // $(modal_clone).find('#select_motivo_cancelacion').select2({
-            //     placeholder: 'Seleccione una opción',
-            //     dropdownParent: $(modal_clone),
-            //     width: '50px'
-            // });
-
 
             $(modal_clone).modal('show');
         }
@@ -2723,6 +2729,17 @@ use App\Library\FuncionesGlobales;
 
             $("#btn_pagar_todas").on('click',function(){
                 show_modal_list_pay();
+            });
+
+            $("#btn_reagendar_todas").on('click',function(){
+                show_modal_cancelar_cita($(this),true);
+            });
+
+            $("#btn_regresar_todas").on('click',function(){
+                $('#div_multiselector').hide();
+                $('#selected_count').text(0);
+                $('#check_select_all').prop('checked', false);
+                $('#table_results').find(".check_multiselect").prop('checked',false);
             });
             
             //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
