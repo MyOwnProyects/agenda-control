@@ -343,7 +343,7 @@ function cambiarFormatoFecha($fecha) {
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3 class="h4 fw-semibold mb-0">Citas programadas</h3>
                             <?php if ($schedule_appointments): ?>
-                            <a class="btn btn-link text-primary text-decoration-none p-0" href="/Pacientes/scheduleappointments?id=<?php echo $id_paciente; ?>">
+                            <a class="btn btn-link schedulle_appoitment_view text-primary text-decoration-none p-0">
                                 Modificar registros
                                 <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
                             </a>
@@ -362,6 +362,7 @@ function cambiarFormatoFecha($fecha) {
                                     </thead>
                                     <tbody>
                                         <?php $citas_programadas    = $info_digital_record['info_citas_programadas']; ?>
+                                        <?php if (count($citas_programadas) > 0): ?>
                                         <?php foreach($citas_programadas as $cita): ?>
                                         <tr>
                                             <td class="p-3"><?php echo $dias_semana[$cita['dia']]; ?></td>
@@ -370,6 +371,11 @@ function cambiarFormatoFecha($fecha) {
                                             <td class="p-3"><?php echo $cita['nombre_profesional'] ?></td>
                                         </tr>
                                         <?php endforeach; ?>
+                                        <?php else: ?>
+                                        <tr>
+                                            <td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                        </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -390,12 +396,11 @@ function cambiarFormatoFecha($fecha) {
                             </div>
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title h6 fw-semibold mb-3">Diagnóstico</h5>
                                     <?php if (count($info_digital_record['diagnosticos']) > 0): ?>
                                     <?php foreach($info_digital_record['diagnosticos'] as $diagnostico): ?>
                                     <div class="border-start border-primary border-3 ps-3">
-                                        <p class="fw-medium mb-1"><?php echo $diagnostico['nombre']; ?></p>
-                                        <p class="small text-muted mb-0"><?php echo 'El paciente <b>'.($diagnostico['presento_evidencia'] == 1 ? 'SI' : 'NO').'</b> presento evidencia de este diagnostico.'; ?></p>
+                                        <p class="fw-medium mb-1"><b><?php echo $diagnostico['nombre']; ?></b></p>
+                                        <p class="small text-muted mb-1 ms-3">- <?php echo 'El paciente <b>'.($diagnostico['presento_evidencia'] == 1 ? 'SI' : 'NO').'</b> presento evidencia de este diagnostico.'; ?></p>
                                     </div>
                                     <?php endforeach; ?>
                                     <?php else: ?>
@@ -419,14 +424,13 @@ function cambiarFormatoFecha($fecha) {
                             </div>
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title h6 fw-semibold mb-3">Áreas asignadas</h5>
                                     <?php if(count($info_digital_record['areas_enfoque']) > 0): ?>
                                         <?php foreach($info_digital_record['areas_enfoque'] as $area_enfoque): ?>
                                         <div class="border-start border-success border-3 ps-3">
-                                            <p class="fw-medium mb-1"><?php echo $area_enfoque['info']['nombre']; ?></p>
+                                            <p class="fw-medium mb-1"><b><?php echo $area_enfoque['info']['nombre']; ?></b></p>
                                             <?php foreach($area_enfoque['subarea'] as $subarea): ?>
                                             <?php $arr_subarea_paciente[$subarea['id_subarea_enfoque']] = $subarea['id_profesional_registro']; ?>
-                                            <p class="small text-muted mb-0"><?php echo $subarea['nombre_subarea']; ?></p>
+                                            <p class="small text-muted mb-1 ms-3">- <?php echo $subarea['nombre_subarea']; ?></p>
                                             <?php endforeach; ?>
                                         </div>
                                         <?php endforeach; ?>
@@ -902,6 +906,16 @@ function cambiarFormatoFecha($fecha) {
                     }
                 })
             });
+
+            //  PARA REDIRIGIR A PROGRAMAR CITAS
+            $(".schedulle_appoitment_view").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+
+                window.location.href = '/Pacientes/scheduleappointments?id='+id_paciente;
+            })
 
             //  EVENTO PARA MODOFICAR DIAGNOSTICO
             $(".btn_diagnoses").on('click',function(){

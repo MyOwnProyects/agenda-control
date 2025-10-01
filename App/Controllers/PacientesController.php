@@ -495,7 +495,7 @@ class PacientesController extends BaseController
         $route          = $this->url_api.$this->rutas['ctpacientes']['show'];
         $info_paciente  = FuncionesGlobales::RequestApi('GET',$route,array('id' => $id_paciente));
 
-        if (count($info_paciente) == 0){
+        if (count($info_paciente) == 0 || $info_paciente[0]['estatus'] != 1){
             $response   = $this->getDI()->get('response');
             // Redirigir a login/index si es una solicitud normal
             $response->redirect('Menu/route404');
