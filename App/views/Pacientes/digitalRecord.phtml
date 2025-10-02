@@ -1207,6 +1207,10 @@ function cambiarFormatoFecha($fecha) {
                 console.log('data',data);
                 let modal_clone = $("#modal_preview_nota").clone().removeAttr('id').show();
 
+                if (id_profesional != data['id_profesional']){
+                    $(modal_clone).find('#btn_edit').remove();
+                }
+
                 $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
                 $(modal_clone).find("#titulo").text(data['titulo']);
                 $(modal_clone).find("#nota_privada").text(data['nota_privada'] == 1 ? 'SI' : 'NO');
