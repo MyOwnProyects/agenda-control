@@ -184,6 +184,7 @@ return [
     'html_title'                                => 'Titulo',
     'html_private_note'                         => 'Nota privada',
     'html_see_file'                             => 'Ver expediente',
+    'html_appoitment_note'                      => 'Nota de cita',
     
 
 

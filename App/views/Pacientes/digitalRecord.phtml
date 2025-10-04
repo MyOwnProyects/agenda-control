@@ -189,6 +189,7 @@ $dias_semana = [
 $arr_subarea_paciente   = array();
 
 function cambiarFormatoFecha($fecha) {
+    if (empty($fecha)) return '';
     return date('d/m/Y', strtotime($fecha));
 }
 
@@ -297,7 +298,7 @@ function cambiarFormatoFecha($fecha) {
                                         </div>
                                         <div class="col-sm-6 col-lg-2">
                                             <p class="small text-muted mb-1">Edad</p>
-                                            <p class="fw-medium mb-0"><?php echo $info_digital_record['info_paciente']['edad_actual']; ?> años</p>
+                                            <p class="fw-medium mb-0"><?php echo empty($info_digital_record['info_paciente']['edad_actual']) ? '0.0 años' : $info_digital_record['info_paciente']['edad_actual'].' años'; ?> </p>
                                         </div>
                                         <div class="col-sm-6 col-lg-3">
                                             <p class="small text-muted mb-1">Género</p>
@@ -476,7 +477,7 @@ function cambiarFormatoFecha($fecha) {
                             <input type="checkbox" class="form-check-input" id="private-note"/>
                             <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
                             <?php if (is_numeric($id_agenda_cita)): ?>
-                                <br><span class="text-secondary">La nota a crear quedará registrada como "Nota de cita"</span>
+                                <br><span class="span_nota_cita text-secondary">La nota a crear quedará registrada como "Nota de cita"</span>
                             <?php endif; ?>
                             </div>
                             <button type="button" class="btn btn-success text-white fw-semibold btn_save_nota">Añadir Nota</button>
@@ -605,7 +606,7 @@ function cambiarFormatoFecha($fecha) {
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3">            
                 <!-- Campo Clave -->
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <label><?php echo $translations['html_title']; ?>:</label>
                     <div id="titulo" class="d-block"></div>
                 </div>
@@ -616,6 +617,10 @@ function cambiarFormatoFecha($fecha) {
                 <div class="col-md-6">
                     <label><?php echo $translations['html_private_note']; ?>:</label>
                     <div id="nota_privada" class="d-block"></div>
+                </div>
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_appoitment_note']; ?>:</label>
+                    <div id="nota_cita" class="d-block"></div>
                 </div>
                 <!-- Campo Nombre -->
                 <div class="col-md-12 div_show_nota" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
@@ -736,6 +741,7 @@ function cambiarFormatoFecha($fecha) {
                         $(row).data('rowData', data);
                         $(row).css('cursor','pointer');
                         $(row).addClass('row_notas');
+                        //console.log('data',data);
                         
                         if (data['nota_privada'] == 1) {
                             // Aplica el fondo a toda la fila
@@ -746,10 +752,11 @@ function cambiarFormatoFecha($fecha) {
                         }
 
                         if (data['id_agenda_cita'] != null) {
+                            let info_cita   = data['fecha_cita']+', '+data['dia']+' de '+data['hora_inicio']+' a '+data['hora_termino'];
                             if (data['nota_privada'] == 1){
-                                $(row).attr('title','Nota privada / Nota de cita');
+                                $(row).attr('title','Nota privada / Nota de cita: '+info_cita);
                             } else {
-                                $(row).attr('title','Nota de cita');
+                                $(row).attr('title','Nota de cita: '+info_cita);
                             }
                         }
                     }
@@ -1046,6 +1053,7 @@ function cambiarFormatoFecha($fecha) {
                     $(".input_titulo_nota").val('');
                     $('#summernote').summernote('code', '');
                     $("#private-note").prop('checked',0);
+                    $(".span_nota_cita").show();
 
                     $(".btn_edit_nota").hide();
                     $(".btn_save_nota").show();
@@ -1227,6 +1235,8 @@ function cambiarFormatoFecha($fecha) {
                 $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
                 $(modal_clone).find("#titulo").text(data['titulo']);
                 $(modal_clone).find("#nota_privada").text(data['nota_privada'] == 1 ? 'SI' : 'NO');
+                $(modal_clone).find("#nota_cita").text(
+                    data['id_agenda_cita'] != null ? 'SI: '+data['fecha_cita']+', '+data['dia']+' de '+data['hora_inicio']+' a '+data['hora_termino'] : 'NO');
                 $(modal_clone).find(".div_show_nota").html(data['texto']);
 
                 $(modal_clone).on('click','#btn_edit',async function(){
@@ -1244,6 +1254,7 @@ function cambiarFormatoFecha($fecha) {
                     $('#summernote').summernote('code', data['texto']);
                     $(".btn_save_nota").hide();
                     $(".btn_edit_nota").data('idnota',data['id']).show();
+                    $(".span_nota_cita").hide();
 
                     $(modal_clone).modal('hide');
                 });
