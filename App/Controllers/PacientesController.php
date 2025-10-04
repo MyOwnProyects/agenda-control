@@ -714,9 +714,10 @@ class PacientesController extends BaseController
         }
 
         //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
-        $id_paciente    = $_GET['id'];
+        $id_paciente    = $_GET['id'] ?? null;
+        $id_agenda_cita = $_GET['id_agenda_cita'] ?? null;
 
-        if (empty($id_paciente) || !is_numeric($id_paciente)){
+        if ((empty($id_paciente) || !is_numeric($id_paciente)) && (empty($id_agenda_cita) || !is_numeric($id_agenda_cita))){
             $response   = $this->getDI()->get('response');
             // Redirigir a login/index si es una solicitud normal
             $response->redirect('Menu/route404');
@@ -726,7 +727,10 @@ class PacientesController extends BaseController
 
         //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
         $route  = $this->url_api.$this->rutas['ctpacientes']['get_digital_record'];
-        $result = FuncionesGlobales::RequestApi('GET',$route,array('id_paciente' => $id_paciente));
+        $result = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id_paciente'       => $id_paciente,
+            'id_agenda_cita'    => $id_agenda_cita
+        ));
         
         $response = new Response();
         if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
@@ -736,6 +740,8 @@ class PacientesController extends BaseController
             $response->send();
             exit;
         }
+
+        $id_paciente    = $result['info_paciente']['id'];
 
         //  GET LISTA DE TRANSTORNOS
         $route              = $this->url_api.$this->rutas['cttranstornos_neurodesarrollo']['show'];
@@ -753,6 +759,7 @@ class PacientesController extends BaseController
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
         $this->view->id_profesional         = $this->session->get('id_profesional');
+        $this->view->id_agenda_cita         = $id_agenda_cita;
 
     }
 

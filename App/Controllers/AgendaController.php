@@ -299,6 +299,9 @@ class AgendaController extends BaseController
         $result_today       = FuncionesGlobales::RequestApi('GET',$route);
         $this->view->today  = $result_today['today'];
         $this->view->dia_limite_movimientos = $result_today['dia_limite_movimientos'];
+
+        //  ID PROFESIONAL DE SESION
+        $this->view->id_profesional = $this->session->get('id_profesional');
     }
 
     function get_info_by_location(){

@@ -475,6 +475,9 @@ function cambiarFormatoFecha($fecha) {
                             <div class="form-check mb-3">
                             <input type="checkbox" class="form-check-input" id="private-note"/>
                             <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
+                            <?php if (is_numeric($id_agenda_cita)): ?>
+                                <br><span class="text-secondary">La nota a crear quedará registrada como "Nota de cita"</span>
+                            <?php endif; ?>
                             </div>
                             <button type="button" class="btn btn-success text-white fw-semibold btn_save_nota">Añadir Nota</button>
                             
@@ -635,6 +638,7 @@ function cambiarFormatoFecha($fecha) {
         //  ID DEL PACIENTE
         const id_paciente       = '<?php echo $id_paciente; ?>';
         const id_profesional    = '<?php echo $id_profesional; ?>';
+        const id_agenda_cita    = '<?php echo $id_agenda_cita; ?>';
         const estatus           = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
         const nombre_completo   = '<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>';
         let diagnosticos        = '<?php echo $diagnosticos ?>';
@@ -723,7 +727,7 @@ function cambiarFormatoFecha($fecha) {
                         }
                     },
                     columns: [
-                        { data: 'titulo' },
+                        { data: 'label_titulo' },
                         { data: 'nombre_profesional' }, // Columna 1
                         { data: 'label_fecha_creacion' } // Columna 1
                     ],
@@ -739,6 +743,14 @@ function cambiarFormatoFecha($fecha) {
                             $(row).css('background-color', '#F7F157');
                             // Aplica el fondo a cada celda individualmente
                             $('td', row).css('background-color', '#F7F157');
+                        }
+
+                        if (data['id_agenda_cita'] != null) {
+                            if (data['nota_privada'] == 1){
+                                $(row).attr('title','Nota privada / Nota de cita');
+                            } else {
+                                $(row).attr('title','Nota de cita');
+                            }
                         }
                     }
                 });
@@ -1008,7 +1020,8 @@ function cambiarFormatoFecha($fecha) {
                         texto       : htmlContent,
                         nombre_completo : nombre_completo,
                         nota_privada    : $("#private-note").is(':checked') ? 1 : 0,
-                        id_nota         : id_nota
+                        id_nota         : id_nota,
+                        id_agenda_cita  : id_nota == null ? id_agenda_cita : null,
                     },
                     success : function(data){
                         showAlert('success','Captura exitosa!');
