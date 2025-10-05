@@ -2265,9 +2265,16 @@ use App\Library\FuncionesGlobales;
             let total_pagar     = 0;
             let obj_servicios   = {};
             let arr_id_citas    = [];
+            let cadena_pacientes    = '';
             $("#table_results").find('.check_multiselect:checked').each(function(){
                 let row_data    = $(this).closest('tr').data('rowData');
-
+                let tmp_nombre  = row_data['primer_apellido']+' '+row_data['segundo_apellido']+' '+row_data['nombre'];
+                
+                if (cadena_pacientes === '') {
+                    cadena_pacientes = tmp_nombre;
+                } else if (cadena_pacientes.indexOf(tmp_nombre) === -1) {
+                    cadena_pacientes += ', ' + tmp_nombre;
+                }
 
                 for(let i in row_data['servicios']){
                     let servicio    = row_data['servicios'][i];
@@ -2305,6 +2312,8 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).on('click','.btn_registrar_pago',function(){
                 let btn = $(this);
                 $(btn).prop('disabled',true);
+                console.log('cadena_pacientes',cadena_pacientes);
+                //return false;
                 $.ajax({
                     url     : url_index,
                     method  : 'post',
@@ -2312,7 +2321,8 @@ use App\Library\FuncionesGlobales;
                         accion              : 'captura_multipago',
                         arr_id_agenda_cita  : arr_id_citas,
                         forma_pago          : $(modal_clone).find('[name="forma_pago"]:checked').val(),
-                        total_pagar         : '$'+formatoDinero(total_pagar)
+                        total_pagar         : '$'+formatoDinero(total_pagar),
+                        cadena_pacientes    : cadena_pacientes
                     },
                     success : function(data){
                         $(modal_clone).modal('hide');
