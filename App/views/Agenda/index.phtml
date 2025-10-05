@@ -753,6 +753,7 @@ use App\Library\FuncionesGlobales;
 
     <div class="modal-footer div_ver_expediente" style="display:none;">
         <button type="button" class="btn btn_ver_expediente btn-outline-dark"><?php echo $translations['html_see_file']; ?></button>
+        <button type="button" class="btn btn_ir_datos_clinicos btn-outline-dark"><?php echo $translations['html_capture_clinical_data']; ?></button>
     </div>
 </div>
 
@@ -4388,6 +4389,12 @@ use App\Library\FuncionesGlobales;
             window.location.href = '/Pacientes/digitalRecord?id_agenda_cita='+id_agenda_cita;
         });
 
+        $("#infoBox").on('click','.btn_ir_datos_clinicos',function(){
+            let id_agenda_cita  = $(this).data('idagendacita');
+
+            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita;
+        });
+
         // Ocultar el modal al hacer clic en el botón de cerrar
         $("#closeModal").on("click", function () {
             $infoBox.css("display", "none"); // Ocultar el modal
@@ -4446,6 +4453,7 @@ use App\Library\FuncionesGlobales;
         if (id_profesional_sesion == $(element).data('idprofesional')){
             $("#infoBox").find('.div_ver_expediente').show();
             $("#infoBox").find('.btn_ver_expediente').data('idagendacita',$(element).data('idagendacita'));
+            $("#infoBox").find('.btn_ir_datos_clinicos').data('idagendacita',$(element).data('idagendacita'));
         } else {
             $("#infoBox").find('.div_ver_expediente').hide();
         }

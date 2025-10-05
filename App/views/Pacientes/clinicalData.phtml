@@ -1,0 +1,800 @@
+<style>
+    :root {
+        --bs-body-bg-dark: #121212;
+        --bs-tertiary-bg-dark: #1E1E1E;
+    }
+    
+    #container_digital_record {
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+    }
+    
+    #container_digital_record .sidebar {
+        width: 220px;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+    }
+    
+    #container_digital_record .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    #container_digital_record .nav-link:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    #container_digital_record .nav-link.active {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    #container_digital_record .nav-link .material-icons {
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    /* === CORRECCIÓN DEFINITIVA === */
+    #container_digital_record .main-content {
+        margin-left: 220px;
+        width: calc(100% - 220px); /* ← KEY CHANGE */
+        min-height: 100vh;
+        max-width: calc(100% - 220px); /* ← KEY CHANGE */
+        padding: 1rem;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    #container_digital_record .sidebar-toggle {
+        display: none;
+    }
+    
+    /* Contenedor principal - MEJORADO */
+    #container_digital_record .container-fluid {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        overflow-x: hidden;
+    }
+    
+    /* === NUEVAS REGLAS CRÍTICAS === */
+    #container_digital_record .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-radius: 0.75rem;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    #container_digital_record .card-body {
+        padding: 1.5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #container_digital_record .row {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    #container_digital_record [class*="col-"] {
+        max-width: 100%;
+        flex-shrink: 1;
+        min-width: 0; /* ← CRÍTICO */
+    }
+    
+    #container_digital_record .fw-medium {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    #container_digital_record .div_notas .card {
+        min-height: 80vh; /* 80% del alto de la ventana */
+    }
+
+    .note-editable {
+        height: calc(100vh - 200px) !important; /* Example: 100% of viewport height minus some offset */
+        /* Or, if within a container: */
+        /* height: 100% !important; */
+    }
+
+    #summernote, .note-editable {
+        font-weight: normal !important;
+    }
+
+    .note-fontsize .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important; /* Asegura que esté encima del editor pero debajo del botón */
+    }
+
+    .note-btn-group.btn-group {
+        position: relative !important;
+    }
+
+    .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important;
+        min-width: 120px; /* opcional para evitar que se colapse */
+    }
+
+    /* Aplica solo al dropdown que sigue a un botón con aria-label="Paragraph" */
+    button[aria-label="Paragraph"] + .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 0 !important;
+        z-index: 1050 !important;
+        transform: translateX(-20px); /* Ajusta según el espacio disponible */
+    }
+
+    .hide_element {
+        display: none !important;
+    }
+
+    .row_selected{
+        background-color: #288d28ff;
+        color: white;
+    }
+
+    .row_disabled{
+        background-color: #a1d4a1ff!important;
+        color: black!important;
+    }
+
+    .row_selected div {
+        color: white;
+    }
+
+</style>
+<?php 
+//  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
+$genero = array(
+    'F'     => 'Femenino',
+    'M'     => 'Masculino',
+    null    => 'S/A'
+);
+
+$dias_semana = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado', 
+    7 => 'Domingo'
+];
+
+//  ARRAY DE AREAS YA ASIGNADAS AL PACIENTE
+$arr_subarea_paciente   = array();
+
+function cambiarFormatoFecha($fecha) {
+    if (empty($fecha)) return '';
+    return date('d/m/Y', strtotime($fecha));
+}
+
+?>
+
+<div id="container_digital_record">
+    <!-- Botón toggle para móvil -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <span class="material-icons">menu</span>
+    </button>
+
+    <!-- Overlay para móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container-fluid p-0">
+        <div class="row g-5">
+            <!-- Sidebar -->
+            <aside class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
+                <div class="p-3">
+                    <div class="mb-4">
+                        <h1 class="h5 fw-bold mb-1">Datos clinicos</h1>
+                        <p class="small text-muted mb-0">Paciente: <?php echo $info_paciente['primer_apellido'].' '.$info_paciente['nombre']; ?></p>
+                    </div>
+                    <nav class="nav flex-column nav-pills">
+                        <a class="nav-link active bg-primary text-white" data-section="datos_personales">
+                            <i class="bi bi-card-list"></i>
+                            Datos personales
+                        </a>
+                        <a class="nav-link text-dark" data-section="exploracion_fisica">
+                            <i class="bi bi-person-lines-fill"></i>
+                            Exploraci&oacute;n fisica
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
+            <main class="main-content p-4 div_datos_personales">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Datos personales</h2>
+                        <p class="text-muted mb-0">Informaci&oacute;n general del paciente</p>
+                    </div>
+
+                    <!-- Información Personal -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-semibold mb-3">Información Personal</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="form_info_personal" class="needs-validation">
+                                    <div class="row g-4">
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Primer apellido</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['primer_apellido']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_primer_apellido hide_element" data-campo="primer_apellido" data-datooriginal="<?php echo $info_paciente['primer_apellido']; ?>" value="<?php echo $info_paciente['primer_apellido']; ?>" required />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_first_lastname']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Segundo apellido</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['segundo_apellido']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_segundo_apellido hide_element" data-campo="segundo_apellido" data-datooriginal="<?php echo $info_paciente['segundo_apellido']; ?>" value="<?php echo $info_paciente['segundo_apellido']; ?>" />
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Nombre</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['nombre']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_nombre hide_element" data-campo="nombre" data-datooriginal="<?php echo $info_paciente['nombre']; ?>" value="<?php echo $info_paciente['nombre']; ?>" required/>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_name']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-1">
+                                            <div class="d-flex flex-column align-items-end gap-1">
+                                                <?php if ($update): ?>
+                                                <button type="button" class="btn btn-xs btn_edit_info_personal">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn_save_info_personal hide_element">
+                                                    <i class="bi bi-floppy"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn_revert_info_personal hide_element">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Fecha de Nacimiento</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo cambiarFormatoFecha($info_paciente['fecha_nacimiento']); ?></p>
+                                            <input type="date" class="input_editar_datos form-control input_fecha_nacimiento hide_element" data-campo="fecha_nacimiento" data-datooriginal="<?php echo $info_paciente['fecha_nacimiento']; ?>" value="<?php echo $info_paciente['fecha_nacimiento']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-2">
+                                            <p class="small text-muted mb-1">Edad</p>
+                                            <p class="fw-medium mb-0"><?php echo empty($info_paciente['edad_actual']) ? '0.0 años' : $info_paciente['edad_actual'].' años'; ?> </p>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Género</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $genero[$info_paciente['genero']]; ?></p>
+                                            <select class="form-select input_editar_datos select_genero hide_element" data-campo="genero" data-datooriginal="<?php echo $info_paciente['genero']; ?>">
+                                                <option value="" <?php echo $genero[$info_paciente['genero']] == 'S/A' ? 'selected' : ''; ?>>Sin asignar</option>
+                                                <option value="F" <?php echo $genero[$info_paciente['genero']] == 'Femenino' ? 'selected' : ''; ?>>Femenino</option>
+                                                <option value="M" <?php echo $genero[$info_paciente['genero']] == 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Teléfono</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['celular']; ?></p>
+                                            <input type="text" class="input_editar_datos input_celular form-control hide_element" maxLength="10" data-campo="celular" data-datooriginal="<?php echo $info_paciente['celular']; ?>" value="<?php echo $info_paciente['celular']; ?>" required/>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Correo Electrónico</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['correo_electronico'] == null ? 'S/A' : $info_paciente['correo_electronico']; ?></p>
+                                            <input type="text" class="input_editar_datos input_correo_electronico form-control hide_element" data-campo="correo_electronico" data-datooriginal="<?php echo $info_paciente['correo_electronico']; ?>" value="<?php echo $info_paciente['correo_electronico']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_email']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <p class="small text-muted mb-1">Dirección</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['direccion'] == null ? 'S/A' : $info_paciente['direccion']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_direccion hide_element" data-campo="direccion" data-datooriginal="<?php echo $info_paciente['direccion']; ?>" value="<?php echo $info_paciente['direccion']; ?>" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Citas -->
+                    <section class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="h4 fw-semibold mb-0">Historial de citas</h3>
+                        </div>
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table id="table_results" class="table table-hover mb-0 text-center:">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-3"><?php echo $translations['html_day']; ?></th>
+                                            <th class="p-3"><?php echo $translations['html_hour']; ?></th>
+                                            <th class="p-3">Servicio(s)</th>
+                                            <th class="p-3"><?php echo $translations['html_options']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_exploracion_fisica" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Exploraci&oacute;n fisica</h2>
+                        <p class="text-muted mb-0">Captura de signos vitales</p>
+                    </div>
+                    <!-- Añadir Nueva Nota -->
+                    <section class="col-12 col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column">
+                                <form class="flex-grow-1 d-flex flex-column gap-3">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            <label for="temperature" class="form-label small text-muted">Temperatura (°C)</label>
+                                            <input id="temperature" type="number" step="0.1" class="form-control" placeholder="ej. 37.2">
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label for="pulse" class="form-label small text-muted">Pulso (lpm)</label>
+                                            <input id="pulse" type="number" class="form-control" placeholder="ej. 72">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="form-label small text-muted">Presión Arterial (mmHg)</label>
+                                        <div class="d-flex gap-2 mt-1">
+                                            <input id="blood-pressure-systolic" type="number" class="form-control" placeholder="Sistólica">
+                                            <div class="align-self-center text-muted">/</div>
+                                            <input id="blood-pressure-diastolic" type="number" class="form-control" placeholder="Diastólica">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            <label for="respiratory-rate" class="form-label small text-muted">Frec. Respiratoria (rpm)</label>
+                                            <input id="respiratory-rate" type="number" class="form-control" placeholder="ej. 16">
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label for="oxygen-saturation" class="form-label small text-muted">Saturación O₂ (%)</label>
+                                            <input id="oxygen-saturation" type="number" class="form-control" placeholder="ej. 98">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            <label for="weight" class="form-label small text-muted">Peso (kg)</label>
+                                            <input id="weight" type="number" step="0.1" class="form-control" placeholder="ej. 65">
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label for="height" class="form-label small text-muted">Talla (cm)</label>
+                                            <input id="height" type="number" class="form-control" placeholder="ej. 170">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-success text-white fw-semibold btn_save_exploracion_fisica">Capturar datos</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Notas -->
+                    <section class="col-12 col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h2 class="h4 fw-bold mb-4">Historial de capturas</h2>
+                                <table id="table_results_exploracion_fisica" class="display table table-hover table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_title']; ?></th>
+                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Exploraci&oacute;n fisica</h2>
+                        <p class="text-muted mb-0">Captura de signos vitales</p>
+                    </div>
+                    <!-- Añadir Nueva Nota -->
+                    <section class="col-12 col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Añadir Nueva Nota</h2>
+                                        <p class="text-muted small mb-0">Registre la evolución del paciente.</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                        <span class="material-icons">fullscreen</span>
+                                    </button>
+                                </div>
+                                <div class="row div_titulo mb-3">
+                                    <label>Titulo</label>
+                                    <input type="text" class="form-control input_titulo_nota" />
+                                </div>
+                                <form class="d-flex flex-column flex-grow-1">
+                                    <div class="flex-grow-1 mb-3">
+                                    <div id="summernote"></div>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="private-note"/>
+                                    <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
+                                    </div>
+                                    <button type="button" class="btn btn-success text-white fw-semibold btn_save_nota">Añadir Nota</button>
+                                </form>
+                                <!-- Contenedor para los botones alineados a la derecha -->
+                                <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn_edit_nota btn_cancelar_edit" style="display:none;">Cancelar</button>
+                                    <button type="button" class="btn btn-sm btn-success btn_edit_nota text-white btn_save_nota" style="display:none;">Guardar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Notas -->
+                    <section class="col-12 col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
+                                <table id="table_results_notes" class="display table table-hover table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_title']; ?></th>
+                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modulo_digital_record   = (function(){
+        //  ID DEL PACIENTE
+        const id_paciente       = '<?php echo $info_paciente['id']; ?>';
+        const id_profesional    = '<?php echo $id_profesional; ?>';
+        const id_agenda_cita    = '<?php echo $id_agenda_cita; ?>';
+        const estatus           = '<?php echo $info_paciente['estatus']; ?>';
+        const nombre_completo   = '<?php echo $info_paciente['nombre_completo']; ?>';
+
+        //  URL
+        const controller    = '/Pacientes';
+        const url_clinical  = controller+'/clinicalData'
+        const url_update    = controller+"/update";
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+        let draw            = 1;
+
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            deactivate_patient      : "<?= $translations['html_deactivate_patient']?>",
+            activate_patient        : "<?= $translations['html_activate_patient']?>",
+            schedule_appointments   : "<?= $translations['html_schedule_appointments']?>",
+            monday: "<?php echo $translations['html_monday'];     ?>",
+            thuesday: "<?php echo $translations['html_thuesday'];   ?>",
+            wednesday: "<?php echo $translations['html_wednesday'];  ?>",
+            thursday: "<?php echo $translations['html_thursday'];   ?>",
+            friday: "<?php echo $translations['html_friday'];     ?>",
+            saturday: "<?php echo $translations['html_saturday'];   ?>",     
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
+        };
+
+        //  MENSAJES DE ERROR
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena     : "<?php echo $translations['html_error_length_password']; ?>",
+            error_validate_cellphone    : "<?php echo $translations['html_error_validate_cellphone']; ?>",
+            error_verify_general_data   : "<?php echo $translations['html_error_verify_general_data']; ?>",
+            error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
+            question_return             : "<?php echo $translations['html_question_return']?>",
+        }
+
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                //  REINICIAR CONTADOR DE SELECCIONADOS A 0
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    pageLength: 10,
+                    ajax: {
+                        url     : url_clinical,
+                        method  : 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.from_catalog      = true;
+                            d.get_servicios     = true;
+                            d.id_profesional    = id_profesional;
+                            d.id_paciente       = id_paciente;
+                            d.tipo_busqueda     = 'activas';
+                        }
+                    },
+                    columns: [
+                        { data: 'fecha_cita',className: "dt-center" }, // Columna 1
+                        { data: 'start',className: "dt-center" }, // Columna 1
+                        { data: 'num_servicios_costo',className: "dt-center" }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                return '';
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        //console.log('data',data);
+                        $(row).data('rowData', data);
+                        //console.log('rowData',data);
+
+                        if (data.codigo_color != null) {
+                            $(row).find('td:eq(2)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
+                        
+                    }
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
+        $(document).ready(function() {
+            cargarTabla();
+
+            // Navegación entre secciones
+            $('#container_digital_record').on('click','.nav-link',function(e) {
+                e.preventDefault();
+                
+                // Remover clase active de todos los enlaces
+                $('#container_digital_record').find('.nav-link').removeClass('active bg-primary text-white').addClass('text-dark');
+                
+                // Añadir clase active al enlace clickeado
+                $(this).removeClass('text-dark').addClass('active bg-primary text-white');
+
+                $(".main-content").hide();
+                $(".div_"+$(this).data('section')).show();
+                
+                // // Cerrar sidebar en móvil
+                // if ($(window).width() < 992) {
+                //     closeSidebar();
+                // }
+            });
+
+            //  ------------------- INFORMACION PERSONAL    ----------------    //
+
+            $(".btn_edit_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").addClass('hide_element');
+                $(".btn_save_info_personal").removeClass('hide_element');
+                $(".btn_revert_info_personal").removeClass('hide_element');
+
+                $(".input_editar_datos").removeClass('hide_element');
+                $(".p_datos").addClass('hide_element');
+            });
+
+            $(".btn_revert_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").removeClass('hide_element');
+                $(".btn_save_info_personal").addClass('hide_element');
+                $(".btn_revert_info_personal").addClass('hide_element');
+
+                $(".input_editar_datos").addClass('hide_element');
+                $(".p_datos").removeClass('hide_element');
+            });
+
+            $(".btn_save_info_personal").on('click', function(){
+                const form = $('#form_info_personal')[0];
+                let flag_error = false;
+                
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                    // Proceder con el guardado
+                }
+                
+                //  VALIDACION DE DATOS
+                if ($('.input_celular').val() != '' && $('.input_celular').val().length != 10){
+                    //  ACTIVAR DE FORMA MANUAL ERROR DE FORM
+                    $('.input_celular')[0].setCustomValidity(error_list['error_celular']);
+                    $('.input_celular').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    //REMOVER CLASE DE ERROR FORM
+                    $('.input_celular')[0].setCustomValidity('');
+                    $('.input_celular').removeClass('is-invalid');
+                }
+
+                if ($('.input_correo_electronico').val() != '' && !validarEmail($('.input_correo_electronico').val())){
+                    $('.input_correo_electronico')[0].setCustomValidity(error_list['error_email']);
+                    $('.input_correo_electronico').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    $('.input_correo_electronico')[0].setCustomValidity('');
+                    $('.input_correo_electronico').removeClass('is-invalid');
+                }
+
+                let obj_info    = {
+                    id                  : id_paciente,
+                    primer_apellido     : $(".input_primer_apellido").val(),
+                    segundo_apellido    : $(".input_segundo_apellido").val(),
+                    nombre              : $(".input_nombre").val(),
+                    fecha_nacimiento    : $(".input_fecha_nacimiento").val(),
+                    genero              : $(".select_genero").val(),
+                    celular             : $(".input_celular").val(),
+                    correo_electronico  : $(".input_correo_electronico").val(),
+                    direccion           : $(".input_direccion").val()
+                };
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        obj_info    : obj_info,
+                        accion      : 'save_express'
+                    },
+                    success : function(data){
+                        showAlert('success','Edición exitosa!');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                    }
+                })
+            });
+
+            //  PARA REDIRIGIR A PROGRAMAR CITAS
+            $(".schedulle_appoitment_view").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+
+                window.location.href = '/Pacientes/scheduleappointments?id='+id_paciente;
+            })
+
+            //  EVENTO PARA MODOFICAR DIAGNOSTICO
+            $(".btn_diagnoses").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+                show_modal_diagnoses();
+            });
+
+            //  EVENTO PARA MOSTRAR AREAS DE ENFOQUE
+            $(".btn_focus").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+                show_modal_focus();
+            });
+
+            //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
+            $("#form_info_personal").on('keypress','.input_celular',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
+
+            //  ------------------- NOTAS   ---------------------------------   //
+            $(".btn_expandir").on("click", function(e) {
+                e.preventDefault();
+
+                let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
+                let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
+                let $historial = $("section:has(h2:contains('Historial de Notas'))");
+                let $icon = $(this).find("span.material-icons");
+
+                // Obtener la instancia de DataTable
+                let dataTable = $('#table_results').DataTable();
+
+                // Verificar si la columna 2 (índice 2) está visible
+                if (dataTable.column(2).visible()) {
+                    // Ocultar columna 2 (tercera columna)
+                    dataTable.column(2).visible(false);
+
+                    // Expandir "Añadir Nota" y reducir "Historial de Notas"
+                    $nota.removeClass("col-lg-6").addClass("col-lg-8");
+                    $historial.removeClass("col-lg-6").addClass("col-lg-4");
+
+                    // Cambiar icono a "reducir"
+                    $icon.text("fullscreen_exit");
+                } else {
+                    // Mostrar columna 2 (tercera columna)
+                    dataTable.column(2).visible(true);
+
+                    // Restaurar anchos originales
+                    $nota.removeClass("col-lg-8").addClass("col-lg-6");
+                    $historial.removeClass("col-lg-4").addClass("col-lg-6");
+
+                    // Cambiar icono a "expandir"
+                    $icon.text("fullscreen");
+                }
+            });
+        });
+
+        //  --------------  FUNCIONES   ---------------------   //
+            
+    })();
+</script>

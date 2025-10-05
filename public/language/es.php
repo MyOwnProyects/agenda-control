@@ -185,6 +185,7 @@ return [
     'html_private_note'                         => 'Nota privada',
     'html_see_file'                             => 'Ver expediente',
     'html_appoitment_note'                      => 'Nota de cita',
+    'html_capture_clinical_data'                => 'Captura de datos clinicos',
     
 
 

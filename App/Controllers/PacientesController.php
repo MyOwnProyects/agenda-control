@@ -763,4 +763,84 @@ class PacientesController extends BaseController
 
     }
 
+
+
+
+
+    public function clinicalDataAction(){
+
+        if ($this->request->isAjax()){
+            $accion = $this->request->getPost('accion');
+
+            $result = array();
+            if($accion == 'get_rows'){
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 10,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+            }
+
+            $response = new Response();
+            $response->setJsonContent($result);
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+
+        $id_agenda_cita = $_GET['id_agenda_cita'] ?? null;
+
+        if (empty($id_agenda_cita) || !is_numeric($id_agenda_cita)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
+        $route  = $this->url_api.$this->rutas['ctpacientes']['show'];
+        $result = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id_agenda_cita'    => $id_agenda_cita
+        ));
+        
+        $response = new Response();
+        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        $this->view->info_paciente  = $result[0];
+        $this->view->id_profesional = $this->session->get('id_profesional');
+        $this->view->id_agenda_cita = $id_agenda_cita;
+        $this->view->update         = FuncionesGlobales::HasAccess("Pacientes","update");
+    }
+
 }
