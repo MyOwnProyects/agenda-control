@@ -282,6 +282,12 @@ class ControlcitasController extends BaseController
                 $route  = $this->url_api.$this->rutas['tbagenda_citas']['capturar_pago'];
                 $mensaje_bitacora   = 'Se registro el pago de '.count($_POST['arr_id_agenda_cita']).' citas de forma simultanea, registrando un total de '.$_POST['total_pagar'];
 
+                if (strpos($_POST['cadena_pacientes'],",") !== false){
+                    $mensaje_bitacora   = $mensaje_bitacora.' a los pacientes: '.$_POST['cadena_pacientes'];
+                } else {
+                    $mensaje_bitacora   = $mensaje_bitacora.' al paciente: '.$_POST['cadena_pacientes'];
+                }
+
                 $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
 
                 $response = new Response();
@@ -292,7 +298,7 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR',$mensaje_bitacora,$_POST['arr_id_agenda_cita']);
+                FuncionesGlobales::saveBitacora($this->bitacora,'MULTIPAGO',$mensaje_bitacora,$_POST['arr_id_agenda_cita']);
 
                 $response->setJsonContent('Captura exitosa!');
                 $response->setStatusCode(200, 'OK');
