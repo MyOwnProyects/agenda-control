@@ -360,46 +360,52 @@ function cambiarFormatoFecha($fecha) {
                     <section class="col-12 col-lg-6">
                         <div class="card shadow-sm h-100">
                             <div class="card-body d-flex flex-column">
-                                <form class="flex-grow-1 d-flex flex-column gap-3">
+                                <form id="form_exploracion_fisica" class="flex-grow-1 d-flex flex-column gap-3">
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
-                                            <label for="temperature" class="form-label small text-muted">Temperatura (°C)</label>
-                                            <input id="temperature" type="number" step="0.1" class="form-control" placeholder="ej. 37.2">
+                                            <label for="temperatura" class="form-label small text-muted">Temp. (°C)</label>
+                                            <input id="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre='Temperatura' placeholder="ej. 37.2" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['temperatura']) ? $exploracion_fisica_cita['temperatura'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
-                                            <label for="pulse" class="form-label small text-muted">Pulso (lpm)</label>
-                                            <input id="pulse" type="number" class="form-control" placeholder="ej. 72">
+                                            <label for="frecuencia_cardiaca" class="form-label small text-muted">Fre. cardiaca (lpm)</label>
+                                            <input id="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia cardiaca' placeholder="ej. 72" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_cardiaca']) ? $exploracion_fisica_cita['frecuencia_cardiaca'] : null; ?>">
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label class="form-label small text-muted">Presión Arterial (mmHg)</label>
+                                    <div class="row g-3">
+                                        <label class="form-label small text-muted">Pre. Arterial (mmHg)</label>
                                         <div class="d-flex gap-2 mt-1">
-                                            <input id="blood-pressure-systolic" type="number" class="form-control" placeholder="Sistólica">
+                                            <input id="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica" data-nombre='Presión arterial sistónica' placeholder="Sistólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_sistolica']) ? $exploracion_fisica_cita['presion_arterial_sistolica'] : null; ?>">
                                             <div class="align-self-center text-muted">/</div>
-                                            <input id="blood-pressure-diastolic" type="number" class="form-control" placeholder="Diastólica">
+                                            <input id="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica" data-nombre='Presión arterial diastónica' placeholder="Diastólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_diastolica']) ? $exploracion_fisica_cita['presion_arterial_diastolica'] : null; ?>">
                                         </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
-                                            <label for="respiratory-rate" class="form-label small text-muted">Frec. Respiratoria (rpm)</label>
-                                            <input id="respiratory-rate" type="number" class="form-control" placeholder="ej. 16">
+                                            <label for="frecuencia_respiratoria" class="form-label small text-muted">Frec. Resp. (rpm)</label>
+                                            <input id="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
-                                            <label for="oxygen-saturation" class="form-label small text-muted">Saturación O₂ (%)</label>
-                                            <input id="oxygen-saturation" type="number" class="form-control" placeholder="ej. 98">
+                                            <label for="saturacion_oxigeno" class="form-label small text-muted">Satur. O₂ (%)</label>
+                                            <input id="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
                                         </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
-                                            <label for="weight" class="form-label small text-muted">Peso (kg)</label>
-                                            <input id="weight" type="number" step="0.1" class="form-control" placeholder="ej. 65">
+                                            <label for="peso" class="form-label small text-muted">Peso (kg)</label>
+                                            <input id="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
-                                            <label for="height" class="form-label small text-muted">Talla (cm)</label>
-                                            <input id="height" type="number" class="form-control" placeholder="ej. 170">
+                                            <label for="altura" class="form-label small text-muted">Altura (cm)</label>
+                                            <input id="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                            <textarea id="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-success text-white fw-semibold btn_save_exploracion_fisica">Capturar datos</button>
@@ -416,9 +422,14 @@ function cambiarFormatoFecha($fecha) {
                                 <table id="table_results_exploracion_fisica" class="display table table-hover table-bordered" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th><?php echo $translations['html_title']; ?></th>
-                                            <th><?php echo $translations['html_title_professional']; ?></th>
-                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                            <th>Fecha captura</th>
+                                            <th>Temp. (°C)</th>
+                                            <th>Fre. cardiaca (lpm)</th>
+                                            <th>Pre. Arterial (mmHg)</th>
+                                            <th>Frec. Resp. (rpm)</th>
+                                            <th>Satur. O₂ (%)</th>
+                                            <th>Peso (kg)</th>
+                                            <th>Altura (cm)</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -551,6 +562,46 @@ function cambiarFormatoFecha($fecha) {
             error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
             question_return             : "<?php echo $translations['html_question_return']?>",
         }
+
+        const rangos_exploracion_fisica = {
+            peso: {
+                min: 1,    // kg (para cubrir pediatría o pacientes muy críticos)
+                max: 300   // kg (extremos de obesidad mórbida)
+            },
+            altura: {
+                min: 30,   // cm (neonatos prematuros)
+                max: 250   // cm (gigantismo extremo)
+            },
+            imc: {
+                min: 5,    // kg/m² (caquexia severa)
+                max: 80    // kg/m² (obesidad extrema)
+            },
+            temperatura: {
+                min: 30.0, // °C (hipotermia profunda, casos raros pero posibles)
+                max: 45.0  // °C (hipertermia extrema)
+            },
+            frecuencia_cardiaca: {
+                min: 20,   // lpm (bradicardia extrema)
+                max: 250   // lpm (taquicardia supraventricular en pediatría)
+            },
+            frecuencia_respiratoria: {
+                min: 5,    // rpm (respiración agónica)
+                max: 80    // rpm (taquipnea severa en niños/criticos)
+            },
+            presion_arterial_sistolica: {
+                min: 40,   // mmHg (shock severo)
+                max: 300   // mmHg (crisis hipertensiva extrema)
+            },
+            presion_arterial_diastolica: {
+                min: 20,   // mmHg
+                max: 200   // mmHg
+            },
+            saturacion_oxigeno: {
+                min: 30,   // % (incompatible con vida sostenida, pero posible en paro)
+                max: 100   // % (límite fisiológico)
+            }
+            };
+
 
         // Función para inicializar o recargar la tabla
         function cargarTabla() {
@@ -756,6 +807,94 @@ function cambiarFormatoFecha($fecha) {
             .on("cut copy paste",function(e){
                 e.preventDefault();
             });
+
+            //  ------------------- EXPLORACION FISICA   ---------------------------------   //
+            $(".btn_save_exploracion_fisica").on('click',function(){
+                let btn = $(this);
+                //$(btn).prop('disabled',true);
+                //  VERIFICACION DE VALORES
+                if ($("#presion_arterial_sistolica").val() == '' && $("#presion_arterial_diastolica").val() != ''){
+                    showAlert('danger','Ingrese el dato de Presión arterial sistónica');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                if ($("#presion_arterial_sistolica").val() != '' && $("#presion_arterial_diastolica").val() == ''){
+                    showAlert('danger','Ingrese el dato de Presión arterial diastónica');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                if ($("#presion_arterial_sistolica").val() != '' && $("#presion_arterial_diastolica").val() != ''
+                    && $("#presion_arterial_sistolica").val() < $("#presion_arterial_diastolica").val() != ''){
+                    showAlert('danger','La presión sistónica no puede ser menor que la presión diastónica');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                let obj_info    = {};
+
+                let flag_error  = false;
+                $("#form_exploracion_fisica").find('.input_exploracion_fisica').each(function(){
+                    //  SE VERIFICA QUE EL DATO ESTE DENTRO DE LOS RANGOS
+                    let id_rango    = $(this).attr('id');
+                    let value       = $(this).val();
+                    let input_nombre    = $(this).data('nombre');
+                    
+                    if (value != ''){
+                        if (id_rango != 'observaciones' && value < rangos_exploracion_fisica[id_rango]['min']){
+                            showAlert('danger','Rango minimo de '+input_nombre+' no valido, Valor: '+value+', minimo permitido: '+rangos_exploracion_fisica[id_rango]['min']);
+                            flag_error  = true;
+                            return false;
+                        }
+
+                        if (id_rango != 'observaciones' && value > rangos_exploracion_fisica[id_rango]['max']){
+                            showAlert('danger','Rango maximo de '+input_nombre+' no valido, Valor: '+value+', minimo permitido: '+rangos_exploracion_fisica[id_rango]['max']);
+                            flag_error  = true;
+                            return false;
+                        }
+
+                        if (id_rango == 'peso' || id_rango == 'altura' || id_rango == 'temperatura' || id_rango == 'imc'){
+                            value   = formatoDinero(value);
+                        }
+                        obj_info[id_rango]  = value;
+                    }
+                });
+
+                if (flag_error){
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                if (Object.keys(obj_info).length == 0){
+                    showAlert('danger','Ingrese por lo menos un valor a capturar');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                console.log('obj_info',obj_info);
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'save_exploracion_fisica',
+                        id_paciente     : id_paciente,
+                        id_agenda_cita  : id_agenda_cita,
+                        obj_info        : obj_info,
+                        nombre_completo : nombre_completo
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        setTimeout(function(){
+                            //window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
 
             //  ------------------- NOTAS   ---------------------------------   //
             $(".btn_expandir").on("click", function(e) {

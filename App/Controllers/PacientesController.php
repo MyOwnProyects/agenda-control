@@ -806,6 +806,24 @@ class PacientesController extends BaseController
                 }
             }
 
+            if ($accion == 'save_exploracion_fisica'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_exploracion_fisica'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDAREXPLORACIONFISICA','Se capturaron los datos de exploración fisica del paciente : '.$_POST['nombre_completo'],$_POST['obj_ifo']);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
@@ -837,10 +855,28 @@ class PacientesController extends BaseController
             exit;
         }
 
+        //  SE BUSCA LA INFORMACION DE LOS DATOS DE EXPLORACION
+        $route              = $this->url_api.$this->rutas['ctpacientes']['show_exploracion_clinica'];
+        $exploracion_fisica = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id_agenda_cita'    => $id_agenda_cita
+        ));
+
+        $exploracion_fisica_cita    = array();
+        if (count($exploracion_fisica) > 0){
+            foreach($exploracion_fisica as $row){
+                if ($row['id_agenda_cita'] == $id_agenda_cita){
+                    $exploracion_fisica_cita    = $row;
+                    break;
+                }
+            }
+        }
+
         $this->view->info_paciente  = $result[0];
         $this->view->id_profesional = $this->session->get('id_profesional');
         $this->view->id_agenda_cita = $id_agenda_cita;
         $this->view->update         = FuncionesGlobales::HasAccess("Pacientes","update");
+        $this->view->exploracion_fisica         = $exploracion_fisica;
+        $this->view->exploracion_fisica_cita    = $exploracion_fisica_cita;
     }
 
 }

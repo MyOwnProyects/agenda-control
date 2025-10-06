@@ -71,7 +71,9 @@ return [
         'save_express'          => '/ctpacientes/save_express',
         'save_diagnoses'        => '/ctpacientes/save_diagnoses',
         'get_digital_record'    => '/ctpacientes/get_digital_record',
-        'save_subareas_focus'   => '/ctpacientes/save_subareas_focus'
+        'save_subareas_focus'   => '/ctpacientes/save_subareas_focus',
+        'save_exploracion_fisica'   => '/ctpacientes/save_exploracion_fisica',
+        'show_exploracion_clinica'  => '/ctpacientes/show_exploracion_clinica'
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
