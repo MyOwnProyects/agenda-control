@@ -166,6 +166,28 @@
         color: white;
     }
 
+    /* Contenedor de la tabla con altura máxima */
+    .table-scroll-container {
+        min-height: 400px;
+        max-height: calc(100vh - 250px); /* Se ajusta al tamaño de la pantalla */
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    /* Hacer que el thead sea sticky para que permanezca visible al hacer scroll */
+    .table-scroll-container thead {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        z-index: 10;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Asegurar que las columnas mantengan su ancho */
+    .table-scroll-container table {
+        margin-bottom: 0;
+    }
+
 </style>
 <?php 
 //  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
@@ -210,13 +232,17 @@ function cambiarFormatoFecha($fecha) {
             <aside class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
                 <div class="p-3">
                     <div class="mb-4">
-                        <h1 class="h5 fw-bold mb-1">Datos clinicos</h1>
+                        <h1 class="h5 fw-bold mb-1">Consulta</h1>
                         <p class="small text-muted mb-0">Paciente: <?php echo $info_paciente['primer_apellido'].' '.$info_paciente['nombre']; ?></p>
                     </div>
                     <nav class="nav flex-column nav-pills">
                         <a class="nav-link active bg-primary text-white" data-section="datos_personales">
                             <i class="bi bi-card-list"></i>
                             Datos personales
+                        </a>
+                        <a class="nav-link text-dark" data-section="motivo_consulta">
+                            <i class="bi bi-chat-left-text"></i>
+                            Motivo de consuta
                         </a>
                         <a class="nav-link text-dark" data-section="exploracion_fisica">
                             <i class="bi bi-person-lines-fill"></i>
@@ -350,16 +376,115 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_motivo_consulta" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Motivo de consulta</h2>
+                    </div>
+                    <!-- Añadir exploracion -->
+                    <section class="col-12 col-lg-6 section_create">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Captura de datos</h2>
+                                    </div>
+                                </div>
+                                <form id="form_exploracion_fisica" class="flex-grow-1 d-flex flex-column gap-3">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                            <textarea id="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                            <textarea id="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                            <textarea id="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-success text-white fw-semibold btn_save_exploracion_fisica">Capturar datos</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Notas -->
+                    <section class="col-12 col-lg-6 section_history">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Historial de registros</h2>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                        <span class="material-icons">fullscreen</span>
+                                    </button>
+                                </div>
+                                <div class="table-scroll-container">
+                                    <table id="table_results_exploracion_fisica" class="display table table-hover table-bordered" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha captura</th>
+                                                <th>Temp. (°C)</th>
+                                                <th>Fre. cardiaca (lpm)</th>
+                                                <th>Pre. Arterial (mmHg)</th>
+                                                <th>Frec. Resp. (rpm)</th>
+                                                <th>Satur. O₂ (%)</th>
+                                                <th>Peso (kg)</th>
+                                                <th>Altura (cm)</th>
+                                                <th>IMC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (count($exploracion_fisica) > 0): ?>
+                                            <?php foreach($exploracion_fisica as $row): ?>
+                                            <tr>
+                                                <td class="p-3"><?php echo $row['fecha_registro']; ?></td>
+                                                <td class="p-3"><?php echo $row['temperatura']; ?></td>
+                                                <td class="p-3"><?php echo $row['frecuencia_cardiaca']; ?></td>
+                                                <td class="p-3"><?php echo $row['presion_arterial_sistolica'].'/'.$row['presion_arterial_diastolica']; ?></td>
+                                                <td class="p-3"><?php echo $row['frecuencia_respiratoria']; ?></td>
+                                                <td class="p-3"><?php echo $row['saturacion_oxigeno']; ?></td>
+                                                <td class="p-3"><?php echo $row['peso']; ?></td>
+                                                <td class="p-3"><?php echo $row['altura']; ?></td>
+                                                <td class="p-3"><?php echo $row['imc']; ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td class="p-3" colspan="9" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
             <main class="main-content flex-grow-1 p-4 overflow-auto div_exploracion_fisica" style="display:none;">
                 <div class="row g-2">
                     <div class="mb-4">
                         <h2 class="h3 fw-bold mb-1">Exploraci&oacute;n fisica</h2>
                         <p class="text-muted mb-0">Captura de signos vitales</p>
                     </div>
-                    <!-- Añadir Nueva Nota -->
-                    <section class="col-12 col-lg-6">
+                    <!-- Añadir exploracion -->
+                    <section class="col-12 col-lg-6 section_create">
                         <div class="card shadow-sm h-100">
                             <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Captura de datos</h2>
+                                    </div>
+                                </div>
                                 <form id="form_exploracion_fisica" class="flex-grow-1 d-flex flex-column gap-3">
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
@@ -415,24 +540,55 @@ function cambiarFormatoFecha($fecha) {
                     </section>
 
                     <!-- Historial de Notas -->
-                    <section class="col-12 col-lg-6">
+                    <section class="col-12 col-lg-6 section_history">
                         <div class="card shadow-sm h-100">
                             <div class="card-body">
-                                <h2 class="h4 fw-bold mb-4">Historial de capturas</h2>
-                                <table id="table_results_exploracion_fisica" class="display table table-hover table-bordered" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha captura</th>
-                                            <th>Temp. (°C)</th>
-                                            <th>Fre. cardiaca (lpm)</th>
-                                            <th>Pre. Arterial (mmHg)</th>
-                                            <th>Frec. Resp. (rpm)</th>
-                                            <th>Satur. O₂ (%)</th>
-                                            <th>Peso (kg)</th>
-                                            <th>Altura (cm)</th>
-                                        </tr>
-                                    </thead>
-                                </table>
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Historial de registros</h2>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                        <span class="material-icons">fullscreen</span>
+                                    </button>
+                                </div>
+                                <div class="table-scroll-container">
+                                    <table id="table_results_exploracion_fisica" class="display table table-hover table-bordered" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha captura</th>
+                                                <th>Temp. (°C)</th>
+                                                <th>Fre. cardiaca (lpm)</th>
+                                                <th>Pre. Arterial (mmHg)</th>
+                                                <th>Frec. Resp. (rpm)</th>
+                                                <th>Satur. O₂ (%)</th>
+                                                <th>Peso (kg)</th>
+                                                <th>Altura (cm)</th>
+                                                <th>IMC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (count($exploracion_fisica) > 0): ?>
+                                            <?php foreach($exploracion_fisica as $row): ?>
+                                            <tr>
+                                                <td class="p-3"><?php echo $row['fecha_registro']; ?></td>
+                                                <td class="p-3"><?php echo $row['temperatura']; ?></td>
+                                                <td class="p-3"><?php echo $row['frecuencia_cardiaca']; ?></td>
+                                                <td class="p-3"><?php echo $row['presion_arterial_sistolica'].'/'.$row['presion_arterial_diastolica']; ?></td>
+                                                <td class="p-3"><?php echo $row['frecuencia_respiratoria']; ?></td>
+                                                <td class="p-3"><?php echo $row['saturacion_oxigeno']; ?></td>
+                                                <td class="p-3"><?php echo $row['peso']; ?></td>
+                                                <td class="p-3"><?php echo $row['altura']; ?></td>
+                                                <td class="p-3"><?php echo $row['imc']; ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td class="p-3" colspan="9" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -854,7 +1010,7 @@ function cambiarFormatoFecha($fecha) {
                             return false;
                         }
 
-                        if (id_rango == 'peso' || id_rango == 'altura' || id_rango == 'temperatura' || id_rango == 'imc'){
+                        if (id_rango == 'peso' || id_rango == 'temperatura' || id_rango == 'imc'){
                             value   = formatoDinero(value);
                         }
                         obj_info[id_rango]  = value;
@@ -895,9 +1051,28 @@ function cambiarFormatoFecha($fecha) {
                 })
             });
 
+            $(".div_exploracion_fisica").on('click','.btn_expandir',function(e){
+                e.preventDefault();
+
+                console.log('aqui');
+
+                let $icon = $(this).find("span.material-icons");
+
+                if ($icon.text() == 'fullscreen'){
+                    $icon.text("fullscreen_exit");
+                    $(".div_exploracion_fisica").find(".section_create").removeClass('col-lg-6').addClass('col-lg-4');
+                    $(".div_exploracion_fisica").find(".section_history").removeClass('col-lg-6').addClass('col-lg-8');
+
+                } else {
+                    $icon.text("fullscreen");
+                    $(".div_exploracion_fisica").find(".section_create").removeClass('col-lg-4').addClass('col-lg-6');
+                    $(".div_exploracion_fisica").find(".section_history").removeClass('col-lg-8').addClass('col-lg-6');
+                }
+            });
+
 
             //  ------------------- NOTAS   ---------------------------------   //
-            $(".btn_expandir").on("click", function(e) {
+            $(".div_notas").on("click",'.btn_expandir',function(e) {
                 e.preventDefault();
 
                 let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
