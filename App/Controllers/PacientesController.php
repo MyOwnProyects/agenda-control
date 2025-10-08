@@ -819,7 +819,11 @@ class PacientesController extends BaseController
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'GUARDAREXPLORACIONFISICA','Se capturaron los datos de exploración fisica del paciente : '.$_POST['nombre_completo'],$_POST['obj_ifo']);
 
-                $response->setJsonContent('Captura exitosa!');
+                //  SE OBTIENEN TODOS LOS REGISTROS, ESTO PARA RECREAR LA TABLA DE HISTORICOS
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_exploracion_fisica'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_agenda_cita' => $_POST['id_agenda_cita']));
+
+                $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
@@ -841,7 +845,7 @@ class PacientesController extends BaseController
         }
 
         //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
-        $route  = $this->url_api.$this->rutas['ctpacientes']['show'];
+        $route  = $this->url_api.$this->rutas['ctpacientes']['get_clinical_data'];
         $result = FuncionesGlobales::RequestApi('GET',$route,array(
             'id_agenda_cita'    => $id_agenda_cita
         ));
@@ -856,10 +860,7 @@ class PacientesController extends BaseController
         }
 
         //  SE BUSCA LA INFORMACION DE LOS DATOS DE EXPLORACION
-        $route              = $this->url_api.$this->rutas['ctpacientes']['show_exploracion_clinica'];
-        $exploracion_fisica = FuncionesGlobales::RequestApi('GET',$route,array(
-            'id_agenda_cita'    => $id_agenda_cita
-        ));
+        $exploracion_fisica = $result['exploracion_fisica'];
 
         $exploracion_fisica_cita    = array();
         if (count($exploracion_fisica) > 0){
@@ -871,12 +872,27 @@ class PacientesController extends BaseController
             }
         }
 
-        $this->view->info_paciente  = $result[0];
+        //  SE BUSCA LA INFORMACION DE LOS DATOS DE EXPLORACION
+        $motivo_consulta    = $result['motivo_consulta'];
+
+        $motivo_consulta_cita   = array();
+        if (count($motivo_consulta) > 0){
+            foreach($motivo_consulta as $row){
+                if ($row['id_agenda_cita'] == $id_agenda_cita){
+                    $motivo_consulta_cita   = $row;
+                    break;
+                }
+            }
+        }
+
+        $this->view->info_paciente  = $result['info_paciente'];
         $this->view->id_profesional = $this->session->get('id_profesional');
         $this->view->id_agenda_cita = $id_agenda_cita;
         $this->view->update         = FuncionesGlobales::HasAccess("Pacientes","update");
         $this->view->exploracion_fisica         = $exploracion_fisica;
         $this->view->exploracion_fisica_cita    = $exploracion_fisica_cita;
+        $this->view->motivo_consulta            = $motivo_consulta;
+        $this->view->motivo_consulta_cita       = $motivo_consulta_cita;
     }
 
 }
