@@ -229,6 +229,33 @@
         padding: 10px;
         border-radius: 4px;
     }
+
+    /*  MODAL DE EXPLORACION FISICA */
+    .exploracion_fisica_modal .section-title {
+        color: #2c3e50;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    .exploracion_fisica_modal .info-group {
+        margin-bottom: 15px;
+    }
+    .exploracion_fisica_modal .info-label {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    .exploracion_fisica_modal .info-content {
+        color: #2c3e50;
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 4px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
     
     /* .table th {
         background-color: #f8f9fa;
@@ -482,6 +509,12 @@ function cambiarFormatoFecha($fecha) {
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-12">
+                                            <label for="alergias" class="form-label small text-muted">Alergias</label>
+                                            <textarea id="alergias" rows="2" class="form-control input_exploracion_fisica" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
                                             <label for="observaciones" class="form-label small text-muted">Observaciones</label>
                                             <textarea id="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
                                         </div>
@@ -517,12 +550,13 @@ function cambiarFormatoFecha($fecha) {
                                                 <th>Peso (kg)</th>
                                                 <th>Altura (cm)</th>
                                                 <th>IMC</th>
+                                                <th>Alergias</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php if (count($exploracion_fisica) > 0): ?>
                                             <?php foreach($exploracion_fisica as $row): ?>
-                                            <tr>
+                                            <tr class="clickable-row">
                                                 <td class="p-3"><?php echo $row['fecha_registro']; ?></td>
                                                 <td class="p-3"><?php echo $row['temperatura']; ?></td>
                                                 <td class="p-3"><?php echo $row['frecuencia_cardiaca']; ?></td>
@@ -532,11 +566,12 @@ function cambiarFormatoFecha($fecha) {
                                                 <td class="p-3"><?php echo $row['peso']; ?></td>
                                                 <td class="p-3"><?php echo $row['altura']; ?></td>
                                                 <td class="p-3"><?php echo $row['imc']; ?></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['alergias']; ?></div></td>
                                             </tr>
                                             <?php endforeach; ?>
                                             <?php else: ?>
                                             <tr>
-                                                <td class="p-3" colspan="9" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                                <td class="p-3" colspan="10" align="center"><?php echo $translations['table_no_data']; ?></td>
                                             </tr>
                                             <?php endif; ?>
                                         </tbody>
@@ -560,6 +595,9 @@ function cambiarFormatoFecha($fecha) {
                                     <div>
                                         <h2 class="h4 fw-bold">Captura de datos</h2>
                                     </div>
+                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                        <span class="material-icons">fullscreen</span>
+                                    </button>
                                 </div>
                                 <form id="form_motivo_consulta" class="flex-grow-1 d-flex flex-column gap-3">
                                     <div class="row g-3">
@@ -594,9 +632,6 @@ function cambiarFormatoFecha($fecha) {
                                     <div>
                                         <h2 class="h4 fw-bold">Historial de registros</h2>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
-                                        <span class="material-icons">fullscreen</span>
-                                    </button>
                                 </div>
                                 <div class="table-scroll-container">
                                     <table id="table_results_motivo_consulta" class="display table table-hover table-bordered" style="width:100%">
@@ -611,7 +646,7 @@ function cambiarFormatoFecha($fecha) {
                                         <tbody>
                                             <?php if (count($motivo_consulta) > 0): ?>
                                             <?php foreach($motivo_consulta as $row): ?>
-                                            <tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#detailModal" data-fecha="<?php echo $row['fecha_registro']; ?>" data-motivo="<?php echo $row['motivo_consulta']; ?>" data-padecimiento="<?php echo $row['padecimiento_actual']; ?>" data-antecedentes="<?php echo $row['antecedentes_relevantes']; ?>">
+                                            <tr class="clickable-row" data-fecha="<?php echo $row['fecha_registro']; ?>" data-motivo="<?php echo $row['motivo_consulta']; ?>" data-padecimiento="<?php echo $row['padecimiento_actual']; ?>" data-antecedentes="<?php echo $row['antecedentes_relevantes']; ?>">
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_registro']; ?></div></td>
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['motivo_consulta']; ?></div></td>
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['padecimiento_actual']; ?></div></td>
@@ -723,7 +758,129 @@ function cambiarFormatoFecha($fecha) {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade exploracion_fisica_modal" id="exploracion_fisica_modal" tabindex="-1" aria-labelledby="exploracionFisicaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exploracionFisicaModalLabel">Exploración Física - Detalles Completos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Fecha de registro -->
+                <div class="info-group mb-3">
+                    <div class="info-label">Fecha de registro:</div>
+                    <div id="modalFecha" class="info-content"></div>
+                </div>
+
+                <!-- Parámetros Vitales - 3 por fila -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="section-title">Parámetros Vitales</h6>
+                    </div>
+                </div>
+
+                <!-- Fila 1 de Parámetros Vitales -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Temperatura:</div>
+                            <div id="modalTemperatura" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Frecuencia Cardíaca:</div>
+                            <div id="modalFrecuenciaCardiaca" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Presión Arterial:</div>
+                            <div id="modalPresionArterial" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila 2 de Parámetros Vitales -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Frecuencia Respiratoria:</div>
+                            <div id="modalFrecuenciaRespiratoria" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Saturación de Oxígeno:</div>
+                            <div id="modalSaturacionOxigeno" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Espacio vacío para mantener la alineación -->
+                    </div>
+                </div>
+
+                <!-- Antropometría -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="section-title">Antropometría</h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Peso:</div>
+                            <div id="modalPeso" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Altura:</div>
+                            <div id="modalAltura" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">IMC:</div>
+                            <div id="modalIMC" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información Clínica -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="section-title">Información Clínica</h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="info-group">
+                            <div class="info-label">Alergias:</div>
+                            <div id="modalAlergias" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="info-group">
+                            <div class="info-label">Observaciones:</div>
+                            <div id="modalObservaciones" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -1007,6 +1164,40 @@ function cambiarFormatoFecha($fecha) {
             });
 
             //  ------------------- EXPLORACION FISICA   ---------------------------------   //
+            //  EVENTO PARA MOSTRAR MODAL DE HISTORICOS DE EXPLORACION FISICA
+            $("#table_results_exploracion_fisica").on('click','.clickable-row',function() {
+                var $row = $(this);
+                let modal_clone = $('#exploracion_fisica_modal').clone().removeAttr('id').show();
+                
+                // Obtener datos directamente de las celdas según el orden de tus columnas
+                var fecha = $row.find('td:eq(0)').text().trim();
+                var temperatura = $row.find('td:eq(1)').text().trim();
+                var frecuenciaCardiaca = $row.find('td:eq(2)').text().trim();
+                var presionArterial = $row.find('td:eq(3)').text().trim();
+                var frecuenciaRespiratoria = $row.find('td:eq(4)').text().trim();
+                var saturacionOxigeno = $row.find('td:eq(5)').text().trim();
+                var peso = $row.find('td:eq(6)').text().trim();
+                var altura = $row.find('td:eq(7)').text().trim();
+                var imc = $row.find('td:eq(8)').text().trim();
+                var alergias = $row.find('td:eq(9)').text().trim();
+                
+                // Actualizar el contenido del modal
+                $(modal_clone).find('#modalFecha').text(fecha || 'No registrado');
+                $(modal_clone).find('#modalTemperatura').text(temperatura ? temperatura + ' °C' : 'No registrado');
+                $(modal_clone).find('#modalFrecuenciaCardiaca').text(frecuenciaCardiaca ? frecuenciaCardiaca + ' lpm' : 'No registrado');
+                $(modal_clone).find('#modalPresionArterial').text(presionArterial ? presionArterial + ' mmHg' : 'No registrado');
+                $(modal_clone).find('#modalFrecuenciaRespiratoria').text(frecuenciaRespiratoria ? frecuenciaRespiratoria + ' rpm' : 'No registrado');
+                $(modal_clone).find('#modalSaturacionOxigeno').text(saturacionOxigeno ? saturacionOxigeno + '%' : 'No registrado');
+                $(modal_clone).find('#modalPeso').text(peso ? peso + ' kg' : 'No registrado');
+                $(modal_clone).find('#modalAltura').text(altura ? altura + ' cm' : 'No registrado');
+                $(modal_clone).find('#modalIMC').text(imc || 'No registrado');
+                $(modal_clone).find('#modalAlergias').text(alergias || 'No registra alergias');
+                $(modal_clone).find('#modalObservaciones').text('Sin observaciones adicionales'); // Este campo no aparece en tu tabla
+                
+                // Mostrar el modal
+                $(modal_clone).modal('show');
+            });
+
             $(".btn_save_exploracion_fisica").on('click',function(){
                 let btn = $(this);
                 //$(btn).prop('disabled',true);
@@ -1040,13 +1231,13 @@ function cambiarFormatoFecha($fecha) {
                     let input_nombre    = $(this).data('nombre');
                     
                     if (value != ''){
-                        if (id_rango != 'observaciones' && value < rangos_exploracion_fisica[id_rango]['min']){
+                        if (id_rango != 'observaciones' && id_rango != 'alergias' && value < rangos_exploracion_fisica[id_rango]['min']){
                             showAlert('danger','Rango minimo de '+input_nombre+' no valido, Valor: '+value+', minimo permitido: '+rangos_exploracion_fisica[id_rango]['min']);
                             flag_error  = true;
                             return false;
                         }
 
-                        if (id_rango != 'observaciones' && value > rangos_exploracion_fisica[id_rango]['max']){
+                        if (id_rango != 'observaciones' && id_rango != 'alergias' && value > rangos_exploracion_fisica[id_rango]['max']){
                             showAlert('danger','Rango maximo de '+input_nombre+' no valido, Valor: '+value+', minimo permitido: '+rangos_exploracion_fisica[id_rango]['max']);
                             flag_error  = true;
                             return false;
@@ -1091,7 +1282,7 @@ function cambiarFormatoFecha($fecha) {
                         for(let i in data){
                             let row = data[i];
 
-                            row_table   += '<tr>'+
+                            row_table   += '<tr class="clickable-row">'+
                                                 '<td class="p-3">'+row["fecha_registro"]+'</td>'+
                                                 '<td class="p-3">'+row["temperatura"]+'</td>'+
                                                 '<td class="p-3">'+row["frecuencia_cardiaca"]+'</td>'+
@@ -1101,6 +1292,7 @@ function cambiarFormatoFecha($fecha) {
                                                 '<td class="p-3">'+row["peso"]+'</td>'+
                                                 '<td class="p-3">'+row["altura"]+'</td>'+
                                                 '<td class="p-3">'+row["imc"]+'</td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["alergias"]+'</td>'+
                                             '</tr>';
                         }
 
@@ -1115,8 +1307,6 @@ function cambiarFormatoFecha($fecha) {
 
             $(".div_exploracion_fisica").on('click','.btn_expandir',function(e){
                 e.preventDefault();
-
-                console.log('aqui');
 
                 let $icon = $(this).find("span.material-icons");
 
@@ -1133,6 +1323,22 @@ function cambiarFormatoFecha($fecha) {
             });
 
             //  ------------------- MOTIVOS DE CONSULTA ---------------------   //
+            $(".div_motivo_consulta").on('click','.btn_expandir',function(e){
+                e.preventDefault();
+
+                let $icon = $(this).find("span.material-icons");
+
+                if ($icon.text() == 'fullscreen'){
+                    $icon.text("fullscreen_exit");
+                    $(".div_motivo_consulta").find(".section_create").removeClass('col-lg-6').addClass('col-lg-8');
+                    $(".div_motivo_consulta").find(".section_history").removeClass('col-lg-6').addClass('col-lg-4');
+
+                } else {
+                    $icon.text("fullscreen");
+                    $(".div_motivo_consulta").find(".section_create").removeClass('col-lg-8').addClass('col-lg-6');
+                    $(".div_motivo_consulta").find(".section_history").removeClass('col-lg-4').addClass('col-lg-6');
+                }
+            });
             //  EVENTO PARA MOSTRAR MODAL DE HISTORICOS DE MOTIVOS DE CONSULTA
             $("#table_results_motivo_consulta").on('click','.clickable-row',function() {
                 var $row = $(this);
@@ -1144,6 +1350,11 @@ function cambiarFormatoFecha($fecha) {
                 var antecedentes = $row.find('td:eq(3)').text().trim();
                 
                 // Actualizar el contenido del modal
+                $('#modalFecha').text('');
+                $('#modalMotivo').text('');
+                $('#modalPadecimiento').text('');
+                $('#modalAntecedentes').text('');
+
                 $('#modalFecha').text(fecha);
                 $('#modalMotivo').text(motivo);
                 $('#modalPadecimiento').text(padecimiento);
