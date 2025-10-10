@@ -188,6 +188,52 @@
         margin-bottom: 0;
     }
 
+    /*  ESTILO PARA MODAL DE MOTIVOS    */
+    .table-scroll-container {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    
+    .truncate-text {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .clickable-row:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .modal-body .info-group {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .modal-body .info-label {
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modal-body .info-content {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    /* .table th {
+        background-color: #f8f9fa;
+    } */
+
 </style>
 <?php 
 //  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
@@ -563,13 +609,13 @@ function cambiarFormatoFecha($fecha) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php if (count($motivo_consulta_cita) > 0): ?>
-                                            <?php foreach($motivo_consulta_cita as $row): ?>
-                                            <tr>
-                                                <td class="p-3"><?php echo $row['fecha_registro']; ?></td>
-                                                <td class="p-3"><?php echo $row['motivo_consulta']; ?></td>
-                                                <td class="p-3"><?php echo $row['padecimiento_actual']; ?></td>
-                                                <td class="p-3"><?php echo $row['antecedentes_relevantes']; ?></td>
+                                            <?php if (count($motivo_consulta) > 0): ?>
+                                            <?php foreach($motivo_consulta as $row): ?>
+                                            <tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#detailModal" data-fecha="<?php echo $row['fecha_registro']; ?>" data-motivo="<?php echo $row['motivo_consulta']; ?>" data-padecimiento="<?php echo $row['padecimiento_actual']; ?>" data-antecedentes="<?php echo $row['antecedentes_relevantes']; ?>">
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_registro']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['motivo_consulta']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['padecimiento_actual']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['antecedentes_relevantes']; ?></div></td>
                                             </tr>
                                             <?php endforeach; ?>
                                             <?php else: ?>
@@ -646,6 +692,39 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar detalles completos -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel">Detalles completos del registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="info-group">
+                    <div class="info-label">Fecha de registro:</div>
+                    <div id="modalFecha" class="info-content"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Motivo de consulta:</div>
+                    <div id="modalMotivo" class="info-content"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Padecimiento actual:</div>
+                    <div id="modalPadecimiento" class="info-content"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Antecedentes relevantes:</div>
+                    <div id="modalAntecedentes" class="info-content"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -918,34 +997,6 @@ function cambiarFormatoFecha($fecha) {
                 })
             });
 
-            //  PARA REDIRIGIR A PROGRAMAR CITAS
-            $(".schedulle_appoitment_view").on('click',function(){
-                if (estatus != 1){
-                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
-                    return false;
-                }
-
-                window.location.href = '/Pacientes/scheduleappointments?id='+id_paciente;
-            })
-
-            //  EVENTO PARA MODOFICAR DIAGNOSTICO
-            $(".btn_diagnoses").on('click',function(){
-                if (estatus != 1){
-                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
-                    return false;
-                }
-                show_modal_diagnoses();
-            });
-
-            //  EVENTO PARA MOSTRAR AREAS DE ENFOQUE
-            $(".btn_focus").on('click',function(){
-                if (estatus != 1){
-                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
-                    return false;
-                }
-                show_modal_focus();
-            });
-
             //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
             $("#form_info_personal").on('keypress','.input_celular',function(e) {
                 if(isNaN(this.value + String.fromCharCode(e.charCode))) 
@@ -1082,6 +1133,26 @@ function cambiarFormatoFecha($fecha) {
             });
 
             //  ------------------- MOTIVOS DE CONSULTA ---------------------   //
+            //  EVENTO PARA MOSTRAR MODAL DE HISTORICOS DE MOTIVOS DE CONSULTA
+            $("#table_results_motivo_consulta").on('click','.clickable-row',function() {
+                var $row = $(this);
+                
+                // Obtener datos directamente de las celdas
+                var fecha = $row.find('td:eq(0)').text().trim();
+                var motivo = $row.find('td:eq(1)').text().trim();
+                var padecimiento = $row.find('td:eq(2)').text().trim();
+                var antecedentes = $row.find('td:eq(3)').text().trim();
+                
+                // Actualizar el contenido del modal
+                $('#modalFecha').text(fecha);
+                $('#modalMotivo').text(motivo);
+                $('#modalPadecimiento').text(padecimiento);
+                $('#modalAntecedentes').text(antecedentes);
+                
+                // Mostrar el modal
+                $('#detailModal').modal('show');
+            });
+
             $(".btn_save_motivo_consulta").on('click',function(){
                 let btn =  $(this);
                 $(btn).prop('disable',true);
@@ -1099,15 +1170,20 @@ function cambiarFormatoFecha($fecha) {
                     return false;
                 }
 
+                let obj_info    = {
+                    motivo_consulta         : $("#motivo_consulta").val().trim(),
+                    padecimiento_actual     : $("#padecimiento_actual").val().trim(),
+                    antecedentes_relevantes : $("#antecedentes_relevantes").val().trim()
+                }
+
                 $.ajax({
                     url     : url_clinical,
                     method  : 'post',
                     data    : {
                         accion          : 'save_motivo_consulta',
                         id_agenda_cita  : id_agenda_cita,
-                        motivo_consulta : $("#motivo_consulta").val().trim(),
-                        padecimiento_actual     : $("#padecimiento_actual").val().trim(),
-                        antecedentes_relevantes : $("#antecedentes_relevantes").val().trim()
+                        obj_info        : obj_info,
+                        nombre_completo         : nombre_completo
                     },
                     success : function(data){
                         showAlert('success','Captura exitosa!');
@@ -1119,11 +1195,11 @@ function cambiarFormatoFecha($fecha) {
                         for(let i in data){
                             let row = data[i];
 
-                            row_table   += '<tr>'+
-                                                '<td class="p-3">'+row["fecha_registro"]+'</td>'+
-                                                '<td class="p-3">'+row["motivo_consulta"]+'</td>'+
-                                                '<td class="p-3">'+row["padecimiento_actual"]+'</td>'+
-                                                '<td class="p-3">'+row["antecedentes_relevantes"]+'</td>'+
+                            row_table   += '<tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#detailModal" data-fecha="'+row["fecha_registro"]+'" data-motivo="'+row["motivo_consulta"]+'" data-padecimiento="'+row["padecimiento_actual"]+'" data-antecedentes="'+row["antecedentes_relevantes"]+'">'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["fecha_registro"]+'</div></td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["motivo_consulta"]+'</div></td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["padecimiento_actual"]+'</div></td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["antecedentes_relevantes"]+'</div></td>'+
                                             '</tr>';
                         }
 

@@ -828,6 +828,28 @@ class PacientesController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'save_motivo_consulta'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_motivo_consulta'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARMOTIVOCONSULTA','Se capturaron los datos de motivo de consulta del paciente: '.$_POST['nombre_completo'],$_POST['obj_ifo']);
+
+                //  SE OBTIENEN TODOS LOS REGISTROS, ESTO PARA RECREAR LA TABLA DE HISTORICOS
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_motivo_consulta'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_agenda_cita' => $_POST['id_agenda_cita']));
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
