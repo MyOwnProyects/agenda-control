@@ -491,7 +491,7 @@ function cambiarFormatoFecha($fecha) {
                         <div class="mb-4">
                             <h2 class="h5 fw-semibold mb-3">Subir nuevo documento</h2>
                             <div class="p-4 border rounded-3 bg-white shadow-sm">
-                                <input type="file" id="dropzone" class="d-none" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                                <input type="file" id="input_file_document" class="d-none" accept=".pdf,.png,.jpg,.jpeg,.docx">
                                 <div id="dropzoneContainer" class="dropzone border border-2 border-secondary rounded p-4 text-center bg-light" style="cursor:pointer;">
                                     <div class="dz-message text-muted">
                                         <i class="bi bi-cloud-arrow-up fs-1"></i>
@@ -499,18 +499,18 @@ function cambiarFormatoFecha($fecha) {
                                     </div>
                                 </div>
 
-                                <div class="mt-3">
-                                <label for="category-upload" class="form-label">Categoría</label>
-                                <select class="form-select" id="category-upload">
-                                    <option selected>Seleccionar categoría</option>
-                                    <?php foreach($tipo_archivos as $tipo): ?>
-                                    <option value="<?php echo $tipo['id']; ?>"><?php echo $tipo['nombre']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <div class="mt-3 w-50">
+                                    <label for="select_categoria_archivo" class="form-label">Categoría</label>
+                                    <select class="form-select" id="select_categoria_archivo">
+                                        <option value="" selected>Seleccionar categoría</option>
+                                        <?php foreach($tipo_archivos as $tipo): ?>
+                                        <option value="<?php echo $tipo['id']; ?>" data-clave="<?php echo $tipo['clave']; ?>"><?php echo $tipo['nombre']; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
 
                                 <div class="mt-3 text-end">
-                                <button class="btn btn-primary">Confirmar Subida</button>
+                                    <button id="btn_subir_archivo" class="btn btn-primary">Subir archivo</button>
                                 </div>
                             </div>
                         </div>
@@ -1198,7 +1198,7 @@ function cambiarFormatoFecha($fecha) {
             });
 
             //  ------------------- DOCUMENTOS  -----------------------------   //
-            const $input = $('#dropzone');
+            const $input = $('#input_file_document');
             const $container = $('#dropzoneContainer');
             const originalHTML = $container.html();
 
@@ -1247,6 +1247,55 @@ function cambiarFormatoFecha($fecha) {
                     }
                 }
             });
+
+            $("#btn_subir_archivo").on('click', function() {
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+                let fileInput   = $('#input_file_document')[0]; // Elemento DOM nativo
+                let categoria   = $("#select_categoria_archivo").val();
+
+                if (fileInput.files.length === 0) {
+                    showAlert('danger', 'Seleccione un archivo');
+                    return false;
+                }
+
+                if (!categoria) {
+                    showAlert('danger', 'Seleccione la categoría del documento');
+                    return false;
+                }
+
+                let clave_archivo   = $("#select_categoria_archivo").find('option:selected').data('clave');
+
+                // Prepara los datos para enviar
+                let formData = new FormData();
+                formData.append('archivo', fileInput.files[0]);
+                formData.append('id_categoria', categoria);
+                formData.append('clave_archivo', clave_archivo);
+                formData.append('accion', 'save_file');
+                formData.append('id_paciente', id_paciente);
+
+                // Si quieres enviar más datos, puedes agregar más campos aquí:
+                // formData.append('id_paciente', $("#id_paciente").val());
+
+                $.ajax({
+                    url: url_digital,
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // Evita que jQuery procese los datos
+                    contentType: false, // Evita que jQuery configure el encabezado Content-Type
+                    beforeSend: function() {
+                        $("#btn_subir_archivo").prop('disabled', true);
+                        showAlert('info', 'Subiendo archivo, espere...');
+                    },
+                    success: function(response) {
+                        $("#btn_subir_archivo").prop('disabled', false);
+                    },
+                    error: function(error) {
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+ 
 
             $(document).on('click', '.remove-file', function(e) {
                 e.preventDefault();

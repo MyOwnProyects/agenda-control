@@ -711,6 +711,80 @@ class PacientesController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'save_file'){
+                $response = new Response();
+                $id_categoria       = $_POST['id_categoria'];
+                $clave_categoria    = $_POST['clave_categoria'];
+                $upload_max         = ini_get('upload_max_filesize');
+
+                if (empty($id_categoria)){
+                    $response->setJsonContent('Seleccione una categoria');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                if (!$this->request->hasFiles()){
+                    $response->setJsonContent('Seleccione un archivo');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $path_file  = FuncionesGlobales::get_pth_file($clave_categoria);
+                $fecha      = date('YmdHis');
+
+                foreach ($this->request->getUploadedFiles() as $file) {
+
+                    $nombre_original    = $file->getName();
+                    $nombre_original    = FuncionesGlobales::clear_filename($nombre_original);
+
+                    $upload_max_bytes   = FuncionesGlobales::returnBytes($upload_max);
+                    if ($file->getSize() > $upload_max_bytes) {
+                        $response->setJsonContent('El archivo no puede medir mas de '.$upload_max);
+                        $response->setStatusCode(404, 'Error');
+                        return $response;
+                    }
+
+                    // Validar tipo MIME (ajusta según tu necesidad)
+                    $mime = $file->getRealType();
+                    $ext  = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+
+                    if (!in_array($ext, $permitidos)) {
+                        $response->setJsonContent('Tipo de archivo no permitido '.$ext);
+                        $response->setStatusCode(404, 'Error');
+                        return $response;
+                    }
+
+                    // Asigna nombre único para evitar colisiones
+                    $nombre_archivo = $id_paciente.'_'.$clave_categoria.'_'.$fecha.'.' . $ext;
+
+                    // Mueve el archivo a su destino final
+                    $filePath = $path_file . $nombre_archivo;
+
+                    if ($file->moveTo($filePath)) {
+                        // Aquí podrías guardar el registro en la base de datos:
+                        // Ejemplo:
+                        // $archivo = new Archivos();
+                        // $archivo->categoria = $categoria;
+                        // $archivo->nombre_original = $file->getName();
+                        // $archivo->nombre_guardado = $nuevoNombre;
+                        // $archivo->ruta = 'storage/files/' . $categoria . '/' . $nuevoNombre;
+                        // $archivo->save();
+
+                        return $response->setJsonContent([
+                            'status'  => 'ok',
+                            'mensaje' => 'Archivo subido correctamente',
+                            'ruta'    => 'storage/files/' . $categoria . '/' . $nuevoNombre
+                        ]);
+                    } else {
+                        return $response->setJsonContent([
+                            'status'  => 'error',
+                            'mensaje' => 'No se pudo mover el archivo al destino'
+                        ]);
+                    }
+                }
+            }
         }
 
         //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
@@ -760,6 +834,8 @@ class PacientesController extends BaseController
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
         $this->view->id_profesional         = $this->session->get('id_profesional');
         $this->view->id_agenda_cita         = $id_agenda_cita;
+        $this->view->upload_max             = ini_get('upload_max_filesize');
+        $this->view->post_max               = ini_get('post_max_size');
 
     }
 

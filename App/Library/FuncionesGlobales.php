@@ -610,6 +610,85 @@ class FuncionesGlobales{
         }
     }
 
+    /*
+        FUNCION PARA RETORNAR EL PATH DE LA CARPETA, ESTO DEPENDIENDO DEL TIPO DE ARCHIVO
 
+        @param  $type_file  ($string)   tipo de archivo
+        return  (String);
+    */ 
+    public static function get_path_file($type_file){
+        $path_principal = "/storage/files";
+        $path_save      = '';
+
+        switch($type_file){
+            case 'res_lab':
+                $path_save = '/resultados_de_laboratorio/';
+                break;
+            case 'inf_meds':
+                $path_save = '/informes_medicos/';
+                break;
+            case 'ima_diag':
+                $path_save = '/imagenes_diagnosticos/';
+                break;
+            case 'consen':
+                $path_save = '/consentimientos_informados/';
+                break;
+            case 'rec_firs':
+                $path_save = '/recetas_medicas_firmadas/';
+                break;
+            case 'not_med':
+                $path_save = '/notas_medicas/';
+                break;
+            case 'jus':
+                $path_save = '/justificantes/';
+                break;
+            case 'rep_seg':
+                $path_save = '/reportes_de_seguimiento/';
+                break;
+            case 'perfil':
+                $path_save = '/perfil/';
+                break;
+            case 'otros':
+                $path_save = '/otros_documentos/';
+                break;
+            default:
+                $path_save = '/otros_documentos/';
+                break;
+        }
+            
+
+        return $path_principal.$path_save;
+    }
+
+    /*  
+        FUNCION QUE CONVIERTE, POR EJEMPLO 25M EN BYTES, SIRVE PARA VALIDAR EN IF
+
+        @param  $val (String)   $val    
+        return (Numeric)
+    */
+    public static function returnBytes($val) {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+        $num = (int)$val;
+
+        switch($last) {
+            case 'g': $num *= 1024;
+            case 'm': $num *= 1024;
+            case 'k': $num *= 1024;
+        }
+
+        return $num;
+    }
+
+    /** 
+     * FUNCION PARA SANITIZAR NOMBRE DE ARCHIVOS
+     * 
+     * @param   $nombre_original    String
+     * @return  String
+    */
+    public static function clear_filename($nombre_original){
+        // 1️⃣ Convertir a minúsculas (opcional)
+        return preg_replace('/[^a-zA-Z0-9._\- ]/', '', $nombre_original);
+    }
 
 }
