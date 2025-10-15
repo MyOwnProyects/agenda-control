@@ -617,7 +617,7 @@ class FuncionesGlobales{
         return  (String);
     */ 
     public static function get_path_file($type_file){
-        $path_principal = "/storage/files";
+        $path_principal = "../storage/files";
         $path_save      = '';
 
         switch($type_file){

@@ -714,11 +714,12 @@ class PacientesController extends BaseController
 
             if ($accion == 'save_file'){
                 $response = new Response();
-                $id_categoria       = $_POST['id_categoria'];
-                $clave_categoria    = $_POST['clave_categoria'];
+                $id_tipo_categoria  = $_POST['id_tipo_categoria'];
+                $clave_archivo      = $_POST['clave_archivo'];
                 $upload_max         = ini_get('upload_max_filesize');
+                $id_paciente        = $_POST['id_paciente'];
 
-                if (empty($id_categoria)){
+                if (empty($clave_archivo)){
                     $response->setJsonContent('Seleccione una categoria');
                     $response->setStatusCode(404, 'Error');
                     return $response;
@@ -730,8 +731,11 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                $path_file  = FuncionesGlobales::get_pth_file($clave_categoria);
+                $path_file  = FuncionesGlobales::get_path_file($clave_archivo);
                 $fecha      = date('YmdHis');
+                $nombre_archivo     = '';
+                $nombre_original    = '';
+                $filePath           = '';
 
                 foreach ($this->request->getUploadedFiles() as $file) {
 
@@ -757,33 +761,46 @@ class PacientesController extends BaseController
                     }
 
                     // Asigna nombre único para evitar colisiones
-                    $nombre_archivo = $id_paciente.'_'.$clave_categoria.'_'.$fecha.'.' . $ext;
+                    $nombre_archivo = $id_paciente.'_'.$clave_archivo.'_'.$fecha.'.' . $ext;
 
                     // Mueve el archivo a su destino final
                     $filePath = $path_file . $nombre_archivo;
 
-                    if ($file->moveTo($filePath)) {
-                        // Aquí podrías guardar el registro en la base de datos:
-                        // Ejemplo:
-                        // $archivo = new Archivos();
-                        // $archivo->categoria = $categoria;
-                        // $archivo->nombre_original = $file->getName();
-                        // $archivo->nombre_guardado = $nuevoNombre;
-                        // $archivo->ruta = 'storage/files/' . $categoria . '/' . $nuevoNombre;
-                        // $archivo->save();
-
-                        return $response->setJsonContent([
-                            'status'  => 'ok',
-                            'mensaje' => 'Archivo subido correctamente',
-                            'ruta'    => 'storage/files/' . $categoria . '/' . $nuevoNombre
-                        ]);
-                    } else {
-                        return $response->setJsonContent([
-                            'status'  => 'error',
-                            'mensaje' => 'No se pudo mover el archivo al destino'
-                        ]);
+                    if (!$file->moveTo($filePath)) {
+                        $error = error_get_last();
+                        $msg = isset($error['message']) ? $error['message'] : 'Error desconocido al mover archivo.';
+                        $response->setJsonContent('No se pudo mover el archivo: ' . $msg);
+                        $response->setStatusCode(500, 'Move Error');
+                        return $response;
                     }
                 }
+
+                //  SE GUARDA EL REGISTRO EN LA BD
+                $obj_info   = array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_tipo_archivo'   => $_POST['id_tipo_archivo'],
+                    'observaciones'     => $_POST['observaciones'],
+                    'nombre_original'   => $nombre_original,
+                    'nombre_archivo'    => $nombre_archivo,
+                    'clave_archivo'     => $_POST['clave_archivo']
+                );
+
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_file'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$obj_info);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    unlink($filePath);
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARARCHIVO','Se agrego en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
             }
         }
 
@@ -834,9 +851,10 @@ class PacientesController extends BaseController
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
         $this->view->id_profesional         = $this->session->get('id_profesional');
         $this->view->id_agenda_cita         = $id_agenda_cita;
-        $this->view->upload_max             = ini_get('upload_max_filesize');
-        $this->view->post_max               = ini_get('post_max_size');
-
+        $this->view->upload_max             = FuncionesGlobales::returnBytes(ini_get('upload_max_filesize'));
+        $this->view->post_max               = FuncionesGlobales::returnBytes(ini_get('post_max_size'));
+        $this->view->human_upload_max       = ini_get('upload_max_filesize');
+        $this->view->human_post_max         = ini_get('post_max_size');
     }
 
 }

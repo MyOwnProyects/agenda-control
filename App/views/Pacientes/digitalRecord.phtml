@@ -191,13 +191,23 @@
         border: 2px dashed #ccc;
         border-radius: 10px;
         position: relative;
-        overflow: hidden;
+        overflow: auto;
     }
 
     #dropzoneContainer embed,
     #dropzoneContainer img {
         object-fit: contain;
     }
+
+    #dropzoneContainer pre {
+        white-space: pre-wrap;    /* o pre si quieres exacto */
+        word-wrap: break-word;
+        text-align: left;
+        margin: 0;
+        padding: 0.5rem;
+        font-family: monospace;   /* opcional: fuente tipo editor */
+    }
+
 
 </style>
 <?php 
@@ -508,6 +518,10 @@ function cambiarFormatoFecha($fecha) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
+                                <div class="mt-3">
+                                    <label for="textarea_observaciones" class="form-label">Observaciones al documento</label>
+                                    <textarea id="textarea_observaciones" class="form-control" rows="3" style="resize: none;"></textarea>
+                                </div>
 
                                 <div class="mt-3 text-end">
                                     <button id="btn_subir_archivo" class="btn btn-primary">Subir archivo</button>
@@ -766,6 +780,10 @@ function cambiarFormatoFecha($fecha) {
         const id_agenda_cita    = '<?php echo $id_agenda_cita; ?>';
         const estatus           = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
         const nombre_completo   = '<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>';
+        const upload_max        = '<?php echo $upload_max; ?>';
+        const post_max          = '<?php echo $post_max; ?>';
+        const human_upload_max  = '<?php echo $human_upload_max; ?>';
+        const human_post_max    = '<?php echo $human_post_max; ?>';
         let diagnosticos        = '<?php echo $diagnosticos ?>';
         diagnosticos            = JSON.parse(diagnosticos);
 
@@ -887,7 +905,7 @@ function cambiarFormatoFecha($fecha) {
 
         // Mostrar vista previa
         // Mostrar vista previa
-        async function showPreview(file, $container) {
+        async function show_preview(file, $container) {
             const type = file.type;
             if (!file) return;
             
@@ -911,6 +929,14 @@ function cambiarFormatoFecha($fecha) {
             
             if (!mimeTypesPermitidos.includes(type)) {
                 showAlert('danger', 'Formato de archivo no permitido');
+                return;
+            }
+
+            //  SE BUSCA QUE EL TAMAÑO DEL DOCUMENTO NO EXCEDA EL PERMITIDO
+            const file_size = file.size;
+
+            if (file_size >= upload_max){
+                showAlert('danger', 'Tamaño maximo excedido, limite de '+human_upload_max);
                 return;
             }
             
@@ -938,10 +964,14 @@ function cambiarFormatoFecha($fecha) {
                 // Vista previa para archivos TXT
                 try {
                     const text = await file.text();
-                    const truncatedText = text.length > 1000 ? text.substring(0, 1000) + '...' : text;
+
                     previewHTML = `
-                        <div class="position-relative w-100 h-100 p-3 bg-light rounded" style="min-height: 200px;">
-                            <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto;">${escapeHtml(truncatedText)}</pre>
+                        <div class="position-relative w-100 p-3 bg-light rounded" 
+                            style="min-height:200px; max-height:100%; overflow-y:auto;">
+                            <pre class="mb-0" 
+                                style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
+                                ${escapeHtml(text)}
+                            </pre>
                             <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
                         </div>
                     `;
@@ -1216,7 +1246,7 @@ function cambiarFormatoFecha($fecha) {
                 const file = e.target.files[0];
                 if (file) {
                     try {
-                        await showPreview(file, $container);
+                        await show_preview(file, $container);
                     } catch (error) {
                         console.error('Error al mostrar preview:', error);
                         showAlert('danger', 'Error al mostrar la vista previa del archivo');
@@ -1240,7 +1270,7 @@ function cambiarFormatoFecha($fecha) {
                 if (files.length > 0) {
                     $input[0].files = files;
                     try {
-                        await showPreview(files[0], $container);
+                        await show_preview(files[0], $container);
                     } catch (error) {
                         console.error('Error al mostrar preview:', error);
                         showAlert('danger', 'Error al mostrar la vista previa del archivo');
@@ -1251,15 +1281,16 @@ function cambiarFormatoFecha($fecha) {
             $("#btn_subir_archivo").on('click', function() {
                 let btn         = $(this);
                 $(btn).prop('disabled',true);
-                let fileInput   = $('#input_file_document')[0]; // Elemento DOM nativo
-                let categoria   = $("#select_categoria_archivo").val();
+                let fileInput       = $('#input_file_document')[0]; // Elemento DOM nativo
+                let id_tipo_archivo = $("#select_categoria_archivo").val();
+                let observaciones   = $("#textarea_observaciones").val();
 
                 if (fileInput.files.length === 0) {
                     showAlert('danger', 'Seleccione un archivo');
                     return false;
                 }
 
-                if (!categoria) {
+                if (!id_tipo_archivo) {
                     showAlert('danger', 'Seleccione la categoría del documento');
                     return false;
                 }
@@ -1269,10 +1300,12 @@ function cambiarFormatoFecha($fecha) {
                 // Prepara los datos para enviar
                 let formData = new FormData();
                 formData.append('archivo', fileInput.files[0]);
-                formData.append('id_categoria', categoria);
+                formData.append('id_tipo_archivo', id_tipo_archivo);
                 formData.append('clave_archivo', clave_archivo);
                 formData.append('accion', 'save_file');
                 formData.append('id_paciente', id_paciente);
+                formData.append('id_agenda_cita', id_agenda_cita);
+                formData.append('observaciones', observaciones);
 
                 // Si quieres enviar más datos, puedes agregar más campos aquí:
                 // formData.append('id_paciente', $("#id_paciente").val());
