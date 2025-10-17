@@ -71,7 +71,9 @@ return [
         'save_express'          => '/ctpacientes/save_express',
         'save_diagnoses'        => '/ctpacientes/save_diagnoses',
         'get_digital_record'    => '/ctpacientes/get_digital_record',
+        'delete_file'           => '/ctpacientes/delete_file',
         'save_file'             => '/ctpacientes/save_file',
+        'show_file'             => '/ctpacientes/show_file',
         'save_subareas_focus'   => '/ctpacientes/save_subareas_focus'
     ],
     'ctvariables_sistema'   => array(

@@ -712,6 +712,24 @@ class PacientesController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'delete_file'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['delete_file'];
+                $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARARCHIVO','Se elimino en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             if ($accion == 'save_file'){
                 $response = new Response();
                 $id_tipo_categoria  = $_POST['id_tipo_categoria'];
@@ -782,7 +800,8 @@ class PacientesController extends BaseController
                     'observaciones'     => $_POST['observaciones'],
                     'nombre_original'   => $nombre_original,
                     'nombre_archivo'    => $nombre_archivo,
-                    'clave_archivo'     => $_POST['clave_archivo']
+                    'clave_archivo'     => $_POST['clave_archivo'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
                 );
 
                 $route  = $this->url_api.$this->rutas['ctpacientes']['save_file'];
@@ -798,7 +817,11 @@ class PacientesController extends BaseController
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARARCHIVO','Se agrego en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
 
-                $response->setJsonContent('Captura exitosa!');
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_file'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_paciente' => $_POST['id_paciente']));
+
+
+                $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }

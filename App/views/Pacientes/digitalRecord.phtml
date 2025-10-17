@@ -534,7 +534,7 @@ function cambiarFormatoFecha($fecha) {
                             </div>
                             <div class="w-50 d-flex gap-2">
                                 <input id="input_filtro_archivos" type="text" class="form-control" placeholder="Buscar documento" />
-                                <select class="form-select">
+                                <select id="select_filtros" class="form-select">
                                     <option>Todas las categorías</option>
                                     <?php foreach($tipo_archivos as $tipo): ?>
                                     <option value="<?php echo $tipo['id']; ?>"><?php echo $tipo['nombre']; ?></option>
@@ -544,7 +544,7 @@ function cambiarFormatoFecha($fecha) {
                         </div>
                         <div class="card">
                             <div class="table-responsive">
-                                <table class="table table-hover mb-0">
+                                <table id="table_files" class="table table-hover mb-0">
                                     <thead>
                                         <tr>
                                             <th class="p-3">Nombre del archivo</th>
@@ -558,13 +558,13 @@ function cambiarFormatoFecha($fecha) {
                                         <?php if (count($archivos) > 0): ?>
                                         <?php foreach($archivos as $archivo): ?>
                                         <tr>
-                                            <td class="p-3"><?php echo $archivo['nombre_original']; ?></td>
-                                            <td class="p-3"><?php echo $archivo['nombre_categoria;'] ?></td>
-                                            <td class="p-3"><?php echo $archivo['fecha_registro'] ?></td>
+                                            <td class="p-3 row_filtro"><?php echo $archivo['nombre_original']; ?></td>
+                                            <td class="p-3 row_filtro"><?php echo $archivo['nombre_tipo_archivo']; ?></td>
+                                            <td class="p-3 row_filtro"><?php echo $archivo['fecha_registro'] ?></td>
                                             <td class="p-3">
-                                                <a class="text-secondary me-2"><i class="bi bi-eye"></i></a>
-                                                <a class="text-secondary me-2"><i class="bi bi-download"></i></a>
-                                                <a class="text-danger"><i class="bi bi-trash"></i></a>
+                                                <button type="button" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>
+                                                <button type="button" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
+                                                <button type="button" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -1031,6 +1031,11 @@ function cambiarFormatoFecha($fecha) {
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
 
+        //  FUNCION PARA FILTRAS ARCHIVOS
+        function show_filtros_archivos(){
+
+        }
+
         $(document).ready(function() {
             cargarTabla();
 
@@ -1228,6 +1233,15 @@ function cambiarFormatoFecha($fecha) {
             });
 
             //  ------------------- DOCUMENTOS  -----------------------------   //
+
+            $(".input_filtro_archivos").on('keydown',function(){
+                show_filtros_archivos();
+            });
+
+            $("#select_filtros").on('change',function(){
+                show_filtros_archivos();
+            });
+
             const $input = $('#input_file_document');
             const $container = $('#dropzoneContainer');
             const originalHTML = $container.html();
@@ -1320,14 +1334,68 @@ function cambiarFormatoFecha($fecha) {
                         $("#btn_subir_archivo").prop('disabled', true);
                         showAlert('info', 'Subiendo archivo, espere...');
                     },
-                    success: function(response) {
+                    success: function(data) {
                         $("#btn_subir_archivo").prop('disabled', false);
+
+                        console.log('data',data);
+
+                        let html_row    = '';
+                        if (Object.keys(data).length > 0){
+                            for(let i in data){
+                                let row = data[i];
+
+                                html_row    += '<tr>'+
+                                                    '<td class="p-3 row_filtro">'+row["nombre_original"]+'</td>'+
+                                                    '<td class="p-3 row_filtro">'+row["nombre_tipo_archivo"]+'</td>'+
+                                                    '<td class="p-3 row_filtro">'+row["fecha_registro"]+'</td>'+
+                                                    '<td class="p-3">'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>'+
+                                                    '</td>'+
+                                                '</tr>';
+                            }
+                        }
+
+                        $("#table_files").find('tbody').html('').append(html_row);
                     },
                     error: function(error) {
                         actionJsonError(error,btn);
                     }
                 });
             });
+
+            $("#table_files").on('click','.btn_delete_file',async function(){
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_update,
+                        method  : 'POST',
+                        data    :  {
+                            accion  : 'change_status',
+                            estatus : estatus,
+                            nombre_completo : data['nombre_completo'],
+                            id              : id,
+                            num_servicios   : data['num_servicios']
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Edici&oacute;n exitosa!");
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            })
  
 
             $(document).on('click', '.remove-file', function(e) {
