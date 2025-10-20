@@ -305,6 +305,7 @@ class AgendaController extends BaseController
 
         //  PERMISO PARA VER EXPEDIENTE DIGITAL
         $this->view->digitalRecord  = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
+        $this->view->clinicalData   = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
 
     }
 

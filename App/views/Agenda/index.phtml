@@ -755,7 +755,9 @@ use App\Library\FuncionesGlobales;
         <?php if ($digitalRecord): ?>
         <button type="button" class="btn btn_ver_expediente btn-outline-dark"><?php echo $translations['html_see_file']; ?></button>
         <?php endif; ?>
+        <?php if ($clinicalData): ?>
         <button type="button" class="btn btn_ir_datos_clinicos btn-outline-dark"><?php echo $translations['html_capture_clinical_data']; ?></button>
+        <?php endif; ?>
     </div>
 </div>
 
