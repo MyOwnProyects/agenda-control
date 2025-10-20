@@ -535,7 +535,7 @@ function cambiarFormatoFecha($fecha) {
                             <div class="w-50 d-flex gap-2">
                                 <input id="input_filtro_archivos" type="text" class="form-control" placeholder="Buscar documento" />
                                 <select id="select_filtros" class="form-select">
-                                    <option>Todas las categorías</option>
+                                    <option value="">Todas las categorías</option>
                                     <?php foreach($tipo_archivos as $tipo): ?>
                                     <option value="<?php echo $tipo['id']; ?>"><?php echo $tipo['nombre']; ?></option>
                                     <?php endforeach; ?>
@@ -558,18 +558,18 @@ function cambiarFormatoFecha($fecha) {
                                         <?php if (count($archivos) > 0): ?>
                                         <?php foreach($archivos as $archivo): ?>
                                         <tr>
-                                            <td class="p-3 row_filtro"><?php echo $archivo['nombre_original']; ?></td>
-                                            <td class="p-3 row_filtro"><?php echo $archivo['nombre_tipo_archivo']; ?></td>
+                                            <td class="p-3 row_filtro td_nombre"><?php echo $archivo['nombre_original']; ?></td>
+                                            <td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>"><?php echo $archivo['nombre_tipo_archivo']; ?></td>
                                             <td class="p-3 row_filtro"><?php echo $archivo['fecha_registro'] ?></td>
                                             <td class="p-3">
-                                                <button type="button" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>
-                                                <button type="button" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
-                                                <button type="button" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
                                         <?php else: ?>
-                                        <tr>
+                                        <tr class="row_empty">
                                             <td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>
                                         </tr>
                                         <?php endif; ?>
@@ -1033,7 +1033,39 @@ function cambiarFormatoFecha($fecha) {
 
         //  FUNCION PARA FILTRAS ARCHIVOS
         function show_filtros_archivos(){
+            let text_filter     = $("#input_filtro_archivos").val();
+            let select_filter   = $("#select_filtros").val();
 
+            //  SE OCULTAN TODOS LOS ROWS
+            $("#table_files").find('tbody tr').hide();
+            $("#table_files").find('.row_empty').remove();
+
+            //  RECORRIDO DE TODOS LOS ROWS
+            $("#table_files").find('tbody tr').each(function(){
+                let row_tr      = $(this);
+                let show_row    = true;
+
+                if (text_filter != '' && !row_tr.find('.td_nombre').text().includes(text_filter)){
+                    show_row    = false;
+                } else {
+                    if (select_filter != '' && row_tr.find('.td_tipo_archivo').data('idtipoarchivo') != select_filter){
+                        show_row    = false;
+                    }
+                }
+
+                if (show_row){
+                    $(row_tr).show();
+                } else {
+                    $(row_tr).hide();
+                }
+            });
+
+            //  SE PINTA ROW SIN REGISTROS
+            if ($("#table_files").find('tbody tr:visible').length == 0){
+                $("#table_files").find('tbody').append(' <tr class="row_empty">'+
+                                                                '<td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>'+
+                                                            '</tr>');
+            }
         }
 
         $(document).ready(function() {
@@ -1234,7 +1266,8 @@ function cambiarFormatoFecha($fecha) {
 
             //  ------------------- DOCUMENTOS  -----------------------------   //
 
-            $(".input_filtro_archivos").on('keydown',function(){
+            $("#input_filtro_archivos").on('keyup',function(){
+                console.log('aqui');
                 show_filtros_archivos();
             });
 
@@ -1345,8 +1378,8 @@ function cambiarFormatoFecha($fecha) {
                                 let row = data[i];
 
                                 html_row    += '<tr>'+
-                                                    '<td class="p-3 row_filtro">'+row["nombre_original"]+'</td>'+
-                                                    '<td class="p-3 row_filtro">'+row["nombre_tipo_archivo"]+'</td>'+
+                                                    '<td class="p-3 row_filtro td_nombre">'+row["nombre_original"]+'</td>'+
+                                                    '<td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="'+row["id_tipo_archivo"]+'">'+row["nombre_tipo_archivo"]+'</td>'+
                                                     '<td class="p-3 row_filtro">'+row["fecha_registro"]+'</td>'+
                                                     '<td class="p-3">'+
                                                         '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>'+
@@ -1366,27 +1399,38 @@ function cambiarFormatoFecha($fecha) {
             });
 
             $("#table_files").on('click','.btn_delete_file',async function(){
+                let btn         = $(this);
                 const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                let id_archivo      = $(btn).data('id');
+                let clave_archivo   = $(btn).data('clavetipoarchivo');
+                let nombre_original = $(btn).closest('tr').find('.td_nombre').text();
 
                 $(btn).prop('disabled',true);
 
                 if (respuesta) {
                     $.ajax({
-                        url     : url_update,
+                        url     : url_digital,
                         method  : 'POST',
                         data    :  {
-                            accion  : 'change_status',
-                            estatus : estatus,
-                            nombre_completo : data['nombre_completo'],
-                            id              : id,
-                            num_servicios   : data['num_servicios']
+                            accion  : 'delete_file',
+                            nombre_completo : nombre_completo,
+                            id_archivo      : id_archivo,
+                            id_paciente     : id_paciente,
+                            clave_archivo   : clave_archivo,
+                            nombre_original : nombre_original
                         },
                         success : function(data){
-                            console.log('data');
-                            console.log(data);
-                            $(btn).prop('disabled',false);
-                            showAlert('success',"Edici&oacute;n exitosa!");
-                            cargarTabla();
+                            console.log('data',data);
+                            $(btn).closest('tr').remove();
+                            //  SE PINTA ROW SIN REGISTROS
+                            if ($("#table_files").find('tbody tr:visible').length == 0){
+                                $("#table_files").find('tbody').append(' <tr class="row_empty">'+
+                                                                                '<td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>'+
+                                                                            '</tr>');
+                            }
+
+                            showAlert('success','Borrado exitoso!');
                         },
                         error   : function(error){
                             actionJsonError(error,btn);
@@ -1395,6 +1439,31 @@ function cambiarFormatoFecha($fecha) {
                 } else {
                     $(btn).prop('disabled',false);
                 }
+            });
+
+            //  DESCARGAR ARCHIVO
+            $("#table_files").on('click','.btn_download_file',function(){
+                let id_archivo  = $(this).data('id');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'download_file',
+                        id_paciente : id_paciente,
+                        id_archivo  : id_archivo
+                    },
+                    success : function(data){
+                        const url = `/Menu/download?tipo_archivo=${encodeURIComponent(data.tipo_archivo)}&nombre_archivo=${encodeURIComponent(data.nombre_archivo)}`;
+                        window.open(url, '_blank');
+                        $(btn).prop('disabled',false);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
             })
  
 

@@ -723,11 +723,43 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARARCHIVO','Se elimino en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+                $path_file = FuncionesGlobales::get_path_file($_POST['clave_archivo']);
 
-                $response->setJsonContent('Captura exitosa!');
+                unlink($path_file.$result['nombre_archivo']);
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRARARCHIVO','Se elimino en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $response->setJsonContent('Borrado exitoso!');
                 $response->setStatusCode(200, 'OK');
                 return $response;
+            }
+
+            if ($accion == 'download_file'){
+                $response = new Response();
+
+                $id_archivo     = $_POST['id_archivo'];
+                $id_paciente    = $_POST['id_paciente'];
+
+                $route  = $this->url_api . $this->rutas['ctpacientes']['show_file'];
+                $result = FuncionesGlobales::RequestApi('GET', $route, [
+                    'id'            => $id_archivo,
+                    'id_paciente'   => $id_paciente
+                ]);
+
+                if (empty($result) || !isset($result[0]['nombre_archivo'])) {
+                    $response->setJsonContent('No se encontro la información del archivo');
+                    $response->setStatusCode(404, 'Archivo no encontrado');
+                    return $response;
+                }
+
+                // Devuelve los datos para construir la URL
+                $response->setJsonContent(array(
+                    'tipo_archivo'      => $result[0]['clave_tipo_archivo'],
+                    'nombre_archivo'    => $result[0]['nombre_archivo']
+                ));
+                $response->setStatusCode(200, 'OK');
+                return $response;
+
             }
 
             if ($accion == 'save_file'){
