@@ -905,6 +905,7 @@ class PacientesController extends BaseController
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
         $this->view->id_profesional         = $this->session->get('id_profesional');
+        $this->view->id_usuario             = $this->session->get('id');
         $this->view->id_agenda_cita         = $id_agenda_cita;
         $this->view->upload_max             = FuncionesGlobales::returnBytes(ini_get('upload_max_filesize'));
         $this->view->post_max               = FuncionesGlobales::returnBytes(ini_get('post_max_size'));

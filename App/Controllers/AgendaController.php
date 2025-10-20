@@ -302,6 +302,10 @@ class AgendaController extends BaseController
 
         //  ID PROFESIONAL DE SESION
         $this->view->id_profesional = $this->session->get('id_profesional');
+
+        //  PERMISO PARA VER EXPEDIENTE DIGITAL
+        $this->view->digitalRecord  = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
+
     }
 
     function get_info_by_location(){

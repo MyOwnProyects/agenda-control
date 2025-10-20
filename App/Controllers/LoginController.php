@@ -75,6 +75,7 @@ class LoginController extends Controller
 
                 $navegador  = $this->get_browser_info($this->request->getUserAgent());
 
+                $this->session->set("id",$request[0]['id']);
                 $this->session->set("clave",$request[0]['clave']);
                 $this->session->set("primer_apellido",$request[0]['primer_apellido']);
                 $this->session->set("segundo_apellido",$request[0]['segundo_apellido']);
