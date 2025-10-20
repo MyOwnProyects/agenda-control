@@ -1012,6 +1012,63 @@ function cambiarFormatoFecha($fecha) {
             $container.html(previewHTML);
         }
 
+        //  PARA MOSTRAR EL ARCHIVO EN EL NAVEGADOR
+        async function showServerFilePreview(tipo, filename, $container) {
+            const fileExt = filename.split('.').pop().toLowerCase();
+            const fileURL = `/Menu/download?tipo_archivo=${tipo}&nombre_archivo=${encodeURIComponent(filename)}`;
+
+            let previewHTML = '';
+
+            if (fileExt === 'pdf') {
+                // PDF
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <embed src="${fileURL}" type="application/pdf" class="w-100 h-100 rounded" style="border:none;"/>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                // Imagen
+                previewHTML = `
+                    <div class="position-relative w-100 h-100">
+                        <img src="${fileURL}" class="w-100 h-100 object-fit-contain rounded" alt="Vista previa">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileExt === 'txt') {
+                // Texto plano
+                try {
+                    // Leer contenido vía fetch
+                    const response = await fetch(fileURL);
+                    const text = await response.text();
+
+                    previewHTML = `
+                        <div class="position-relative w-100 p-3 bg-light rounded" 
+                            style="min-height:200px; max-height:400px; overflow-y:auto;">
+                            <pre class="mb-0" 
+                                style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
+                                ${escapeHtml(text)}
+                            </pre>
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                        </div>
+                    `;
+                } catch (err) {
+                    previewHTML = `<p class="text-muted">Error al leer el archivo de texto</p>`;
+                }
+            } else {
+                // Otros archivos
+                previewHTML = `
+                    <div class="position-relative">
+                        <p class="text-muted">Archivo: ${filename}</p>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            }
+
+            $container.html(previewHTML);
+        }
+
+
         // Función auxiliar para escapar HTML y prevenir XSS
         function escapeHtml(text) {
             const map = {
