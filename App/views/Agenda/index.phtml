@@ -752,7 +752,9 @@ use App\Library\FuncionesGlobales;
     </div>
 
     <div class="modal-footer div_ver_expediente" style="display:none;">
+        <?php if ($digitalRecord): ?>
         <button type="button" class="btn btn_ver_expediente btn-outline-dark"><?php echo $translations['html_see_file']; ?></button>
+        <?php endif; ?>
         <button type="button" class="btn btn_ir_datos_clinicos btn-outline-dark"><?php echo $translations['html_capture_clinical_data']; ?></button>
     </div>
 </div>
@@ -4450,7 +4452,7 @@ use App\Library\FuncionesGlobales;
         $("#infoBox").css("display", "block"); // Mostrar el modal
 
         console.log('id_profesional_sesion',id_profesional_sesion,$(element).data('idprofesional'));
-        if (id_profesional_sesion == $(element).data('idprofesional')){
+        if (true){
             $("#infoBox").find('.div_ver_expediente').show();
             $("#infoBox").find('.btn_ver_expediente').data('idagendacita',$(element).data('idagendacita'));
             $("#infoBox").find('.btn_ir_datos_clinicos').data('idagendacita',$(element).data('idagendacita'));

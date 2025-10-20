@@ -562,9 +562,11 @@ function cambiarFormatoFecha($fecha) {
                                             <td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>"><?php echo $archivo['nombre_tipo_archivo']; ?></td>
                                             <td class="p-3 row_filtro"><?php echo $archivo['fecha_registro'] ?></td>
                                             <td class="p-3">
+                                                <?php if ($info_digital_record['citas_activas'] == 1 || $archivo['id_usuario_captura'] == $id_usuario): ?>
                                                 <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>
                                                 <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
                                                 <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
