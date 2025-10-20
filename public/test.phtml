@@ -1,322 +1,194 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MediTrack — Constantes Vitales</title>
-
-  <!-- Google Font: Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-  <style>
-    :root{
-      --primary: #1193d4;
-      --background-light: #f6f7f8;
-      --surface-light: #ffffff;
-      --border-light: #e0e6e9;
-      --content-dark: #101c22;
-      --subtle-light: #6b7f89;
-    }
-
-    body {
-      font-family: 'Inter',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-      background: var(--background-light);
-      color: var(--content-dark);
-    }
-
-    /* Sidebar */
-    .app-sidebar {
-      width: 260px;
-      min-width: 260px;
-      background: var(--surface-light);
-      border-right: 1px solid var(--border-light);
-    }
-
-    /* Sticky table header inside scrolling container */
-    .table-responsive .table thead th {
-      position: sticky;
-      top: 0;
-      background: var(--background-light);
-      z-index: 1;
-    }
-
-    /* Small visual touches to mimic the original rounded surfaces */
-    .card-surface {
-      background: var(--surface-light);
-      border: 1px solid var(--border-light);
-      border-radius: .75rem;
-    }
-
-    .btn-primary-custom {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-    .btn-primary-custom:hover { filter: brightness(.95); }
-
-    /* avatar size */
-    .avatar-sm { width: 40px; height: 40px; border-radius: 50%; background-size: cover; background-position: center; }
-
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gestión de Documentos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  .sidebar {
+    min-width: 220px;
+    max-width: 220px;
+    height: 100vh;
+    background-color: #fff;
+    border-right: 1px solid #dee2e6;
+  }
+  .dropzone {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    height: 16rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+  }
+  .dropzone:hover {
+    background-color: #e9ecef;
+  }
+  .dropzone input {
+    display: none;
+  }
+  .file-badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+    border-radius: 0.25rem;
+  }
+</style>
 </head>
 <body>
-  <div class="d-flex min-vh-100">
-    <!-- SIDEBAR -->
-    <aside class="app-sidebar d-flex flex-column p-3">
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <div style="width:32px;height:32px;color:var(--primary);">
-          <!-- logo SVG kept -->
-          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-            <path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
-          </svg>
+
+<div class="d-flex">
+  <!-- Sidebar -->
+  <aside class="sidebar d-flex flex-column p-3">
+    <div class="mb-4 border-bottom pb-2">
+      <h2 class="fs-6 fw-semibold mb-1">Expediente</h2>
+      <p class="text-secondary mb-0">Paciente: Sofia Rodriguez</p>
+    </div>
+    <nav class="nav flex-column">
+      <a href="#" class="nav-link text-secondary d-flex align-items-center mb-1">
+        <i class="bi bi-file-earmark-text me-2"></i> Resumen
+      </a>
+      <a href="#" class="nav-link text-secondary d-flex align-items-center mb-1">
+        <i class="bi bi-calendar-event me-2"></i> Citas
+      </a>
+      <a href="#" class="nav-link text-secondary d-flex align-items-center mb-1">
+        <i class="bi bi-heart-pulse me-2"></i> Diagnósticos
+      </a>
+      <a href="#" class="nav-link text-secondary d-flex align-items-center mb-1">
+        <i class="bi bi-activity me-2"></i> Tratamientos
+      </a>
+      <a href="#" class="nav-link active d-flex align-items-center fw-semibold mb-1" style="background-color:#cfe2ff; color:#0d6efd; border-radius:0.5rem;">
+        <i class="bi bi-folder me-2"></i> Documentos
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3 fw-bold">Gestión de Documentos</h1>
+      <label class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-upload"></i> Subir Documento
+        <input type="file" id="uploadFile">
+      </label>
+    </div>
+
+    <!-- Subir nuevo documento -->
+    <div class="mb-4">
+      <h2 class="h5 fw-semibold mb-3">Subir nuevo documento</h2>
+      <div class="p-4 border rounded-3 bg-white shadow-sm">
+        <label for="dropzone" class="dropzone w-100 text-center flex-column">
+          <i class="bi bi-cloud-upload display-1 text-secondary mb-2"></i>
+          <p class="mb-1"><strong>Click para subir</strong> o arrastra y suelta</p>
+          <p class="text-muted small">PDF, DOCX, JPG (MAX. 10MB)</p>
+          <input type="file" id="dropzone">
+        </label>
+
+        <div class="mt-3">
+          <label for="category-upload" class="form-label">Categoría</label>
+          <select class="form-select" id="category-upload">
+            <option selected>Seleccionar categoría</option>
+            <option>Resultados de Laboratorio</option>
+            <option>Informes Médicos</option>
+            <option>Imágenes Diagnósticas</option>
+            <option>Consentimientos</option>
+          </select>
         </div>
-        <h1 class="h5 mb-0 fw-bold">MediTrack</h1>
-      </div>
 
-      <nav class="flex-grow-1">
-        <ul class="nav nav-pills flex-column gap-1">
-          <li class="nav-item">
-            <a class="nav-link text-muted d-flex align-items-center gap-2 rounded-3" href="#">
-              <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-muted d-flex align-items-center gap-2 rounded-3" href="#">
-              <i class="bi bi-people"></i> Pacientes
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-muted d-flex align-items-center gap-2 rounded-3" href="#">
-              <i class="bi bi-calendar3"></i> Citas
-            </a>
-          </li>
-
-          <li class="mt-3 px-1">
-            <small class="text-uppercase text-muted fw-semibold">Expediente Digital</small>
-            <ul class="nav flex-column mt-2">
-              <li class="nav-item">
-                <a class="nav-link text-muted d-flex align-items-center gap-2 rounded-3" href="#">
-                  <i class="bi bi-journal-medical"></i> Consultas Clínicas
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2 rounded-3 active text-primary bg-light" href="#" aria-current="page" style="border-radius:.5rem;">
-                  <i class="bi bi-heart-pulse"></i> Constantes Vitales
-                </a>
-              </li>
-            </ul>
-          </li>
-
-          <li class="nav-item mt-2">
-            <a class="nav-link text-muted d-flex align-items-center gap-2 rounded-3" href="#">
-              <i class="bi bi-receipt"></i> Facturación
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="mt-auto pt-3 border-top" style="border-color:var(--border-light) !important;">
-        <div class="d-flex align-items-center gap-3">
-          <div class="avatar-sm" style="background-image:url('https://lh3.googleusercontent.com/aida-public/AB6AXuCGSSO0EQUbzwnYqBqGcHjyJc4GcZGGDLk-WSxpFhUr0jSlLUkudFIgTxfIP8yCqaXNYXEZA3Fx1WlDwKD9-s3zUjf9w-N3ms4JRFgF6uzxcRw1OcMblE4ZUkg5NWsIH98q1vhPPTUzyBVuXj2TQlzD38O2IXEmoGA6O4JqBFRFngi3gMGaQLrhPrKCjgH8JfLG5JddQfBcdRYf74LzyhDFBAGNNOjkBQ4QiA1atCLV74gbkS0kvr9Dx3bUIKanWrKBWWOl343l2gsI');"></div>
-          <div>
-            <div class="fw-semibold">Dr. Amelia Torres</div>
-            <div class="small text-muted">Cardiología</div>
-          </div>
-          <button class="btn btn-link ms-auto text-muted p-0" title="Logout">
-            <i class="bi bi-box-arrow-right"></i>
-          </button>
+        <div class="mt-3 text-end">
+          <button class="btn btn-primary">Confirmar Subida</button>
         </div>
       </div>
-    </aside>
+    </div>
 
-    <!-- MAIN CONTENT: split in two columns -->
-    <div class="flex-grow-1 d-flex">
-      <main class="p-4 border-end" style="width: 420px; min-width: 320px;">
-        <div class="d-flex flex-column h-100">
-          <div class="mb-3">
-            <h2 class="h4 fw-bold">Registro de Constantes Vitales</h2>
-            <p class="text-muted mb-0">Paciente: Sophia Clark</p>
-          </div>
+    <!-- Categorías y búsqueda -->
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+      <div class="input-group w-50">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" placeholder="Buscar documentos...">
+      </div>
+      <select class="form-select w-auto">
+        <option selected>Filtrar por categoría</option>
+        <option>Resultados de Laboratorio</option>
+        <option>Informes Médicos</option>
+        <option>Imágenes Diagnósticas</option>
+        <option>Consentimientos</option>
+      </select>
+    </div>
 
-          <form class="flex-grow-1 d-flex flex-column gap-3">
-            <div class="row g-3">
-              <div class="col-12 col-sm-6">
-                <label for="temperature" class="form-label small text-muted">Temperatura (°C)</label>
-                <input id="temperature" type="number" step="0.1" class="form-control" placeholder="ej. 37.2">
-              </div>
-              <div class="col-12 col-sm-6">
-                <label for="pulse" class="form-label small text-muted">Pulso (lpm)</label>
-                <input id="pulse" type="number" class="form-control" placeholder="ej. 72">
-              </div>
-            </div>
+    <!-- Tabla de documentos -->
+    <div class="table-responsive border rounded-3 bg-white shadow-sm">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre del archivo</th>
+            <th>Categoría</th>
+            <th>Fecha de subida</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><i class="bi bi-file-earmark-pdf text-danger me-1"></i> Resultados_Laboratorio_Ene24.pdf</td>
+            <td><span class="badge bg-primary file-badge">Resultados de Laboratorio</span></td>
+            <td>2024-01-20</td>
+            <td>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-eye"></i></a>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-download"></i></a>
+              <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-file-earmark-word text-primary me-1"></i> Informe_Consulta_Mar23.docx</td>
+            <td><span class="badge bg-success file-badge">Informes Médicos</span></td>
+            <td>2023-03-16</td>
+            <td>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-eye"></i></a>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-download"></i></a>
+              <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-file-earmark-image text-warning me-1"></i> Radiografia_Torax_May23.jpg</td>
+            <td><span class="badge bg-warning text-dark file-badge">Imágenes Diagnósticas</span></td>
+            <td>2023-05-21</td>
+            <td>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-eye"></i></a>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-download"></i></a>
+              <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          <tr>
+            <td><i class="bi bi-file-earmark-pdf text-danger me-1"></i> Consentimiento_Informado.pdf</td>
+            <td><span class="badge bg-purple file-badge" style="background-color:#d6b5f1; color:#4a148c;">Consentimientos</span></td>
+            <td>2023-01-10</td>
+            <td>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-eye"></i></a>
+              <a href="#" class="text-secondary me-2"><i class="bi bi-download"></i></a>
+              <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-            <div>
-              <label class="form-label small text-muted">Presión Arterial (mmHg)</label>
-              <div class="d-flex gap-2 mt-1">
-                <input id="blood-pressure-systolic" type="number" class="form-control" placeholder="Sistólica">
-                <div class="align-self-center text-muted">/</div>
-                <input id="blood-pressure-diastolic" type="number" class="form-control" placeholder="Diastólica">
-              </div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-12 col-sm-6">
-                <label for="respiratory-rate" class="form-label small text-muted">Frec. Respiratoria (rpm)</label>
-                <input id="respiratory-rate" type="number" class="form-control" placeholder="ej. 16">
-              </div>
-              <div class="col-12 col-sm-6">
-                <label for="oxygen-saturation" class="form-label small text-muted">Saturación O₂ (%)</label>
-                <input id="oxygen-saturation" type="number" class="form-control" placeholder="ej. 98">
-              </div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-12 col-sm-6">
-                <label for="weight" class="form-label small text-muted">Peso (kg)</label>
-                <input id="weight" type="number" step="0.1" class="form-control" placeholder="ej. 65">
-              </div>
-              <div class="col-12 col-sm-6">
-                <label for="height" class="form-label small text-muted">Talla (cm)</label>
-                <input id="height" type="number" class="form-control" placeholder="ej. 170">
-              </div>
-            </div>
-
-            <div class="pt-2 mt-auto">
-              <button type="submit" class="btn btn-primary-custom w-100 text-white d-flex align-items-center justify-content-center gap-2 py-2">
-                <i class="bi bi-plus"></i> Guardar Registro
-              </button>
-            </div>
-          </form>
+      <div class="d-flex justify-content-between align-items-center p-3 small text-secondary">
+        <span>Mostrando 1 a 4 de 4 resultados</span>
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
+          <button class="btn btn-outline-secondary btn-sm">Siguiente</button>
         </div>
-      </main>
+      </div>
+    </div>
 
-      <aside class="p-4 flex-grow-1">
-        <div class="d-flex flex-column h-100">
-          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
-            <h3 class="h5 fw-bold mb-0">Historial de Mediciones</h3>
+  </main>
+</div>
 
-            <div class="d-flex gap-2 align-items-center w-100 w-sm-auto">
-              <div class="position-relative" style="width:220px;">
-                <input type="date" class="form-control form-control-sm pe-5">
-                <div class="position-absolute top-50 end-0 translate-middle-y pe-2 text-muted">
-                  <i class="bi bi-calendar-date"></i>
-                </div>
-              </div>
-              <button class="btn btn-sm btn-light border" title="Filtrar">
-                <i class="bi bi-funnel"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="card-surface overflow-auto p-0 flex-grow-1">
-            <div class="table-responsive">
-              <table class="table table-sm mb-0">
-                <thead class="small">
-                  <tr>
-                    <th scope="col" class="text-uppercase text-muted">Fecha</th>
-                    <th scope="col" class="text-uppercase text-muted">Hora</th>
-                    <th scope="col" class="text-uppercase text-muted">Temp</th>
-                    <th scope="col" class="text-uppercase text-muted">P.A.</th>
-                    <th scope="col" class="text-uppercase text-muted">Pulso</th>
-                    <th scope="col" class="text-uppercase text-muted">F.R.</th>
-                    <th scope="col" class="text-uppercase text-muted">Sat.O₂</th>
-                    <th scope="col" class="text-uppercase text-muted">Peso</th>
-                    <th scope="col" class="text-uppercase text-muted">Talla</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="small">2024-03-15</td>
-                    <td class="small">10:30 AM</td>
-                    <td class="small">37.2</td>
-                    <td class="small">120/80</td>
-                    <td class="small">72</td>
-                    <td class="small">16</td>
-                    <td class="small">98%</td>
-                    <td class="small">65.0</td>
-                    <td class="small">170</td>
-                  </tr>
-                  <tr class="bg-light">
-                    <td class="small">2024-02-20</td>
-                    <td class="small">09:45 AM</td>
-                    <td class="small">36.8</td>
-                    <td class="small">118/76</td>
-                    <td class="small">70</td>
-                    <td class="small">18</td>
-                    <td class="small">99%</td>
-                    <td class="small">64.5</td>
-                    <td class="small">170</td>
-                  </tr>
-                  <tr>
-                    <td class="small">2024-01-10</td>
-                    <td class="small">11:15 AM</td>
-                    <td class="small">37.0</td>
-                    <td class="small">122/82</td>
-                    <td class="small">74</td>
-                    <td class="small">17</td>
-                    <td class="small">97%</td>
-                    <td class="small">66.0</td>
-                    <td class="small">170</td>
-                  </tr>
-                  <tr class="bg-light">
-                    <td class="small">2023-12-05</td>
-                    <td class="small">08:00 AM</td>
-                    <td class="small">36.5</td>
-                    <td class="small">116/78</td>
-                    <td class="small">68</td>
-                    <td class="small">16</td>
-                    <td class="small">98%</td>
-                    <td class="small">63.2</td>
-                    <td class="small">170</td>
-                  </tr>
-                  <tr>
-                    <td class="small">2023-11-12</td>
-                    <td class="small">02:30 PM</td>
-                    <td class="small">36.9</td>
-                    <td class="small">120/80</td>
-                    <td class="small">72</td>
-                    <td class="small">18</td>
-                    <td class="small">99%</td>
-                    <td class="small">65.1</td>
-                    <td class="small">170</td>
-                  </tr>
-                  <tr class="bg-light">
-                    <td class="small">2023-10-15</td>
-                    <td class="small">04:00 PM</td>
-                    <td class="small">37.1</td>
-                    <td class="small">119/79</td>
-                    <td class="small">71</td>
-                    <td class="small">17</td>
-                    <td class="small">98%</td>
-                    <td class="small">64.8</td>
-                    <td class="small">170</td>
-                  </tr>
-                  <tr>
-                    <td class="small">2023-09-01</td>
-                    <td class="small">09:00 AM</td>
-                    <td class="small">36.7</td>
-                    <td class="small">121/81</td>
-                    <td class="small">73</td>
-                    <td class="small">16</td>
-                    <td class="small">99%</td>
-                    <td class="small">64.0</td>
-                    <td class="small">170</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div> <!-- .table-responsive -->
-          </div> <!-- .card-surface -->
-        </div> <!-- flex column -->
-      </aside>
-    </div> <!-- main area -->
-  </div> <!-- container -->
-
-  <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -166,6 +166,49 @@
         color: white;
     }
 
+    /*  ESTILO SUBIR ARCHIVO    */
+    .dropzone {
+        border: 2px dashed #dee2e6;
+        border-radius: 0.5rem;
+        height: 16rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+    }
+    .dropzone:hover {
+        background-color: #e9ecef;
+    }
+    .dropzone input {
+        display: none;
+    }
+
+    #dropzoneContainer {
+        width: 100%;
+        min-height: 300px;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        position: relative;
+        overflow: auto;
+    }
+
+    #dropzoneContainer embed,
+    #dropzoneContainer img {
+        object-fit: contain;
+    }
+
+    #dropzoneContainer pre {
+        white-space: pre-wrap;    /* o pre si quieres exacto */
+        word-wrap: break-word;
+        text-align: left;
+        margin: 0;
+        padding: 0.5rem;
+        font-family: monospace;   /* opcional: fuente tipo editor */
+    }
+
+
 </style>
 <?php 
 //  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
@@ -223,8 +266,8 @@ function cambiarFormatoFecha($fecha) {
                             <i class="bi bi-calendar"></i>
                             Citas
                         </a>
-                        <a class="nav-link text-dark" data-section="documentos" style="display:none;">
-                            <i class="bi bi-file"></i>
+                        <a class="nav-link text-dark" data-section="documentos">
+                            <i class="bi bi-file-earmark-pdf"></i>
                             Documentos
                         </a>
                         <?php if ($info_digital_record['citas_activas'] == 1): ?>
@@ -446,6 +489,97 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
+            <main class="main-content p-4 div_documentos" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Gestión de documentos</h2>
+                    </div>
+                    <?php $tipo_archivos    = $info_digital_record['tipo_archivos']; ?>
+                    <!-- Historial de Citas -->
+                    <section class="mb-10">
+                            <!-- Subir nuevo documento -->
+                        <div class="mb-4">
+                            <h2 class="h5 fw-semibold mb-3">Subir nuevo documento</h2>
+                            <div class="p-4 border rounded-3 bg-white shadow-sm">
+                                <input type="file" id="input_file_document" class="d-none" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                                <div id="dropzoneContainer" class="dropzone border border-2 border-secondary rounded p-4 text-center bg-light" style="cursor:pointer;">
+                                    <div class="dz-message text-muted">
+                                        <i class="bi bi-cloud-arrow-up fs-1"></i>
+                                        <p class="mt-2 mb-0">Arrastra un archivo o haz clic aquí</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 w-50">
+                                    <label for="select_categoria_archivo" class="form-label">Categoría</label>
+                                    <select class="form-select" id="select_categoria_archivo">
+                                        <option value="" selected>Seleccionar categoría</option>
+                                        <?php foreach($tipo_archivos as $tipo): ?>
+                                        <option value="<?php echo $tipo['id']; ?>" data-clave="<?php echo $tipo['clave']; ?>"><?php echo $tipo['nombre']; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="textarea_observaciones" class="form-label">Observaciones al documento</label>
+                                    <textarea id="textarea_observaciones" class="form-control" rows="3" style="resize: none;"></textarea>
+                                </div>
+
+                                <div class="mt-3 text-end">
+                                    <button id="btn_subir_archivo" class="btn btn-primary">Subir archivo</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="w-50">
+                                <h3 class="h4 fw-semibold mb-0">Filtros</h3>
+                            </div>
+                            <div class="w-50 d-flex gap-2">
+                                <input id="input_filtro_archivos" type="text" class="form-control" placeholder="Buscar documento" />
+                                <select id="select_filtros" class="form-select">
+                                    <option value="">Todas las categorías</option>
+                                    <?php foreach($tipo_archivos as $tipo): ?>
+                                    <option value="<?php echo $tipo['id']; ?>"><?php echo $tipo['nombre']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table id="table_files" class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-3">Nombre del archivo</th>
+                                            <th class="p-3">Categoria</th>
+                                            <th class="p-3">Fecha registro</th>
+                                            <th class="p-3">Opciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $archivos = $info_digital_record['archivos']; ?>
+                                        <?php if (count($archivos) > 0): ?>
+                                        <?php foreach($archivos as $archivo): ?>
+                                        <tr>
+                                            <td class="p-3 row_filtro td_nombre"><?php echo $archivo['nombre_original']; ?></td>
+                                            <td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>"><?php echo $archivo['nombre_tipo_archivo']; ?></td>
+                                            <td class="p-3 row_filtro"><?php echo $archivo['fecha_registro'] ?></td>
+                                            <td class="p-3">
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                        <?php else: ?>
+                                        <tr class="row_empty">
+                                            <td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                        </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
             <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
                 <div class="row g-2">
                     <div class="mb-4">
@@ -646,12 +780,15 @@ function cambiarFormatoFecha($fecha) {
         const id_agenda_cita    = '<?php echo $id_agenda_cita; ?>';
         const estatus           = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
         const nombre_completo   = '<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>';
+        const upload_max        = '<?php echo $upload_max; ?>';
+        const post_max          = '<?php echo $post_max; ?>';
+        const human_upload_max  = '<?php echo $human_upload_max; ?>';
+        const human_post_max    = '<?php echo $human_post_max; ?>';
         let diagnosticos        = '<?php echo $diagnosticos ?>';
         diagnosticos            = JSON.parse(diagnosticos);
 
         let arr_subarea_paciente    = '<?php echo json_encode($arr_subarea_paciente); ?>';
         arr_subarea_paciente        = JSON.parse(arr_subarea_paciente);
-        console.log('arr_subarea_paciente',arr_subarea_paciente);
 
         //  URL
         const controller    = '/Pacientes';
@@ -741,7 +878,6 @@ function cambiarFormatoFecha($fecha) {
                         $(row).data('rowData', data);
                         $(row).css('cursor','pointer');
                         $(row).addClass('row_notas');
-                        //console.log('data',data);
                         
                         if (data['nota_privada'] == 1) {
                             // Aplica el fondo a toda la fila
@@ -764,6 +900,171 @@ function cambiarFormatoFecha($fecha) {
             } else {
                 draw    ++;
                 table.ajax.reload();
+            }
+        }
+
+        // Mostrar vista previa
+        // Mostrar vista previa
+        async function show_preview(file, $container) {
+            const type = file.type;
+            if (!file) return;
+            
+            const mimeTypesPermitidos = [
+                // PDF
+                'application/pdf',
+                // Imágenes
+                'image/jpeg',
+                'image/png',
+                // Documentos de Office (Word)
+                'application/msword', // .doc
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                // Documentos de Office (Excel)
+                'application/vnd.ms-excel', // .xls
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                // Texto plano
+                'text/plain',
+                // DICOM (imágenes médicas)
+                'application/dicom'
+            ];
+            
+            if (!mimeTypesPermitidos.includes(type)) {
+                showAlert('danger', 'Formato de archivo no permitido');
+                return;
+            }
+
+            //  SE BUSCA QUE EL TAMAÑO DEL DOCUMENTO NO EXCEDA EL PERMITIDO
+            const file_size = file.size;
+
+            if (file_size >= upload_max){
+                showAlert('danger', 'Tamaño maximo excedido, limite de '+human_upload_max);
+                return;
+            }
+            
+            const fileType = file.type;
+            const fileURL = URL.createObjectURL(file);
+            let previewHTML = '';
+            
+            if (fileType.startsWith('image/')) {
+                // Vista previa para imágenes
+                previewHTML = `
+                    <div class="position-relative w-100 h-100">
+                        <img src="${fileURL}" class="w-100 h-100 object-fit-contain rounded" alt="Vista previa">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileType === 'application/pdf') {
+                // Vista previa PDF
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <embed src="${fileURL}" type="application/pdf" class="w-100 h-100 rounded" style="border:none;"/>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileType === 'text/plain') {
+                // Vista previa para archivos TXT
+                try {
+                    const text = await file.text();
+
+                    previewHTML = `
+                        <div class="position-relative w-100 p-3 bg-light rounded" 
+                            style="min-height:200px; max-height:100%; overflow-y:auto;">
+                            <pre class="mb-0" 
+                                style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
+                                ${escapeHtml(text)}
+                            </pre>
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                        </div>
+                    `;
+                } catch (error) {
+                    previewHTML = `<p class="text-muted">Error al leer el archivo de texto</p>`;
+                }
+            } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+                    fileType === 'application/msword') {
+                // Vista previa para documentos Word usando Google Docs Viewer o Office Online
+                const encodedURL = encodeURIComponent(fileURL);
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <div class="alert alert-info mb-2">
+                            <strong>Documento Word:</strong> ${file.name}
+                            <br><small>Los archivos .doc/.docx requieren descarga para vista previa completa</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="bi bi-file-earmark-word" style="font-size: 4rem; color: #2B579A;"></i>
+                                <p class="mt-2 mb-0">${file.name}</p>
+                                <small class="text-muted">${formatFileSize(file.size)}</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else {
+                previewHTML = `
+                    <div class="position-relative">
+                        <p class="text-muted">Archivo seleccionado: ${file.name}</p>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            }
+            
+            $container.html(previewHTML);
+        }
+
+        // Función auxiliar para escapar HTML y prevenir XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Función auxiliar para formatear tamaño de archivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        //  FUNCION PARA FILTRAS ARCHIVOS
+        function show_filtros_archivos(){
+            let text_filter     = $("#input_filtro_archivos").val();
+            let select_filter   = $("#select_filtros").val();
+
+            //  SE OCULTAN TODOS LOS ROWS
+            $("#table_files").find('tbody tr').hide();
+            $("#table_files").find('.row_empty').remove();
+
+            //  RECORRIDO DE TODOS LOS ROWS
+            $("#table_files").find('tbody tr').each(function(){
+                let row_tr      = $(this);
+                let show_row    = true;
+
+                if (text_filter != '' && !row_tr.find('.td_nombre').text().includes(text_filter)){
+                    show_row    = false;
+                } else {
+                    if (select_filter != '' && row_tr.find('.td_tipo_archivo').data('idtipoarchivo') != select_filter){
+                        show_row    = false;
+                    }
+                }
+
+                if (show_row){
+                    $(row_tr).show();
+                } else {
+                    $(row_tr).hide();
+                }
+            });
+
+            //  SE PINTA ROW SIN REGISTROS
+            if ($("#table_files").find('tbody tr:visible').length == 0){
+                $("#table_files").find('tbody').append(' <tr class="row_empty">'+
+                                                                '<td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>'+
+                                                            '</tr>');
             }
         }
 
@@ -961,6 +1262,218 @@ function cambiarFormatoFecha($fecha) {
             })
             .on("cut copy paste",function(e){
                 e.preventDefault();
+            });
+
+            //  ------------------- DOCUMENTOS  -----------------------------   //
+
+            $("#input_filtro_archivos").on('keyup',function(){
+                console.log('aqui');
+                show_filtros_archivos();
+            });
+
+            $("#select_filtros").on('change',function(){
+                show_filtros_archivos();
+            });
+
+            const $input = $('#input_file_document');
+            const $container = $('#dropzoneContainer');
+            const originalHTML = $container.html();
+
+
+            // Permitir clic en contenedor para abrir selector
+            $container.on('click', function(e) {
+                if(!$(e.target).hasClass('remove-file')){
+                    e.preventDefault();
+                    $input.trigger('click');
+                }
+            });
+
+            // Selección manual
+            $input.on('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    try {
+                        await show_preview(file, $container);
+                    } catch (error) {
+                        console.error('Error al mostrar preview:', error);
+                        showAlert('danger', 'Error al mostrar la vista previa del archivo');
+                    }
+                }
+            });
+
+            // Drag & Drop
+            $container.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('border-primary bg-light');
+            });
+            $container.on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).removeClass('border-primary bg-light');
+            });
+            $container.on('drop', async function(e) {
+                e.preventDefault();
+                $(this).removeClass('border-primary bg-light');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $input[0].files = files;
+                    try {
+                        await show_preview(files[0], $container);
+                    } catch (error) {
+                        console.error('Error al mostrar preview:', error);
+                        showAlert('danger', 'Error al mostrar la vista previa del archivo');
+                    }
+                }
+            });
+
+            $("#btn_subir_archivo").on('click', function() {
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+                let fileInput       = $('#input_file_document')[0]; // Elemento DOM nativo
+                let id_tipo_archivo = $("#select_categoria_archivo").val();
+                let observaciones   = $("#textarea_observaciones").val();
+
+                if (fileInput.files.length === 0) {
+                    showAlert('danger', 'Seleccione un archivo');
+                    return false;
+                }
+
+                if (!id_tipo_archivo) {
+                    showAlert('danger', 'Seleccione la categoría del documento');
+                    return false;
+                }
+
+                let clave_archivo   = $("#select_categoria_archivo").find('option:selected').data('clave');
+
+                // Prepara los datos para enviar
+                let formData = new FormData();
+                formData.append('archivo', fileInput.files[0]);
+                formData.append('id_tipo_archivo', id_tipo_archivo);
+                formData.append('clave_archivo', clave_archivo);
+                formData.append('accion', 'save_file');
+                formData.append('id_paciente', id_paciente);
+                formData.append('id_agenda_cita', id_agenda_cita);
+                formData.append('observaciones', observaciones);
+
+                // Si quieres enviar más datos, puedes agregar más campos aquí:
+                // formData.append('id_paciente', $("#id_paciente").val());
+
+                $.ajax({
+                    url: url_digital,
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // Evita que jQuery procese los datos
+                    contentType: false, // Evita que jQuery configure el encabezado Content-Type
+                    beforeSend: function() {
+                        $("#btn_subir_archivo").prop('disabled', true);
+                        showAlert('info', 'Subiendo archivo, espere...');
+                    },
+                    success: function(data) {
+                        $("#btn_subir_archivo").prop('disabled', false);
+
+                        console.log('data',data);
+
+                        let html_row    = '';
+                        if (Object.keys(data).length > 0){
+                            for(let i in data){
+                                let row = data[i];
+
+                                html_row    += '<tr>'+
+                                                    '<td class="p-3 row_filtro td_nombre">'+row["nombre_original"]+'</td>'+
+                                                    '<td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="'+row["id_tipo_archivo"]+'">'+row["nombre_tipo_archivo"]+'</td>'+
+                                                    '<td class="p-3 row_filtro">'+row["fecha_registro"]+'</td>'+
+                                                    '<td class="p-3">'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>'+
+                                                    '</td>'+
+                                                '</tr>';
+                            }
+                        }
+
+                        $("#table_files").find('tbody').html('').append(html_row);
+                    },
+                    error: function(error) {
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $("#table_files").on('click','.btn_delete_file',async function(){
+                let btn         = $(this);
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                let id_archivo      = $(btn).data('id');
+                let clave_archivo   = $(btn).data('clavetipoarchivo');
+                let nombre_original = $(btn).closest('tr').find('.td_nombre').text();
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_digital,
+                        method  : 'POST',
+                        data    :  {
+                            accion  : 'delete_file',
+                            nombre_completo : nombre_completo,
+                            id_archivo      : id_archivo,
+                            id_paciente     : id_paciente,
+                            clave_archivo   : clave_archivo,
+                            nombre_original : nombre_original
+                        },
+                        success : function(data){
+                            console.log('data',data);
+                            $(btn).closest('tr').remove();
+                            //  SE PINTA ROW SIN REGISTROS
+                            if ($("#table_files").find('tbody tr:visible').length == 0){
+                                $("#table_files").find('tbody').append(' <tr class="row_empty">'+
+                                                                                '<td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>'+
+                                                                            '</tr>');
+                            }
+
+                            showAlert('success','Borrado exitoso!');
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
+            //  DESCARGAR ARCHIVO
+            $("#table_files").on('click','.btn_download_file',function(){
+                let id_archivo  = $(this).data('id');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'download_file',
+                        id_paciente : id_paciente,
+                        id_archivo  : id_archivo
+                    },
+                    success : function(data){
+                        const url = `/Menu/download?tipo_archivo=${encodeURIComponent(data.tipo_archivo)}&nombre_archivo=${encodeURIComponent(data.nombre_archivo)}`;
+                        window.open(url, '_blank');
+                        $(btn).prop('disabled',false);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            })
+ 
+
+            $(document).on('click', '.remove-file', function(e) {
+                e.preventDefault();
+                e.stopPropagation();           // ❗️evita que suba al contenedor
+                e.stopImmediatePropagation();  // evita otros eventos en el mismo elemento
+
+                $input.val('');
+                $container.html(originalHTML);
             });
 
             //  ------------------- NOTAS   ---------------------------------   //
@@ -1177,7 +1690,6 @@ function cambiarFormatoFecha($fecha) {
                     let obj_info    = [];
 
                     $(modal_clone).find('.row_selected').each(function(){
-                        console.log('prof',$(this).data('idprofesional'));
                         if ($(this).data('idprofesional') == id_profesional){
                             obj_info.push($(this).data('id'));
                         }
@@ -1225,7 +1737,6 @@ function cambiarFormatoFecha($fecha) {
             }
 
             function show_modal_notas(data){
-                console.log('data',data);
                 let modal_clone = $("#modal_preview_nota").clone().removeAttr('id').show();
 
                 if (id_profesional != data['id_profesional']){

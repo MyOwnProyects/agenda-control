@@ -711,6 +711,152 @@ class PacientesController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'delete_file'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['delete_file'];
+                $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $path_file = FuncionesGlobales::get_path_file($_POST['clave_archivo']);
+
+                unlink($path_file.$result['nombre_archivo']);
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRARARCHIVO','Se elimino en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $response->setJsonContent('Borrado exitoso!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'download_file'){
+                $response = new Response();
+
+                $id_archivo     = $_POST['id_archivo'];
+                $id_paciente    = $_POST['id_paciente'];
+
+                $route  = $this->url_api . $this->rutas['ctpacientes']['show_file'];
+                $result = FuncionesGlobales::RequestApi('GET', $route, [
+                    'id'            => $id_archivo,
+                    'id_paciente'   => $id_paciente
+                ]);
+
+                if (empty($result) || !isset($result[0]['nombre_archivo'])) {
+                    $response->setJsonContent('No se encontro la información del archivo');
+                    $response->setStatusCode(404, 'Archivo no encontrado');
+                    return $response;
+                }
+
+                // Devuelve los datos para construir la URL
+                $response->setJsonContent(array(
+                    'tipo_archivo'      => $result[0]['clave_tipo_archivo'],
+                    'nombre_archivo'    => $result[0]['nombre_archivo']
+                ));
+                $response->setStatusCode(200, 'OK');
+                return $response;
+
+            }
+
+            if ($accion == 'save_file'){
+                $response = new Response();
+                $id_tipo_categoria  = $_POST['id_tipo_categoria'];
+                $clave_archivo      = $_POST['clave_archivo'];
+                $upload_max         = ini_get('upload_max_filesize');
+                $id_paciente        = $_POST['id_paciente'];
+
+                if (empty($clave_archivo)){
+                    $response->setJsonContent('Seleccione una categoria');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                if (!$this->request->hasFiles()){
+                    $response->setJsonContent('Seleccione un archivo');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $path_file  = FuncionesGlobales::get_path_file($clave_archivo);
+                $fecha      = date('YmdHis');
+                $nombre_archivo     = '';
+                $nombre_original    = '';
+                $filePath           = '';
+
+                foreach ($this->request->getUploadedFiles() as $file) {
+
+                    $nombre_original    = $file->getName();
+                    $nombre_original    = FuncionesGlobales::clear_filename($nombre_original);
+
+                    $upload_max_bytes   = FuncionesGlobales::returnBytes($upload_max);
+                    if ($file->getSize() > $upload_max_bytes) {
+                        $response->setJsonContent('El archivo no puede medir mas de '.$upload_max);
+                        $response->setStatusCode(404, 'Error');
+                        return $response;
+                    }
+
+                    // Validar tipo MIME (ajusta según tu necesidad)
+                    $mime = $file->getRealType();
+                    $ext  = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+
+                    if (!in_array($ext, $permitidos)) {
+                        $response->setJsonContent('Tipo de archivo no permitido '.$ext);
+                        $response->setStatusCode(404, 'Error');
+                        return $response;
+                    }
+
+                    // Asigna nombre único para evitar colisiones
+                    $nombre_archivo = $id_paciente.'_'.$clave_archivo.'_'.$fecha.'.' . $ext;
+
+                    // Mueve el archivo a su destino final
+                    $filePath = $path_file . $nombre_archivo;
+
+                    if (!$file->moveTo($filePath)) {
+                        $error = error_get_last();
+                        $msg = isset($error['message']) ? $error['message'] : 'Error desconocido al mover archivo.';
+                        $response->setJsonContent('No se pudo mover el archivo: ' . $msg);
+                        $response->setStatusCode(500, 'Move Error');
+                        return $response;
+                    }
+                }
+
+                //  SE GUARDA EL REGISTRO EN LA BD
+                $obj_info   = array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_tipo_archivo'   => $_POST['id_tipo_archivo'],
+                    'observaciones'     => $_POST['observaciones'],
+                    'nombre_original'   => $nombre_original,
+                    'nombre_archivo'    => $nombre_archivo,
+                    'clave_archivo'     => $_POST['clave_archivo'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                );
+
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_file'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$obj_info);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    unlink($filePath);
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARARCHIVO','Se agrego en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_file'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_paciente' => $_POST['id_paciente']));
+
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
 
         //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
@@ -760,7 +906,10 @@ class PacientesController extends BaseController
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
         $this->view->id_profesional         = $this->session->get('id_profesional');
         $this->view->id_agenda_cita         = $id_agenda_cita;
-
+        $this->view->upload_max             = FuncionesGlobales::returnBytes(ini_get('upload_max_filesize'));
+        $this->view->post_max               = FuncionesGlobales::returnBytes(ini_get('post_max_size'));
+        $this->view->human_upload_max       = ini_get('upload_max_filesize');
+        $this->view->human_post_max         = ini_get('post_max_size');
     }
 
 
