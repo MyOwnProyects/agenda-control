@@ -802,7 +802,7 @@ class PacientesController extends BaseController
                     // Validar tipo MIME (ajusta según tu necesidad)
                     $mime = $file->getRealType();
                     $ext  = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
-                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx','txt'];
 
                     if (!in_array($ext, $permitidos)) {
                         $response->setJsonContent('Tipo de archivo no permitido '.$ext);

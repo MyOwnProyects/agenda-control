@@ -1013,7 +1013,7 @@ function cambiarFormatoFecha($fecha) {
         }
 
         //  PARA MOSTRAR EL ARCHIVO EN EL NAVEGADOR
-        async function showServerFilePreview(tipo, filename, $container) {
+        async function show_preview_file(tipo, filename, $container) {
             const fileExt = filename.split('.').pop().toLowerCase();
             const fileURL = `/Menu/download?tipo_archivo=${tipo}&nombre_archivo=${encodeURIComponent(filename)}`;
 
@@ -1036,15 +1036,14 @@ function cambiarFormatoFecha($fecha) {
                     </div>
                 `;
             } else if (fileExt === 'txt') {
-                // Texto plano
+                // Vista previa para archivos TXT (idéntico a tu versión actual)
                 try {
-                    // Leer contenido vía fetch
                     const response = await fetch(fileURL);
                     const text = await response.text();
 
                     previewHTML = `
                         <div class="position-relative w-100 p-3 bg-light rounded" 
-                            style="min-height:200px; max-height:400px; overflow-y:auto;">
+                            style="min-height:200px; max-height:100%; overflow-y:auto;">
                             <pre class="mb-0" 
                                 style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
                                 ${escapeHtml(text)}
@@ -1052,10 +1051,10 @@ function cambiarFormatoFecha($fecha) {
                             <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
                         </div>
                     `;
-                } catch (err) {
+                } catch (error) {
                     previewHTML = `<p class="text-muted">Error al leer el archivo de texto</p>`;
                 }
-            } else {
+                    } else {
                 // Otros archivos
                 previewHTML = `
                     <div class="position-relative">
@@ -1393,11 +1392,13 @@ function cambiarFormatoFecha($fecha) {
 
                 if (fileInput.files.length === 0) {
                     showAlert('danger', 'Seleccione un archivo');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
                 if (!id_tipo_archivo) {
                     showAlert('danger', 'Seleccione la categoría del documento');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
@@ -1523,7 +1524,33 @@ function cambiarFormatoFecha($fecha) {
                         actionJsonError(error,btn);
                     }
                 })
-            })
+            });
+
+            //  DESCARGAR ARCHIVO
+            $("#table_files").on('click','.btn_preview_file',function(){
+                let id_archivo  = $(this).data('id');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'download_file',
+                        id_paciente : id_paciente,
+                        id_archivo  : id_archivo
+                    },
+                    success : function(data){
+                        // const url = `/Menu/download?tipo_archivo=${encodeURIComponent(data.tipo_archivo)}&nombre_archivo=${encodeURIComponent(data.nombre_archivo)}`;
+                        // window.open(url, '_blank');
+                        // $(btn).prop('disabled',false);
+                        show_preview_file(data.tipo_archivo,data.nombre_archivo,$container);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
  
 
             $(document).on('click', '.remove-file', function(e) {
