@@ -752,6 +752,16 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
+                //  BITACORA
+                $msg    = 'Se descargo el archivo '.$result[0]['nombre_archivo'];
+                $accion = 'DESCARGAR';
+                if (isset($_POST['preview'])){
+                    $msg    = 'Se solicito la vista previa del archivo '.$result[0]['nombre_archivo'];
+                    $accion = 'VISTAPREVIA';
+                }
+                
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$msg,array());
+
                 // Devuelve los datos para construir la URL
                 $response->setJsonContent(array(
                     'tipo_archivo'      => $result[0]['clave_tipo_archivo'],
@@ -802,7 +812,7 @@ class PacientesController extends BaseController
                     // Validar tipo MIME (ajusta según tu necesidad)
                     $mime = $file->getRealType();
                     $ext  = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
-                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx','txt'];
 
                     if (!in_array($ext, $permitidos)) {
                         $response->setJsonContent('Tipo de archivo no permitido '.$ext);
@@ -901,8 +911,6 @@ class PacientesController extends BaseController
 
         $this->view->id_paciente            = $id_paciente;
         $this->view->info_digital_record    = $result;
-        $this->view->update                 = FuncionesGlobales::HasAccess("Pacientes","update");
-        $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
         $this->view->diagnosticos           = json_encode($result['diagnosticos']);
         $this->view->id_profesional         = $this->session->get('id_profesional');
         $this->view->id_usuario             = $this->session->get('id');
@@ -911,6 +919,9 @@ class PacientesController extends BaseController
         $this->view->post_max               = FuncionesGlobales::returnBytes(ini_get('post_max_size'));
         $this->view->human_upload_max       = ini_get('upload_max_filesize');
         $this->view->human_post_max         = ini_get('post_max_size');
+        $this->view->update                 = FuncionesGlobales::HasAccess("Pacientes","update");
+        $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
+        $this->view->download               = FuncionesGlobales::HasAccess("Menu","download");
     }
 
 

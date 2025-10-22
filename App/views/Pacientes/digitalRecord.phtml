@@ -266,10 +266,12 @@ function cambiarFormatoFecha($fecha) {
                             <i class="bi bi-calendar"></i>
                             Citas
                         </a>
+                        <?php if($download || $info_digital_record['citas_activas'] == 1): ?>
                         <a class="nav-link text-dark" data-section="documentos">
                             <i class="bi bi-file-earmark-pdf"></i>
                             Documentos
                         </a>
+                        <?php endif; ?>
                         <?php if ($info_digital_record['citas_activas'] == 1): ?>
                         <a class="nav-link text-dark" data-section="notas">
                             <i class="bi bi-journal"></i>
@@ -524,7 +526,10 @@ function cambiarFormatoFecha($fecha) {
                                 </div>
 
                                 <div class="mt-3 text-end">
+                                    <?php if ($download || $info_digital_record['citas_activas'] == 1): ?>
                                     <button id="btn_subir_archivo" class="btn btn-primary">Subir archivo</button>
+                                    <?php endif; ?>
+                                    <button id="btn_close_preview" class="btn btn-outline-dark" style="display:none;">Cancelar vista previa</button>
                                 </div>
                             </div>
                         </div>
@@ -563,9 +568,9 @@ function cambiarFormatoFecha($fecha) {
                                             <td class="p-3 row_filtro"><?php echo $archivo['fecha_registro'] ?></td>
                                             <td class="p-3">
                                                 <?php if ($info_digital_record['citas_activas'] == 1 || $archivo['id_usuario_captura'] == $id_usuario): ?>
-                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>
-                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
-                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_preview_file" data-observaciones="<?php echo $archivo['observaciones']; ?>"><i class="bi bi-eye"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
@@ -1012,6 +1017,105 @@ function cambiarFormatoFecha($fecha) {
             $container.html(previewHTML);
         }
 
+        //  Mostrar vista previa de archivo ya almacenado
+        async function show_preview_file(tipo, filename, $container,id_tipo_archivo,observaciones) {
+            const fileExt = filename.split('.').pop().toLowerCase();
+            const fileURL = `/Menu/download?tipo_archivo=${tipo}&nombre_archivo=${encodeURIComponent(filename)}`;
+
+            let previewHTML = '';
+
+            if (fileExt === 'pdf') {
+                // PDF
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <embed src="${fileURL}" type="application/pdf" class="w-100 h-100 rounded" style="border:none;"/>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                // Imagen
+                previewHTML = `
+                    <div class="position-relative w-100 h-100">
+                        <img src="${fileURL}" class="w-100 h-100 object-fit-contain rounded" alt="Vista previa">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileExt === 'txt') {
+                // Texto plano
+                try {
+                    const response = await fetch(fileURL);
+                    const text = await response.text();
+
+                    previewHTML = `
+                        <div class="position-relative w-100 p-3 bg-light rounded" 
+                            style="min-height:200px; max-height:100%; overflow-y:auto;">
+                            <pre class="mb-0" 
+                                style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
+                                ${escapeHtml(text)}
+                            </pre>
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                        </div>
+                    `;
+                } catch (error) {
+                    previewHTML = `<p class="text-muted">Error al leer el archivo de texto</p>`;
+                }
+            } else if (['doc', 'docx'].includes(fileExt)) {
+                // Documentos Word (.doc / .docx)
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <div class="alert alert-info mb-2">
+                            <strong>Documento Word:</strong> ${filename}
+                            <br><small>Los archivos .doc/.docx requieren descarga para vista previa completa</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="bi bi-file-earmark-word" style="font-size: 4rem; color: #2B579A;"></i>
+                                <p class="mt-2 mb-0">${filename}</p>                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (['xls', 'xlsx'].includes(fileExt)) {
+                // Documentos Excel
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <div class="alert alert-info mb-2">
+                            <strong>Documento Excel:</strong> ${filename}
+                            <br><small>Los archivos .xls/.xlsx requieren descarga para vista previa completa</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="bi bi-file-earmark-excel" style="font-size: 4rem; color: #217346;"></i>
+                                <p class="mt-2 mb-0">${filename}</p>
+                                <a href="${fileURL}" class="btn btn-sm btn-outline-success mt-2" download>Descargar</a>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else {
+                // Otros archivos no previsualizables
+                previewHTML = `
+                    <div class="position-relative w-100 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <p class="mb-0 text-muted">Archivo: ${filename}</p>
+                            <a href="${fileURL}" class="btn btn-sm btn-outline-secondary" download>Descargar</a>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            }
+
+            $("#select_categoria_archivo").val(id_tipo_archivo).prop('disabled',true);
+            $("#textarea_observaciones").val(observaciones).prop('disabled',true);
+            $("#btn_subir_archivo").hide();
+            $("#btn_close_preview").show();
+
+            $container.html(previewHTML);
+        }
+
+
+
         // Función auxiliar para escapar HTML y prevenir XSS
         function escapeHtml(text) {
             const map = {
@@ -1336,11 +1440,13 @@ function cambiarFormatoFecha($fecha) {
 
                 if (fileInput.files.length === 0) {
                     showAlert('danger', 'Seleccione un archivo');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
                 if (!id_tipo_archivo) {
                     showAlert('danger', 'Seleccione la categoría del documento');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
@@ -1398,6 +1504,14 @@ function cambiarFormatoFecha($fecha) {
                         actionJsonError(error,btn);
                     }
                 });
+            });
+
+            $("#btn_close_preview").on('click',function(){
+                $(".remove-file").trigger('click');
+                $("#select_categoria_archivo").val('').prop('disabled',false);
+                $("#textarea_observaciones").val('').prop('disabled',false);
+                $("#btn_subir_archivo").show();
+                $("#btn_close_preview").hide();
             });
 
             $("#table_files").on('click','.btn_delete_file',async function(){
@@ -1466,7 +1580,41 @@ function cambiarFormatoFecha($fecha) {
                         actionJsonError(error,btn);
                     }
                 })
-            })
+            });
+
+            //  DESCARGAR ARCHIVO
+            $("#table_files").on('click','.btn_preview_file',function(){
+                let id_archivo      = $(this).data('id');
+                let id_tipo_archivo = $(this).data('idtipoarchivo');
+                let observaciones   = $(this).data('observaciones');
+                let btn             = $(this);
+
+                console.log('id_tipo_archivo',id_tipo_archivo);
+                console.log('observaciones',observaciones);
+
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'download_file',
+                        id_paciente : id_paciente,
+                        id_archivo  : id_archivo,
+                        preview     : true
+                    },
+                    success : function(data){
+                        // const url = `/Menu/download?tipo_archivo=${encodeURIComponent(data.tipo_archivo)}&nombre_archivo=${encodeURIComponent(data.nombre_archivo)}`;
+                        // window.open(url, '_blank');
+                        // $(btn).prop('disabled',false);
+                        show_preview_file(data.tipo_archivo,data.nombre_archivo,$container,id_tipo_archivo,observaciones);
+                        $(btn).prop('disabled',false);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
  
 
             $(document).on('click', '.remove-file', function(e) {
@@ -1476,6 +1624,15 @@ function cambiarFormatoFecha($fecha) {
 
                 $input.val('');
                 $container.html(originalHTML);
+
+                //  EN CASO DE QUE SEA UN PREVIEW O NO, SE REINICIA TODO
+                if ($("#select_categoria_archivo").prop('disabled')){
+                    $("#select_categoria_archivo").val('').prop('disabled',false);
+                    $("#textarea_observaciones").val('').prop('disabled',false);
+                    $("#btn_subir_archivo").show();
+                    $("#btn_close_preview").hide();
+                }
+                
             });
 
             //  ------------------- NOTAS   ---------------------------------   //
