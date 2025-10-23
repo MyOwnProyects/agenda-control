@@ -1215,7 +1215,7 @@ function cambiarFormatoFecha($fecha) {
                 }
 
                 if ($("#presion_arterial_sistolica").val() != '' && $("#presion_arterial_diastolica").val() != ''
-                    && $("#presion_arterial_sistolica").val() < $("#presion_arterial_diastolica").val() != ''){
+                    && parseInt($("#presion_arterial_sistolica").val()) < parseInt($("#presion_arterial_diastolica").val())){
                     showAlert('danger','La presión sistónica no puede ser menor que la presión diastónica');
                     $(btn).prop('disabled',false);
                     return false;
@@ -1281,6 +1281,13 @@ function cambiarFormatoFecha($fecha) {
                         let row_table   = '';
                         for(let i in data){
                             let row = data[i];
+
+                            //  CUALQUIER VALOR = NULL LO CAMBIA A ''
+                            for(let key in row){
+                                if(row[key] === null){
+                                    row[key] = '';
+                                }
+                            }
 
                             row_table   += '<tr class="clickable-row">'+
                                                 '<td class="p-3">'+row["fecha_registro"]+'</td>'+
