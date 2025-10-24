@@ -2,7 +2,9 @@
     "name": "hugo/agenda-control",
     "description": "Proyecto Agenda Control",
     "type": "project",
-    "require": {},
+    "require": {
+        "mpdf/mpdf": "^8.2"
+    },
     "autoload": {
     "psr-4": {
             "App\\": "App/"

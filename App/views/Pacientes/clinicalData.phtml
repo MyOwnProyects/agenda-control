@@ -261,6 +261,55 @@
         background-color: #f8f9fa;
     } */
 
+    /* Eliminar las flechas en todos los navegadores */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Para Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    /* Estilo para inputs number dentro de la exploración física */
+    .header_exloracion_fisica input[type="number"] {
+        border: none !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        border-radius: 0 !important;
+        padding-left: 0 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* Efecto hover y focus */
+    .header_exloracion_fisica input[type="number"]:focus {
+        border-bottom-color: #0d6efd !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .header_exloracion_fisica input[type="number"]:hover {
+        border-bottom-color: #6c757d !important;
+    }
+
+    /* Para los inputs de presión arterial que están dentro del div */
+    .header_exloracion_fisica .d-flex.gap-2 input[type="number"] {
+        border: none !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        border-radius: 0 !important;
+        padding-left: 0 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .header_exloracion_fisica .d-flex.gap-2 input[type="number"]:focus {
+        border-bottom-color: #0d6efd !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
 </style>
 <?php 
 //  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
@@ -322,6 +371,12 @@ function cambiarFormatoFecha($fecha) {
                             <i class="bi bi-chat-left-text"></i>
                             Motivo de consuta
                         </a>
+                        <?php if ($info_cita['id_profesional'] == $id_profesional): ?>
+                        <a class="nav-link text-dark" data-section="receta">
+                            <i class="bi bi-pencil-square"></i>
+                            Receta
+                        </a>
+                        <?php endif; ?>
                     </nav>
                 </div>
             </aside>
@@ -503,7 +558,7 @@ function cambiarFormatoFecha($fecha) {
                                             <input id="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
-                                            <label for="altura" class="form-label small text-muted">Altura (cm)</label>
+                                            <label for="altura" class="form-label small text-muted">Talla (cm)</label>
                                             <input id="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
                                         </div>
                                     </div>
@@ -548,7 +603,7 @@ function cambiarFormatoFecha($fecha) {
                                                 <th>Frec. Resp. (rpm)</th>
                                                 <th>Satur. O₂ (%)</th>
                                                 <th>Peso (kg)</th>
-                                                <th>Altura (cm)</th>
+                                                <th>Talla (cm)</th>
                                                 <th>IMC</th>
                                                 <th>Alergias</th>
                                             </tr>
@@ -666,36 +721,75 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
-            <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_receta" style="display:none;">
                 <div class="row g-2">
                     <div class="mb-4">
-                        <h2 class="h3 fw-bold mb-1">Exploraci&oacute;n fisica</h2>
-                        <p class="text-muted mb-0">Captura de signos vitales</p>
+                        <h2 class="h3 fw-bold mb-1">Receta medica</h2>
+                        <p class="text-muted mb-0">Diagn&oacute;stico y generación de receta medica</p>
                     </div>
                     <!-- Añadir Nueva Nota -->
-                    <section class="col-12 col-lg-6">
+                    <section class="col-12 col-lg-8">
                         <div class="card shadow-sm h-100">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <h2 class="h4 fw-bold">Añadir Nueva Nota</h2>
-                                        <p class="text-muted small mb-0">Registre la evolución del paciente.</p>
+                            <div class="card-body d-flex flex-column header_exloracion_fisica">
+                                <h2 class="h4 fw-bold mb-4">Exploraci&oacute;n fisica</h2>
+                                <!-- Primera fila con distribución más equilibrada -->
+                                <div class="row g-3 align-items-start">
+                                    <div class="col-12 col-sm-2">
+                                        <label for="temperatura" class="form-label small text-muted">Temp. (°C)</label>
+                                        <input id="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica" placeholder="ej. 37.2">
                                     </div>
-                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
-                                        <span class="material-icons">fullscreen</span>
-                                    </button>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="frecuencia_cardiaca" class="form-label small text-muted">Fre. cardiaca (lpm)</label>
+                                        <input id="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica" placeholder="ej. 72">
+                                    </div>
+                                    <div class="col-12 col-sm-4">
+                                        <label class="form-label small text-muted">Pre. Arterial (mmHg)</label>
+                                        <div class="d-flex gap-2 ">
+                                            <input id="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica" placeholder="Sistólica">
+                                            <div class="align-self-center text-muted">/</div>
+                                            <input id="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica" placeholder="Diastólica">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="frecuencia_respiratoria" class="form-label small text-muted">Frec. Resp. (rpm)</label>
+                                        <input id="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
+                                    </div>
                                 </div>
+
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-3">
+                                        <label for="saturacion_oxigeno" class="form-label small text-muted">Satur. O₂ (%)</label>
+                                        <input id="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="peso" class="form-label small text-muted">Peso (kg)</label>
+                                        <input id="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="altura" class="form-label small text-muted">Talla (cm)</label>
+                                        <input id="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-6">
+                                        <label for="alergias" class="form-label small text-muted">Alergias</label>
+                                        <textarea id="alergias" rows="2" class="form-control input_exploracion_fisica" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                        <textarea id="observaciones" rows="2" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h2 class="h4 fw-bold mb-4">Redactar receta</h2>
                                 <div class="row div_titulo mb-3">
-                                    <label>Titulo</label>
-                                    <input type="text" class="form-control input_titulo_nota" />
+                                    <label>Diagn&oacute;stico</label>
+                                    <input type="text" class="form-control input_diagnostico" />
                                 </div>
                                 <form class="d-flex flex-column flex-grow-1">
                                     <div class="flex-grow-1 mb-3">
                                     <div id="summernote"></div>
-                                    </div>
-                                    <div class="form-check mb-3">
-                                    <input type="checkbox" class="form-check-input" id="private-note"/>
-                                    <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
                                     </div>
                                     <button type="button" class="btn btn-success text-white fw-semibold btn_save_nota">Añadir Nota</button>
                                 </form>
@@ -709,16 +803,15 @@ function cambiarFormatoFecha($fecha) {
                     </section>
 
                     <!-- Historial de Notas -->
-                    <section class="col-12 col-lg-6">
+                    <section class="col-12 col-lg-4">
                         <div class="card shadow-sm h-100">
                             <div class="card-body">
-                                <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
+                                <h2 class="h4 fw-bold mb-4">Historial de recetas</h2>
                                 <table id="table_results_notes" class="display table table-hover table-bordered" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th><?php echo $translations['html_title']; ?></th>
                                             <th><?php echo $translations['html_title_professional']; ?></th>
-                                            <th><?php echo $translations['html_creation_date']; ?></th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -842,7 +935,7 @@ function cambiarFormatoFecha($fecha) {
                     </div>
                     <div class="col-md-4">
                         <div class="info-group">
-                            <div class="info-label">Altura:</div>
+                            <div class="info-label">Talla:</div>
                             <div id="modalAltura" class="info-content"></div>
                         </div>
                     </div>
@@ -1050,6 +1143,32 @@ function cambiarFormatoFecha($fecha) {
 
         $(document).ready(function() {
             cargarTabla();
+
+            //  CREAR SUMMERNOTE
+            $('#summernote').summernote({
+                lang: 'es-ES',
+                placeholder: 'Escribe tu nota aquí...',
+                tabsize: 2,
+                height: 100,
+                toolbar: [
+                    // Grupo más básico y funcional
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['fontsize', ['fontsize']],
+                    ['para', ['ul', 'ol', 'paragraph']]
+                ],
+                disableResizeEditor: true,
+                callbacks: {
+                    onPaste: function(e) {
+                        // Limpiar contenido pegado
+                        var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                        e.preventDefault();
+                        document.execCommand('insertText', false, bufferText);
+                    }
+                }
+            });
+            
+            $('#summernote').summernote('code', '');
 
             // Navegación entre secciones
             $('#container_digital_record').on('click','.nav-link',function(e) {

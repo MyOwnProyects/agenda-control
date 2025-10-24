@@ -6,6 +6,7 @@ use Phalcon\Mvc\Controller;
 use Phalcon\Http\Request;  // Asegúrate de importar la clase Request
 use Phalcon\Http\Response; // Asegúrate de importar la clase Response
 use App\Library\FuncionesGlobales;
+use Mpdf\Mpdf;
 
 
 class PacientesController extends BaseController
@@ -1069,6 +1070,7 @@ class PacientesController extends BaseController
         }
 
         $this->view->info_paciente  = $result['info_paciente'];
+        $this->view->info_cita      = $result['info_cita'];
         $this->view->id_profesional = $this->session->get('id_profesional');
         $this->view->id_agenda_cita = $id_agenda_cita;
         $this->view->update         = FuncionesGlobales::HasAccess("Pacientes","update");
@@ -1076,6 +1078,33 @@ class PacientesController extends BaseController
         $this->view->exploracion_fisica_cita    = $exploracion_fisica_cita;
         $this->view->motivo_consulta            = $motivo_consulta;
         $this->view->motivo_consulta_cita       = $motivo_consulta_cita;
+
+        // HTML de ejemplo (puede venir de una vista Volt)
+        $html = '
+        <h1>Receta Médica</h1>
+        <p>Paciente: Juan Pérez</p>
+        <p>Medicamentos:</p>
+        <ul>
+            <li>Paracetamol 600mg - 2 veces al día</li>
+            <li>Ibuprofeno 400mg - 1 vez al día</li>
+        </ul>
+        <p>Firma del médico: ___________________</p>
+        ';
+
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => MPDF_TEMP_DIR
+        ]);
+
+        // HTML generado a partir de la base de datos
+
+        $mpdf->WriteHTML($html);
+
+        // Guardar temporalmente en storage/tmp
+        $archivoTemp = MPDF_TEMP_DIR . '/receta_' . $receta->id . '.pdf';
+        $mpdf->Output($archivoTemp, \Mpdf\Output\Destination::FILE);
+        // Opcional: enviar al navegador
+        // $mpdf->Output('receta.pdf', \Mpdf\Output\Destination::INLINE);
+
     }
 
 }

@@ -5,6 +5,8 @@ use Phalcon\Mvc\Application;
 // Define some absolute path constants to aid in locating resources
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/App');
+define('MPDF_TEMP_DIR', BASE_PATH . '/storage/tmp');
+
 
 // INCLUIR AUTOLOAD
 require BASE_PATH . '/vendor/autoload.php';
