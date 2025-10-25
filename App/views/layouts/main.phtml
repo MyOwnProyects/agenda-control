@@ -30,7 +30,7 @@
 
   <!-- Estilos adicionales -->
   <link rel="stylesheet" href="/css/alerts.css">
-  <link rel="stylesheet" href="/css/menu.css">
+  <link rel="stylesheet" href="/css/menu.css?rm=1">
   <link rel="stylesheet" href="/css/general.css">
   <link rel="stylesheet" href="/css/select2-bootstrap-5.min.css">
 
@@ -127,80 +127,90 @@
             <ul class="nav nav-pills flex-column mb-auto">
               <li class="border-top my-3"></li>
               <li class="nav-item" title="Inicio">
-                <a href="/Menu/" aria-current="page" class="nav-link text-white">
+                <a href="/Menu/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Menu' ? 'active-view' : ''; ?>">
                   <i class="bi bi-house me-2"></i>
                   <span>Inicio</span>
+                  <div class="nav-item-text">Inicio</div>
                 </a>
               </li>
               <?php if($agenda): ?>
                 <li class="nav-item" title="<?php echo $translations['html_agenda']; ?>">
-                  <a href="/Agenda/" aria-current="page" class="nav-link text-white">
+                  <a href="/Agenda/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Agenda' ? 'active-view' : ''; ?>">
                     <i class="bi bi-calendar me-2"></i>
                     <span><?php echo $translations['html_agenda']; ?></span>
+                    <div class="nav-item-text"><?php echo $translations['html_agenda']; ?></div>
                   </a>
                 </li>
               <?php endif; ?>
               <?php if($control_citas): ?>
                 <li class="nav-item" title="<?php echo $translations['html_control_appoitment']; ?>">
-                  <a href="/Controlcitas/" aria-current="page" class="nav-link text-white">
+                  <a href="/Controlcitas/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Controlcitas' ? 'active-view' : ''; ?>">
                     <i class="bi bi-calendar-check me-2"></i>
                     <span><?php echo $translations['html_control_appoitment']; ?></span>
+                    <div class="nav-item-text"><?php echo $translations['html_control_appoitment']; ?></div>
                   </a> 
                 </li>
               <?php endif; ?>
               <?php if($locaciones): ?>
                 <li class="nav-item" title="<?php echo $translations['html_locations']; ?>">
-                  <a href="/Locaciones/" aria-current="page" class="nav-link text-white">
+                  <a href="/Locaciones/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Locaciones' ? 'active-view' : ''; ?>">
                     <i class="bi bi-building me-2"></i>
                     <span><?php echo $translations['html_locations']; ?></span>
+                    <div class="nav-item-text"><?php echo $translations['html_locations']; ?></div>
                   </a>
                 </li>
               <?php endif; ?>
               <?php if($pacientes): ?>
               <li class="nav-item" title="<?php echo $translations['html_title_patients']; ?>">
-                <a href="/Pacientes/" aria-current="page" class="nav-link text-white">
+                <a href="/Pacientes/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Pacientes' ? 'active-view' : ''; ?>">
                 <i class="bi bi-person-bounding-box me-2"></i>
                   <span><?php echo $translations['html_title_patients']; ?></span>
+                  <div class="nav-item-text"><?php echo $translations['html_title_patients']; ?></div>
                 </a>
               </li>
               <?php endif; ?>
               <?php if($tipo_usuarios): ?>
               <li class="nav-item" title="<?php echo $translations['html_title_user_type']; ?>">
-                <a href="/Tipousuarios/" aria-current="page" class="nav-link text-white">
+                <a href="/Tipousuarios/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Tipousuarios' ? 'active-view' : ''; ?>">
                   <i class="bi bi-person-gear me-2"></i>
                   <span><?php echo $translations['html_title_user_type']; ?></span>
+                  <div class="nav-item-text"><?php echo $translations['html_title_user_type']; ?></div>
                 </a>
               </li>
               <?php endif; ?>
               <?php if($profesionales): ?>
               <li class="nav-item" title="<?php echo $translations['html_title_professionals']; ?>">
-                <a href="/Profesionales/" aria-current="page" class="nav-link text-white">
+                <a href="/Profesionales/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Profesionales' ? 'active-view' : ''; ?>">
                   <i class="bi bi-people-fill me-2"></i>
                   <span><?php echo $translations['html_title_professionals']; ?></span>
+                  <div class="nav-item-text"><?php echo $translations['html_title_professionals']; ?></div>
                 </a>
               </li>
               <?php endif; ?>
               <?php if($servicios): ?>
               <li class="nav-item" title="<?php echo $translations['html_services']; ?>">
-                <a href="/Servicios/" aria-current="page" class="nav-link text-white">
+                <a href="/Servicios/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Servicios' ? 'active-view' : ''; ?>">
                 <i class="bi bi-grid me-2"></i>
                   <span><?php echo $translations['html_services']; ?></span>
+                  <div class="nav-item-text"><?php echo $translations['html_services']; ?></div>
                 </a>
               </li>
               <?php endif; ?>
               <?php if($usuarios): ?>
               <li class="nav-item" title="<?php echo $translations['html_title_users']; ?>">
-                <a href="/Usuarios/" aria-current="page" class="nav-link text-white">
+                <a href="/Usuarios/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Usuarios' ? 'active-view' : ''; ?>">
                   <i class="bi bi-person-circle me-2"></i>
                   <span><?php echo $translations['html_title_users']; ?></span>
+                  <div class="nav-item-text"><?php echo $translations['html_title_users']; ?></div>
                 </a>
               </li>
               <?php endif; ?>
               <?php if($bitacora): ?>
               <li class="nav-item" title="<?php echo $translations['html_log']; ?>">
-                <a href="/Bitacora/" aria-current="page" class="nav-link text-white">
+                <a href="/Bitacora/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Bitacora' ? 'active-view' : ''; ?>">
                   <i class="bi bi-card-list me-2"></i>
                   <span><?php echo $translations['html_log']; ?></span>
+                  <div class="nav-item-text"><?php echo $translations['html_log']; ?></div>
                 </a>
               </li>
               <?php endif; ?>
@@ -285,9 +295,9 @@
             function cw_size() {
                 if ($(window).width() < 768) {
                     //console.log("Menor a 768px");
-                  if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
-                    $('body').find('#toggle-aside').click();
-                  } else {}
+                    if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
+                        $('body').find('#toggle-aside').click();
+                    } else {}
                 } else {
                     //console.log("Mayor a 768px");
                 }
@@ -299,7 +309,7 @@
         }
 
         $(document).ready(function() {
-          moment.locale('es');
+            moment.locale('es');
             $('#show-alert').click(function() {
                 $('#alert-success').fadeIn();
                 setTimeout(function() {
@@ -308,26 +318,28 @@
             });
 
             $("#toggle-aside").click(function() {
-              $(".aside").toggleClass("aside-collapsed");
+                $(".aside").toggleClass("aside-collapsed");
 
-              if ($(".aside").hasClass('aside-collapsed')){
-                $(this).closest('li').removeClass('text-center').addClass('text-left');
-                $(this).find('i').removeClass('bi-arrow-left-short').addClass('bi-arrow-right-short');
-              } else {
-                $(this).closest('li').removeClass('text-left').addClass('text-center');
-                $(this).find('i').removeClass('bi-arrow-right-short').addClass('bi-arrow-left-short');
-              }
+                // MODIFICACIÓN: Cambiar el ícono de la flecha
+                if ($(".aside").hasClass('aside-collapsed')){
+                    $(this).find('i').removeClass('bi-arrow-left-short').addClass('bi-arrow-right-short');
+                } else {
+                    $(this).find('i').removeClass('bi-arrow-right-short').addClass('bi-arrow-left-short');
+                }
 
+                // ELIMINADO: Ya no necesitamos cambiar las clases de texto del li
+                // porque ahora el texto se muestra debajo del ícono
             });
 
             $('aside.aside_menu').on('click','a.nav-link', function() {
-              if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
-                $('body').find('#toggle-aside').click();
-              } else {}
+                // MODIFICACIÓN: Solo colapsar automáticamente en dispositivos móviles
+                if($(window).width() < 768 && $('aside.aside_menu').hasClass('aside-collapsed') !== true) {
+                    $('body').find('#toggle-aside').click();
+                }
             });
 
             check_window();
-          });
+        });
 
     </script>
 </body>
