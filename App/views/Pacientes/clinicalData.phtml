@@ -281,6 +281,7 @@
         padding-left: 0 !important;
         background-color: transparent !important;
         box-shadow: none !important;
+        text-align: center !important;
     }
 
     /* Efecto hover y focus */
@@ -524,54 +525,54 @@ function cambiarFormatoFecha($fecha) {
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
                                             <label for="temperatura" class="form-label small text-muted">Temp. (°C)</label>
-                                            <input id="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre='Temperatura' placeholder="ej. 37.2" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['temperatura']) ? $exploracion_fisica_cita['temperatura'] : null; ?>">
+                                            <input data-idrow="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre='Temperatura' placeholder="ej. 37.2" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['temperatura']) ? $exploracion_fisica_cita['temperatura'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             <label for="frecuencia_cardiaca" class="form-label small text-muted">Fre. cardiaca (lpm)</label>
-                                            <input id="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia cardiaca' placeholder="ej. 72" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_cardiaca']) ? $exploracion_fisica_cita['frecuencia_cardiaca'] : null; ?>">
+                                            <input data-idrow="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia cardiaca' placeholder="ej. 72" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_cardiaca']) ? $exploracion_fisica_cita['frecuencia_cardiaca'] : null; ?>">
                                         </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <label class="form-label small text-muted">Pre. Arterial (mmHg)</label>
                                         <div class="d-flex gap-2 mt-1">
-                                            <input id="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica" data-nombre='Presión arterial sistónica' placeholder="Sistólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_sistolica']) ? $exploracion_fisica_cita['presion_arterial_sistolica'] : null; ?>">
+                                            <input data-idrow="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica" data-nombre='Presión arterial sistónica' placeholder="Sistólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_sistolica']) ? $exploracion_fisica_cita['presion_arterial_sistolica'] : null; ?>">
                                             <div class="align-self-center text-muted">/</div>
-                                            <input id="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica" data-nombre='Presión arterial diastónica' placeholder="Diastólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_diastolica']) ? $exploracion_fisica_cita['presion_arterial_diastolica'] : null; ?>">
+                                            <input data-idrow="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica" data-nombre='Presión arterial diastónica' placeholder="Diastólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_diastolica']) ? $exploracion_fisica_cita['presion_arterial_diastolica'] : null; ?>">
                                         </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
                                             <label for="frecuencia_respiratoria" class="form-label small text-muted">Frec. Resp. (rpm)</label>
-                                            <input id="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
+                                            <input data-idrow="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             <label for="saturacion_oxigeno" class="form-label small text-muted">Satur. O₂ (%)</label>
-                                            <input id="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
+                                            <input data-idrow="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
                                         </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-6">
                                             <label for="peso" class="form-label small text-muted">Peso (kg)</label>
-                                            <input id="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
+                                            <input data-idrow="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             <label for="altura" class="form-label small text-muted">Talla (cm)</label>
-                                            <input id="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
+                                            <input data-idrow="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
                                         </div>
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-12">
                                             <label for="alergias" class="form-label small text-muted">Alergias</label>
-                                            <textarea id="alergias" rows="2" class="form-control input_exploracion_fisica" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
+                                            <textarea data-idrow="alergias" rows="2" class="form-control input_exploracion_fisica" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
                                         </div>
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-12 col-sm-12">
                                             <label for="observaciones" class="form-label small text-muted">Observaciones</label>
-                                            <textarea id="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                            <textarea data-idrow="observaciones" rows="4" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-success text-white fw-semibold btn_save_exploracion_fisica">Capturar datos</button>
@@ -736,48 +737,48 @@ function cambiarFormatoFecha($fecha) {
                                 <div class="row g-3 align-items-start">
                                     <div class="col-12 col-sm-2">
                                         <label for="temperatura" class="form-label small text-muted">Temp. (°C)</label>
-                                        <input id="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica" placeholder="ej. 37.2">
+                                        <input data-idrow="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica" placeholder="ej. 37.2" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['temperatura']) ? $exploracion_fisica_cita['temperatura'] : null; ?>">
                                     </div>
                                     <div class="col-12 col-sm-3">
                                         <label for="frecuencia_cardiaca" class="form-label small text-muted">Fre. cardiaca (lpm)</label>
-                                        <input id="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica" placeholder="ej. 72">
+                                        <input data-idrow="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica" placeholder="ej. 72" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_cardiaca']) ? $exploracion_fisica_cita['frecuencia_cardiaca'] : null; ?>">
                                     </div>
                                     <div class="col-12 col-sm-4">
                                         <label class="form-label small text-muted">Pre. Arterial (mmHg)</label>
                                         <div class="d-flex gap-2 ">
-                                            <input id="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica" placeholder="Sistólica">
+                                            <input data-idrow="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica" placeholder="Sistólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_sistolica']) ? $exploracion_fisica_cita['presion_arterial_sistolica'] : null; ?>">
                                             <div class="align-self-center text-muted">/</div>
-                                            <input id="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica" placeholder="Diastólica">
+                                            <input data-idrow="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica" placeholder="Diastólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_diastolica']) ? $exploracion_fisica_cita['presion_arterial_diastolica'] : null; ?>">
                                         </div>
                                     </div>
                                     <div class="col-12 col-sm-3">
                                         <label for="frecuencia_respiratoria" class="form-label small text-muted">Frec. Resp. (rpm)</label>
-                                        <input id="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
+                                        <input data-idrow="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
                                     </div>
                                 </div>
 
-                                <div class="row g-3">
+                                <div class="row g-3" style="padding-top: 2rem !important;padding-bottom: 2rem !important;">
                                     <div class="col-12 col-sm-3">
                                         <label for="saturacion_oxigeno" class="form-label small text-muted">Satur. O₂ (%)</label>
-                                        <input id="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
+                                        <input data-idrow="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
                                     </div>
                                     <div class="col-12 col-sm-3">
                                         <label for="peso" class="form-label small text-muted">Peso (kg)</label>
-                                        <input id="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
+                                        <input data-idrow="peso" type="number" step="0.1" class="form-control input_exploracion_fisica" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
                                     </div>
                                     <div class="col-12 col-sm-3">
                                         <label for="altura" class="form-label small text-muted">Talla (cm)</label>
-                                        <input id="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
+                                        <input data-idrow="altura" type="number" class="form-control input_exploracion_fisica" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
                                     </div>
                                 </div>
                                 <div class="row g-3">
                                     <div class="col-12 col-sm-6">
                                         <label for="alergias" class="form-label small text-muted">Alergias</label>
-                                        <textarea id="alergias" rows="2" class="form-control input_exploracion_fisica" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
+                                        <textarea data-idrow="alergias" rows="2" class="form-control input_exploracion_fisica" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
                                     </div>
                                     <div class="col-12 col-sm-6">
                                         <label for="observaciones" class="form-label small text-muted">Observaciones</label>
-                                        <textarea id="observaciones" rows="2" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                        <textarea data-idrow="observaciones" rows="2" class="form-control input_exploracion_fisica" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -1345,7 +1346,7 @@ function cambiarFormatoFecha($fecha) {
                 let flag_error  = false;
                 $("#form_exploracion_fisica").find('.input_exploracion_fisica').each(function(){
                     //  SE VERIFICA QUE EL DATO ESTE DENTRO DE LOS RANGOS
-                    let id_rango    = $(this).attr('id');
+                    let id_rango    = $(this).data('idrow');
                     let value       = $(this).val();
                     let input_nombre    = $(this).data('nombre');
                     
@@ -1549,42 +1550,25 @@ function cambiarFormatoFecha($fecha) {
                 });
             });
 
+            //  EVENTO QUE CACHA CUANDO PIERDE EL FOCUS UN INPUT DE EXPLORACION FISICA
+            $(".input_exploracion_fisica").on('blur',function(){
+                let value   = $(this).val();
+                let header_input    = $(this).closest('.main-content');
+                let input_name      = $(this).data('idrow');
 
-            //  ------------------- NOTAS   ---------------------------------   //
-            $(".div_notas").on("click",'.btn_expandir',function(e) {
-                e.preventDefault();
+                let div_header_mirror   = $(header_input).hasClass('div_exploracion_fisica') ? 'div_receta' : 'div_exploracion_fisica';
 
-                let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
-                let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
-                let $historial = $("section:has(h2:contains('Historial de Notas'))");
-                let $icon = $(this).find("span.material-icons");
+                console.log('div_header_mirror value',div_header_mirror,value);
+                $('.'+div_header_mirror).find('.input_exploracion_fisica').each(function(){
+                    let tmp_input_name  = $(this).data('idrow');
+                    console.log('tmp_input_name',tmp_input_name);
+                    if (input_name == tmp_input_name){
+                        $(this).val(value);
+                        return;
+                    }
+                });
+            })
 
-                // Obtener la instancia de DataTable
-                let dataTable = $('#table_results').DataTable();
-
-                // Verificar si la columna 2 (índice 2) está visible
-                if (dataTable.column(2).visible()) {
-                    // Ocultar columna 2 (tercera columna)
-                    dataTable.column(2).visible(false);
-
-                    // Expandir "Añadir Nota" y reducir "Historial de Notas"
-                    $nota.removeClass("col-lg-6").addClass("col-lg-8");
-                    $historial.removeClass("col-lg-6").addClass("col-lg-4");
-
-                    // Cambiar icono a "reducir"
-                    $icon.text("fullscreen_exit");
-                } else {
-                    // Mostrar columna 2 (tercera columna)
-                    dataTable.column(2).visible(true);
-
-                    // Restaurar anchos originales
-                    $nota.removeClass("col-lg-8").addClass("col-lg-6");
-                    $historial.removeClass("col-lg-4").addClass("col-lg-6");
-
-                    // Cambiar icono a "expandir"
-                    $icon.text("fullscreen");
-                }
-            });
         });
 
         //  --------------  FUNCIONES   ---------------------   //

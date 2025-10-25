@@ -4,6 +4,7 @@ namespace App\Library;
 
 use Phalcon\Di\Di; // Ajuste para Phalcon >= 4.x
 use Phalcon\Di\DiInterface; // Interfaz para compatibilidad
+use Mpdf\Mpdf;
 
 class FuncionesGlobales{
 
@@ -689,6 +690,33 @@ class FuncionesGlobales{
     public static function clear_filename($nombre_original){
         // 1️⃣ Convertir a minúsculas (opcional)
         return preg_replace('/[^a-zA-Z0-9._\- ]/', '', $nombre_original);
+    }
+
+    public static function create_pdf_prescription($id_agenda_cita){
+        $fecha  = date('YmdHis');
+        // HTML de ejemplo (puede venir de una vista Volt)
+        $html = '
+        <h1>Receta Médica</h1>
+        <p>Paciente: Hugo Pérez</p>
+        <p>Medicamentos:</p>
+        <ul>
+            <li>Paracetamol 600mg - 2 veces al día</li>
+            <li>Ibuprofeno 400mg - 1 vez al día</li>
+        </ul>
+        <p>Firma del médico: ___________________</p>
+        ';
+
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => MPDF_TEMP_DIR
+        ]);
+
+        // HTML generado a partir de la base de datos
+
+        $mpdf->WriteHTML($html);
+
+        // Guardar temporalmente en storage/tmp
+        $archivoTemp = MPDF_TEMP_DIR . '/receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+        $mpdf->Output($archivoTemp, \Mpdf\Output\Destination::FILE);
     }
 
 }
