@@ -13,22 +13,21 @@
   }
   
   body {
-    min-height: 100vh; /* Asegura que el body tenga al menos el alto del viewport */
-    min-height: -webkit-fill-available; /* Compatibilidad con navegadores móviles */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
   }
   
   html {
-    height: -webkit-fill-available; /* Compatibilidad con navegadores móviles */
+    height: -webkit-fill-available;
   }
   
-  /* MODIFICAR EL ALTO PARA QUE EL PERFIL SIEMPRE ESTE A FINAL Y SALGA TODO EL HTML */
   main {
     display: flex;
-    flex-direction: column; /* Apila los elementos verticalmente */
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan si es necesario */
-    min-height: 100vh; /* Asegura que el main tenga al menos el alto del viewport */
-    overflow-x: hidden; /* Oculta el desbordamiento horizontal */
-    overflow-y: auto; /* Permite el desplazamiento vertical si es necesario */
+    flex-direction: column;
+    flex-wrap: wrap;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   
   .b-example-divider {
@@ -139,29 +138,75 @@
 /* ESTILO PARA MANUPULAR APERTURA Y CIERRE DE MENU */
 .aside-collapsed {
   overflow: hidden;
+  width: 80px;
 }
 
-.aside-collapsed a {
-  display: flex;
-  align-items: center;
+.aside-collapsed .nav-item {
+  position: relative;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.aside-collapsed .nav-link {
+  flex-direction: column;
+  padding: 4px 5px;
   justify-content: center;
+  align-items: center;
+  height: auto;
+  min-height: 38px;
+  display: flex !important;
 }
 
+/* Ocultar el span cuando está colapsado */
+.aside-collapsed .nav-link span {
+  display: none !important;
+}
 
-.aside-collapsed a span {
-  display: none; /* Oculta solo el texto, manteniendo los íconos visibles */
+/* Mostrar el div.nav-item-text cuando está colapsado */
+.aside-collapsed .nav-link .nav-item-text {
+  display: block !important;
+  font-size: 0.65rem;
+  margin-top: 5px;
+  text-align: center;
+  line-height: 1.1;
+  width: 100%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Ocultar el div.nav-item-text cuando NO está colapsado */
+aside:not(.aside-collapsed) .nav-link .nav-item-text {
+  display: none !important;
+}
+
+/* Mostrar el span cuando NO está colapsado */
+aside:not(.aside-collapsed) .nav-link span {
+  display: inline-block !important;
 }
 
 .aside-collapsed i,
 .aside-collapsed svg {
-  font-size: 20px;
+  font-size: 18px;
   margin: 0 !important;
-  display: inline-block; /* Asegura que los íconos se sigan viendo */
+  display: inline-block;
   transition: all ease-out .3s;
 }
 
-aside .nav-pills .nav-link {transition: all ease-out .3s;}
-aside .nav-pills .nav-link:hover {filter: brightness(.85);}
+aside .nav-pills .nav-link {
+  transition: all ease-out .3s;
+}
 
-aside:not(.aside-collapsed) .nav-pills .nav-link {}
-aside:not(.aside-collapsed) .nav-pills .nav-link .bi {font-size: 18px; margin-right: 20px !important;}
+aside .nav-pills .nav-link:hover {
+  filter: brightness(.85);
+}
+
+/* Clase para indicar la vista activa */
+aside .nav-pills .nav-link.active-view {
+  background-color: rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+}
+
+aside:not(.aside-collapsed) .nav-pills .nav-link .bi {
+  font-size: 18px; 
+  margin-right: 20px !important;
+}
