@@ -1011,6 +1011,10 @@ class PacientesController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'save_receta'){
+                
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
