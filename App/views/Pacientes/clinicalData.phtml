@@ -790,11 +790,11 @@ function cambiarFormatoFecha($fecha) {
                                 <h2 class="h4 fw-bold mb-4">Redactar receta</h2>
                                 <div class="row div_titulo mb-3">
                                     <label>Diagn&oacute;stico</label>
-                                    <input type="text" class="form-control input_diagnostico" />
+                                    <input type="text" class="form-control input_diagnostico" value="<?php echo count($receta_cita) > 0 ? $receta_cita['diagnostico'] : ''; ?>" />
                                 </div>
                                 <form class="d-flex flex-column flex-grow-1">
                                     <div class="flex-grow-1 mb-3">
-                                    <div id="summernote"></div>
+                                    <div id="summernote"><?php echo count($receta_cita) > 0 ? $receta_cita['tratamiento'] : ''; ?></div>
                                     </div>
                                     <button type="button" class="btn btn-success text-white fw-semibold btn_save_prescription">Generar receta</button>
                                 </form>
@@ -815,10 +815,24 @@ function cambiarFormatoFecha($fecha) {
                                 <table id="table_results_notes" class="display table table-hover table-bordered" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th><?php echo $translations['html_title']; ?></th>
-                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                            <th><?php echo $translations['html_diagnoses']; ?></th>
                                         </tr>
                                     </thead>
+                                    <tbody>
+                                        <?php if (count($recetas_medicas) > 0): ?>
+                                            <?php foreach($recetas_medicas as $row): ?>
+                                            <tr class="clickable-row" data-fecha="<?php echo $row['fecha_creacion']; ?>" data-id="<?php echo $row['id']; ?>" >
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_creacion']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['diagnostico']; ?></div></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td class="p-3" colspan="2" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -1174,7 +1188,7 @@ function cambiarFormatoFecha($fecha) {
                 }
             });
             
-            $('#summernote').summernote('code', '');
+            //$('#summernote').summernote('code', '');
 
             // Navegación entre secciones
             $('#container_digital_record').on('click','.nav-link',function(e) {
@@ -1541,6 +1555,11 @@ function cambiarFormatoFecha($fecha) {
                     $(btn).prop('disabled',false);
                     return false;
                 }
+                
+                //  OBJETO DE RECETA
+                let obj_info_receta = {
+                    diagnostico,tratamiento
+                };
 
                 let obj_exploracion_fisica  = validar_exploracion_fisica('.div_receta',btn);
 
@@ -1581,11 +1600,13 @@ function cambiarFormatoFecha($fecha) {
                     url     : url_clinical,
                     method  : 'post',
                     data    : {
+                        accion          : 'save_receta',
                         id_paciente     : id_paciente,
                         id_agenda_cita  : id_agenda_cita,
                         obj_motivo_consulta : obj_motivo_consulta,
                         obj_exploracion_fisica  : obj_exploracion_fisica,
-                        nombre_completo         : obj_exploracion_fisica
+                        nombre_completo         : nombre_completo,
+                        obj_info_receta         : obj_info_receta
                     },
                     success : function(data){
                         console.log('data',data);

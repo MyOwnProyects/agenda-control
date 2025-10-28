@@ -79,7 +79,9 @@ return [
         'show_exploracion_fisica'   => '/ctpacientes/show_exploracion_fisica',
         'show_motivo_consulta'      => '/ctpacientes/show_motivo_consulta',
         'save_motivo_consulta'      => '/ctpacientes/save_motivo_consulta',
-        'get_clinical_data'         => '/ctpacientes/get_clinical_data'
+        'get_clinical_data'         => '/ctpacientes/get_clinical_data',
+        'save_receta'               => '/ctpacientes/save_receta',
+        'show_receta'               => '/ctpacientes/show_receta',
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'

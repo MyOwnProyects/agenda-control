@@ -1012,6 +1012,55 @@ class PacientesController extends BaseController
             }
 
             if ($accion == 'save_receta'){
+                $response = new Response();
+
+                //  SE GUARDA EL MOTIVO DE CONSULTA
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_motivo_consulta'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                    'obj_info'          => $_POST['obj_motivo_consulta']
+                ));
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                //  SE GUARDA LA EXPLORACION FISICA
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_exploracion_fisica'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                    'obj_info'          => $_POST['obj_exploracion_fisica']
+                ));
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                //  GUARDAR INFORMACION DE LA RECETA
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_receta'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                    'obj_info'          => $_POST['obj_info_receta']
+                ));
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
                 
             }
 
@@ -1072,6 +1121,19 @@ class PacientesController extends BaseController
             }
         }
 
+        //  SE BUSCA LA INFORMACION DE LOS DATOS DE RECETA MEDICA
+        $recetas_medicas    = $result['recetas_medicas'];
+
+        $receta_cita    = array();
+        if (count($recetas_medicas) > 0){
+            foreach($recetas_medicas as $row){
+                if ($row['id_agenda_cita'] == $id_agenda_cita){
+                    $receta_cita    = $row;
+                    break;
+                }
+            }
+        }
+
         $this->view->info_paciente  = $result['info_paciente'];
         $this->view->info_cita      = $result['info_cita'];
         $this->view->id_profesional = $this->session->get('id_profesional');
@@ -1081,6 +1143,8 @@ class PacientesController extends BaseController
         $this->view->exploracion_fisica_cita    = $exploracion_fisica_cita;
         $this->view->motivo_consulta            = $motivo_consulta;
         $this->view->motivo_consulta_cita       = $motivo_consulta_cita;
+        $this->view->recetas_medicas            = $recetas_medicas;
+        $this->view->receta_cita                = $receta_cita;
         
         //FuncionesGlobales::create_pdf_prescription($id_agenda_cita);
 
