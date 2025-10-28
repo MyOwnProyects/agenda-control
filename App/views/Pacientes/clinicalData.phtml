@@ -110,7 +110,7 @@
     }
 
     .note-editable {
-        height: calc(75vh - 200px) !important; /* Example: 100% of viewport height minus some offset */
+        height: calc(85vh - 200px) !important; /* Example: 100% of viewport height minus some offset */
         /* Or, if within a container: */
         /* height: 100% !important; */
     }
@@ -309,6 +309,15 @@
         border-bottom-color: #0d6efd !important;
         background-color: transparent !important;
         box-shadow: none !important;
+    }
+
+    .note-editable p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .note-editable p + p {
+        margin-top: 0;
     }
 
 </style>
@@ -812,7 +821,7 @@ function cambiarFormatoFecha($fecha) {
                         <div class="card shadow-sm h-100">
                             <div class="card-body">
                                 <h2 class="h4 fw-bold mb-4">Historial de recetas</h2>
-                                <table id="table_results_notes" class="display table table-hover table-bordered" style="width:100%">
+                                <table id="table_results_recetas" class="display table table-hover table-bordered" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th><?php echo $translations['html_creation_date']; ?></th>
@@ -822,7 +831,7 @@ function cambiarFormatoFecha($fecha) {
                                     <tbody>
                                         <?php if (count($recetas_medicas) > 0): ?>
                                             <?php foreach($recetas_medicas as $row): ?>
-                                            <tr class="clickable-row" data-fecha="<?php echo $row['fecha_creacion']; ?>" data-id="<?php echo $row['id']; ?>" >
+                                            <tr class="clickable-row" data-fechacreacion="<?php echo $row['fecha_creacion']; ?>" data-id="<?php echo $row['id']; ?>" data-diagnostico="<?php echo $row['diagnostico']; ?>" data-tratamiento="<?php echo $row['tratamiento']; ?>">
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_creacion']; ?></div></td>
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['diagnostico']; ?></div></td>
                                             </tr>
@@ -996,6 +1005,40 @@ function cambiarFormatoFecha($fecha) {
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="modal_preview_receta" tabindex="-1" aria-labelledby="label_modal_preview_receta" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h3 class="modal-title" id="label_modal_diagnostico">Receta medica</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <!-- Campo Clave -->
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_creation_date']; ?>:</label>
+                    <div id="fecha_creacion" class="d-block"></div>
+                </div>
+                <div class="col-md-12">
+                    <label><?php echo $translations['html_diagnoses']; ?>:</label>
+                    <div id="diagnostico" class="d-block"></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-12 div_show_receta" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btn_download" class="btn btn-success"><?php echo $translations['html_download']; ?></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1518,6 +1561,13 @@ function cambiarFormatoFecha($fecha) {
             });
 
             //  ---------   RECETA MEDICA   ----------------    //
+            //  EVENTO PARA PREVIO DE RECETAS MEDICAS
+            $("#table_results_recetas").on('click','.clickable-row',function(){
+                let btn = $(this);
+                console.log('diag',$(btn).data('diagnostico'));
+                console.log('trat',$(btn).data('tratamiento'));
+                show_preview_receta(btn);
+            });
             //  EVENTO QUE CACHA CUANDO PIERDE EL FOCUS UN INPUT DE EXPLORACION FISICA
             $(".input_exploracion_fisica").on('blur',function(){
                 let value   = $(this).val();
@@ -1686,6 +1736,15 @@ function cambiarFormatoFecha($fecha) {
             }
 
             return obj_info;
+        }
+
+        function show_preview_receta(btn){
+            let modal_clone = $("#modal_preview_receta").clone().removeAttr();
+
+            $(modal_clone).find("#fecha_creacion").text($(btn).data('fechacreacion'));
+            $(modal_clone).find("#diagnostico").text($(btn).data('diagnostico'));
+            $(modal_clone).find(".div_show_receta").html($(btn).data('tratamiento'));
+            $(modal_clone).modal('show');
         }
             
     })();
