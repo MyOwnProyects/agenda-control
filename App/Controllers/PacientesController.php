@@ -1146,7 +1146,7 @@ class PacientesController extends BaseController
         $this->view->recetas_medicas            = $recetas_medicas;
         $this->view->receta_cita                = $receta_cita;
         
-        //FuncionesGlobales::create_pdf_prescription($id_agenda_cita);
+        FuncionesGlobales::create_pdf_prescription($id_agenda_cita);
 
     }
 

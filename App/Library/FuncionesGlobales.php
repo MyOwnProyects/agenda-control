@@ -696,26 +696,278 @@ class FuncionesGlobales{
         $fecha  = date('YmdHis');
         // HTML de ejemplo (puede venir de una vista Volt)
         $html = '
-        <h1>Receta Médica</h1>
-        <p>Paciente: Hugo Pérez</p>
-        <p>Medicamentos:</p>
-        <ul>
-            <li>Paracetamol 600mg - 2 veces al día</li>
-            <li>Ibuprofeno 400mg - 1 vez al día</li>
-        </ul>
-        <p>Firma del médico: ___________________</p>
-        ';
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Receta Médica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-size: 12px;
+      line-height: 1.3;
+    }
 
-        $mpdf = new \Mpdf\Mpdf([
-            'tempDir' => MPDF_TEMP_DIR
-        ]);
+    .receta {
+      width: 100%;
+      margin: 0;
+      padding: 5mm 10mm 15mm 10mm;
+    }
+
+    .contenido-principal {
+      padding: 0 3mm;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #6a1b9a;
+      margin-bottom: 8px;
+    }
+
+    .doctor-info {
+      text-align: right;
+    }
+
+    .doctor-info h2 {
+      margin: 0 0 3px 0;
+      font-size: 16px;
+      color: #6a1b9a;
+    }
+
+    .doctor-info p {
+      margin: 1px 0;
+      font-size: 11px;
+    }
+
+    .section {
+      margin: 8px 0;
+    }
+
+    .datos-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0;
+    }
+
+    .datos-table td {
+      padding: 3px 6px;
+      vertical-align: bottom;
+    }
+
+    .campo-linea {
+      display: inline-block;
+      border-bottom: 1px solid;
+      width: 120px;
+      vertical-align: bottom;
+      padding-right: 100px;
+      white-space: nowrap;
+      overflow: hidden;
+      min-height: 14px;
+    }
+
+    .indicaciones {
+      margin: 8px 0;
+    }
+
+    .indicaciones h3 {
+      margin: 8px 0 6px 0;
+      font-size: 13px;
+    }
+
+    .tratamiento {
+      height: 66mm;
+      padding: 5px 5px 5px 15px;
+      overflow: auto;
+      margin-left: 8px;
+    }
+
+    .tratamiento p {
+      margin: 4px 0;
+      font-size: 12px;
+    }
+
+    .footer-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .footer-table td {
+      padding: 4px 6px;
+      vertical-align: top;
+      width: 33%;
+    }
+
+    .footer-center {
+      text-align: center;
+    }
+
+    .footer-right {
+      text-align: right;
+      font-weight: bold;
+    }
+
+    .contact-text p {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .espacio-superior {
+      height: 6mm;
+      width: 100%;
+    }
+
+    .icono {
+      font-weight: bold;
+      margin-right: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="receta">
+    <!-- Espacio reducido en la parte superior -->
+    <div class="espacio-superior"></div>
+    
+    <div class="contenido-principal">
+      <!-- Header -->
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="50%" align="left" valign="top">
+            <div class="logo">Vita Medic</div>
+          </td>
+          <td width="50%" align="right" valign="top">
+            <div class="doctor-info">
+              <h2>Dr. Eduardo Cosmes Vázquez</h2>
+              <p>Ginecología y Obstetricia</p>
+              <p>Céd. Prof. 5138516 | Esp. 8470585</p>
+              <p>Reg. S.S.A. 271/14</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Línea divisoria superior -->
+      <div style="height: 3px; background-color: #6a1b9a; width: 100%; margin: 12px 0;"></div>
+
+      <!-- Datos del Paciente -->
+      <div class="section">
+        <table class="datos-table">
+          <tr>
+            <td width="75%">
+              <strong>Nombre:</strong> 
+              <span class="campo-linea">Sestega Romero Brianda</span>
+            </td>
+            <td width="25%">
+              <strong>Fecha:</strong> 
+              <span class="campo-linea">13-09-2025</span>
+            </td>
+          </tr>
+        </table>
+
+        <table class="datos-table">
+          <tr>
+            <td width="30%">
+              <strong>Temp.:</strong> 
+              <span class="campo-linea"></span> <strong>(°C)</strong>
+            </td>
+            <td width="35%">
+              <strong>Fre. cardiaca:</strong> 
+              <span class="campo-linea">100</span> <strong>(lpm)</strong>
+            </td>
+            <td width="35%">
+              <strong>Pre. Arterial:</strong> 
+              <span class="campo-linea"></span> <strong>(mmHg)</strong>
+            </td>
+          </tr>
+        </table>
+
+        <table class="datos-table">
+          <tr>
+            <td width="25%">
+              <strong>Frec. Resp.:</strong> 
+              <span class="campo-linea"></span> <strong>(rpm)</strong>
+            </td>
+            <td width="25%">
+              <strong>Satur. O₂:</strong> 
+              <span class="campo-linea"></span> <strong>(%)</strong>
+            </td>
+            <td width="25%">
+              <strong>Peso:</strong> 
+              <span class="campo-linea"></span> <strong>(kg)</strong>
+            </td>
+            <td width="25%">
+              <strong>Talla:</strong> 
+              <span class="campo-linea"></span> <strong>(cm)</strong>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Indicaciones -->
+      <div class="section indicaciones">
+        <h3>Fx:</h3>
+        <div class="tratamiento">
+          <p>1. SUPRADOL DUET</p>
+          <p>1 cada 12 horas en caso necesario</p>
+          <!-- Aquí se insertará el HTML con la receta redactada por el doctor -->
+        </div>
+      </div>
+
+      <!-- Línea divisoria inferior -->
+      <div style="height: 3px; background-color: #6a1b9a; width: 100%; margin: 15px 0 12px 0;"></div>
+    </div>
+
+    <!-- Footer -->
+    <table class="footer-table">
+      <tr>
+        <td class="footer-left">
+          <div class="contact-text">
+            <p><span class="icono">■</span> Manuel Cantú Méndez #23</p>
+            <p style="padding-left: 12px;">esq. con Av. Puebla Col. Centro</p>
+          </div>
+        </td>
+        <td class="footer-center">
+          <div class="contact-text">
+            <p><span class="icono">►</span> (662) 311-8645</p>
+            <p style="padding-left: 12px;">(662) 138-0336</p>
+            <p><span class="icono">@</span> ecv20@hotmail.com</p>
+          </div>
+        </td>
+        <td class="footer-right">
+          <p>Dr. Eduardo Cosmes Vázquez</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+            ';
+
+$mpdf = new \Mpdf\Mpdf([
+  'format' => 'A4',
+  'orientation' => 'P',
+  'margin_top' => 0,
+  'margin_bottom' => 0,
+  'margin_left' => 0,
+  'margin_right' => 0,
+  'tempDir' => MPDF_TEMP_DIR
+]);
+
+
 
         // HTML generado a partir de la base de datos
 
         $mpdf->WriteHTML($html);
 
         // Guardar temporalmente en storage/tmp
-        $archivoTemp = MPDF_TEMP_DIR . '/receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+        //$archivoTemp = MPDF_TEMP_DIR . '/receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+        $archivoTemp = MPDF_TEMP_DIR . '/receta_de_PRUEBA.pdf';
         $mpdf->Output($archivoTemp, \Mpdf\Output\Destination::FILE);
     }
 
