@@ -765,7 +765,8 @@ class PacientesController extends BaseController
                 // Devuelve los datos para construir la URL
                 $response->setJsonContent(array(
                     'tipo_archivo'      => $result[0]['clave_tipo_archivo'],
-                    'nombre_archivo'    => $result[0]['nombre_archivo']
+                    'nombre_archivo'    => $result[0]['nombre_archivo'],
+                    'url_descarga'      => FuncionesGlobales::get_url_download($result[0]['clave_tipo_archivo'],$result[0]['nombre_archivo'])
                 ));
                 $response->setStatusCode(200, 'OK');
                 return $response;
@@ -1058,7 +1059,11 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                $response->setJsonContent($result);
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARRECETA','Se genero la receta medica del paciente: '.$_POST['nombre_completo'],$_POST['obj_info_receta']);
+                //  SE GENERA EL PDF DE LA RECETA MEDICA
+                $arr_return = FuncionesGlobales::create_pdf_prescription($id_agenda_cita);
+
+                $response->setJsonContent($arr_return);
                 $response->setStatusCode(200, 'OK');
                 return $response;
                 
@@ -1145,8 +1150,6 @@ class PacientesController extends BaseController
         $this->view->motivo_consulta_cita       = $motivo_consulta_cita;
         $this->view->recetas_medicas            = $recetas_medicas;
         $this->view->receta_cita                = $receta_cita;
-        
-        FuncionesGlobales::create_pdf_prescription($id_agenda_cita);
 
     }
 

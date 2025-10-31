@@ -1018,9 +1018,8 @@ function cambiarFormatoFecha($fecha) {
         }
 
         //  Mostrar vista previa de archivo ya almacenado
-        async function show_preview_file(tipo, filename, $container,id_tipo_archivo,observaciones) {
+        async function show_preview_file(tipo, filename,fileURL,$container,id_tipo_archivo,observaciones) {
             const fileExt = filename.split('.').pop().toLowerCase();
-            const fileURL = `/Menu/download?tipo_archivo=${tipo}&nombre_archivo=${encodeURIComponent(filename)}`;
 
             let previewHTML = '';
 
@@ -1572,8 +1571,8 @@ function cambiarFormatoFecha($fecha) {
                         id_archivo  : id_archivo
                     },
                     success : function(data){
-                        const url = `/Menu/download?tipo_archivo=${encodeURIComponent(data.tipo_archivo)}&nombre_archivo=${encodeURIComponent(data.nombre_archivo)}`;
-                        window.open(url, '_blank');
+                        
+                        window.open(data['url_descarga'], '_blank');
                         $(btn).prop('disabled',false);
                     },
                     error   : function(error){
@@ -1604,10 +1603,7 @@ function cambiarFormatoFecha($fecha) {
                         preview     : true
                     },
                     success : function(data){
-                        // const url = `/Menu/download?tipo_archivo=${encodeURIComponent(data.tipo_archivo)}&nombre_archivo=${encodeURIComponent(data.nombre_archivo)}`;
-                        // window.open(url, '_blank');
-                        // $(btn).prop('disabled',false);
-                        show_preview_file(data.tipo_archivo,data.nombre_archivo,$container,id_tipo_archivo,observaciones);
+                        show_preview_file(data.tipo_archivo,data.nombre_archivo,data.url_descarga,$container,id_tipo_archivo,observaciones);
                         $(btn).prop('disabled',false);
                     },
                     error   : function(error){

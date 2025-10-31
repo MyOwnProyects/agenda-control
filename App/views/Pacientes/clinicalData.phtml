@@ -1018,13 +1018,13 @@ function cambiarFormatoFecha($fecha) {
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3">            
                 <!-- Campo Clave -->
-                <div class="col-md-6">
-                    <label><?php echo $translations['html_creation_date']; ?>:</label>
-                    <div id="fecha_creacion" class="d-block"></div>
-                </div>
-                <div class="col-md-12">
+                <div class="col-md-8">
                     <label><?php echo $translations['html_diagnoses']; ?>:</label>
                     <div id="diagnostico" class="d-block"></div>
+                </div>
+                <div class="col-md-4" align="right">
+                    <label><?php echo $translations['html_creation_date']; ?>:</label>
+                    <div id="fecha_creacion" class="d-block"></div>
                 </div>
                 <!-- Campo Nombre -->
                 <div class="col-md-12 div_show_receta" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
@@ -1327,7 +1327,7 @@ function cambiarFormatoFecha($fecha) {
                     success : function(data){
                         showAlert('success','Edición exitosa!');
                         setTimeout(function(){
-                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
                         },2000);
                     },
                     error   : function(error){
@@ -1660,6 +1660,16 @@ function cambiarFormatoFecha($fecha) {
                     },
                     success : function(data){
                         console.log('data',data);
+
+                        if (data['url_receta'] != ''){
+                            window.open(data['url_receta'], '_blank');
+                            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
+                        } else {
+                            showAlert('Captura de receta exitosa, pero hubo un inconveniente al momento de generar el archivo de la receta: '+data['msg_error']);
+                            setTimeout(function(){
+                                window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
+                            },3000);
+                        }
                     },
                     error   : function(error){
                         console.log('error');
@@ -1739,7 +1749,7 @@ function cambiarFormatoFecha($fecha) {
         }
 
         function show_preview_receta(btn){
-            let modal_clone = $("#modal_preview_receta").clone().removeAttr();
+            let modal_clone = $("#modal_preview_receta").clone().removeAttr('id').show();
 
             $(modal_clone).find("#fecha_creacion").text($(btn).data('fechacreacion'));
             $(modal_clone).find("#diagnostico").text($(btn).data('diagnostico'));
