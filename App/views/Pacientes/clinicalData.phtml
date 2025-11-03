@@ -320,6 +320,17 @@
         margin-top: 0;
     }
 
+    .div_show_receta p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .div_show_receta p + p {
+        margin-top: 0;
+    }
+
+    
+
 </style>
 <?php 
 //  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
@@ -1754,6 +1765,31 @@ function cambiarFormatoFecha($fecha) {
             $(modal_clone).find("#fecha_creacion").text($(btn).data('fechacreacion'));
             $(modal_clone).find("#diagnostico").text($(btn).data('diagnostico'));
             $(modal_clone).find(".div_show_receta").html($(btn).data('tratamiento'));
+
+            $(modal_clone).on('click','#btn_download',function(){
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'download_receta',
+                        id_receta       : $(btn).data('id'),
+                        nombre_completo : nombre_completo
+                    },
+                    success : function(data){
+                        console.log('data',data);
+
+                        if (data['url_receta'] != ''){
+                            window.open(data['url_receta'], '_blank');
+                        }
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
             $(modal_clone).modal('show');
         }
             

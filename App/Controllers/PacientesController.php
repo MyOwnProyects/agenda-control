@@ -1061,12 +1061,28 @@ class PacientesController extends BaseController
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARRECETA','Se genero la receta medica del paciente: '.$_POST['nombre_completo'],$_POST['obj_info_receta']);
                 //  SE GENERA EL PDF DE LA RECETA MEDICA
-                $arr_return = FuncionesGlobales::create_pdf_prescription($id_agenda_cita);
+                $arr_return = FuncionesGlobales::create_pdf_prescription($result['id_receta']);
 
                 $response->setJsonContent($arr_return);
                 $response->setStatusCode(200, 'OK');
                 return $response;
                 
+            }
+
+            if ($accion == 'download_receta'){
+                $response = new Response();
+                $arr_return = FuncionesGlobales::create_pdf_prescription($_POST['id_receta']);
+                $aqui = 1;
+
+                if ($arr_return['msg_error'] != ''){
+                    $response->setJsonContent($arr_return['msg_error']);
+                    $response->setStatusCode(404, 'Nor Found');
+                    return $response;
+                }
+
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
             }
 
             $response = new Response();

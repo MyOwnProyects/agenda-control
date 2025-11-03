@@ -5,6 +5,7 @@ namespace App\Library;
 use Phalcon\Di\Di; // Ajuste para Phalcon >= 4.x
 use Phalcon\Di\DiInterface; // Interfaz para compatibilidad
 use Mpdf\Mpdf;
+use Exception;
 
 class FuncionesGlobales{
 
@@ -706,9 +707,28 @@ class FuncionesGlobales{
         return preg_replace('/[^a-zA-Z0-9._\- ]/', '', $nombre_original);
     }
 
-    public static function create_pdf_prescription($id_agenda_cita){
+    public static function create_pdf_prescription($id_receta){
         try{
             $fecha  = date('YmdHis');
+
+            $di = Di::getDefault(); // Se usa en lugar de $this->getDI()
+
+            // OBTENER CONFIGURACIONES
+            $rutas      = $di->get('rutas');
+            $config     = $di->get('config');
+            $url_api    = $config['BASEAPI'];
+
+            //  SE BUSCA LA INFORMACION DE LA RECETA A IMPRIMIR
+            $result = SELF::RequestApi('GET',$url_api.$rutas['ctpacientes']['show_receta'],array(
+                'id_receta' => $id_receta
+            ));
+
+            if ($result == null || !is_array($result) || count($result) == 0){
+                throw new Exception("Error al obtener la información de la receta");
+            }
+
+            $receta = $result[0];
+
             // HTML de ejemplo (puede venir de una vista Volt)
             $html = '
     <!DOCTYPE html>
@@ -842,6 +862,15 @@ class FuncionesGlobales{
         font-weight: bold;
         margin-right: 3px;
         }
+
+        .tratamiento p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .tratamiento p + p {
+            margin-top: 0;
+        }
     </style>
     </head>
     <body>
@@ -854,14 +883,14 @@ class FuncionesGlobales{
         <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
             <td width="50%" align="left" valign="top">
-                <div class="logo">Vita Medic</div>
+                <div class="logo">'.$receta['nombre_locacion'].'</div>
             </td>
             <td width="50%" align="right" valign="top">
                 <div class="doctor-info">
-                <h2>Dr. Eduardo Cosmes Vázquez</h2>
+                <h2>Dr. '.$receta['nombre_profesional'].'</h2>
                 <p>Ginecología y Obstetricia</p>
-                <p>Céd. Prof. 5138516 | Esp. 8470585</p>
-                <p>Reg. S.S.A. 271/14</p>
+                <p>Céd. Prof. '.$receta['cedula_profesional'].' | Esp. 1234567</p>
+                <p>Reg. S.S.A. 111/22</p>
                 </div>
             </td>
             </tr>
@@ -876,11 +905,11 @@ class FuncionesGlobales{
             <tr>
                 <td width="75%">
                 <strong>Nombre:</strong> 
-                <span class="campo-linea">Sestega Romero Brianda</span>
+                <span class="campo-linea">'.$receta['nombre_completo'].'</span>
                 </td>
                 <td width="25%">
                 <strong>Fecha:</strong> 
-                <span class="campo-linea">13-09-2025</span>
+                <span class="campo-linea">'.$receta['fecha_ultima_edicion'].'</span>
                 </td>
             </tr>
             </table>
@@ -889,15 +918,15 @@ class FuncionesGlobales{
             <tr>
                 <td width="30%">
                 <strong>Temp.:</strong> 
-                <span class="campo-linea"></span> <strong>(°C)</strong>
+                <span class="campo-linea">'.$receta['temperatura'].'</span> <strong>(°C)</strong>
                 </td>
                 <td width="35%">
                 <strong>Fre. cardiaca:</strong> 
-                <span class="campo-linea">100</span> <strong>(lpm)</strong>
+                <span class="campo-linea">'.$receta['frecuencia_cardiaca'].'</span> <strong>(lpm)</strong>
                 </td>
                 <td width="35%">
                 <strong>Pre. Arterial:</strong> 
-                <span class="campo-linea"></span> <strong>(mmHg)</strong>
+                <span class="campo-linea">'.$receta['presion_arterial'].'</span> <strong>(mmHg)</strong>
                 </td>
             </tr>
             </table>
@@ -906,19 +935,19 @@ class FuncionesGlobales{
             <tr>
                 <td width="25%">
                 <strong>Frec. Resp.:</strong> 
-                <span class="campo-linea"></span> <strong>(rpm)</strong>
+                <span class="campo-linea">'.$receta['frecuencia_respiratoria'].'</span> <strong>(rpm)</strong>
                 </td>
                 <td width="25%">
                 <strong>Satur. O₂:</strong> 
-                <span class="campo-linea"></span> <strong>(%)</strong>
+                <span class="campo-linea">'.$receta['saturacion_oxigeno'].'</span> <strong>(%)</strong>
                 </td>
                 <td width="25%">
                 <strong>Peso:</strong> 
-                <span class="campo-linea"></span> <strong>(kg)</strong>
+                <span class="campo-linea">'.$receta['peso'].'</span> <strong>(kg)</strong>
                 </td>
                 <td width="25%">
                 <strong>Talla:</strong> 
-                <span class="campo-linea"></span> <strong>(cm)</strong>
+                <span class="campo-linea">'.$receta['altura'].'</span> <strong>(cm)</strong>
                 </td>
             </tr>
             </table>
@@ -928,8 +957,7 @@ class FuncionesGlobales{
         <div class="section indicaciones">
             <h3>Fx:</h3>
             <div class="tratamiento">
-            <p>1. SUPRADOL DUET</p>
-            <p>1 cada 12 horas en caso necesario</p>
+            '.$receta['tratamiento'].'
             <!-- Aquí se insertará el HTML con la receta redactada por el doctor -->
             </div>
         </div>
@@ -943,19 +971,19 @@ class FuncionesGlobales{
         <tr>
             <td class="footer-left">
             <div class="contact-text">
-                <p><span class="icono">■</span> Manuel Cantú Méndez #23</p>
-                <p style="padding-left: 12px;">esq. con Av. Puebla Col. Centro</p>
+                <p><span class="icono">■</span> '.$receta['direccion'].'</p>
+                
             </div>
             </td>
             <td class="footer-center">
             <div class="contact-text">
-                <p><span class="icono">►</span> (662) 311-8645</p>
-                <p style="padding-left: 12px;">(662) 138-0336</p>
-                <p><span class="icono">@</span> ecv20@hotmail.com</p>
+                <p><span class="icono">►</span> '.SELF::formatearTelefono($receta['telefono']).'</p>
+                <p style="padding-left: 12px;">'.SELF::formatearTelefono($receta['celular']).'</p>
+                <p><span class="icono">@</span> '.$receta['correo_electronico'].'</p>
             </div>
             </td>
             <td class="footer-right">
-            <p>Dr. Eduardo Cosmes Vázquez</p>
+            <p>Dr. '.$receta['nombre_profesional'].'</p>
             </td>
         </tr>
         </table>
@@ -998,6 +1026,20 @@ class FuncionesGlobales{
                 'msg_error'     => $e->getMessage()
             );
         }
+    }
+
+    public static function formatearTelefono($telefono) {
+        $telefonoLimpio = preg_replace('/\D/', '', $telefono);
+        
+        if (strlen($telefonoLimpio) !== 10) {
+            return '';
+        }
+        
+        return sprintf("(%s) %s-%s", 
+            substr($telefonoLimpio, 0, 3),
+            substr($telefonoLimpio, 3, 3),
+            substr($telefonoLimpio, 6, 4)
+        );
     }
 
 }
