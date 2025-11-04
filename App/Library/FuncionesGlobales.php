@@ -709,7 +709,6 @@ class FuncionesGlobales{
 
     public static function create_pdf_prescription($id_receta){
         try{
-            $fecha  = date('YmdHis');
 
             $di = Di::getDefault(); // Se usa en lugar de $this->getDI()
 
@@ -1005,12 +1004,13 @@ class FuncionesGlobales{
 
 
             // HTML generado a partir de la base de datos
+            $fecha  = str_replace('/','_',$receta['fecha_ultima_edicion']);
 
             $mpdf->WriteHTML($html);
 
             // Guardar temporalmente en storage/tmp
             //$nombre_archivo = 'receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
-            $nombre_archivo = 'receta_de_PRUEBA.pdf';
+            $nombre_archivo = 'receta_'.$fecha.'.pdf';
             //$archivoTemp = MPDF_TEMP_DIR . '/receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
             $archivoTemp = MPDF_TEMP_DIR .'/'.$nombre_archivo;
             $mpdf->Output($archivoTemp, \Mpdf\Output\Destination::FILE);

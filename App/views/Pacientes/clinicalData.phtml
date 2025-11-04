@@ -842,7 +842,7 @@ function cambiarFormatoFecha($fecha) {
                                     <tbody>
                                         <?php if (count($recetas_medicas) > 0): ?>
                                             <?php foreach($recetas_medicas as $row): ?>
-                                            <tr class="clickable-row" data-fechacreacion="<?php echo $row['fecha_creacion']; ?>" data-id="<?php echo $row['id']; ?>" data-diagnostico="<?php echo $row['diagnostico']; ?>" data-tratamiento="<?php echo $row['tratamiento']; ?>">
+                                            <tr class="clickable-row" data-fechacreacion="<?php echo $row['fecha_creacion']; ?>" data-id="<?php echo $row['id']; ?>" data-diagnostico="<?php echo $row['diagnostico']; ?>" data-tratamiento="<?php echo htmlspecialchars($row['tratamiento']); ?>">
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_creacion']; ?></div></td>
                                                 <td class="p-3"><div class="truncate-text"><?php echo $row['diagnostico']; ?></div></td>
                                             </tr>
@@ -1243,6 +1243,34 @@ function cambiarFormatoFecha($fecha) {
             });
             
             //$('#summernote').summernote('code', '');
+            
+            // Color
+            $(document).on('click', '.note-color .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide(); // Cierra otros menús
+                menu.toggle(); // Abre/cierra el actual
+            });
+
+            // Font size
+            $(document).on('click', '.note-fontsize .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
+            // Paragraph
+            $(document).on('click', 'button[aria-label="Paragraph"]', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.note-dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
 
             // Navegación entre secciones
             $('#container_digital_record').on('click','.nav-link',function(e) {
