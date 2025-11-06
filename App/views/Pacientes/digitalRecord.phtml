@@ -1,3 +1,6 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
 <style>
     :root {
         --bs-body-bg-dark: #121212;
@@ -208,6 +211,96 @@
         font-family: monospace;   /* opcional: fuente tipo editor */
     }
 
+    /* ESTILO PARA MODAL DE INFORMACION */
+    .modal_info_cita .modal-header {
+    background-color: #343a40;
+    color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    }
+
+    /* Labels dentro del body */
+    .modal_info_cita .modal-body label {
+    font-weight: 600;
+    color: #495057;
+    }
+
+    /* Spans dentro del body */
+    .modal_info_cita .modal-body span {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font-weight: 500;
+    color: #212529;
+    }
+
+    /* Separadores de secciones */
+    .modal_info_cita .row.mb-3 {
+    padding: 10px 0;
+    border-bottom: 1px dashed #ced4da;
+    margin-bottom: 15px;
+    }
+
+    /* Información de cancelación */
+    .modal_info_cita .div_info_cancelacion {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 15px;
+    border-radius: 0.5rem;
+    margin-top: 15px;
+    }
+
+    .modal_info_cita .div_info_cancelacion label {
+    font-weight: bold;
+    color: #856404;
+    margin-bottom: 10px;
+    }
+
+    /* Lista de servicios */
+    .modal_info_cita .div_servicios {
+    /*background-color: #f1f3f5;  Fondo uniforme para toda la sección */
+    border: 1px solid #ced4da;
+    padding: 15px;
+    border-radius: 0.5rem;
+    margin-top: 20px;
+    }
+
+    .modal_info_cita .div_servicios label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #495057;
+    }
+
+    .modal_info_cita .div_servicios .d-flex {
+    align-items: center;
+    }
+
+    /* Quitamos el fondo de las filas de encabezado de servicios */
+    .modal_info_cita .div_servicios .div_header_servicios .d-flex {
+    background-color: transparent;
+    }
+
+    /* Total en servicios */
+    .modal_info_cita .div_servicios .total {
+    font-size: 1.1rem;
+    color: #343a40;
+    }
+
+    /* Footer del modal */
+    .modal_info_cita .modal-footer {
+    border-top: none;
+    }
+
+    /* Botón de cancelar */
+    .modal_info_cita .btn-outline-dark {
+    border-radius: 0.5rem;
+    padding: 6px 20px;
+    }
+
+    .hide {
+        display:none;
+    }
 
 </style>
 <?php 
@@ -262,9 +355,9 @@ function cambiarFormatoFecha($fecha) {
                             <i class="bi bi-card-list"></i>
                             Resumen
                         </a>
-                        <a class="nav-link text-dark" data-section="citas" style="display:none;">
-                            <i class="bi bi-calendar"></i>
-                            Citas
+                        <a class="nav-link text-dark" data-section="perfil_neurodesarrollo">
+                            <i class="bi bi-person-arms-up"></i>
+                            Perfil Neurodesarrollo
                         </a>
                         <?php if($download || $info_digital_record['citas_activas'] == 1): ?>
                         <a class="nav-link text-dark" data-section="documentos">
@@ -343,7 +436,7 @@ function cambiarFormatoFecha($fecha) {
                                         </div>
                                         <div class="col-sm-6 col-lg-2">
                                             <p class="small text-muted mb-1">Edad</p>
-                                            <p class="fw-medium mb-0"><?php echo empty($info_digital_record['info_paciente']['edad_actual']) ? '0.0 años' : $info_digital_record['info_paciente']['edad_actual'].' años'; ?> </p>
+                                            <p class="fw-medium mb-0 p_edad_actual"><?php echo empty($info_digital_record['info_paciente']['edad_actual']) ? '0.0 años' : $info_digital_record['info_paciente']['edad_actual'].' años'; ?> </p>
                                         </div>
                                         <div class="col-sm-6 col-lg-3">
                                             <p class="small text-muted mb-1">Género</p>
@@ -428,9 +521,40 @@ function cambiarFormatoFecha($fecha) {
                         </div>
                     </section>
 
+                    <!-- Historial de Citas -->
+                    <section class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="h4 fw-semibold mb-0">Hstorial de citas</h3>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <table id="table_results_citas" class="display table table-striped table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_service_cost']; ?></th>
+                                            <th><?php echo $translations['html_appointment_date']; ?></th>
+                                            <th><?php echo $translations['html_status']; ?></th>
+                                            <th><?php echo $translations['html_attendance_status']; ?></th>
+                                            <th><?php echo $translations['html_paid']; ?></th>
+                                            <th><?php echo $translations['html_action']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content p-4 div_perfil_neurodesarrollo" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Perfil Neurodesarrollo</h2>
+                        <p class="text-muted mb-0">Diagnostico y áreas de desarrollo</p>
+                    </div>
                     <!-- Diagnósticos y Tratamientos -->
-                    <section class="row g-4">
-                        <div class="col-lg-6">
+                    <section class="mb-5">
+                        <div class="col-lg-12">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="h4 fw-semibold mb-0">Diagn&oacute;sticos</h3>
                                 <?php if ($update): ?>
@@ -457,8 +581,9 @@ function cambiarFormatoFecha($fecha) {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-lg-6">
+                    </section>
+                    <section class="mb-5">
+                        <div class="col-lg-12">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="h4 fw-semibold mb-0">Áreas de enfoque</h3>
                                 <?php if ($update && $info_digital_record['citas_activas'] == 1): ?>
@@ -503,7 +628,7 @@ function cambiarFormatoFecha($fecha) {
                         <div class="mb-4">
                             <h2 class="h5 fw-semibold mb-3">Subir nuevo documento</h2>
                             <div class="p-4 border rounded-3 bg-white shadow-sm">
-                                <input type="file" id="input_file_document" class="d-none" accept=".pdf,.png,.jpg,.jpeg,.docx">
+                                <input type="file" id="input_file_document" class="d-none">
                                 <div id="dropzoneContainer" class="dropzone border border-2 border-secondary rounded p-4 text-center bg-light" style="cursor:pointer;">
                                     <div class="dz-message text-muted">
                                         <i class="bi bi-cloud-arrow-up fs-1"></i>
@@ -656,6 +781,119 @@ function cambiarFormatoFecha($fecha) {
     </div>
 </div>
 
+<div class="modal fade modal_info_cita" id="modal_info_cita" tabindex="-1" aria-labelledby="label_modal_info_cita" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_info_cita"><?php echo FuncionesGlobales::UpperString($translations['html_info_appointment']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_title_patient']; ?>:</label>
+                    <div id="nombre_paciente" class="d-block"></div>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_title_professional']; ?>:</label>
+                    <div id="nombre_profesional" class="d-block"></div>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_appointment_date']; ?>:</label>
+                    <div id="fecha_cita" class="d-block"></div>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_hour']; ?>:</label>
+                    <div id="hora_cita" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_ab_duration']; ?>:</label>
+                    <div id="duracion" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_user_capture']; ?>:</label>
+                    <div id="usuario_captura" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_attendance_status']; ?>:</label>
+                    <div id="asistencia" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_appoitment_type']; ?>:</label>
+                    <div id="tipo_cita" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_status']; ?>:</label>
+                    <div id="estatus" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_paid']; ?>:</label>
+                    <div id="pagada" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_payment_date']; ?>:</label>
+                    <div id="fecha_pago" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_method_payment']; ?>:</label>
+                    <div id="forma_pago" class="d-block"></div>
+                </div>
+                <div class="col-md-12 div_info_cancelacion hide">
+                    <label><?php echo $translations['html_info_cancel_appoitment']; ?></label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_date']; ?>:</label>
+                            <div id="fecha_cancelacion" class="d-block"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_user']; ?>:</label>
+                            <div id="usuario_cancelacion" class="d-block"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_reason']; ?>:</label>
+                            <div id="motivo_cancelacion" class="d-block"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <label><?php echo $translations['html_observations']; ?>:</label>
+                            <div id="observaciones_cancelacion" class="d-block"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 div_servicios">
+                    <div class="col-md-12"><label>Lista de servicios</label></div>
+                    <div class="d-flex border-bottom fw-bold py-2 mt-3">
+                        <div class="flex-fill">Servicio</div>
+                        <div class="flex-fill">Duración</div>
+                        <div class="flex-fill">Costo</div>
+                    </div>
+
+                    <!-- Primera fila de datos -->
+                    <div class="div_header_servicios">
+                    </div>
+
+                    <!-- Total -->
+                    <div class="d-flex justify-content-end fw-bold py-2 mt-2">
+                        <div>Total: $<span class="total"></span></div>
+                    </div>
+                </div>
+                
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_close']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="template_servicio_cita_diaria" class=" py-2 border-bottom hide">
+    <div class="flex-fill servicio">Lenguaje</div>
+    <div class="flex-fill div_duracion"><span class="duracion"></span> Min</div>
+    <div class="flex-fill costo">$<span clas="costo"></span></div>
+</div>
+
 <div class="modal fade" id="modal_diagnostico" tabindex="-1" aria-labelledby="label_modal_diagnostico" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -797,6 +1035,14 @@ function cambiarFormatoFecha($fecha) {
         let arr_subarea_paciente    = '<?php echo json_encode($arr_subarea_paciente); ?>';
         arr_subarea_paciente        = JSON.parse(arr_subarea_paciente);
 
+        let estatus_asistencia  = {
+            0   : 'FALTA',
+            1   : 'ASISTENCIA',
+            2   : 'RETARDO',
+            3   : 'ACTIVIDAD EN CASA',   
+            null    : 'Sin asignar' 
+        };
+
         //  URL
         const controller    = '/Pacientes';
         const url_digital   = controller+'/digitalRecord'
@@ -804,6 +1050,7 @@ function cambiarFormatoFecha($fecha) {
 
         // Variable global para almacenar la instancia de DataTable
         let table;
+        let table2;
         let draw            = 1;
 
         const translations  = {
@@ -1173,8 +1420,166 @@ function cambiarFormatoFecha($fecha) {
             }
         }
 
+        function formatearFecha(fecha) {
+            const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+            const partes = fechaFormateada.split(', ');
+            
+            function capitalizarPrimeraLetra(texto) {
+                return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+            }
+
+            if (partes.length > 1) {
+                // Si la fecha incluye coma (formato "día, fecha")
+                return capitalizarPrimeraLetra(partes[0]) + ', ' + partes[1];
+            } else {
+                // Si no hay coma, convertir la primera palabra (asumiendo que es el día)
+                const palabras = fechaFormateada.split(' ');
+                palabras[0] = capitalizarPrimeraLetra(palabras[0]);
+                return palabras.join(' ');
+            }
+        }
+
+        function formatearDuracion(minutos) {
+            if (isNaN(minutos) || minutos < 0) return '';
+
+            const horas = Math.floor(minutos / 60);
+            const minutosRestantes = minutos % 60;
+
+            let resultado = '';
+
+            if (horas > 0) {
+                resultado += `${horas} hr${horas > 1 ? 's' : ''}`;
+            }
+
+            if (minutosRestantes > 0) {
+                if (resultado) resultado += ' ';
+                resultado += `${minutosRestantes} min`;
+            }
+
+            // Si dura exactamente 0 min
+            if (resultado === '') {
+                resultado = '0 min';
+            }
+
+            return resultado;
+        }
+
+        function formatearFechaExtensa(fechaStr) {
+            if (!fechaStr) return '';
+
+            // Separar fecha y hora
+            const [fechaParte, horaParte] = fechaStr.split(' ');
+
+            if (!fechaParte || !horaParte) return fechaStr; // Si no tiene formato esperado, devolver tal cual
+
+            const [anio, mes, dia] = fechaParte.split('-');
+            const [hora, minuto] = horaParte.split(':');
+
+            // Retornar en formato más humano
+            return `${dia}/${mes}/${anio} ${hora}:${minuto} hrs`;
+        }
+
+        function show_info_cita(info_cita,registrar_pago = null){
+            let modal_clone = $("#modal_info_cita").clone().show();
+            $(modal_clone).find("#nombre_paciente").text(info_cita['nombre_completo']);
+            $(modal_clone).find("#nombre_profesional").text(info_cita['nombre_profesional']);
+
+            let split_today = info_cita['fecha_cita'].split('-');
+            let fecha_cita  = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
+
+            $(modal_clone).find("#fecha_cita").text(formatearFecha(fecha_cita));
+            $(modal_clone).find("#hora_cita").text(info_cita['hora_cita']);
+            $(modal_clone).find("#duracion").text(formatearDuracion(info_cita['duracion']));
+            $(modal_clone).find("#usuario_captura").text(info_cita['usuario_captura']);
+
+            $(modal_clone).find("#asistencia").text(estatus_asistencia[info_cita['asistencia']]);
+            $(modal_clone).find("#tipo_cita").text(info_cita['id_cita_programada'] != null ? 'CITA PROGRAMADA' : 'CITA ORDINARIA');
+            $(modal_clone).find("#estatus").text(info_cita['estatus']);
+
+            console.log("info_cita['activa']",info_cita['activa'])
+            if (info_cita['activa'] != 1){
+                $(modal_clone).find("#fecha_cancelacion").text(formatearFechaExtensa(info_cita['fecha_cancelacion']));
+                $(modal_clone).find("#usuario_cancelacion").text(info_cita['usuario_cancelacion']);
+                $(modal_clone).find("#motivo_cancelacion").text(info_cita['motivo_cancelacion']);
+                $(modal_clone).find("#observaciones_cancelacion").text(info_cita['observaciones_cancelacion']);
+                $(modal_clone).find('.div_info_cancelacion').removeClass('hide');
+            }
+
+            //  SE RECORREN LOS SERVICIOS
+            for(let x in info_cita['servicios']){
+                let servicio        = info_cita['servicios'][x];
+                let row_servicio    = $("#template_servicio_cita_diaria").clone().removeAttr('id').addClass('d-flex').removeClass('hide');
+
+                $(row_servicio).find('.servicio').text(servicio['nombre_servicio']);
+                $(row_servicio).find('.duracion').text(servicio['duracion']);
+                $(row_servicio).find('.costo').text(servicio['costo']);
+
+                $(modal_clone).find('.div_header_servicios').append(row_servicio);
+            }
+            $(modal_clone).find('.total').text(info_cita['total']);
+
+            if (registrar_pago != null){
+                $(modal_clone).find('.hide_by_pay').hide();
+                $(modal_clone).find('.show_by_pay').show();
+
+                if (info_cita['pagada'] == 1){
+                    $(modal_clone).find('.btn_registrar_pago').addClass('btn-danger').text(translations['cancel_payment']);
+                    $(modal_clone).find('#pagada').text('SI');
+                    $(modal_clone).find('#fecha_pago').text(info_cita['fecha_pago']);
+                    $(modal_clone).find('#forma_pago').text(info_cita['forma_pago']);
+                    $(modal_clone).find(".div_forma_pago").hide();
+                } else {
+                    $(modal_clone).find('.btn_registrar_pago').addClass('btn-success').text(translations['pay']);
+                    $(modal_clone).find('#pagada').text('NO');
+                    $(modal_clone).find('#fecha_pago').text('S/A');
+                    $(modal_clone).find('#forma_pago').text('S/A');
+                }
+
+                $(modal_clone).on('click','.btn_registrar_pago',function(){
+                    let btn = $(this);
+                    $(btn).prop('disabled',true);
+                    $.ajax({
+                        url     : url_index,
+                        method  : 'post',
+                        data    : {
+                            accion          : info_cita['pagada'] == 1 ? 'cancelar_pago' : 'capturar_pago',
+                            id_agenda_cita  : info_cita['id_agenda_cita'],
+                            forma_pago      : $(modal_clone).find('[name="forma_pago"]:checked').val(),
+                            info_cita       : info_cita
+                        },
+                        success : function(data){
+                            $(modal_clone).modal('hide');
+                            showAlert('success','Captura exitosa!');
+                            if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                                if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                                    return false;
+                                }
+
+                                if ($('#input_rango_fecha_termino').val() == '') {
+                                    return false;
+                                }
+                            }
+                            
+                            cargarTabla();
+
+                        },
+                        error   : function(error){
+                            $(btn).prop('disabled',false);
+                            console.log('error');
+                            //console.log(error);
+                            actionJsonError(error,btn);
+                        }
+                    });
+                });
+            }
+
+            $(modal_clone).modal('show');
+        }
+
         $(document).ready(function() {
             cargarTabla();
+            cargarTablaCitas();
 
             //  CREAR SUMMERNOTE
             $('#summernote').summernote({
@@ -1303,14 +1708,14 @@ function cambiarFormatoFecha($fecha) {
 
                 let obj_info    = {
                     id                  : id_paciente,
-                    primer_apellido     : $(".input_primer_apellido").val(),
-                    segundo_apellido    : $(".input_segundo_apellido").val(),
-                    nombre              : $(".input_nombre").val(),
-                    fecha_nacimiento    : $(".input_fecha_nacimiento").val(),
-                    genero              : $(".select_genero").val(),
-                    celular             : $(".input_celular").val(),
-                    correo_electronico  : $(".input_correo_electronico").val(),
-                    direccion           : $(".input_direccion").val()
+                    primer_apellido     : $(".input_primer_apellido").val() != null ? $(".input_primer_apellido").val().trim() : null,
+                    segundo_apellido    : $(".input_segundo_apellido").val() != null ? $(".input_segundo_apellido").val().trim() : null,
+                    nombre              : $(".input_nombre").val() != null ? $(".input_nombre").val().trim() : null,
+                    fecha_nacimiento    : $(".input_fecha_nacimiento").val() != null ? $(".input_fecha_nacimiento").val().trim() : null,
+                    genero              : $(".select_genero").val() != null ? $(".select_genero").val().trim() : null,
+                    celular             : $(".input_celular").val() != null ? $(".input_celular").val().trim() : null,
+                    correo_electronico  : $(".input_correo_electronico").val() != null ? $(".input_correo_electronico").val().trim() : null,
+                    direccion           : $(".input_direccion").val() != null ? $(".input_direccion").val().trim() : null
                 };
 
                 $.ajax({
@@ -1321,10 +1726,21 @@ function cambiarFormatoFecha($fecha) {
                         accion      : 'save_express'
                     },
                     success : function(data){
+                        console.log('data',data);
                         showAlert('success','Edición exitosa!');
-                        setTimeout(function(){
-                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
-                        },2000);
+                        
+                        $(".input_primer_apellido").closest('div').find('.p_datos').text($(".input_primer_apellido").val().trim());
+                        $(".input_segundo_apellido").closest('div').find('.p_datos').text($(".input_segundo_apellido").val().trim());
+                        $(".input_nombre").closest('div').find('.p_datos').text($(".input_nombre").val().trim());
+                        $(".input_fecha_nacimiento").closest('div').find('.p_datos').text(moment($(".input_fecha_nacimiento").val().trim(), 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                        $(".select_genero").closest('div').find('.p_datos').text($(".select_genero").find('option:selected').text());
+                        $(".input_celular").closest('div').find('.p_datos').text($(".input_celular").val().trim());
+                        $(".input_correo_electronico").closest('div').find('.p_datos').text($(".input_correo_electronico").val().trim());
+                        $(".input_direccion").closest('div').find('.p_datos').text($(".input_direccion").val().trim());
+
+                        $(".p_edad_actual").text(data['edad_actual'] + ' años');
+
+                        $(".btn_revert_info_personal").trigger('click');
                     },
                     error   : function(error){
                         showAlert('danger',error.responseText);
@@ -1369,10 +1785,16 @@ function cambiarFormatoFecha($fecha) {
                 e.preventDefault();
             });
 
+            //  EVENTO PARA VISUALZAR LA INFORMACION DE LA CITA
+            $("#table_results_citas").on('click','.btn_preview',function(){
+                // Obtener los datos almacenados en la fila
+                let data = $(this).closest('tr').data('rowData');
+                show_info_cita(data);
+            });
+
             //  ------------------- DOCUMENTOS  -----------------------------   //
 
             $("#input_filtro_archivos").on('keyup',function(){
-                console.log('aqui');
                 show_filtros_archivos();
             });
 
@@ -1472,12 +1894,10 @@ function cambiarFormatoFecha($fecha) {
                     contentType: false, // Evita que jQuery configure el encabezado Content-Type
                     beforeSend: function() {
                         $("#btn_subir_archivo").prop('disabled', true);
-                        showAlert('info', 'Subiendo archivo, espere...');
+                        showAlert('info', 'Subiendo archivo, espere...',2000);
                     },
                     success: function(data) {
                         $("#btn_subir_archivo").prop('disabled', false);
-
-                        console.log('data',data);
 
                         let html_row    = '';
                         if (Object.keys(data).length > 0){
@@ -1497,7 +1917,12 @@ function cambiarFormatoFecha($fecha) {
                             }
                         }
 
+                        showAlert('info', 'Captura de archivo exitosa!');
+
                         $("#table_files").find('tbody').html('').append(html_row);
+                        $(".remove-file").trigger('click');
+                        $("#select_categoria_archivo").val('');
+                        $("#textarea_observaciones").val('');
                     },
                     error: function(error) {
                         actionJsonError(error,btn);
@@ -1536,7 +1961,6 @@ function cambiarFormatoFecha($fecha) {
                             nombre_original : nombre_original
                         },
                         success : function(data){
-                            console.log('data',data);
                             $(btn).closest('tr').remove();
                             //  SE PINTA ROW SIN REGISTROS
                             if ($("#table_files").find('tbody tr:visible').length == 0){
@@ -1587,9 +2011,6 @@ function cambiarFormatoFecha($fecha) {
                 let id_tipo_archivo = $(this).data('idtipoarchivo');
                 let observaciones   = $(this).data('observaciones');
                 let btn             = $(this);
-
-                console.log('id_tipo_archivo',id_tipo_archivo);
-                console.log('observaciones',observaciones);
 
                 $(btn).prop('disabled',true);
 
@@ -1748,212 +2169,305 @@ function cambiarFormatoFecha($fecha) {
                     }
                 })
             });
+        });
 
+        //  --------------  FUNCIONES   ---------------------   //
 
-            //  --------------  FUNCIONES   ---------------------   //
+        // Función para inicializar o recargar la tabla
+        function cargarTablaCitas() {
+            draw    ++;
+            if (!table2) {
+                //  REINICIAR CONTADOR DE SELECCIONADOS A 0
+                table2 = new DataTable('#table_results_citas', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url     : url_digital,
+                        method  : 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.from_catalog      = true;
+                            d.get_servicios     = true;
+                            d.id_paciente       = id_paciente;
+                            d.from_digital_record   = true;
+                        }
+                    },
+                    columns: [
+                        { data: 'nombre_profesional' }, // Columna 1
+                        { data: 'num_servicios_costo' }, // Columna 1
+                        { data: 'fecha_completa' }, // Columna 1
+                        { data: 'estatus' }, // Columna 1
+                        { data: 'label_asistencia' }, // Columna 1
+                        { data: 'label_pagada' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
 
-            //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
-            function show_modal_diagnoses(){
-                let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
+                                let btn_preview = 
+                                '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                    '<i class="bi bi-search"></i> '+
+                                '</button>';
 
-                if (diagnosticos != null && Object.keys(diagnosticos).length > 0){
-                    for(let i in diagnosticos){
-                        $(modal_clone).find('#diagnostico_'+diagnosticos[i]['id'])
-                            .addClass('row_selected')
-                            .find('.input_evidencia')
-                            .prop('disabled',false)
-                            .prop('checked',diagnosticos[i]['presento_evidencia'] == 1 ? true : false);
+                                return btn_preview;
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        //console.log('data',data);
+                        $(row).data('rowData', data);
+                        
+                        if (data.activa == 0) {
+                            $(row).find('td:eq(3)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.activa == 1) {
+                            $(row).find('td:eq(3)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.activa == 2) {
+                            $(row).find('td:eq(3)').css('background-color', '#d9e757ff'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 1 || data.asistencia == 3) {
+                            $(row).find('td:eq(4)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 0) {
+                            $(row).find('td:eq(4)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 0) {
+                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 1){
+                            $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.codigo_color != null) {
+                            $(row).find('td:eq(1)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
+                        
+                    }
+                });
+            } else {
+                draw    ++;
+                table2.ajax.reload();
+            }
+        }
+
+        //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
+        function show_modal_diagnoses(){
+            let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
+
+            if (diagnosticos != null && Object.keys(diagnosticos).length > 0){
+                for(let i in diagnosticos){
+                    $(modal_clone).find('#diagnostico_'+diagnosticos[i]['id'])
+                        .addClass('row_selected')
+                        .find('.input_evidencia')
+                        .prop('disabled',false)
+                        .prop('checked',diagnosticos[i]['presento_evidencia'] == 1 ? true : false);
+                }
+            }
+
+            $(modal_clone).find('#nombre_paciente').text(nombre_completo);
+
+            $(modal_clone).on('click','.div_diagnostico',function(event){
+                // Evita que el evento se dispare si el clic fue en el input
+                if ($(event.target).is('input')) {
+                    return;
+                }
+                if ($(this).hasClass('row_selected')){
+                    $(this).removeClass('row_selected');
+                    $(this).find('input').prop('disabled',true).prop('checked',false)
+                } else {
+                    $(this).addClass('row_selected');
+                    $(this).find('input').prop('disabled',false);
+                }
+            });
+            
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                let obj_info    = [];
+
+                $(modal_clone).find('.div_diagnostico.row_selected').each(function(){
+                    let id_transtorno       = $(this).data('id');
+                    let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
+                    obj_info.push({
+                        id_transtorno,
+                        presento_evidencia
+                    })
+                });
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_diagnoses',
+                        obj_info    : obj_info,
+                        id_paciente : id_paciente,
+                        data_old    : diagnosticos
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $(modal_clone).modal('hide');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            })
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_focus(){
+            let modal_clone = $("#modal_focus").clone().removeAttr('id').show();
+
+            $(modal_clone).on('click','.div_subarea',function(){
+                if ($(this).hasClass('row_disabled')){
+                    return false;
+                }
+                if ($(this).hasClass('row_selected')){
+                    $(this).removeClass('row_selected');
+                } else {
+                    $(this).addClass('row_selected').data('idprofesional',id_profesional);
+                }
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+                
+                let obj_info    = [];
+
+                $(modal_clone).find('.row_selected').each(function(){
+                    if ($(this).data('idprofesional') == id_profesional){
+                        obj_info.push($(this).data('id'));
+                    }
+                });
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_subareas_focus',
+                        obj_info    : obj_info,
+                        nombre_completo : nombre_completo,
+                        id_paciente     : id_paciente
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $(modal_clone).modal('hide');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            //  SE RECORREO EL ARRAY PARA MARCAR LOS YA ASIGNADOS
+            $(modal_clone).find('.div_subarea').each(function(){
+                if (typeof (arr_subarea_paciente[$(this).data('id')]) != "undefined"){
+                    $(this).addClass('row_selected');
+                    $(this).data('idprofesional',arr_subarea_paciente[$(this).data('id')]);
+                    var $collapse = $(this).closest('.collapse');
+                    if ($collapse.length) {
+                        $collapse.collapse('show');
+                    }
+
+                    if (arr_subarea_paciente[$(this).data('id')] != id_profesional){
+                        $(this).addClass('row_disabled').prop('disabled',true).attr('title','Registro realizado por otro profesional');
+                    }
+                }
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_notas(data){
+            let modal_clone = $("#modal_preview_nota").clone().removeAttr('id').show();
+
+            if (id_profesional != data['id_profesional']){
+                $(modal_clone).find('#btn_edit').remove();
+            }
+
+            $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
+            $(modal_clone).find("#titulo").text(data['titulo']);
+            $(modal_clone).find("#nota_privada").text(data['nota_privada'] == 1 ? 'SI' : 'NO');
+            $(modal_clone).find("#nota_cita").text(
+                data['id_agenda_cita'] != null ? 'SI: '+data['fecha_cita']+', '+data['dia']+' de '+data['hora_inicio']+' a '+data['hora_termino'] : 'NO');
+            $(modal_clone).find(".div_show_nota").html(data['texto']);
+
+            $(modal_clone).on('click','#btn_edit',async function(){
+                if ($(".input_titulo_nota").val().trim() != '' || !$('#summernote').summernote('isEmpty')){
+                    const respuesta = await window.modalConfirm('Iniciaste la creación de una nota, al continuar se perderá el avance de dicha nota. ¿Desea continuar?');
+
+                    if (!respuesta){
+                        return false;
                     }
                 }
 
-                $(modal_clone).find('#nombre_paciente').text(nombre_completo);
+                $(".input_titulo_nota").val(data['titulo']);
+                $("#private-note").prop('checked',data['nota_privada'] == 1);
+                $('#summernote').summernote('code', '');
+                $('#summernote').summernote('code', data['texto']);
+                $(".btn_save_nota").hide();
+                $(".btn_edit_nota").data('idnota',data['id']).show();
+                $(".span_nota_cita").hide();
 
-                $(modal_clone).on('click','.div_diagnostico',function(event){
-                    // Evita que el evento se dispare si el clic fue en el input
-                    if ($(event.target).is('input')) {
-                        return;
-                    }
-                    if ($(this).hasClass('row_selected')){
-                        $(this).removeClass('row_selected');
-                        $(this).find('input').prop('disabled',true).prop('checked',false)
-                    } else {
-                        $(this).addClass('row_selected');
-                        $(this).find('input').prop('disabled',false);
-                    }
-                });
-                
-                $(modal_clone).on('click','#btnSave',function(){
-                    let btn         = $(this);
-                    $(btn).prop('disabled',true);
+                $(modal_clone).modal('hide');
+            });
 
-                    let obj_info    = [];
+            $(modal_clone).on('click','#btn_delete', async function(){
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
 
-                    $(modal_clone).find('.div_diagnostico.row_selected').each(function(){
-                        let id_transtorno       = $(this).data('id');
-                        let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
-                        obj_info.push({
-                            id_transtorno,
-                            presento_evidencia
-                        })
-                    });
-
-                    console.log('obj_info',obj_info);
-
-                    $.ajax({
-                        url     : url_update,
-                        method  : 'post',
-                        data    : {
-                            accion      : 'save_diagnoses',
-                            obj_info    : obj_info,
-                            id_paciente : id_paciente,
-                            data_old    : diagnosticos
-                        },
-                        success : function(data){
-                            showAlert('success','Captura exitosa!');
-                            $(modal_clone).modal('hide');
-                            setTimeout(function(){
-                                window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
-                            },2000);
-                        },
-                        error   : function(error){
-                            actionJsonError(error,btn);
-                        }
-                    });
-                })
-
-                $(modal_clone).modal('show');
-            }
-
-            function show_modal_focus(){
-                let modal_clone = $("#modal_focus").clone().removeAttr('id').show();
-
-                $(modal_clone).on('click','.div_subarea',function(){
-                    if ($(this).hasClass('row_disabled')){
-                        return false;
-                    }
-                    if ($(this).hasClass('row_selected')){
-                        $(this).removeClass('row_selected');
-                    } else {
-                        $(this).addClass('row_selected').data('idprofesional',id_profesional);
-                    }
-                });
-
-                $(modal_clone).on('click','#btnSave',function(){
-                    let btn         = $(this);
-                    $(btn).prop('disabled',true);
-                    
-                    let obj_info    = [];
-
-                    $(modal_clone).find('.row_selected').each(function(){
-                        if ($(this).data('idprofesional') == id_profesional){
-                            obj_info.push($(this).data('id'));
-                        }
-                    });
-
+                if (respuesta){
                     $.ajax({
                         url     : url_digital,
                         method  : 'post',
                         data    : {
-                            accion      : 'save_subareas_focus',
-                            obj_info    : obj_info,
-                            nombre_completo : nombre_completo,
-                            id_paciente     : id_paciente
+                            accion  : 'delete_note',
+                            id_nota : data['id'],
+                            titulo  : data['titulo'],
+                            fecha_creacion  : data['fecha_creacion'],
+                            nombre_completo : nombre_completo
                         },
                         success : function(data){
-                            showAlert('success','Captura exitosa!');
+                            showAlert('success','Borrado exitoso!');
                             $(modal_clone).modal('hide');
-                            setTimeout(function(){
-                                window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
-                            },2000);
+                            cargarTabla();
                         },
                         error   : function(error){
-                            actionJsonError(error,btn);
+                            showAlert('danger',error.responseText);
                         }
                     })
-                });
-
-                //  SE RECORREO EL ARRAY PARA MARCAR LOS YA ASIGNADOS
-                $(modal_clone).find('.div_subarea').each(function(){
-                    if (typeof (arr_subarea_paciente[$(this).data('id')]) != "undefined"){
-                        $(this).addClass('row_selected');
-                        $(this).data('idprofesional',arr_subarea_paciente[$(this).data('id')]);
-                        var $collapse = $(this).closest('.collapse');
-                        if ($collapse.length) {
-                            $collapse.collapse('show');
-                        }
-
-                        if (arr_subarea_paciente[$(this).data('id')] != id_profesional){
-                            $(this).addClass('row_disabled').prop('disabled',true).attr('title','Registro realizado por otro profesional');
-                        }
-                    }
-                });
-
-                $(modal_clone).modal('show');
-            }
-
-            function show_modal_notas(data){
-                let modal_clone = $("#modal_preview_nota").clone().removeAttr('id').show();
-
-                if (id_profesional != data['id_profesional']){
-                    $(modal_clone).find('#btn_edit').remove();
                 }
+            });
 
-                $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
-                $(modal_clone).find("#titulo").text(data['titulo']);
-                $(modal_clone).find("#nota_privada").text(data['nota_privada'] == 1 ? 'SI' : 'NO');
-                $(modal_clone).find("#nota_cita").text(
-                    data['id_agenda_cita'] != null ? 'SI: '+data['fecha_cita']+', '+data['dia']+' de '+data['hora_inicio']+' a '+data['hora_termino'] : 'NO');
-                $(modal_clone).find(".div_show_nota").html(data['texto']);
-
-                $(modal_clone).on('click','#btn_edit',async function(){
-                    if ($(".input_titulo_nota").val().trim() != '' || !$('#summernote').summernote('isEmpty')){
-                        const respuesta = await window.modalConfirm('Iniciaste la creación de una nota, al continuar se perderá el avance de dicha nota. ¿Desea continuar?');
-
-                        if (!respuesta){
-                            return false;
-                        }
-                    }
-
-                    $(".input_titulo_nota").val(data['titulo']);
-                    $("#private-note").prop('checked',data['nota_privada'] == 1);
-                    $('#summernote').summernote('code', '');
-                    $('#summernote').summernote('code', data['texto']);
-                    $(".btn_save_nota").hide();
-                    $(".btn_edit_nota").data('idnota',data['id']).show();
-                    $(".span_nota_cita").hide();
-
-                    $(modal_clone).modal('hide');
-                });
-
-                $(modal_clone).on('click','#btn_delete', async function(){
-                    const respuesta = await window.modalConfirm(translations['confirm_delete']);
-
-                    if (respuesta){
-                        $.ajax({
-                            url     : url_digital,
-                            method  : 'post',
-                            data    : {
-                                accion  : 'delete_note',
-                                id_nota : data['id'],
-                                titulo  : data['titulo'],
-                                fecha_creacion  : data['fecha_creacion'],
-                                nombre_completo : nombre_completo
-                            },
-                            success : function(data){
-                                showAlert('success','Borrado exitoso!');
-                                $(modal_clone).modal('hide');
-                                cargarTabla();
-                            },
-                            error   : function(error){
-                                showAlert('danger',error.responseText);
-                            }
-                        })
-                    }
-                });
-
-                $(modal_clone).modal('show');
-            }
-            
-        });
+            $(modal_clone).modal('show');
+        }
     })();
 </script>

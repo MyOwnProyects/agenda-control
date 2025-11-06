@@ -217,7 +217,7 @@ class PacientesController extends BaseController
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar la información del paciente: '.$_POST['data_old']['clave'],$_POST);
 
-                $response->setJsonContent('Edición exitosa');
+                $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
@@ -601,6 +601,46 @@ class PacientesController extends BaseController
         if($this->request->isAjax()){
             $accion = $this->request->getPost('accion', 'string');
             $result = array();
+
+            if($accion == 'get_rows'){
+
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 0,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+
+                $response = new Response();
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             if($accion == 'get_notes'){
 
                 $arr_return = array(
