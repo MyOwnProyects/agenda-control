@@ -1031,6 +1031,7 @@ function cambiarFormatoFecha($fecha) {
         const human_post_max    = '<?php echo $human_post_max; ?>';
         let diagnosticos        = '<?php echo $diagnosticos ?>';
         diagnosticos            = JSON.parse(diagnosticos);
+        let clinicalData        = '<?php echo $clinicalData; ?>';
 
         let arr_subarea_paciente    = '<?php echo json_encode($arr_subarea_paciente); ?>';
         arr_subarea_paciente        = JSON.parse(arr_subarea_paciente);
@@ -1792,6 +1793,32 @@ function cambiarFormatoFecha($fecha) {
                 show_info_cita(data);
             });
 
+            //  EVENTO PARA VISUALZAR LA INFORMACION DE LA CITA
+            $("#table_results_citas").on('click','.btn_clinical_data',function(){
+                // Obtener los datos almacenados en la fila
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+                let id_agenda_cita  = $(this).data('id');
+                console.log('id_agenda_cita',id_agenda_cita);
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'get_historico',
+                        get_historico   : true,
+                        id_agenda_cita  : id_agenda_cita
+                    },
+                    success : function(data){
+                        console.log('data',data);
+                        $(btn).prop('disabled',false);
+                    },
+                    error   : function(error){
+                        console.log('error',error);
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
             //  ------------------- DOCUMENTOS  -----------------------------   //
 
             $("#input_filtro_archivos").on('keyup',function(){
@@ -2221,7 +2248,13 @@ function cambiarFormatoFecha($fecha) {
                                     '<i class="bi bi-search"></i> '+
                                 '</button>';
 
-                                return btn_preview;
+                                let btn_clinical_data   = clinicalData ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_clinical_data" data-id="'+data['id_agenda_cita']+'" title="Datos clinicos de cita">' +
+                                    '<i class="bi bi-activity"></i> '+
+                                '</button>' 
+                                : '';
+
+                                return btn_preview + btn_clinical_data;
                             }
                         }
                     ],

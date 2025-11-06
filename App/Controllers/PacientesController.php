@@ -908,6 +908,22 @@ class PacientesController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'get_historico'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_receta'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
 
         //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
@@ -963,6 +979,7 @@ class PacientesController extends BaseController
         $this->view->update                 = FuncionesGlobales::HasAccess("Pacientes","update");
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
         $this->view->download               = FuncionesGlobales::HasAccess("Menu","download");
+        $this->view->clinicalData           = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
     }
 
 
