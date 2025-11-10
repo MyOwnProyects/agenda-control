@@ -21,7 +21,17 @@ class MenuController extends BaseController
     }
 
     public function IndexAction(){
-        
+
+        $route          = $this->url_api.$this->rutas['dashboard_menu']['show'];
+        $data_dashboard = FuncionesGlobales::RequestApi('GET',$route);
+
+        $this->view->json_data_citas        = json_encode($data_dashboard['citas']);
+        $this->view->fecha_actual           = $data_dashboard['fecha_actual'];
+        $this->view->hora_bd                = $data_dashboard['hora_bd'];
+        $this->view->fecha_actual_label     = $data_dashboard['fecha_actual_label'];
+        $this->view->fecha_inicio_semana    = $data_dashboard['fecha_inicio_semana'];
+        $this->view->fecha_termino_semana   = $data_dashboard['fecha_termino_semana'];
+        $this->view->nombre_usuario         = $this->session->get('nombre');
     }
 
     public function route404Action(){

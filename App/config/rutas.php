@@ -94,6 +94,9 @@ return [
     'cttranstornos_neurodesarrollo' => array(
         'show'  => '/cttranstornos_neurodesarrollo/show'
     ),
+    'dashboard_menu'    => array(
+        'show'  => '/dashboard_menu/show',
+    ),
     'ctbitacora_acciones'   => array(
         'show'  => '/ctbitacora_acciones/show'
     )

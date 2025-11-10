@@ -1,320 +1,445 @@
+
 <style>
-	body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8f9fa;
-    }
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+  }
 
-    .sidebar {
-      width: 250px;
-      transition: all 0.3s;
-      background-color: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+  .sidebar {
+    width: 250px;
+    transition: all 0.3s;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
 
-    .sidebar.collapsed {
-      width: 80px;
-    }
+  .sidebar.collapsed {
+    width: 80px;
+  }
 
-    .sidebar .nav-link span.text {
-      transition: opacity 0.3s;
-    }
+  .sidebar .nav-link span.text {
+    transition: opacity 0.3s;
+  }
 
-    .sidebar.collapsed .nav-link span.text {
-      opacity: 0;
-      visibility: hidden;
-      width: 0;
-    }
+  .sidebar.collapsed .nav-link span.text {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+  }
 
-    .sidebar .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin-bottom: 5px;
-    }
+  .sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
 
-    .sidebar .nav-link.active {
-      background-color: #e7f1ff;
-      color: #0d6efd !important;
-    }
+  .sidebar .nav-link.active {
+    background-color: #e7f1ff;
+    color: #0d6efd !important;
+  }
 
-    .sidebar .material-symbols-outlined {
-      font-size: 24px;
-    }
+  .sidebar .material-symbols-outlined {
+    font-size: 24px;
+  }
 
-    .sidebar .brand {
-      font-weight: 700;
-      font-size: 1.25rem;
-    }
+  .sidebar .brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
 
-    .profile-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-      background-color: #e9ecef;
-    }
+  .profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-color: #e9ecef;
+  }
 
-    main {
-      transition: margin-left 0.3s;
-      min-height: 100vh;
-    }
+  main {
+    transition: margin-left 0.3s;
+    min-height: 100vh;
+  }
 
-    .collapsed + main {
-      margin-left: 80px !important;
-    }
+  .collapsed + main {
+    margin-left: 80px !important;
+  }
 
-    .sidebar-toggler {
-      border: none;
-      background: none;
-      color: #6c757d;
-      padding: 8px;
-      border-radius: 50%;
-      transition: background-color 0.2s;
-    }
+  .sidebar-toggler {
+    border: none;
+    background: none;
+    color: #6c757d;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
 
-    .sidebar-toggler:hover {
-      background-color: #e9ecef;
-    }
+  .sidebar-toggler:hover {
+    background-color: #e9ecef;
+  }
 
-    .card {
-      border: none;
-      border-radius: 12px;
-    }
+  .card {
+    border: none;
+    border-radius: 12px;
+  }
 
-    .card-header {
-      background-color: white;
-      border-bottom: 1px solid #e9ecef;
-      border-radius: 12px 12px 0 0 !important;
-    }
+  .card-header {
+    background-color: white;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 12px 12px 0 0 !important;
+  }
 
-    .stats-card {
-      transition: transform 0.2s;
-      height: 100%;
-    }
+  .stats-card {
+    transition: transform 0.2s;
+    height: 100%;
+  }
 
-    .stats-card:hover {
-      transform: translateY(-5px);
-    }
+  .stats-card:hover {
+    transform: translateY(-5px);
+  }
 
-    /* Altura fija para las tarjetas de estadísticas */
-    .fixed-height-card {
-      height: 150px;
-    }
+  /* Altura fija para las tarjetas de estadísticas */
+  .fixed-height-card {
+    height: 100px;
+  }
 
-    /* El contenedor de próximas citas puede crecer libremente */
-    .appointments-card {
-      height: auto;
-      min-height: 150px;
-    }
+  /* El contenedor de próximas citas puede crecer libremente */
+  .appointments-card {
+    height: auto;
+    min-height: 100px;
+  }
 
-    .appointment-item {
-      border-bottom: 1px solid #e9ecef;
-    }
-   
-    .chart-container {
-      position: relative;
-      height: 300px;
-      padding: 15px;
-    }
+  .appointment-item {
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 300px;
+    padding: 15px;
+  }
+
+  .hide {
+    display:none!important;
+  }
 </style>
+<div class="d-flex">
 
-  <div class="d-flex">
-
-    <!-- Main content -->
-    <main class="flex-grow-1 p-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="fw-bold">¡Buenos días, Dr. Smith!</h2>
-          <p class="text-muted">Aquí tienes un resumen de tu día.</p>
-        </div>
-        
+  <!-- Main content -->
+  <main class="flex-grow-1 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold">¡Buenos días, <?php echo $nombre_usuario; ?>!</h2>
+        <p class="text-muted">Aquí tienes un resumen del día.</p>
       </div>
-        <div class="row g-3 mb-4">
-            <!-- Columna izquierda: Stats + Gráfica -->
-            <div class="col-md-12">
-                <div class="d-flex justify-content-end gap-2">
-                    <button class="btn btn-outline-primary d-flex align-items-center">
-                        <i class="bi bi-search"></i>Ver Pacientes
-                    </button>
-                    <button class="btn btn-primary d-flex align-items-center">
-                        <i class="bi bi-plus-lg"></i>Programar Cita
-                    </button>
-                </div>
-            </div>
+      <div class="text-end">
+        <p class="text-muted mb-0 small"><?php echo $fecha_actual_label ?></p>
+        <p id="hora_actual" class="fw-bold mb-0"><?php echo $hora_bd ?></p>
+      </div>
+    </div>
+    
+    <div class="row g-3 mb-4">
+      <!-- Columna izquierda: Stats + Gráfica -->
+      <div class="col-md-12">
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-outline-primary d-flex align-items-center">
+            <i class="bi bi-search"></i>Ver Pacientes
+          </button>
+          <button class="btn btn-primary d-flex align-items-center">
+            <i class="bi bi-plus-lg"></i>Programar Cita
+          </button>
         </div>
+      </div>
+    </div>
 
-      <!-- Stats y Citas Próximas -->
-      <div class="row g-3 mb-4">
-        <!-- Columna izquierda: Stats + Gráfica -->
-        <div class="col-md-8">
-          <!-- Stats -->
-          <div class="row g-3 mb-3">
-            <div class="col-md-4">
-              <div class="card shadow-sm stats-card fixed-height-card">
-                <div class="card-body">
-                  <p class="text-muted mb-1">Próximas</p>
-                  <h3 class="fw-bold mb-0">12</h3>
-                  <small class="text-success">+5% desde ayer</small>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card shadow-sm stats-card fixed-height-card">
-                <div class="card-body">
-                  <p class="text-muted mb-1">Completadas</p>
-                  <h3 class="fw-bold mb-0">8</h3>
-                  <small class="text-danger">-2% desde ayer</small>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="card shadow-sm stats-card fixed-height-card">
-                <div class="card-body">
-                  <p class="text-muted mb-1">Canceladas</p>
-                  <h3 class="fw-bold mb-0">2</h3>
-                  <small class="text-success">+1% desde ayer</small>
-                </div>
+    <!-- Stats y Citas Próximas -->
+    <div class="row g-3 mb-4">
+      <!-- Columna izquierda: Stats + Gráfica -->
+      <div class="col-md-8">
+        <!-- Stats -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card shadow-sm stats-card fixed-height-card">
+              <div class="card-body">
+                <p class="text-muted mb-1">Pendientes Hoy</p>
+                <h3 id="citas_pendientes" class="fw-bold mb-1">12</h3>
+                <small id="pendientes_porcentaje" class="text-success">+5% desde ayer</small>
               </div>
             </div>
           </div>
-
-          <!-- Gráfica de Citas -->
-          <div class="row g-3">
-            <div class="col-12">
-              <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0">Citas de esta Semana</h5>
-                  <a href="#" class="text-primary text-decoration-none small">Ver Detalles</a>
-                </div>
-                <div class="card-body p-0">
-                  <div class="chart-container">
-                    <canvas id="appointmentsChart" height="100"></canvas>
-                  </div>
-                </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm stats-card fixed-height-card">
+              <div class="card-body">
+                <p class="text-muted mb-1">Completadas Hoy</p>
+                <h3 id="citas_completadas" class="fw-bold mb-1">8</h3>
+                <small id="completadas_porcentaje" class="text-success">-2% desde ayer</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm stats-card fixed-height-card">
+              <div class="card-body">
+                <p class="text-muted mb-1">Canceladas Hoy</p>
+                <h3 id="citas_canceladas" class="fw-bold mb-1">2</h3>
+                <small id="canceladas_porcentaje" class="text-danger">+1% desde ayer</small>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Columna derecha: Próximas Citas -->
-        <div class="col-md-4">
-          <div class="card shadow-sm appointments-card">
-            <div class="card-header d-flex justify-content-between align-items-center py-2">
-              <h6 class="mb-0">Próximas Citas</h6>
-              <a href="#" class="text-primary text-decoration-none small">Ver Todas</a>
-            </div>
-            <div class="card-body p-2">
-              <div class="appointment-item d-flex align-items-center py-2">
-                <div class="profile-img me-2" style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');"></div>
-                <div class="flex-fill">
-                  <p class="mb-0 fw-medium small">Jane Doe</p>
-                  <small class="text-muted" style="font-size: 0.75rem;">9:30 AM - Chequeo</small>
-                </div>
-                <button class="btn btn-sm btn-light p-1"><i class="bi bi-three-dots-vertical"></i></button>
+        <!-- Gráfica de Citas -->
+        <div class="row g-3 mt-3">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Citas de esta Semana</h5>
+                <a href="#" class="text-primary text-decoration-none small">Ver Detalles</a>
               </div>
-
-              <div class="appointment-item d-flex align-items-center py-2">
-                <div class="profile-img me-2" style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');"></div>
-                <div class="flex-fill">
-                  <p class="mb-0 fw-medium small">John Smith</p>
-                  <small class="text-muted" style="font-size: 0.75rem;">10:15 AM - Limpieza</small>
+              <div class="card-body p-3">
+                <div class="mb-2">
+                  <h2 id="citas_activas_totales" class="fw-bold mb-0"></h2>
+                  <small class="text-muted">Citas activas de la semana del <?php echo $fecha_inicio_semana.' al '.$fecha_termino_semana; ?></small>
                 </div>
-                <button class="btn btn-sm btn-light p-1"><i class="bi bi-three-dots-vertical"></i></button>
-              </div>
-
-              <div class="appointment-item d-flex align-items-center py-2">
-                <div class="profile-img me-2" style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');"></div>
-                <div class="flex-fill">
-                  <p class="mb-0 fw-medium small">Emily White</p>
-                  <small class="text-muted" style="font-size: 0.75rem;">11:00 AM - Seguimiento</small>
+                <div class="chart-container">
+                  <canvas id="div_chart" height="100"></canvas>
                 </div>
-                <button class="btn btn-sm btn-light p-1"><i class="bi bi-three-dots-vertical"></i></button>
-              </div>
-
-              <div class="appointment-item d-flex align-items-center py-2">
-                <div class="profile-img me-2" style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');"></div>
-                <div class="flex-fill">
-                  <p class="mb-0 fw-medium small">Michael Brown</p>
-                  <small class="text-muted" style="font-size: 0.75rem;">12:00 PM - Consulta</small>
-                </div>
-                <button class="btn btn-sm btn-light p-1"><i class="bi bi-three-dots-vertical"></i></button>
-              </div>
-
-              <div class="appointment-item d-flex align-items-center py-2" style="border-bottom: none;">
-                <div class="profile-img me-2" style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');"></div>
-                <div class="flex-fill">
-                  <p class="mb-0 fw-medium small">Sarah Johnson</p>
-                  <small class="text-muted" style="font-size: 0.75rem;">1:30 PM - Revisión</small>
-                </div>
-                <button class="btn btn-sm btn-light p-1"><i class="bi bi-three-dots-vertical"></i></button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </main>
+
+      <!-- Columna derecha: Próximas Citas -->
+      <div class="col-md-4">
+        <div class="card shadow-sm appointments-card">
+          <div class="card-header d-flex justify-content-between align-items-center py-2">
+            <h6 class="mb-0">Próximas Citas</h6>
+            <a href="#" class="text-primary text-decoration-none small">Ver Todas</a>
+          </div>
+          <div id="div_header_citas_diarias" class="card-body p-2">
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="template_cita_diaria" class="appointment-item d-flex align-items-center py-2 hide" >
+  <div class="profile-img me-2" style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80');"></div>
+  <div class="flex-fill">
+    <p class="mb-0 fw-medium small nombre_completo"></p>
+    <small class="text-muted hora_servicios" style="font-size: 0.75rem;"></small>
   </div>
+  <button class="btn btn-sm btn-light p-1 btn_opciones"><i class="bi bi-three-dots-vertical"></i></button>
+</div>
 
-  <script>
+<div id="template_sin_citas" class="text-center py-4 hide">
+  <i class="bi bi-inbox" style="font-size: 2.5rem; color: #e9ecef;"></i>
+  <p class="text-muted mt-3 mb-0">No hay más citas pendientes</p>
+</div>
 
-    // Chart.js implementation
-    const ctx = document.getElementById('appointmentsChart');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-        datasets: [{
-          label: 'Citas',
-          data: [60, 50, 30, 70, 80, 60, 40],
-          backgroundColor: [
-            '#cfe2ff', '#cfe2ff', '#cfe2ff', '#0d6efd', '#cfe2ff', '#cfe2ff', '#cfe2ff'
-          ],
-          borderRadius: 6,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            titleColor: '#fff',
-            bodyColor: '#fff',
-            borderColor: '#0d6efd',
-            borderWidth: 1,
-            cornerRadius: 8,
-            displayColors: false,
-            callbacks: {
-              label: function(context) {
-                return `Citas: ${context.parsed.y}`;
-              }
+<script>
+
+  var module_dashboard  = (function(){
+
+    //  RUTAS
+    const controller    = '/Menu';
+    const url_index     = controller+"/index";
+
+    //  OBJ DE DIAS PARA PINTAR GRAFICA
+    let obj_data_dias = {
+      'Lun' : 0,
+      'Mar' : 0,
+      'Mie' : 0,
+      'Jue' : 0,
+      'Vie' : 0,
+      'Sab' : 0,
+      'Dom' : 0,
+    }
+
+    let obj_dias  = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+
+    //  PARAMETROS PARA OBTENER FECHA Y HORA DEL SERVER
+    let fecha_actual  = '<?php echo $fecha_actual; ?>';
+    let hora_actual   = '<?php echo $hora_bd; ?>';
+    console.log('hora_actual',hora_actual);
+
+    //  OBJ CARGA INICIAL
+    let data_dashboard  = '<?php echo $json_data_citas; ?>';
+    data_dashboard      =  JSON.parse(data_dashboard);
+
+    $(document).ready(function(){
+      console.log('data_dashboard',data_dashboard);
+      //  SE INICIA LA HORA
+      setInterval(function() {
+        const ahora = new Date();
+
+        // Formatear con ceros a la izquierda
+        const horas     = String(ahora.getHours()).padStart(2, '0');
+        const minutos   = String(ahora.getMinutes()).padStart(2, '0');
+        const segundos  = String(ahora.getSeconds()).padStart(2, '0');
+
+        const hora_actual = `${horas}:${minutos}:${segundos}`;
+
+        // Mostrar en el elemento con id "hora_actual"
+        $("#hora_actual").text(hora_actual);
+
+      }, 1000);
+
+      let citas_canceladas  = 0;
+      let citas_pendientes  = 0;
+      let citas_completadas = 0;
+      let citas_dia         = 0;
+      let citas_totales     = 0;
+
+      data_dashboard.forEach(item => {
+        //  PARA SABER SI LA CITA ES DE HOY
+        if (item.fecha_cita == fecha_actual){
+          citas_dia ++;
+          //  CITA ACTIVA
+          if (item.activa == 1){
+            // hora_actual es tipo 'HH:mm:ss'
+            const hora_actual_moment = moment(hora_actual, 'HH:mm:ss');
+            const hora_inicio_moment = moment(item.hora_inicio, 'HH:mm:ss');
+            
+            //  CITAS PENDIENTES, SE AUMENTA EL COUNT Y SE GENERA EL TEMPLATE
+            if (hora_actual_moment.isBefore(hora_inicio_moment)){
+              citas_pendientes++;
+
+              let row_clone = $("#template_cita_diaria").clone().reveClass('hide').show();
+
+              $(row_clone).find('.nombre_completo').text(item.nombre_completo);
+              $(row_clone).find('.hora_servicios').text(item.hora_inicio);
+
+              $("#div_header_citas_diarias").append(row_clone);
+            }
+            if (hora_actual_moment.isAfter(hora_inicio_moment)){
+              citas_completadas++;
             }
           }
-        },
-        scales: {
-          y: {
-            display: false,
-            beginAtZero: true
-          },
-          x: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              color: '#6c757d',
-              font: {
-                size: 12,
-                family: 'Inter'
-              }
-            }
+          if (item.activa == 0){
+            citas_canceladas++;
           }
         }
+
+        if (item.activa == 1){
+          citas_totales ++;
+
+          obj_data_dias[obj_dias[item.dia - 1]] ++;
+        }
+      });
+
+      console.log('obj_data_dias',obj_data_dias);
+
+      // Calcular porcentajes
+      const porcentaje_completadas  = citas_dia > 0 ? Math.round((citas_completadas / citas_dia) * 100) : 0;
+      const porcentaje_canceladas   = citas_dia > 0 ? Math.round((citas_canceladas / citas_dia) * 100) : 0;
+
+      // Texto de progreso para pendientes
+      const texto_pendientes = citas_pendientes === 0 
+        ? "¡Todo listo! ✓" 
+        : `${citas_completadas} de ${citas_dia} atendidas`;
+
+      //  SI NO HAY CITAS PENDIENTES
+      if (citas_pendientes == 0){
+        let row_vacio = $("#template_sin_citas").clone().removeAttr('id').removeClass('hide');
+        $("#div_header_citas_diarias").html('').append(row_vacio);
       }
+
+      //  MOSTRAR COUNT
+      $("#citas_canceladas").text(citas_canceladas);
+      $("#citas_pendientes").text(citas_pendientes);
+      $("#citas_completadas").text(citas_completadas);
+      $("#citas_activas_totales").text(citas_totales);
+      
+      // MOSTRAR PORCENTAJES Y PROGRESO
+      $("#pendientes_porcentaje").text(texto_pendientes);
+      $("#completadas_porcentaje").text(`${porcentaje_completadas}% del día`);
+      $("#canceladas_porcentaje").text(`${porcentaje_canceladas}% del día`);
+
+      // Opcional: Cambiar color cuando todo está listo
+      if (citas_pendientes === 0 && citas_dia > 0) {
+        $("#pendientes_porcentaje").removeClass("text-primary").addClass("text-success");
+      } else {
+        $("#pendientes_porcentaje").removeClass("text-success").addClass("text-primary");
+      }
+
+      // Manejar caso de sin citas hoy
+      if (citas_dia === 0) {
+        $("#porcentaje_proximas").text("Sin citas hoy").removeClass("text-primary text-success").addClass("text-muted");
+        $("#completadas_porcentaje").text("Sin citas hoy").removeClass("text-success").addClass("text-muted");
+        $("#canceladas_porcentaje").text("Sin citas hoy").removeClass("text-danger").addClass("text-muted");
+      }
+
+      show_chart();
     });
-  </script>
+
+    function show_chart(){
+      // Chart.js implementation
+      const ctx = $("#div_chart");
+
+      new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: obj_dias,
+              datasets: [
+                  {
+                      label: 'Citas',
+                      data: obj_data_dias,
+                      backgroundColor: [
+                          '#cfe2ff', '#cfe2ff', '#cfe2ff', '#0d6efd',
+                          '#cfe2ff', '#cfe2ff', '#cfe2ff'
+                      ],
+                      borderRadius: 6
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: {
+                      display: false
+                  },
+                  tooltip: {
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      titleColor: '#fff',
+                      bodyColor: '#fff',
+                      borderColor: '#0d6efd',
+                      borderWidth: 1,
+                      cornerRadius: 8,
+                      displayColors: false,
+                      callbacks: {
+                          label: function (context) {
+                              return `Citas: ${context.parsed.y}`;
+                          }
+                      }
+                  }
+              },
+              scales: {
+                  y: {
+                      display: false,
+                      beginAtZero: true
+                  },
+                  x: {
+                      grid: {
+                          display: false
+                      },
+                      ticks: {
+                          color: '#6c757d',
+                          font: {
+                              size: 12,
+                              family: 'Inter'
+                          }
+                      }
+                  }
+              }
+          }
+      });
+    }
+    
+  })();
+</script>
