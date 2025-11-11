@@ -170,6 +170,9 @@
                       <i class="bi bi-plus-lg me-1"></i>Programar Cita
                     </a>
                     <?php endif; ?>
+                    <button id="actualizar_registros" class="btn btn-primary d-flex align-items-center">
+                      <i class="bi bi-arrow-clockwise"></i> Actualizar
+                    </button>
                 </div>
             </div>
         </div>
@@ -298,8 +301,11 @@
     var module_dashboard = (function(){
 
         //  RUTAS
-        const controller = '/Menu';
-        const url_index = controller+"/index";
+        const controller  = '/Menu';
+        const url_index   = controller+"/index";
+
+        //  CHART JS
+        let chart_js  = null;
 
         //  OBJ DE DIAS PARA PINTAR GRAFICA
         let obj_data_dias = {
@@ -312,11 +318,22 @@
             'Dom' : 0,
         }
 
-        let obj_dias = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+        const dia_semana  = '<?php echo $dia_semana; ?>';
+
+        let obj_dias    = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+        let obj_colores = [
+                                dia_semana == 'lunes' ? '#0d6efd' : '#cfe2ff', 
+                                dia_semana == 'martes' ? '#0d6efd' : '#cfe2ff', 
+                                dia_semana == 'miércoles' ? '#0d6efd' : '#cfe2ff', 
+                                dia_semana == 'jueves' ? '#0d6efd' : '#cfe2ff', 
+                                dia_semana == 'viernes' ? '#0d6efd' : '#cfe2ff', 
+                                dia_semana == 'sábado' ? '#0d6efd' : '#cfe2ff', 
+                                dia_semana == 'domingo' ? '#0d6efd' : '#cfe2ff', 
+                            ];
 
         //  PARAMETROS PARA OBTENER FECHA Y HORA DEL SERVER
-        let fecha_actual = '<?php echo $fecha_actual; ?>';
-        let hora_actual = '<?php echo $hora_bd; ?>';
+        let fecha_actual  = '<?php echo $fecha_actual; ?>';
+        let hora_actual   = '<?php echo $hora_bd; ?>';
         console.log('hora_actual',hora_actual);
 
         //  OBJ CARGA INICIAL
@@ -327,23 +344,47 @@
             console.log('data_dashboard',data_dashboard);
             
             //  SE INICIA LA HORA
+            let hora = moment(hora_actual, 'HH:mm:ss');
             setInterval(function() {
-                const ahora = new Date();
+                hora.add(1, 'second');
+                $("#hora_actual").text(hora.format('HH:mm:ss'));
 
-                // Formatear con ceros a la izquierda
-                const horas = String(ahora.getHours()).padStart(2, '0');
-                const minutos = String(ahora.getMinutes()).padStart(2, '0');
-                const segundos = String(ahora.getSeconds()).padStart(2, '0');
+                // Obtener los minutos actuales
+                const minutos = hora.minutes();
 
-                const hora_actual = `${horas}:${minutos}:${segundos}`;
-
-                // Mostrar en el elemento con id "hora_actual"
-                $("#hora_actual").text(hora_actual);
+                // Verificar si es múltiplo de 5 y los segundos son 0
+                if (minutos % 5 === 0 && hora.seconds() === 0) {
+                    $("#actualizar_registros").trigger('click');
+                }
 
             }, 1000);
 
+
             $(document).on('click',".dropdown-item",function(){
+              //console.log('url',$(this).data('location') +'?id_agenda_cita='+$(this).data('idagendacita'));
               window.location.href = $(this).data('location') +'?id_agenda_cita='+$(this).data('idagendacita');
+            });
+
+            $("#actualizar_registros").on('click',function(){
+              let btn = $(this);
+              $(btn).prop('disabled',true);
+              $.ajax({
+                url     : url_index,
+                method  : 'post',
+                data    : {
+                  accion  : 'actualizar_datos'
+                },
+                success   : function(data){
+                  console.log('new data',data_dashboard);
+                  data_dashboard  = [];
+                  data_dashboard  = data;
+                  show_chart();
+                  $(btn).prop('disabled',false);
+                },
+                error   : function(error){
+                  actionJsonError(error,btn);
+                }
+              })
             });
 
             show_chart();
@@ -356,6 +397,8 @@
             let citas_dia = 0;
             let citas_totales = 0;
 
+            $("#div_header_citas_diarias").html('');
+
             data_dashboard.forEach(item => {
                 //  PARA SABER SI LA CITA ES DE HOY
                 if (item.fecha_cita == fecha_actual){
@@ -363,11 +406,12 @@
                     //  CITA ACTIVA
                     if (item.activa == 1){
                         // hora_actual es tipo 'HH:mm:ss'
-                        const hora_actual_moment = moment(hora_actual, 'HH:mm:ss');
-                        const hora_inicio_moment = moment(item.hora_inicio, 'HH:mm:ss');
+                        const hora_actual         = $("#hora_actual").text();
+                        const hora_actual_moment  = moment(hora_actual, 'HH:mm:ss');
+                        const hora_inicio_moment  = moment(item.hora_inicio, 'HH:mm:ss');
                         
                         //  CITAS PENDIENTES, SE AUMENTA EL COUNT Y SE GENERA EL TEMPLATE
-                        if (!hora_actual_moment.isBefore(hora_inicio_moment)){
+                        if (hora_actual_moment.isBefore(hora_inicio_moment) || hora_actual_moment.isSame(hora_inicio_moment)){
                             citas_pendientes++;
 
                             let row_clone = $("#template_cita_diaria").clone().removeClass('hide').show();
@@ -387,7 +431,7 @@
                             }
 
                             $(row_clone).find('.nombre_completo').text(item.nombre_completo);
-                            $(row_clone).find('.hora_servicios').text(item.hora_inicio + ' hrs. -'+label_servicio);
+                            $(row_clone).find('.hora_servicios').text(item.hora_inicio + ' hrs. - '+label_servicio);
 
                             $("#div_header_citas_diarias").append(row_clone);
                         }
@@ -407,11 +451,9 @@
                 }
             });
 
-            console.log('obj_data_dias',obj_data_dias);
-
             // Calcular porcentajes
-            const porcentaje_completadas = citas_dia > 0 ? Math.round((citas_completadas / citas_dia) * 100) : 0;
-            const porcentaje_canceladas = citas_dia > 0 ? Math.round((citas_canceladas / citas_dia) * 100) : 0;
+            const porcentaje_completadas  = citas_dia > 0 ? Math.round((citas_completadas / citas_dia) * 100) : 0;
+            const porcentaje_canceladas   = citas_dia > 0 ? Math.round((citas_canceladas / citas_dia) * 100) : 0;
 
             // Texto de progreso para pendientes
             const texto_pendientes = citas_pendientes === 0 
@@ -453,7 +495,12 @@
             // Chart.js implementation
             const ctx = $("#div_chart");
 
-            new Chart(ctx, {
+            // Si ya existe una gráfica, destruirla antes de crear otra
+            if (chart_js) {
+                chart_js.destroy();
+            }
+
+            chart_js  = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: obj_dias,
@@ -461,10 +508,7 @@
                         {
                             label: 'Citas',
                             data: obj_data_dias,
-                            backgroundColor: [
-                                '#cfe2ff', '#cfe2ff', '#cfe2ff', '#0d6efd',
-                                '#cfe2ff', '#cfe2ff', '#cfe2ff'
-                            ],
+                            backgroundColor: obj_colores,
                             borderRadius: 6
                         }
                     ]

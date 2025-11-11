@@ -139,8 +139,18 @@ function hideBlockCargando(){
     $("#div_cargando").fadeOut();
 }
 
-// Mostrar el spinner cuando comienza cualquier petición AJAX
-$(document).ajaxStart(function () {
+/**
+ * Mostrar el spinner solo si la URL NO contiene "Menu"
+ */
+$(document).ajaxSend(function (event, jqXHR, settings) {
+    const url = settings.url;
+    const data = settings.data || "";
+
+    // Si la URL contiene "Menu" o la data contiene "__fromSelect2"
+    if (url.includes("Menu") || data.includes("form_select2_pacientes")) {
+        return; // 🚫 No mostrar cargando
+    }
+
     showBlockCargando();
 });
 
