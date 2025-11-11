@@ -32,6 +32,10 @@ class MenuController extends BaseController
         $this->view->fecha_inicio_semana    = $data_dashboard['fecha_inicio_semana'];
         $this->view->fecha_termino_semana   = $data_dashboard['fecha_termino_semana'];
         $this->view->nombre_usuario         = $this->session->get('nombre');
+        $this->view->pacientes              = FuncionesGlobales::HasAccess("Pacientes","index");
+        $this->view->expediente_digital     = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
+        $this->view->expediente_clinico     = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
+        $this->view->agenda                 = FuncionesGlobales::HasAccess("Agenda","index");
     }
 
     public function route404Action(){
