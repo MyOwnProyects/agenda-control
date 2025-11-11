@@ -342,8 +342,8 @@
 
             }, 1000);
 
-            $(".dropdown-item").on('click',function(){
-              window.location.href = $(this).data('location') +'?'+$(this).data('idagendacita');
+            $(document).on('click',".dropdown-item",function(){
+              window.location.href = $(this).data('location') +'?id_agenda_cita='+$(this).data('idagendacita');
             });
 
             show_chart();
