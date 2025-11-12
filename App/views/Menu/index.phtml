@@ -427,7 +427,7 @@
                         if (hora_actual_moment.isBefore(hora_inicio_moment)){
                             citas_pendientes++;
 
-                            let row_clone = $("#template_cita_diaria").clone().removeClass('hide').show();
+                            let row_clone = $("#template_cita_diaria").clone().removeAttr('id').removeClass('hide').show();
 
                             $(row_clone).find('.dropdown-item').data('idagendacita',item.id_agenda_cita);
 
@@ -455,7 +455,7 @@
                         if (hora_actual_moment.isBetween(hora_inicio_moment, hora_termino_moment, undefined, '[)')){
                             citas_en_curso  ++;
 
-                            let row_clone = $("#template_cita_diaria").clone().removeClass('hide').show();
+                            let row_clone = $("#template_cita_diaria").clone().removeAttr('id').removeClass('hide').show();
 
                             $(row_clone).find('.dropdown-item').data('idagendacita',item.id_agenda_cita);
 
