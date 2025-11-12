@@ -85,7 +85,7 @@
     }
 
     .card-header {
-        background-color: white;
+        /* background-color: white; */
         border-bottom: 1px solid #e9ecef;
         border-radius: 12px 12px 0 0 !important;
     }
@@ -217,7 +217,7 @@
                 <div class="row g-3 mt-3">
                     <div class="col-12">
                         <div class="card shadow-sm">
-                            <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: white;">
                                 <h5 class="mb-0">Citas de esta Semana</h5>
                                 <!-- <a href="#" class="text-primary text-decoration-none small">Ver Detalles</a> -->
                             </div>
@@ -237,8 +237,16 @@
 
             <!-- Columna derecha: Próximas Citas -->
             <div class="col-md-4">
-                <div class="card shadow-sm appointments-card">
+                <div class="card shadow-sm appointments-card" style="background-color: #ffb30063!important;">
                     <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <h6 class="mb-0">Citas en curso</h6>
+                    </div>
+                    <div id="div_header_citas_en_curso" class="card-body p-2">
+                        
+                    </div>
+                </div>
+                <div class="card shadow-sm appointments-card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2" style="background-color: white;">
                         <h6 class="mb-0">Próximas Citas</h6>
                         <?php if ($agenda): ?>
                         <a href="/Agenda" class="text-primary text-decoration-none small">Ir a agenda</a>
@@ -254,9 +262,11 @@
 </div>
 
 <div id="template_cita_diaria" class="appointment-item d-flex align-items-center py-2 hide">
-  <div class="profile-img me-2"
-    style="width: 32px; height: 32px; background-image:url('https://images.unsplash.com/photo-1494790108755-2616b612b786?...');">
-  </div>
+    <div class="profile-img me-2 d-flex align-items-center justify-content-center bg-light text-secondary border rounded-circle"
+    style="width: 32px; height: 32px; background-size: cover; background-position: center;">
+        <i class="bi bi-person-fill"></i>
+    </div>
+
 
   <div class="flex-fill">
     <p class="mb-0 fw-medium small nombre_completo"></p>
@@ -294,7 +304,7 @@
 
 <div id="template_sin_citas" class="text-center py-4 hide">
     <i class="bi bi-inbox" style="font-size: 2.5rem; color: #e9ecef;"></i>
-    <p class="text-muted mt-3 mb-0">No hay más citas pendientes</p>
+    <p class="text-muted mt-3 mb-0 mensaje">No hay más citas pendientes</p>
 </div>
 
 <script>
@@ -391,12 +401,14 @@
         });
 
         function show_chart(){
-            let citas_canceladas = 0;
-            let citas_pendientes = 0;
-            let citas_completadas = 0;
-            let citas_dia = 0;
-            let citas_totales = 0;
+            let citas_canceladas    = 0;
+            let citas_pendientes    = 0;
+            let citas_completadas   = 0;
+            let citas_en_curso      = 0;
+            let citas_dia           = 0;
+            let citas_totales       = 0;
 
+            $("#div_header_citas_en_curso").html('');
             $("#div_header_citas_diarias").html('');
 
             data_dashboard.forEach(item => {
@@ -409,9 +421,10 @@
                         const hora_actual         = $("#hora_actual").text();
                         const hora_actual_moment  = moment(hora_actual, 'HH:mm:ss');
                         const hora_inicio_moment  = moment(item.hora_inicio, 'HH:mm:ss');
+                        const hora_termino_moment   = moment(item.hora_termino, 'HH:mm:ss');
                         
                         //  CITAS PENDIENTES, SE AUMENTA EL COUNT Y SE GENERA EL TEMPLATE
-                        if (hora_actual_moment.isBefore(hora_inicio_moment) || hora_actual_moment.isSame(hora_inicio_moment)){
+                        if (hora_actual_moment.isBefore(hora_inicio_moment)){
                             citas_pendientes++;
 
                             let row_clone = $("#template_cita_diaria").clone().removeClass('hide').show();
@@ -435,7 +448,39 @@
 
                             $("#div_header_citas_diarias").append(row_clone);
                         }
-                        if (hora_actual_moment.isAfter(hora_inicio_moment)){
+
+                        //  SI LA HORA INICIO ESTA DENTRO DEL RANGO ES UNA CITA ACTIVA
+                        //  [) INDICA QUE SE CONSIDERA DENTRO DEL RANGO SI HORA_ACTUAL ES IGUAL  O MAYOR QUE HORA_INICIO
+                        //  Y MENOR QUE HORA TERMINO
+                        if (hora_actual_moment.isBetween(hora_inicio_moment, hora_termino_moment, undefined, '[)')){
+                            citas_en_curso  ++;
+
+                            let row_clone = $("#template_cita_diaria").clone().removeClass('hide').show();
+
+                            $(row_clone).find('.dropdown-item').data('idagendacita',item.id_agenda_cita);
+
+                            //  SE BUSCAN LSO SERVICIOS
+                            let servicios = item.servicios;
+                            let first_row = true;
+                            let label_servicio  = '';
+                            for(let i in servicios){
+                              if (!first_row){
+                                label_servicio  += '/';
+                              }
+
+                              label_servicio  += servicios[i]['nombre_servicio'];
+                            }
+
+                            $(row_clone).find('.nombre_completo').text(item.nombre_completo);
+                            $(row_clone).find('.hora_servicios').text(item.hora_inicio + ' hrs. - '+label_servicio);
+
+                            $(row_clone).find('.btn-light').removeClass('btn-light');
+
+                            $("#div_header_citas_en_curso").append(row_clone);
+                        }
+
+                        //  HORA ACTUAL PASO DE LA HORA DE TERMINO
+                        if (hora_actual_moment.isAfter(hora_termino_moment) || hora_actual_moment.isSame(hora_termino_moment)){
                             citas_completadas++;
                         }
                     }
@@ -464,6 +509,15 @@
             if (citas_pendientes == 0){
                 let row_vacio = $("#template_sin_citas").clone().removeAttr('id').removeClass('hide');
                 $("#div_header_citas_diarias").html('').append(row_vacio);
+            }
+
+            //  NO HAY CITAS EN CURSO
+            if (citas_en_curso == 0){
+                let row_vacio = $("#template_sin_citas").clone().removeAttr('id').removeClass('hide');
+                //  bi-inbox
+                $(row_vacio).find('.bi-inbox').css('color','black');
+                $(row_vacio).find('.mensaje').text('No hay citas en curso');
+                $("#div_header_citas_en_curso").html('').append(row_vacio);
             }
 
             //  MOSTRAR COUNT
