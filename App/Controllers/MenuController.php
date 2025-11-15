@@ -34,7 +34,10 @@ class MenuController extends BaseController
                 return $response;
             }
 
-            $response->setJsonContent($data_dashboard['citas']);
+            $response->setJsonContent(array(
+                'citas' => $data_dashboard['citas'],
+                'fecha_actual_label'    => $data_dashboard['fecha_actual_label']
+            ));
             $response->setStatusCode(200, 'OK');
             return $response;
         }

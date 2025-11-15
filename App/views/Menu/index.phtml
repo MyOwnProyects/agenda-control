@@ -151,7 +151,7 @@
                 <p class="text-muted">Aquí tienes un resumen del día.</p>
             </div>
             <div class="text-end">
-                <p class="text-muted mb-0 small"><?php echo $fecha_actual_label ?></p>
+                <p id="fecha_actual_label" class="text-muted mb-0 small"><?php echo $fecha_actual_label ?></p>
                 <p id="hora_actual" class="fw-bold mb-0"><?php echo $hora_bd ?></p>
             </div>
         </div>
@@ -184,7 +184,7 @@
             <div class="col-md-8">
                 <!-- Stats -->
                 <div class="row g-3 mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
                                 <p class="text-muted mb-1">Pendientes Hoy</p>
@@ -193,7 +193,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
                                 <p class="text-muted mb-1">Completadas Hoy</p>
@@ -202,12 +202,21 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
                                 <p class="text-muted mb-1">Canceladas Hoy</p>
                                 <h3 id="citas_canceladas" class="fw-bold mb-1">2</h3>
                                 <small id="canceladas_porcentaje" class="text-danger">+1% desde ayer</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm stats-card fixed-height-card">
+                            <div class="card-body">
+                                <p class="text-muted mb-1">En curso</p>
+                                <h3 id="citas_en_curso" class="fw-bold mb-1">0</h3>
+                                <small id="texto_citas_en_curso" class="text-success">En proceso...</small>
                             </div>
                         </div>
                     </div>
@@ -387,7 +396,8 @@
                 success   : function(data){
                   console.log('new data',data_dashboard);
                   data_dashboard  = [];
-                  data_dashboard  = data;
+                  data_dashboard  = data['citas'];
+                  $("#fecha_actual_label").text(data['fecha_actual_label']);
                   show_chart();
                   $(btn).prop('disabled',false);
                 },
@@ -503,7 +513,7 @@
             // Texto de progreso para pendientes
             const texto_pendientes = citas_pendientes === 0 
                 ? "¡Todo listo! ✓" 
-                : `${citas_completadas} de ${citas_dia} atendidas`;
+                : `${citas_completadas + citas_en_curso} de ${citas_dia} atendidas`;
 
             //  SI NO HAY CITAS PENDIENTES
             if (citas_pendientes == 0){
@@ -525,12 +535,13 @@
             $("#citas_pendientes").text(citas_pendientes);
             $("#citas_completadas").text(citas_completadas);
             $("#citas_activas_totales").text(citas_totales);
+            $("#citas_en_curso").text(citas_en_curso);
             
             // MOSTRAR PORCENTAJES Y PROGRESO
             $("#pendientes_porcentaje").text(texto_pendientes);
             $("#completadas_porcentaje").text(`${porcentaje_completadas}% del día`);
             $("#canceladas_porcentaje").text(porcentaje_canceladas == 0 ? 'Sin registros' :`${porcentaje_canceladas}% del día`);
-
+            $("#texto_citas_en_curso").text(citas_en_curso == 0 ? 'Sin citas en curso' : 'Citas en curso...');
             // Opcional: Cambiar color cuando todo está listo
             if (citas_pendientes === 0 && citas_dia > 0) {
                 $("#pendientes_porcentaje").removeClass("text-primary").addClass("text-success");
