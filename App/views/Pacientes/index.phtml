@@ -326,6 +326,7 @@ use App\Library\FuncionesGlobales;
         const action_update = '<?php echo $update; ?>';
         const action_delete = '<?php echo $delete; ?>';
         const action_schedule_appointments  = '<?php echo $schedule_appointments; ?>';
+        const action_digital_record         = '<?php echo $digital_record; ?>';
 
         //  language
         const translations  = {
@@ -353,7 +354,8 @@ use App\Library\FuncionesGlobales;
             thursday: "<?php echo $translations['html_thursday'];   ?>",
             friday: "<?php echo $translations['html_friday'];     ?>",
             saturday: "<?php echo $translations['html_saturday'];   ?>",     
-            diagnosis_capture  :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -490,6 +492,11 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
                 show_modal_diagnoses($(this).closest('tr').data('rowData'));
+            });
+
+            $("#table_results").on('click','.btn_digital_record',function(){
+                const id             = $(this).data('id');
+                window.location.href = '/Pacientes/digitalRecord?id='+id;
             });
 
             //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
@@ -680,15 +687,22 @@ use App\Library\FuncionesGlobales;
                                 '</button>' : '';
                                 
                                 let btn_update  = action_update ? 
-                                '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
-                                    '<i class="bi bi-pencil-fill"></i>'+
-                                '</button>' +
+                                // '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
+                                //     '<i class="bi bi-pencil-fill"></i>'+
+                                // '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
-                                '</button>'+
-                                '<button class="btn btn-outline-dark btn-sm btn_diagnoses" data-id="'+data['id']+'" title="'+translations['diagnosis_capture'] +'">' +
-                                    '<i class="bi bi-card-list"></i>'+
-                                '</button>' 
+                                '</button>'
+                                // +
+                                // '<button class="btn btn-outline-dark btn-sm btn_diagnoses" data-id="'+data['id']+'" title="'+translations['diagnosis_capture'] +'">' +
+                                //     '<i class="bi bi-card-list"></i>'+
+                                // '</button>'+
+                                : '';
+
+                                let btn_digital_record  = action_digital_record ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_digital_record" data-id="'+data['id']+'" title="'+translations['digital_record'] +'">' +
+                                    '<i class="bi bi-archive"></i>'+
+                                '</button>'
                                 : '';
 
                                 let btn_schedule_appointment    = action_schedule_appointments ? 
@@ -701,7 +715,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
                                     '<i class="bi bi-trash3-fill"></i>'+
                                 '</button>' : '';
-                                return btn_preview + btn_schedule_appointment +  btn_update + btn_delete;
+                                return btn_preview + btn_schedule_appointment + btn_digital_record +btn_update  +btn_delete;
                             }
                         }
                     ],

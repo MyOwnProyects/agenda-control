@@ -179,6 +179,14 @@ return [
     'html_log'                                  => 'Bitacora',
     'html_change_password'                      => 'Cambiar contraseña',
     'html_new_password'                         => 'Nueva contrase&ntilde;a',
+    'html_digital_record'                       => 'Expediente digital',
+    'html_creation_date'                        => 'Fecha de creaci&oacute;n',
+    'html_title'                                => 'Titulo',
+    'html_private_note'                         => 'Nota privada',
+    'html_see_file'                             => 'Ver expediente',
+    'html_appoitment_note'                      => 'Nota de cita',
+    'html_capture_clinical_data'                => 'Captura de datos clinicos',
+    'html_download'                             => 'Descargar',
     
 
 

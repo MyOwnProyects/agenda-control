@@ -116,6 +116,7 @@ class PacientesController extends BaseController
         $this->view->delete = FuncionesGlobales::HasAccess("Pacientes","delete");
         $this->view->preview    = FuncionesGlobales::HasAccess("Pacientes","preview");
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
+        $this->view->digital_record         = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
     }
 
     public function createAction(){
@@ -216,7 +217,7 @@ class PacientesController extends BaseController
 
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar la información del paciente: '.$_POST['data_old']['clave'],$_POST);
 
-                $response->setJsonContent('Edición exitosa');
+                $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
@@ -494,7 +495,7 @@ class PacientesController extends BaseController
         $route          = $this->url_api.$this->rutas['ctpacientes']['show'];
         $info_paciente  = FuncionesGlobales::RequestApi('GET',$route,array('id' => $id_paciente));
 
-        if (count($info_paciente) == 0){
+        if (count($info_paciente) == 0 || $info_paciente[0]['estatus'] != 1){
             $response   = $this->getDI()->get('response');
             // Redirigir a login/index si es una solicitud normal
             $response->redirect('Menu/route404');
@@ -592,6 +593,637 @@ class PacientesController extends BaseController
             $response->setStatusCode(200, 'OK');
             return $response;
         }
+    }
+
+    public function digitalRecordAction(){
+        //  EN CASO DE QUE SEA PETICION AJAX
+        $aqui = 1;
+        if($this->request->isAjax()){
+            $accion = $this->request->getPost('accion', 'string');
+            $result = array();
+
+            if($accion == 'get_rows'){
+
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 0,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+
+                $response = new Response();
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if($accion == 'get_notes'){
+
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 0,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['tbnotas']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbnotas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+
+                $response = new Response();
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'create_note'){
+                $route  = $this->url_api.$this->rutas['tbnotas']['create'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARNOTA','Se creo una nota para el paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'],array());
+
+                $response->setJsonContent('Creación exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'update_note'){
+                $route  = $this->url_api.$this->rutas['tbnotas']['update'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITARNOTA','Se editó la nota para el paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'],array());
+
+                $response->setJsonContent('Edición exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'delete_note'){
+                $route  = $this->url_api.$this->rutas['tbnotas']['delete'];
+                $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se borro la nota del paciente: '.$_POST['nombre_completo'].' con el titulo: '.$_POST['titulo'].' creada el día: '.$_POST['fecha_creacion'],array());
+
+                $response->setJsonContent('Creación exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'save_subareas_focus'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_subareas_focus'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se modificaron los registros de área de enfoque del paciente: '.$_POST['nombre_completo'].' dejando en total '.count($_POST['obj_ifo']).' registros propios',$_POST['obj_ifo']);
+
+                $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'delete_file'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['delete_file'];
+                $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $path_file = FuncionesGlobales::get_path_file($_POST['clave_archivo']);
+
+                unlink($path_file.$result['nombre_archivo']);
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRARARCHIVO','Se elimino en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $response->setJsonContent('Borrado exitoso!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'download_file'){
+                $response = new Response();
+
+                $id_archivo     = $_POST['id_archivo'];
+                $id_paciente    = $_POST['id_paciente'];
+
+                $route  = $this->url_api . $this->rutas['ctpacientes']['show_file'];
+                $result = FuncionesGlobales::RequestApi('GET', $route, [
+                    'id'            => $id_archivo,
+                    'id_paciente'   => $id_paciente
+                ]);
+
+                if (empty($result) || !isset($result[0]['nombre_archivo'])) {
+                    $response->setJsonContent('No se encontro la información del archivo');
+                    $response->setStatusCode(404, 'Archivo no encontrado');
+                    return $response;
+                }
+
+                //  BITACORA
+                $msg    = 'Se descargo el archivo '.$result[0]['nombre_archivo'];
+                $accion = 'DESCARGAR';
+                if (isset($_POST['preview'])){
+                    $msg    = 'Se solicito la vista previa del archivo '.$result[0]['nombre_archivo'];
+                    $accion = 'VISTAPREVIA';
+                }
+                
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$msg,array());
+
+                // Devuelve los datos para construir la URL
+                $response->setJsonContent(array(
+                    'tipo_archivo'      => $result[0]['clave_tipo_archivo'],
+                    'nombre_archivo'    => $result[0]['nombre_archivo'],
+                    'url_descarga'      => FuncionesGlobales::get_url_download($result[0]['clave_tipo_archivo'],$result[0]['nombre_archivo'])
+                ));
+                $response->setStatusCode(200, 'OK');
+                return $response;
+
+            }
+
+            if ($accion == 'save_file'){
+                $response = new Response();
+                $id_tipo_categoria  = $_POST['id_tipo_categoria'];
+                $clave_archivo      = $_POST['clave_archivo'];
+                $upload_max         = ini_get('upload_max_filesize');
+                $id_paciente        = $_POST['id_paciente'];
+
+                if (empty($clave_archivo)){
+                    $response->setJsonContent('Seleccione una categoria');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                if (!$this->request->hasFiles()){
+                    $response->setJsonContent('Seleccione un archivo');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $path_file  = FuncionesGlobales::get_path_file($clave_archivo);
+                $fecha      = date('YmdHis');
+                $nombre_archivo     = '';
+                $nombre_original    = '';
+                $filePath           = '';
+
+                foreach ($this->request->getUploadedFiles() as $file) {
+
+                    $nombre_original    = $file->getName();
+                    $nombre_original    = FuncionesGlobales::clear_filename($nombre_original);
+
+                    $upload_max_bytes   = FuncionesGlobales::returnBytes($upload_max);
+                    if ($file->getSize() > $upload_max_bytes) {
+                        $response->setJsonContent('El archivo no puede medir mas de '.$upload_max);
+                        $response->setStatusCode(404, 'Error');
+                        return $response;
+                    }
+
+                    // Validar tipo MIME (ajusta según tu necesidad)
+                    $mime = $file->getRealType();
+                    $ext  = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+                    $permitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx','txt'];
+
+                    if (!in_array($ext, $permitidos)) {
+                        $response->setJsonContent('Tipo de archivo no permitido '.$ext);
+                        $response->setStatusCode(404, 'Error');
+                        return $response;
+                    }
+
+                    // Asigna nombre único para evitar colisiones
+                    $nombre_archivo = $id_paciente.'_'.$clave_archivo.'_'.$fecha.'.' . $ext;
+
+                    // Mueve el archivo a su destino final
+                    $filePath = $path_file . $nombre_archivo;
+
+                    if (!$file->moveTo($filePath)) {
+                        $error = error_get_last();
+                        $msg = isset($error['message']) ? $error['message'] : 'Error desconocido al mover archivo.';
+                        $response->setJsonContent('No se pudo mover el archivo: ' . $msg);
+                        $response->setStatusCode(500, 'Move Error');
+                        return $response;
+                    }
+                }
+
+                //  SE GUARDA EL REGISTRO EN LA BD
+                $obj_info   = array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_tipo_archivo'   => $_POST['id_tipo_archivo'],
+                    'observaciones'     => $_POST['observaciones'],
+                    'nombre_original'   => $nombre_original,
+                    'nombre_archivo'    => $nombre_archivo,
+                    'clave_archivo'     => $_POST['clave_archivo'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                );
+
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_file'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$obj_info);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    unlink($filePath);
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARARCHIVO','Se agrego en la categoria '.$_POST['clave_archivo'].' el documento: '.$_POST['nombre_original'].' al paciente '.$_POST['nombre_completo'],$obj_info);
+
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_file'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_paciente' => $_POST['id_paciente']));
+
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_historico'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_receta'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+        }
+
+        //  RUTA PARA MOSTRA EL EXPEDIENTE DIGITAL
+        $id_paciente    = $_GET['id'] ?? null;
+        $id_agenda_cita = $_GET['id_agenda_cita'] ?? null;
+
+        if ((empty($id_paciente) || !is_numeric($id_paciente)) && (empty($id_agenda_cita) || !is_numeric($id_agenda_cita))){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
+        $route  = $this->url_api.$this->rutas['ctpacientes']['get_digital_record'];
+        $result = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id_paciente'       => $id_paciente,
+            'id_agenda_cita'    => $id_agenda_cita
+        ));
+        
+        $response = new Response();
+        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        $id_paciente    = $result['info_paciente']['id'];
+
+        //  GET LISTA DE TRANSTORNOS
+        $route              = $this->url_api.$this->rutas['cttranstornos_neurodesarrollo']['show'];
+        $arr_transtornos    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $this->view->arr_transtornos    = $arr_transtornos;
+
+        //  GET AREAS DE DESARROLLO
+        $route              = $this->url_api.$this->rutas['ctareas_enfoque']['show'];
+        $arr_areas_enfoque  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $this->view->arr_areas_enfoque    = $arr_areas_enfoque;
+
+        $this->view->id_paciente            = $id_paciente;
+        $this->view->info_digital_record    = $result;
+        $this->view->diagnosticos           = json_encode($result['diagnosticos']);
+        $this->view->id_profesional         = $this->session->get('id_profesional');
+        $this->view->id_usuario             = $this->session->get('id');
+        $this->view->id_agenda_cita         = $id_agenda_cita;
+        $this->view->upload_max             = FuncionesGlobales::returnBytes(ini_get('upload_max_filesize'));
+        $this->view->post_max               = FuncionesGlobales::returnBytes(ini_get('post_max_size'));
+        $this->view->human_upload_max       = ini_get('upload_max_filesize');
+        $this->view->human_post_max         = ini_get('post_max_size');
+        $this->view->update                 = FuncionesGlobales::HasAccess("Pacientes","update");
+        $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
+        $this->view->download               = FuncionesGlobales::HasAccess("Menu","download");
+        $this->view->clinicalData           = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
+    }
+
+
+
+
+
+    public function clinicalDataAction(){
+
+        if ($this->request->isAjax()){
+            $accion = $this->request->getPost('accion');
+
+            $result = array();
+            if($accion == 'get_rows'){
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 10,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['tbagenda_citas']['count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+            }
+
+            if ($accion == 'save_exploracion_fisica'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_exploracion_fisica'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDAREXPLORACIONFISICA','Se capturaron los datos de exploración fisica del paciente : '.$_POST['nombre_completo'],$_POST['obj_ifo']);
+
+                //  SE OBTIENEN TODOS LOS REGISTROS, ESTO PARA RECREAR LA TABLA DE HISTORICOS
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_exploracion_fisica'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_agenda_cita' => $_POST['id_agenda_cita']));
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'save_motivo_consulta'){
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_motivo_consulta'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARMOTIVOCONSULTA','Se capturaron los datos de motivo de consulta del paciente: '.$_POST['nombre_completo'],$_POST['obj_ifo']);
+
+                //  SE OBTIENEN TODOS LOS REGISTROS, ESTO PARA RECREAR LA TABLA DE HISTORICOS
+                $route  = $this->url_api.$this->rutas['ctpacientes']['show_motivo_consulta'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,array('id_agenda_cita' => $_POST['id_agenda_cita']));
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'save_receta'){
+                $response = new Response();
+
+                //  SE GUARDA EL MOTIVO DE CONSULTA
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_motivo_consulta'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                    'obj_info'          => $_POST['obj_motivo_consulta']
+                ));
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                //  SE GUARDA LA EXPLORACION FISICA
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_exploracion_fisica'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                    'obj_info'          => $_POST['obj_exploracion_fisica']
+                ));
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                //  GUARDAR INFORMACION DE LA RECETA
+                $route  = $this->url_api.$this->rutas['ctpacientes']['save_receta'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,array(
+                    'id_paciente'       => $_POST['id_paciente'],
+                    'id_agenda_cita'    => $_POST['id_agenda_cita'],
+                    'obj_info'          => $_POST['obj_info_receta']
+                ));
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'GUARDARRECETA','Se genero la receta medica del paciente: '.$_POST['nombre_completo'],$_POST['obj_info_receta']);
+                //  SE GENERA EL PDF DE LA RECETA MEDICA
+                $arr_return = FuncionesGlobales::create_pdf_prescription($result['id_receta']);
+
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+                
+            }
+
+            if ($accion == 'download_receta'){
+                $response = new Response();
+                $arr_return = FuncionesGlobales::create_pdf_prescription($_POST['id_receta']);
+                $aqui = 1;
+
+                if ($arr_return['msg_error'] != ''){
+                    $response->setJsonContent($arr_return['msg_error']);
+                    $response->setStatusCode(404, 'Nor Found');
+                    return $response;
+                }
+
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            $response = new Response();
+            $response->setJsonContent($result);
+            $response->setStatusCode(200, 'OK');
+            return $response;
+        }
+
+        $id_agenda_cita = $_GET['id_agenda_cita'] ?? null;
+
+        if (empty($id_agenda_cita) || !is_numeric($id_agenda_cita)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        //  SE BUSCA LA ESTRUCTURA DEL PACIENTE
+        $route  = $this->url_api.$this->rutas['ctpacientes']['get_clinical_data'];
+        $result = FuncionesGlobales::RequestApi('GET',$route,array(
+            'id_agenda_cita'    => $id_agenda_cita
+        ));
+        
+        $response = new Response();
+        if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+            $response   = $this->getDI()->get('response');
+            // Redirigir a login/index si es una solicitud normal
+            $response->redirect('Menu/route404');
+            $response->send();
+            exit;
+        }
+
+        //  SE BUSCA LA INFORMACION DE LOS DATOS DE EXPLORACION
+        $exploracion_fisica = $result['exploracion_fisica'];
+
+        $exploracion_fisica_cita    = array();
+        if (count($exploracion_fisica) > 0){
+            foreach($exploracion_fisica as $row){
+                if ($row['id_agenda_cita'] == $id_agenda_cita){
+                    $exploracion_fisica_cita    = $row;
+                    break;
+                }
+            }
+        }
+
+        //  SE BUSCA LA INFORMACION DE LOS DATOS DE EXPLORACION
+        $motivo_consulta    = $result['motivo_consulta'];
+
+        $motivo_consulta_cita   = array();
+        if (count($motivo_consulta) > 0){
+            foreach($motivo_consulta as $row){
+                if ($row['id_agenda_cita'] == $id_agenda_cita){
+                    $motivo_consulta_cita   = $row;
+                    break;
+                }
+            }
+        }
+
+        //  SE BUSCA LA INFORMACION DE LOS DATOS DE RECETA MEDICA
+        $recetas_medicas    = $result['recetas_medicas'];
+
+        $receta_cita    = array();
+        if (count($recetas_medicas) > 0){
+            foreach($recetas_medicas as $row){
+                if ($row['id_agenda_cita'] == $id_agenda_cita){
+                    $receta_cita    = $row;
+                    break;
+                }
+            }
+        }
+
+        $this->view->info_paciente  = $result['info_paciente'];
+        $this->view->info_cita      = $result['info_cita'];
+        $this->view->id_profesional = $this->session->get('id_profesional');
+        $this->view->id_agenda_cita = $id_agenda_cita;
+        $this->view->update         = FuncionesGlobales::HasAccess("Pacientes","update");
+        $this->view->exploracion_fisica         = $exploracion_fisica;
+        $this->view->exploracion_fisica_cita    = $exploracion_fisica_cita;
+        $this->view->motivo_consulta            = $motivo_consulta;
+        $this->view->motivo_consulta_cita       = $motivo_consulta_cita;
+        $this->view->recetas_medicas            = $recetas_medicas;
+        $this->view->receta_cita                = $receta_cita;
+
     }
 
 }
