@@ -147,7 +147,7 @@
     <main class="flex-grow-1 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold">¡Hola <?php echo $nombre_usuario; ?>!</h2>
+                <h2 class="fw-bold" id="saludo"></h2>
                 <p class="text-muted">Aquí tienes un resumen del día.</p>
             </div>
             <div class="text-end">
@@ -337,6 +337,13 @@
             'Dom' : 0,
         }
 
+        let nombre_usuario  = '<?php echo $nombre_usuario; ?>';
+        let label_saludo    = {
+            0   : '¡Buenos días, '+nombre_usuario+'!',
+            1   : '¡Buenos tardes, '+nombre_usuario+'!',
+            2   : '¡Buenos noches, '+nombre_usuario+'!',
+        }
+
         const dia_semana  = '<?php echo $dia_semana; ?>';
 
         let obj_dias    = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
@@ -353,17 +360,31 @@
         //  PARAMETROS PARA OBTENER FECHA Y HORA DEL SERVER
         let fecha_actual  = '<?php echo $fecha_actual; ?>';
         let hora_actual   = '<?php echo $hora_bd; ?>';
-        console.log('hora_actual',hora_actual);
 
         //  OBJ CARGA INICIAL
         let data_dashboard = '<?php echo $json_data_citas; ?>';
         data_dashboard = JSON.parse(data_dashboard);
 
+        function mostrar_saludo(hora){
+
+            const horas = hora.hours();
+
+            if (horas < 12){
+                $("#saludo").text(label_saludo[0]);
+            } else {
+                if (horas < 19){
+                    $("#saludo").text(label_saludo[1]);
+                } else {
+                    $("#saludo").text(label_saludo[2]);
+                }
+            }
+        }
+
         $(document).ready(function(){
-            console.log('data_dashboard',data_dashboard);
             
             //  SE INICIA LA HORA
             let hora = moment(hora_actual, 'HH:mm:ss');
+            mostrar_saludo(hora);
             setInterval(function() {
                 hora.add(1, 'second');
                 $("#hora_actual").text(hora.format('HH:mm:ss'));
@@ -376,11 +397,12 @@
                     $("#actualizar_registros").trigger('click');
                 }
 
+                mostrar_saludo(hora);
+                
             }, 1000);
 
 
             $(document).on('click',".dropdown-item",function(){
-              //console.log('url',$(this).data('location') +'?id_agenda_cita='+$(this).data('idagendacita'));
               window.location.href = $(this).data('location') +'?id_agenda_cita='+$(this).data('idagendacita');
             });
 
@@ -394,9 +416,9 @@
                   accion  : 'actualizar_datos'
                 },
                 success   : function(data){
-                  console.log('new data',data_dashboard);
                   data_dashboard  = [];
                   data_dashboard  = data['citas'];
+
                   $("#fecha_actual_label").text(data['fecha_actual_label']);
                   show_chart();
                   $(btn).prop('disabled',false);
@@ -417,6 +439,16 @@
             let citas_en_curso      = 0;
             let citas_dia           = 0;
             let citas_totales       = 0;
+            obj_data_dias           = [];
+            obj_data_dias = {
+                'Lun' : 0,
+                'Mar' : 0,
+                'Mie' : 0,
+                'Jue' : 0,
+                'Vie' : 0,
+                'Sab' : 0,
+                'Dom' : 0,
+            }
 
             $("#div_header_citas_en_curso").html('');
             $("#div_header_citas_diarias").html('');
@@ -602,7 +634,7 @@
                     },
                     scales: {
                         y: {
-                            display: false,
+                            display: true,
                             beginAtZero: true
                         },
                         x: {
