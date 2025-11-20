@@ -545,7 +545,7 @@
             // Texto de progreso para pendientes
             const texto_pendientes = citas_pendientes === 0 
                 ? "¡Todo listo! ✓" 
-                : `${citas_completadas + citas_en_curso} de ${citas_dia} atendidas`;
+                : `${citas_completadas + citas_en_curso} de ${(citas_dia - citas_canceladas)} atendidas`;
 
             //  SI NO HAY CITAS PENDIENTES
             if (citas_pendientes == 0){
