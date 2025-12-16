@@ -30,7 +30,7 @@
 
   <!-- Estilos adicionales -->
   <link rel="stylesheet" href="/css/alerts.css">
-  <link rel="stylesheet" href="/css/menu.css?rm=1">
+  <link rel="stylesheet" href="/css/menu.css?rm=5">
   <link rel="stylesheet" href="/css/general.css">
   <link rel="stylesheet" href="/css/select2-bootstrap-5.min.css">
 
@@ -127,97 +127,146 @@
               </a>
             <!--</li>-->
           </div>
-            <ul class="nav nav-pills flex-column mb-auto">
-              <li class="border-top my-3"></li>
+            <ul class="nav nav-pills flex-column mb-auto menu-scrollable">
+
+              <!-- ─────────────── -->
+              <!-- OPERACIÓN DIARIA -->
+              <!-- ─────────────── -->
+              <li class="menu-divider"></li>
+
+              <!-- Inicio -->
               <li class="nav-item" title="Inicio">
-                <a href="/Menu/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Menu' ? 'active-view' : ''; ?>">
-                  <i class="bi bi-house me-2"></i>
-                  <span>Inicio</span>
-                  <div class="nav-item-text">Inicio</div>
-                </a>
+                  <a href="/Menu/" aria-current="page"
+                    class="nav-link text-white <?php echo $currentController == 'Menu' ? 'active-view' : ''; ?>">
+                      <i class="bi bi-house me-2"></i>
+                      <span>Inicio</span>
+                      <div class="nav-item-text">Inicio</div>
+                  </a>
               </li>
-              <?php if($agenda): ?>
+              <li class="menu-divider"></li>
+              <?php if ($agenda || $control_citas || $pacientes): ?>
+                <li class="menu-section-title">Operación diaria</li>
+
+                <!-- Agenda -->
+                <?php if($agenda): ?>
                 <li class="nav-item" title="<?php echo $translations['html_agenda']; ?>">
-                  <a href="/Agenda/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Agenda' ? 'active-view' : ''; ?>">
-                    <i class="bi bi-calendar me-2"></i>
-                    <span><?php echo $translations['html_agenda']; ?></span>
-                    <div class="nav-item-text"><?php echo $translations['html_agenda']; ?></div>
-                  </a>
+                    <a href="/Agenda/" class="nav-link text-white <?php echo $currentController == 'Agenda' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-calendar me-2"></i>
+                        <span><?php echo $translations['html_agenda']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_agenda']; ?></div>
+                    </a>
                 </li>
-              <?php endif; ?>
-              <?php if($control_citas): ?>
+                <?php endif; ?>
+
+                <!-- Control de citas -->
+                <?php if($control_citas): ?>
                 <li class="nav-item" title="<?php echo $translations['html_control_appoitment']; ?>">
-                  <a href="/Controlcitas/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Controlcitas' ? 'active-view' : ''; ?>">
-                    <i class="bi bi-calendar-check me-2"></i>
-                    <span><?php echo $translations['html_control_appoitment']; ?></span>
-                    <div class="nav-item-text"><?php echo $translations['html_control_appoitment']; ?></div>
-                  </a> 
+                    <a href="/Controlcitas/" class="nav-link text-white <?php echo $currentController == 'Controlcitas' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <span><?php echo $translations['html_control_appoitment']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_control_appoitment']; ?></div>
+                    </a>
                 </li>
+                <?php endif; ?>
+
+                <!-- Pacientes -->
+                <?php if($pacientes): ?>
+                <li class="nav-item" title="<?php echo $translations['html_title_patients']; ?>">
+                    <a href="/Pacientes/" class="nav-link text-white <?php echo $currentController == 'Pacientes' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-person-bounding-box me-2"></i>
+                        <span><?php echo $translations['html_title_patients']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_title_patients']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
               <?php endif; ?>
-              <?php if($locaciones): ?>
+
+
+              <!-- ─────────────── -->
+              <!-- ADMINISTRACIÓN -->
+              <!-- ─────────────── -->
+               <?php if ($profesionales || $locaciones || $servicios): ?>
+                <li class="menu-divider"></li>
+                <li class="menu-section-title">Administración</li>
+
+                <!-- Profesionales -->
+                <?php if($profesionales): ?>
+                <li class="nav-item" title="<?php echo $translations['html_title_professionals']; ?>">
+                    <a href="/Profesionales/" class="nav-link text-white <?php echo $currentController == 'Profesionales' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <span><?php echo $translations['html_title_professionals']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_title_professionals']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- Locaciones -->
+                <?php if($locaciones): ?>
                 <li class="nav-item" title="<?php echo $translations['html_locations']; ?>">
-                  <a href="/Locaciones/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Locaciones' ? 'active-view' : ''; ?>">
-                    <i class="bi bi-building me-2"></i>
-                    <span><?php echo $translations['html_locations']; ?></span>
-                    <div class="nav-item-text"><?php echo $translations['html_locations']; ?></div>
-                  </a>
+                    <a href="/Locaciones/" class="nav-link text-white <?php echo $currentController == 'Locaciones' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-building me-2"></i>
+                        <span><?php echo $translations['html_locations']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_locations']; ?></div>
+                    </a>
                 </li>
+                <?php endif; ?>
+
+                <!-- Servicios -->
+                <?php if($servicios): ?>
+                <li class="nav-item" title="<?php echo $translations['html_services']; ?>">
+                    <a href="/Servicios/" class="nav-link text-white <?php echo $currentController == 'Servicios' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-grid me-2"></i>
+                        <span><?php echo $translations['html_services']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_services']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
               <?php endif; ?>
-              <?php if($pacientes): ?>
-              <li class="nav-item" title="<?php echo $translations['html_title_patients']; ?>">
-                <a href="/Pacientes/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Pacientes' ? 'active-view' : ''; ?>">
-                <i class="bi bi-person-bounding-box me-2"></i>
-                  <span><?php echo $translations['html_title_patients']; ?></span>
-                  <div class="nav-item-text"><?php echo $translations['html_title_patients']; ?></div>
-                </a>
-              </li>
+
+
+              <!-- ─────────────── -->
+              <!-- SEGURIDAD -->
+              <!-- ─────────────── -->
+              <?php if ($tipo_usuarios || $usuarios || $bitacora): ?>
+                <li class="menu-divider"></li>
+                <li class="menu-section-title">Seguridad</li>
+
+                <!-- Tipo de usuarios -->
+                <?php if($tipo_usuarios): ?>
+                <li class="nav-item" title="<?php echo $translations['html_title_user_type']; ?>">
+                    <a href="/Tipousuarios/" class="nav-link text-white <?php echo $currentController == 'Tipousuarios' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-person-gear me-2"></i>
+                        <span><?php echo $translations['html_title_user_type']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_title_user_type']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- Usuarios -->
+                <?php if($usuarios): ?>
+                <li class="nav-item" title="<?php echo $translations['html_title_users']; ?>">
+                    <a href="/Usuarios/" class="nav-link text-white <?php echo $currentController == 'Usuarios' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-person-circle me-2"></i>
+                        <span><?php echo $translations['html_title_users']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_title_users']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- Bitácora -->
+                <?php if($bitacora): ?>
+                <li class="nav-item" title="<?php echo $translations['html_log']; ?>">
+                    <a href="/Bitacora/" class="nav-link text-white <?php echo $currentController == 'Bitacora' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-card-list me-2"></i>
+                        <span><?php echo $translations['html_log']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_log']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
               <?php endif; ?>
-              <?php if($tipo_usuarios): ?>
-              <li class="nav-item" title="<?php echo $translations['html_title_user_type']; ?>">
-                <a href="/Tipousuarios/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Tipousuarios' ? 'active-view' : ''; ?>">
-                  <i class="bi bi-person-gear me-2"></i>
-                  <span><?php echo $translations['html_title_user_type']; ?></span>
-                  <div class="nav-item-text"><?php echo $translations['html_title_user_type']; ?></div>
-                </a>
-              </li>
-              <?php endif; ?>
-              <?php if($profesionales): ?>
-              <li class="nav-item" title="<?php echo $translations['html_title_professionals']; ?>">
-                <a href="/Profesionales/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Profesionales' ? 'active-view' : ''; ?>">
-                  <i class="bi bi-people-fill me-2"></i>
-                  <span><?php echo $translations['html_title_professionals']; ?></span>
-                  <div class="nav-item-text"><?php echo $translations['html_title_professionals']; ?></div>
-                </a>
-              </li>
-              <?php endif; ?>
-              <?php if($servicios): ?>
-              <li class="nav-item" title="<?php echo $translations['html_services']; ?>">
-                <a href="/Servicios/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Servicios' ? 'active-view' : ''; ?>">
-                <i class="bi bi-grid me-2"></i>
-                  <span><?php echo $translations['html_services']; ?></span>
-                  <div class="nav-item-text"><?php echo $translations['html_services']; ?></div>
-                </a>
-              </li>
-              <?php endif; ?>
-              <?php if($usuarios): ?>
-              <li class="nav-item" title="<?php echo $translations['html_title_users']; ?>">
-                <a href="/Usuarios/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Usuarios' ? 'active-view' : ''; ?>">
-                  <i class="bi bi-person-circle me-2"></i>
-                  <span><?php echo $translations['html_title_users']; ?></span>
-                  <div class="nav-item-text"><?php echo $translations['html_title_users']; ?></div>
-                </a>
-              </li>
-              <?php endif; ?>
-              <?php if($bitacora): ?>
-              <li class="nav-item" title="<?php echo $translations['html_log']; ?>">
-                <a href="/Bitacora/" aria-current="page" class="nav-link text-white <?php echo $currentController == 'Bitacora' ? 'active-view' : ''; ?>">
-                  <i class="bi bi-card-list me-2"></i>
-                  <span><?php echo $translations['html_log']; ?></span>
-                  <div class="nav-item-text"><?php echo $translations['html_log']; ?></div>
-                </a>
-              </li>
-              <?php endif; ?>
-            </ul>
+
+          </ul>
+
           <!--</div>
         </main>-->
     </aside>
