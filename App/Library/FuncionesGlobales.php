@@ -4,6 +4,8 @@ namespace App\Library;
 
 use Phalcon\Di\Di; // Ajuste para Phalcon >= 4.x
 use Phalcon\Di\DiInterface; // Interfaz para compatibilidad
+use Mpdf\Mpdf;
+use Exception;
 
 class FuncionesGlobales{
 
@@ -610,6 +612,434 @@ class FuncionesGlobales{
         }
     }
 
+    /*
+        FUNCION PARA RETORNAR EL PATH DE LA CARPETA, ESTO DEPENDIENDO DEL TIPO DE ARCHIVO
 
+        @param  $type_file  ($string)   tipo de archivo
+        return  (String);
+    */ 
+    public static function get_path_file($type_file){
+        $path_principal = "../storage/files";
+        $path_save      = '';
+
+        switch($type_file){
+            case 'res_lab':
+                $path_save = '/resultados_de_laboratorio/';
+                break;
+            case 'inf_meds':
+                $path_save = '/informes_medicos/';
+                break;
+            case 'ima_diag':
+                $path_save = '/imagenes_diagnosticos/';
+                break;
+            case 'consen':
+                $path_save = '/consentimientos_informados/';
+                break;
+            case 'rec_firs':
+                $path_save = '/recetas_medicas_firmadas/';
+                break;
+            case 'not_med':
+                $path_save = '/notas_medicas/';
+                break;
+            case 'jus':
+                $path_save = '/justificantes/';
+                break;
+            case 'rep_seg':
+                $path_save = '/reportes_de_seguimiento/';
+                break;
+            case 'perfil':
+                $path_save = '/perfil/';
+                break;
+            case 'recetas':
+                $path_save = '/tmp/';
+                break;
+            case 'otros':
+                $path_save = '/otros_documentos/';
+                break;
+            default:
+                $path_save = '/otros_documentos/';
+                break;
+        }
+            
+
+        return $path_principal.$path_save;
+    }
+
+    /**
+     * FUNCION QUE RETORNA LA URL A DESCARGAR DEL ARCHIVO
+     * 
+     * @param   $clave_tipo_archivo String
+     * @param   $nombre_archivo String
+     * 
+     * @return   String
+     */
+    public static function get_url_download($clave_tipo_archivo,$nombre_archivo){
+        return '/Menu/download?tipo_archivo='.$clave_tipo_archivo.'&nombre_archivo='.$nombre_archivo;
+    }
+
+    /*  
+        FUNCION QUE CONVIERTE, POR EJEMPLO 25M EN BYTES, SIRVE PARA VALIDAR EN IF
+
+        @param  $val (String)   $val    
+        return (Numeric)
+    */
+    public static function returnBytes($val) {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+        $num = (int)$val;
+
+        switch($last) {
+            case 'g': $num *= 1024;
+            case 'm': $num *= 1024;
+            case 'k': $num *= 1024;
+        }
+
+        return $num;
+    }
+
+    /** 
+     * FUNCION PARA SANITIZAR NOMBRE DE ARCHIVOS
+     * 
+     * @param   $nombre_original    String
+     * @return  String
+    */
+    public static function clear_filename($nombre_original){
+        return preg_replace('/[^a-zA-Z0-9._\- ]/', '', $nombre_original);
+    }
+
+    public static function create_pdf_prescription($id_receta){
+        try{
+
+            $di = Di::getDefault(); // Se usa en lugar de $this->getDI()
+
+            // OBTENER CONFIGURACIONES
+            $rutas      = $di->get('rutas');
+            $config     = $di->get('config');
+            $url_api    = $config['BASEAPI'];
+
+            //  SE BUSCA LA INFORMACION DE LA RECETA A IMPRIMIR
+            $result = SELF::RequestApi('GET',$url_api.$rutas['ctpacientes']['show_receta'],array(
+                'id_receta' => $id_receta
+            ));
+
+            if ($result == null || !is_array($result) || count($result) == 0){
+                throw new Exception("Error al obtener la información de la receta");
+            }
+
+            $receta = $result[0];
+
+            // HTML de ejemplo (puede venir de una vista Volt)
+            $html = '
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <title>Receta Médica</title>
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #000;
+        font-size: 12px;
+        line-height: 1.3;
+        }
+
+        .receta {
+        width: 100%;
+        margin: 0;
+        padding: 5mm 10mm 15mm 10mm;
+        }
+
+        .contenido-principal {
+        padding: 0 3mm;
+        }
+
+        .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #6a1b9a;
+        margin-bottom: 8px;
+        }
+
+        .doctor-info {
+        text-align: right;
+        }
+
+        .doctor-info h2 {
+        margin: 0 0 3px 0;
+        font-size: 16px;
+        color: #6a1b9a;
+        }
+
+        .doctor-info p {
+        margin: 1px 0;
+        font-size: 11px;
+        }
+
+        .section {
+        margin: 8px 0;
+        }
+
+        .datos-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 6px 0;
+        }
+
+        .datos-table td {
+        padding: 3px 6px;
+        vertical-align: bottom;
+        }
+
+        .campo-linea {
+        display: inline-block;
+        border-bottom: 1px solid;
+        width: 120px;
+        vertical-align: bottom;
+        padding-right: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        min-height: 14px;
+        }
+
+        .indicaciones {
+        margin: 8px 0;
+        }
+
+        .indicaciones h3 {
+        margin: 8px 0 6px 0;
+        font-size: 13px;
+        }
+
+        .tratamiento {
+        height: 66mm;
+        padding: 5px 5px 5px 15px;
+        overflow: auto;
+        margin-left: 8px;
+        }
+
+        .tratamiento p {
+        margin: 4px 0;
+        font-size: 12px;
+        }
+
+        .footer-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        }
+
+        .footer-table td {
+        padding: 4px 6px;
+        vertical-align: top;
+        width: 33%;
+        }
+
+        .footer-center {
+        text-align: center;
+        }
+
+        .footer-right {
+        text-align: right;
+        font-weight: bold;
+        }
+
+        .contact-text p {
+        margin: 0;
+        font-size: 11px;
+        line-height: 1.2;
+        }
+
+        .espacio-superior {
+        height: 6mm;
+        width: 100%;
+        }
+
+        .icono {
+        font-weight: bold;
+        margin-right: 3px;
+        }
+
+        .tratamiento p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .tratamiento p + p {
+            margin-top: 0;
+        }
+    </style>
+    </head>
+    <body>
+    <div class="receta">
+        <!-- Espacio reducido en la parte superior -->
+        <div class="espacio-superior"></div>
+        
+        <div class="contenido-principal">
+        <!-- Header -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+            <td width="50%" align="left" valign="top">
+                <div class="logo">'.$receta['nombre_locacion'].'</div>
+            </td>
+            <td width="50%" align="right" valign="top">
+                <div class="doctor-info">
+                <h2>Dr. '.$receta['nombre_profesional'].'</h2>
+                <p>Ginecología y Obstetricia</p>
+                <p>Céd. Prof. '.$receta['cedula_profesional'].' | Esp. 1234567</p>
+                <p>Reg. S.S.A. 111/22</p>
+                </div>
+            </td>
+            </tr>
+        </table>
+
+        <!-- Línea divisoria superior -->
+        <div style="height: 3px; background-color: #6a1b9a; width: 100%; margin: 12px 0;"></div>
+
+        <!-- Datos del Paciente -->
+        <div class="section">
+            <table class="datos-table">
+            <tr>
+                <td width="75%">
+                <strong>Nombre:</strong> 
+                <span class="campo-linea">'.$receta['nombre_completo'].'</span>
+                </td>
+                <td width="25%">
+                <strong>Fecha:</strong> 
+                <span class="campo-linea">'.$receta['fecha_ultima_edicion'].'</span>
+                </td>
+            </tr>
+            </table>
+
+            <table class="datos-table">
+            <tr>
+                <td width="30%">
+                <strong>Temp.:</strong> 
+                <span class="campo-linea">'.$receta['temperatura'].'</span> <strong>(°C)</strong>
+                </td>
+                <td width="35%">
+                <strong>Fre. cardiaca:</strong> 
+                <span class="campo-linea">'.$receta['frecuencia_cardiaca'].'</span> <strong>(lpm)</strong>
+                </td>
+                <td width="35%">
+                <strong>Pre. Arterial:</strong> 
+                <span class="campo-linea">'.$receta['presion_arterial'].'</span> <strong>(mmHg)</strong>
+                </td>
+            </tr>
+            </table>
+
+            <table class="datos-table">
+            <tr>
+                <td width="25%">
+                <strong>Frec. Resp.:</strong> 
+                <span class="campo-linea">'.$receta['frecuencia_respiratoria'].'</span> <strong>(rpm)</strong>
+                </td>
+                <td width="25%">
+                <strong>Satur. O₂:</strong> 
+                <span class="campo-linea">'.$receta['saturacion_oxigeno'].'</span> <strong>(%)</strong>
+                </td>
+                <td width="25%">
+                <strong>Peso:</strong> 
+                <span class="campo-linea">'.$receta['peso'].'</span> <strong>(kg)</strong>
+                </td>
+                <td width="25%">
+                <strong>Talla:</strong> 
+                <span class="campo-linea">'.$receta['altura'].'</span> <strong>(cm)</strong>
+                </td>
+            </tr>
+            </table>
+        </div>
+
+        <!-- Indicaciones -->
+        <div class="section indicaciones">
+            <h3>Fx:</h3>
+            <div class="tratamiento">
+            '.$receta['tratamiento'].'
+            <!-- Aquí se insertará el HTML con la receta redactada por el doctor -->
+            </div>
+        </div>
+
+        <!-- Línea divisoria inferior -->
+        <div style="height: 3px; background-color: #6a1b9a; width: 100%; margin: 15px 0 12px 0;"></div>
+        </div>
+
+        <!-- Footer -->
+        <table class="footer-table">
+        <tr>
+            <td class="footer-left">
+            <div class="contact-text">
+                <p><span class="icono">■</span> '.$receta['direccion'].'</p>
+                
+            </div>
+            </td>
+            <td class="footer-center">
+            <div class="contact-text">
+                <p><span class="icono">►</span> '.SELF::formatearTelefono($receta['telefono']).'</p>
+                <p style="padding-left: 12px;">'.SELF::formatearTelefono($receta['celular']).'</p>
+                <p><span class="icono">@</span> '.$receta['correo_electronico'].'</p>
+            </div>
+            </td>
+            <td class="footer-right">
+            <p>Dr. '.$receta['nombre_profesional'].'</p>
+            </td>
+        </tr>
+        </table>
+    </div>
+    </body>
+    </html>
+                ';
+
+    $mpdf = new \Mpdf\Mpdf([
+    'format' => 'A4',
+    'orientation' => 'P',
+    'margin_top' => 0,
+    'margin_bottom' => 0,
+    'margin_left' => 0,
+    'margin_right' => 0,
+    'tempDir' => MPDF_TEMP_DIR
+    ]);
+
+
+
+            // HTML generado a partir de la base de datos
+            $fecha  = str_replace('/','_',$receta['fecha_ultima_edicion']);
+
+            $mpdf->WriteHTML($html);
+
+            // Guardar temporalmente en storage/tmp
+            //$nombre_archivo = 'receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+            $nombre_archivo = 'receta_'.$fecha.'.pdf';
+            //$archivoTemp = MPDF_TEMP_DIR . '/receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+            $archivoTemp = MPDF_TEMP_DIR .'/'.$nombre_archivo;
+            $mpdf->Output($archivoTemp, \Mpdf\Output\Destination::FILE);
+
+            return array(
+                'url_receta'    => SELF::get_url_download('recetas',$nombre_archivo),
+                'msg_error'     => ''
+            );
+
+        } catch(\Exception $e){
+            return array(
+                'url_receta'    => '',
+                'msg_error'     => $e->getMessage()
+            );
+        }
+    }
+
+    public static function formatearTelefono($telefono) {
+        $telefonoLimpio = preg_replace('/\D/', '', $telefono);
+        
+        if (strlen($telefonoLimpio) !== 10) {
+            return '';
+        }
+        
+        return sprintf("(%s) %s-%s", 
+            substr($telefonoLimpio, 0, 3),
+            substr($telefonoLimpio, 3, 3),
+            substr($telefonoLimpio, 6, 4)
+        );
+    }
 
 }
