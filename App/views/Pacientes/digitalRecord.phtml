@@ -1,0 +1,2818 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    :root {
+        --bs-body-bg-dark: #121212;
+        --bs-tertiary-bg-dark: #1E1E1E;
+    }
+    
+    #container_digital_record {
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+    }
+    
+    #container_digital_record .sidebar {
+        width: 220px;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+    }
+    
+    #container_digital_record .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    #container_digital_record .nav-link:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    #container_digital_record .nav-link.active {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    #container_digital_record .nav-link .material-icons {
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    /* === CORRECCIÓN DEFINITIVA === */
+    #container_digital_record .main-content {
+        margin-left: 220px;
+        width: calc(100% - 220px); /* ← KEY CHANGE */
+        min-height: 100vh;
+        max-width: calc(100% - 220px); /* ← KEY CHANGE */
+        padding: 1rem;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    #container_digital_record .sidebar-toggle {
+        display: none;
+    }
+    
+    /* Contenedor principal - MEJORADO */
+    #container_digital_record .container-fluid {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        overflow-x: hidden;
+    }
+    
+    /* === NUEVAS REGLAS CRÍTICAS === */
+    #container_digital_record .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-radius: 0.75rem;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    #container_digital_record .card-body {
+        padding: 1.5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #container_digital_record .row {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    #container_digital_record [class*="col-"] {
+        max-width: 100%;
+        flex-shrink: 1;
+        min-width: 0; /* ← CRÍTICO */
+    }
+    
+    #container_digital_record .fw-medium {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    #container_digital_record .div_notas .card {
+        min-height: 80vh; /* 80% del alto de la ventana */
+    }
+
+    .note-editable {
+        height: calc(100vh - 200px) !important; /* Example: 100% of viewport height minus some offset */
+        /* Or, if within a container: */
+        /* height: 100% !important; */
+    }
+
+    #summernote, .note-editable {
+        font-weight: normal !important;
+    }
+
+    .note-fontsize .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important; /* Asegura que esté encima del editor pero debajo del botón */
+    }
+
+    .note-btn-group.btn-group {
+        position: relative !important;
+    }
+
+    .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important;
+        min-width: 120px; /* opcional para evitar que se colapse */
+    }
+
+    /* Aplica solo al dropdown que sigue a un botón con aria-label="Paragraph" */
+    button[aria-label="Paragraph"] + .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 0 !important;
+        z-index: 1050 !important;
+        transform: translateX(-20px); /* Ajusta según el espacio disponible */
+    }
+
+    .hide_element {
+        display: none !important;
+    }
+
+    .row_selected{
+        background-color: #288d28ff;
+        color: white;
+    }
+
+    .row_disabled{
+        background-color: #a1d4a1ff!important;
+        color: black!important;
+    }
+
+    .row_selected div {
+        color: white;
+    }
+
+    /*  ESTILO SUBIR ARCHIVO    */
+    .dropzone {
+        border: 2px dashed #dee2e6;
+        border-radius: 0.5rem;
+        height: 16rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+    }
+    .dropzone:hover {
+        background-color: #e9ecef;
+    }
+    .dropzone input {
+        display: none;
+    }
+
+    #dropzoneContainer {
+        width: 100%;
+        min-height: 300px;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        position: relative;
+        overflow: auto;
+    }
+
+    #dropzoneContainer embed,
+    #dropzoneContainer img {
+        object-fit: contain;
+    }
+
+    #dropzoneContainer pre {
+        white-space: pre-wrap;    /* o pre si quieres exacto */
+        word-wrap: break-word;
+        text-align: left;
+        margin: 0;
+        padding: 0.5rem;
+        font-family: monospace;   /* opcional: fuente tipo editor */
+    }
+
+    /* ESTILO PARA MODAL DE INFORMACION */
+    .modal_info_cita .modal-header {
+    background-color: #343a40;
+    color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    }
+
+    /* Labels dentro del body */
+    .modal_info_cita .modal-body label {
+    font-weight: 600;
+    color: #495057;
+    }
+
+    /* Spans dentro del body */
+    .modal_info_cita .modal-body span {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font-weight: 500;
+    color: #212529;
+    }
+
+    /* Separadores de secciones */
+    .modal_info_cita .row.mb-3 {
+    padding: 10px 0;
+    border-bottom: 1px dashed #ced4da;
+    margin-bottom: 15px;
+    }
+
+    /* Información de cancelación */
+    .modal_info_cita .div_info_cancelacion {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 15px;
+    border-radius: 0.5rem;
+    margin-top: 15px;
+    }
+
+    .modal_info_cita .div_info_cancelacion label {
+    font-weight: bold;
+    color: #856404;
+    margin-bottom: 10px;
+    }
+
+    /* Lista de servicios */
+    .modal_info_cita .div_servicios {
+    /*background-color: #f1f3f5;  Fondo uniforme para toda la sección */
+    border: 1px solid #ced4da;
+    padding: 15px;
+    border-radius: 0.5rem;
+    margin-top: 20px;
+    }
+
+    .modal_info_cita .div_servicios label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #495057;
+    }
+
+    .modal_info_cita .div_servicios .d-flex {
+    align-items: center;
+    }
+
+    /* Quitamos el fondo de las filas de encabezado de servicios */
+    .modal_info_cita .div_servicios .div_header_servicios .d-flex {
+    background-color: transparent;
+    }
+
+    /* Total en servicios */
+    .modal_info_cita .div_servicios .total {
+    font-size: 1.1rem;
+    color: #343a40;
+    }
+
+    /* Footer del modal */
+    .modal_info_cita .modal-footer {
+    border-top: none;
+    }
+
+    /* Botón de cancelar */
+    .modal_info_cita .btn-outline-dark {
+    border-radius: 0.5rem;
+    padding: 6px 20px;
+    }
+
+    .hide {
+        display:none;
+    }
+
+    /*  MODAL DE EXPLORACION FISICA */
+    .exploracion_fisica_modal .section-title {
+        color: #2c3e50;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    .exploracion_fisica_modal .info-group {
+        margin-bottom: 15px;
+    }
+    .exploracion_fisica_modal .info-label {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    .exploracion_fisica_modal .info-content {
+        color: #2c3e50;
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 4px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .note-editable p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .note-editable p + p {
+        margin-top: 0;
+    }
+
+    .div_show_receta p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .div_show_receta p + p {
+        margin-top: 0;
+    }
+
+</style>
+<?php 
+//  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
+$genero = array(
+    'F'     => 'Femenino',
+    'M'     => 'Masculino',
+    null    => 'S/A'
+);
+
+$dias_semana = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado', 
+    7 => 'Domingo'
+];
+
+//  ARRAY DE AREAS YA ASIGNADAS AL PACIENTE
+$arr_subarea_paciente   = array();
+
+function cambiarFormatoFecha($fecha) {
+    if (empty($fecha)) return '';
+    return date('d/m/Y', strtotime($fecha));
+}
+
+?>
+
+<div id="container_digital_record">
+    <!-- Botón toggle para móvil -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <span class="material-icons">menu</span>
+    </button>
+
+    <!-- Overlay para móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container-fluid p-0">
+        <div class="row g-5">
+            <!-- Sidebar -->
+            <aside class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
+                <div class="p-3">
+                    <div class="mb-4">
+                        <h1 class="h5 fw-bold mb-1">Expediente Digital</h1>
+                        <p class="small text-muted mb-0">Paciente: <?php echo $info_digital_record['info_paciente']['primer_apellido'].' '.$info_digital_record['info_paciente']['nombre']; ?></p>
+                    </div>
+                    
+                    <nav class="nav flex-column nav-pills">
+                        <a class="nav-link active bg-primary text-white" data-section="resumen">
+                            <i class="bi bi-card-list"></i>
+                            Resumen
+                        </a>
+                        <a class="nav-link text-dark" data-section="perfil_neurodesarrollo">
+                            <i class="bi bi-person-arms-up"></i>
+                            Perfil Neurodesarrollo
+                        </a>
+                        <?php if($download || $info_digital_record['citas_activas'] == 1): ?>
+                        <a class="nav-link text-dark" data-section="documentos">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            Documentos
+                        </a>
+                        <?php endif; ?>
+                        <?php if ($info_digital_record['citas_activas'] == 1): ?>
+                        <a class="nav-link text-dark" data-section="notas">
+                            <i class="bi bi-journal"></i>
+                            Notas
+                        </a>
+                        <?php endif; ?>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
+            <main class="main-content p-4 div_resumen">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Resumen del Expediente</h2>
+                        <p class="text-muted mb-0">Datos personales y resumen de citas</p>
+                    </div>
+
+                    <!-- Información Personal -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-semibold mb-3">Información Personal</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="form_info_personal" class="needs-validation">
+                                    <div class="row g-4">
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Primer apellido</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['primer_apellido']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_primer_apellido hide_element" data-campo="primer_apellido" data-datooriginal="<?php echo $info_digital_record['info_paciente']['primer_apellido']; ?>" value="<?php echo $info_digital_record['info_paciente']['primer_apellido']; ?>" required />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_first_lastname']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Segundo apellido</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['segundo_apellido']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_segundo_apellido hide_element" data-campo="segundo_apellido" data-datooriginal="<?php echo $info_digital_record['info_paciente']['segundo_apellido']; ?>" value="<?php echo $info_digital_record['info_paciente']['segundo_apellido']; ?>" />
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Nombre</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['nombre']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_nombre hide_element" data-campo="nombre" data-datooriginal="<?php echo $info_digital_record['info_paciente']['nombre']; ?>" value="<?php echo $info_digital_record['info_paciente']['nombre']; ?>" required/>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_name']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-1">
+                                            <div class="d-flex flex-column align-items-end gap-1">
+                                                <?php if ($update): ?>
+                                                <button type="button" class="btn btn-xs btn_edit_info_personal">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn_save_info_personal hide_element">
+                                                    <i class="bi bi-floppy"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn_revert_info_personal hide_element">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Fecha de Nacimiento</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo cambiarFormatoFecha($info_digital_record['info_paciente']['fecha_nacimiento']); ?></p>
+                                            <input type="date" class="input_editar_datos form-control input_fecha_nacimiento hide_element" data-campo="fecha_nacimiento" data-datooriginal="<?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?>" value="<?php echo $info_digital_record['info_paciente']['fecha_nacimiento']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-2">
+                                            <p class="small text-muted mb-1">Edad</p>
+                                            <p class="fw-medium mb-0 p_edad_actual"><?php echo empty($info_digital_record['info_paciente']['edad_actual']) ? '0.0 años' : $info_digital_record['info_paciente']['edad_actual'].' años'; ?> </p>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Género</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $genero[$info_digital_record['info_paciente']['genero']]; ?></p>
+                                            <select class="form-select input_editar_datos select_genero hide_element" data-campo="genero" data-datooriginal="<?php echo $info_digital_record['info_paciente']['genero']; ?>">
+                                                <option value="" <?php echo $genero[$info_digital_record['info_paciente']['genero']] == 'S/A' ? 'selected' : ''; ?>>Sin asignar</option>
+                                                <option value="F" <?php echo $genero[$info_digital_record['info_paciente']['genero']] == 'Femenino' ? 'selected' : ''; ?>>Femenino</option>
+                                                <option value="M" <?php echo $genero[$info_digital_record['info_paciente']['genero']] == 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Teléfono</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['celular']; ?></p>
+                                            <input type="text" class="input_editar_datos input_celular form-control hide_element" maxLength="10" data-campo="celular" data-datooriginal="<?php echo $info_digital_record['info_paciente']['celular']; ?>" value="<?php echo $info_digital_record['info_paciente']['celular']; ?>" required/>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Correo Electrónico</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['correo_electronico'] == null ? 'S/A' : $info_digital_record['info_paciente']['correo_electronico']; ?></p>
+                                            <input type="text" class="input_editar_datos input_correo_electronico form-control hide_element" data-campo="correo_electronico" data-datooriginal="<?php echo $info_digital_record['info_paciente']['correo_electronico']; ?>" value="<?php echo $info_digital_record['info_paciente']['correo_electronico']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_email']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <p class="small text-muted mb-1">Dirección</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['direccion'] == null ? 'S/A' : $info_digital_record['info_paciente']['direccion']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_direccion hide_element" data-campo="direccion" data-datooriginal="<?php echo $info_digital_record['info_paciente']['direccion']; ?>" value="<?php echo $info_digital_record['info_paciente']['direccion']; ?>" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Citas -->
+                    <section class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="h4 fw-semibold mb-0">Citas programadas</h3>
+                            <?php if ($schedule_appointments): ?>
+                            <a class="btn btn-link schedulle_appoitment_view text-primary text-decoration-none p-0">
+                                Modificar registros
+                                <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-3">D&iacute;a</th>
+                                            <th class="p-3">Hora</th>
+                                            <th class="p-3">Servicio</th>
+                                            <th class="p-3">Profesional</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $citas_programadas    = $info_digital_record['info_citas_programadas']; ?>
+                                        <?php if (count($citas_programadas) > 0): ?>
+                                        <?php foreach($citas_programadas as $cita): ?>
+                                        <tr>
+                                            <td class="p-3"><?php echo $dias_semana[$cita['dia']]; ?></td>
+                                            <td class="p-3"><?php echo $cita['hora_inicio'].' a '.$cita['hora_termino']; ?></td>
+                                            <td class="p-3" style="background-color: <?php echo $cita['codigo_color']; ?>"><?php echo $cita['clave_servicio'] ?></td>
+                                            <td class="p-3"><?php echo $cita['nombre_profesional'] ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                        <?php else: ?>
+                                        <tr>
+                                            <td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                        </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Citas -->
+                    <section class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="h4 fw-semibold mb-0">Hstorial de citas</h3>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <table id="table_results_citas" class="display table table-striped table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_service_cost']; ?></th>
+                                            <th><?php echo $translations['html_appointment_date']; ?></th>
+                                            <th><?php echo $translations['html_status']; ?></th>
+                                            <th><?php echo $translations['html_attendance_status']; ?></th>
+                                            <th><?php echo $translations['html_paid']; ?></th>
+                                            <th><?php echo $translations['html_action']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content p-4 div_perfil_neurodesarrollo" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Perfil Neurodesarrollo</h2>
+                        <p class="text-muted mb-0">Diagnostico y áreas de desarrollo</p>
+                    </div>
+                    <!-- Diagnósticos y Tratamientos -->
+                    <section class="mb-5">
+                        <div class="col-lg-12">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="h4 fw-semibold mb-0">Diagn&oacute;sticos</h3>
+                                <?php if ($update): ?>
+                                <a class="btn btn-link btn_diagnoses text-primary text-decoration-none p-0">
+                                    Modificar diagn&oacute;stico
+                                    <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <?php if (count($info_digital_record['diagnosticos']) > 0): ?>
+                                    <?php foreach($info_digital_record['diagnosticos'] as $diagnostico): ?>
+                                    <div class="border-start border-primary border-3 ps-3">
+                                        <p class="fw-medium mb-1"><b><?php echo $diagnostico['nombre']; ?></b></p>
+                                        <p class="small text-muted mb-1 ms-3">- <?php echo 'El paciente <b>'.($diagnostico['presento_evidencia'] == 1 ? 'SI' : 'NO').'</b> presento evidencia de este diagnostico.'; ?></p>
+                                    </div>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                    <div class="border-start border-primary border-3 ps-3">
+                                        <p class="fw-medium mb-1">Paciente sin diagnostico</p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="mb-5">
+                        <div class="col-lg-12">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="h4 fw-semibold mb-0">Áreas de enfoque</h3>
+                                <?php if ($update && $info_digital_record['citas_activas'] == 1): ?>
+                                <a class="btn btn-link btn_focus text-primary text-decoration-none p-0">
+                                    Modificar registros
+                                    <span class="material-icons" style="font-size: 1rem;">arrow_forward</span>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <?php if(count($info_digital_record['areas_enfoque']) > 0): ?>
+                                        <?php foreach($info_digital_record['areas_enfoque'] as $area_enfoque): ?>
+                                        <div class="border-start border-success border-3 ps-3">
+                                            <p class="fw-medium mb-1"><b><?php echo $area_enfoque['info']['nombre']; ?></b></p>
+                                            <?php foreach($area_enfoque['subarea'] as $subarea): ?>
+                                            <?php $arr_subarea_paciente[$subarea['id_subarea_enfoque']] = $subarea['id_profesional_registro']; ?>
+                                            <p class="small text-muted mb-1 ms-3">- <?php echo $subarea['nombre_subarea']; ?></p>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="border-start border-success border-3 ps-3">
+                                            <label>Sin área asignada</label>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content p-4 div_documentos" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Gestión de documentos</h2>
+                    </div>
+                    <?php $tipo_archivos    = $info_digital_record['tipo_archivos']; ?>
+                    <!-- Historial de Citas -->
+                    <section class="mb-10">
+                            <!-- Subir nuevo documento -->
+                        <div class="mb-4">
+                            <h2 class="h5 fw-semibold mb-3">Subir nuevo documento</h2>
+                            <div class="p-4 border rounded-3 bg-white shadow-sm">
+                                <input type="file" id="input_file_document" class="d-none">
+                                <div id="dropzoneContainer" class="dropzone border border-2 border-secondary rounded p-4 text-center bg-light" style="cursor:pointer;">
+                                    <div class="dz-message text-muted">
+                                        <i class="bi bi-cloud-arrow-up fs-1"></i>
+                                        <p class="mt-2 mb-0">Arrastra un archivo o haz clic aquí</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 w-50">
+                                    <label for="select_categoria_archivo" class="form-label">Categoría</label>
+                                    <select class="form-select" id="select_categoria_archivo">
+                                        <option value="" selected>Seleccionar categoría</option>
+                                        <?php foreach($tipo_archivos as $tipo): ?>
+                                        <option value="<?php echo $tipo['id']; ?>" data-clave="<?php echo $tipo['clave']; ?>"><?php echo $tipo['nombre']; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="textarea_observaciones" class="form-label">Observaciones al documento</label>
+                                    <textarea id="textarea_observaciones" class="form-control" rows="3" style="resize: none;"></textarea>
+                                </div>
+
+                                <div class="mt-3 text-end">
+                                    <?php if ($download || $info_digital_record['citas_activas'] == 1): ?>
+                                    <button id="btn_subir_archivo" class="btn btn-primary">Subir archivo</button>
+                                    <?php endif; ?>
+                                    <button id="btn_close_preview" class="btn btn-outline-dark" style="display:none;">Cancelar vista previa</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="w-50">
+                                <h3 class="h4 fw-semibold mb-0">Filtros</h3>
+                            </div>
+                            <div class="w-50 d-flex gap-2">
+                                <input id="input_filtro_archivos" type="text" class="form-control" placeholder="Buscar documento" />
+                                <select id="select_filtros" class="form-select">
+                                    <option value="">Todas las categorías</option>
+                                    <?php foreach($tipo_archivos as $tipo): ?>
+                                    <option value="<?php echo $tipo['id']; ?>"><?php echo $tipo['nombre']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table id="table_files" class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-3">Nombre del archivo</th>
+                                            <th class="p-3">Categoria</th>
+                                            <th class="p-3">Fecha registro</th>
+                                            <th class="p-3">Opciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $archivos = $info_digital_record['archivos']; ?>
+                                        <?php if (count($archivos) > 0): ?>
+                                        <?php foreach($archivos as $archivo): ?>
+                                        <tr>
+                                            <td class="p-3 row_filtro td_nombre"><?php echo $archivo['nombre_original']; ?></td>
+                                            <td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>"><?php echo $archivo['nombre_tipo_archivo']; ?></td>
+                                            <td class="p-3 row_filtro"><?php echo $archivo['fecha_registro'] ?></td>
+                                            <td class="p-3">
+                                                <?php if ($info_digital_record['citas_activas'] == 1 || $archivo['id_usuario_captura'] == $id_usuario): ?>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_preview_file" data-observaciones="<?php echo $archivo['observaciones']; ?>"><i class="bi bi-eye"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>
+                                                <button type="button" data-id="<?php echo $archivo['id']; ?>" data-idtipoarchivo="<?php echo $archivo['id_tipo_archivo']; ?>" data-clavetipoarchivo="<?php echo $archivo['clave_tipo_archivo']; ?>" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                        <?php else: ?>
+                                        <tr class="row_empty">
+                                            <td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                        </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Notas</h2>
+                        <p class="text-muted mb-0">Notas privadas y compartidas</p>
+                    </div>
+                    <!-- Añadir Nueva Nota -->
+                    <section class="col-12 col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h2 class="h4 fw-bold">Añadir Nueva Nota</h2>
+                                <p class="text-muted small mb-0">Registre la evolución del paciente.</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                <span class="material-icons">fullscreen</span>
+                            </button>
+                        </div>
+                        <div class="row div_titulo mb-3">
+                            <label>Titulo</label>
+                            <input type="text" class="form-control input_titulo_nota" />
+                        </div>
+                        <form class="d-flex flex-column flex-grow-1">
+                            <div class="flex-grow-1 mb-3">
+                            <div id="summernote"></div>
+                            </div>
+                            <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="private-note"/>
+                            <label for="private-note" class="form-check-label">Nota Privada (Solo visible para mí)</label>
+                            <?php if (is_numeric($id_agenda_cita)): ?>
+                                <br><span class="span_nota_cita text-secondary">La nota a crear quedará registrada como "Nota de cita"</span>
+                            <?php endif; ?>
+                            </div>
+                            <button type="button" class="btn btn-success text-white fw-semibold btn_save_nota">Añadir Nota</button>
+                            
+                        </form>
+                        <!-- Contenedor para los botones alineados a la derecha -->
+                        <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn_edit_nota btn_cancelar_edit" style="display:none;">Cancelar</button>
+                            <button type="button" class="btn btn-sm btn-success btn_edit_nota text-white btn_save_nota" style="display:none;">Guardar</button>
+                        </div>
+                        </div>
+                    </div>
+                    </section>
+
+                    <!-- Historial de Notas -->
+                    <section class="col-12 col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h2 class="h4 fw-bold mb-4">Historial de Notas</h2>
+                                <table id="table_results" class="display table table-hover table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_title']; ?></th>
+                                            <th><?php echo $translations['html_title_professional']; ?></th>
+                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                </main>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal_info_cita" id="modal_info_cita" tabindex="-1" aria-labelledby="label_modal_info_cita" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_info_cita"><?php echo FuncionesGlobales::UpperString($translations['html_info_appointment']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_cancelar_cita" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_title_patient']; ?>:</label>
+                    <div id="nombre_paciente" class="d-block"></div>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_title_professional']; ?>:</label>
+                    <div id="nombre_profesional" class="d-block"></div>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_appointment_date']; ?>:</label>
+                    <div id="fecha_cita" class="d-block"></div>
+                </div>
+                <div class="col-md-4">
+                    <label><?php echo $translations['html_hour']; ?>:</label>
+                    <div id="hora_cita" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_ab_duration']; ?>:</label>
+                    <div id="duracion" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_user_capture']; ?>:</label>
+                    <div id="usuario_captura" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_attendance_status']; ?>:</label>
+                    <div id="asistencia" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_appoitment_type']; ?>:</label>
+                    <div id="tipo_cita" class="d-block"></div>
+                </div>
+                <div class="col-md-4 hide_by_pay">
+                    <label><?php echo $translations['html_status']; ?>:</label>
+                    <div id="estatus" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_paid']; ?>:</label>
+                    <div id="pagada" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_payment_date']; ?>:</label>
+                    <div id="fecha_pago" class="d-block"></div>
+                </div>
+                <div class="col-md-4 show_by_pay" style="display:none;">
+                    <label><?php echo $translations['html_method_payment']; ?>:</label>
+                    <div id="forma_pago" class="d-block"></div>
+                </div>
+                <div class="col-md-12 div_info_cancelacion hide">
+                    <label><?php echo $translations['html_info_cancel_appoitment']; ?></label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_date']; ?>:</label>
+                            <div id="fecha_cancelacion" class="d-block"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_user']; ?>:</label>
+                            <div id="usuario_cancelacion" class="d-block"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_reason']; ?>:</label>
+                            <div id="motivo_cancelacion" class="d-block"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <label><?php echo $translations['html_observations']; ?>:</label>
+                            <div id="observaciones_cancelacion" class="d-block"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 div_servicios">
+                    <div class="col-md-12"><label>Lista de servicios</label></div>
+                    <div class="d-flex border-bottom fw-bold py-2 mt-3">
+                        <div class="flex-fill">Servicio</div>
+                        <div class="flex-fill">Duración</div>
+                        <div class="flex-fill">Costo</div>
+                    </div>
+
+                    <!-- Primera fila de datos -->
+                    <div class="div_header_servicios">
+                    </div>
+
+                    <!-- Total -->
+                    <div class="d-flex justify-content-end fw-bold py-2 mt-2">
+                        <div>Total: $<span class="total"></span></div>
+                    </div>
+                </div>
+                
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_close']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="template_servicio_cita_diaria" class=" py-2 border-bottom hide">
+    <div class="flex-fill servicio">Lenguaje</div>
+    <div class="flex-fill div_duracion"><span class="duracion"></span> Min</div>
+    <div class="flex-fill costo">$<span clas="costo"></span></div>
+</div>
+
+<div class="modal fade" id="modal_diagnostico" tabindex="-1" aria-labelledby="label_modal_diagnostico" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_diagnostico">Captura de diagnostico(s)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <div class="div_lista_diagnosticos col-md-12">
+                    <div class="row">
+                        <div class="col-md-2"><?php echo $translations['html_abrev']; ?></div>
+                        <div class="col-md-8"><?php echo $translations['html_diagnoses']; ?></div>
+                        <div class="col-md-2"><?php echo $translations['html_evidence']; ?></div>
+                    </div>
+                    
+                    <?php foreach($arr_transtornos as $row): ?>
+                        <div data-id="<?php echo $row['id']; ?>" class="row div_diagnostico" id="diagnostico_<?php echo $row['id']; ?>">
+                            <div class="col-md-2"><?php echo ($row['clave']); ?></div>
+                            <div class="col-md-8"><?php echo ($row['nombre']); ?></div>
+                            <div class="col-md-2" align="center"><input type="checkbox" class="input_evidencia"  disabled/></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_focus" tabindex="-1" aria-labelledby="label_modal_focus" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_focus">Captura de Areas de enfoque</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <div class="div_lista_enfoques col-md-12">
+                    <div class="border rounded" style="overflow-y: auto; height: 400px;">
+                        <?php foreach($arr_areas_enfoque as $index => $area_enfoque): ?>
+                            <div class="border-bottom">
+                                <div class="p-3 bg-light div_header" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#collapseArea<?php echo $index; ?>" 
+                                    style="cursor: pointer">
+                                    <span class="fw-semibold"><?php echo $area_enfoque['info']['nombre']; ?></span>
+                                </div>
+                                <div id="collapseArea<?php echo $index; ?>" class="collapse">
+                                    <div class="p-0">
+                                        <?php foreach($area_enfoque['subarea'] as $subarea): ?>
+                                            <div class="p-3 ps-5 border-bottom div_subarea" data-id="<?php echo $subarea['id_subarea_enfoque']; ?>" style="cursor:pointer">
+                                                <?php echo $subarea['nombre']; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_preview_nota" tabindex="-1" aria-labelledby="label_modal_preview_nota" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h3 class="modal-title" id="label_modal_diagnostico">Nota</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <!-- Campo Clave -->
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_title']; ?>:</label>
+                    <div id="titulo" class="d-block"></div>
+                </div>
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_title_professional']; ?>:</label>
+                    <div id="nombre_profesional" class="d-block"></div>
+                </div>
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_private_note']; ?>:</label>
+                    <div id="nota_privada" class="d-block"></div>
+                </div>
+                <div class="col-md-6">
+                    <label><?php echo $translations['html_appoitment_note']; ?>:</label>
+                    <div id="nota_cita" class="d-block"></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-12 div_show_nota" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btn_delete" class="btn btn-danger" ><?php echo $translations['html_delete_record']; ?></button>
+        <button type="button" id="btn_edit" class="btn btn-success"><?php echo $translations['html_edit_record']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_preview_cita" tabindex="-1" aria-labelledby="label_modal_preview_cita" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h3 class="modal-title" id="label_modal_preview_cita">Informaci&oacute;n de consulta</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <!-- Pestañas Bootstrap -->
+        <ul class="nav nav-tabs mb-3" id="recetaTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="exploracion-tab" data-bs-toggle="tab" data-bs-target="#exploracion" type="button" role="tab" aria-controls="exploracion" aria-selected="true">
+              Exploración física
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="motivos-tab" data-bs-toggle="tab" data-bs-target="#motivos" type="button" role="tab" aria-controls="motivos" aria-selected="false">
+              Motivos de consulta
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="receta-tab" data-bs-toggle="tab" data-bs-target="#receta" type="button" role="tab" aria-controls="receta" aria-selected="false">
+              Receta médica
+            </button>
+          </li>
+        </ul>
+
+        <!-- Contenido de las pestañas -->
+        <div class="tab-content exploracion_fisica_modal" id="recetaTabsContent">
+            <!-- Pestaña 1: Exploración física -->
+            <div class="tab-pane fade show active" id="exploracion" role="tabpanel" aria-labelledby="exploracion-tab">
+                <div class="row mb-3">            
+                    <div class="col-md-12">
+                        <div style="width: 100%; min-height: 120px; padding: 12px; overflow-y: auto; overflow-x: auto;">
+                            <!-- Fecha de registro -->
+                            <div class="info-group mb-3">
+                                <div class="info-label">Fecha de registro:</div>
+                                <div id="modalFecha" class="info-content"></div>
+                            </div>
+
+                            <!-- Parámetros Vitales - 3 por fila -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6 class="section-title">Parámetros Vitales</h6>
+                                </div>
+                            </div>
+
+                            <!-- Fila 1 de Parámetros Vitales -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Temperatura:</div>
+                                        <div id="modalTemperatura" class="info-content"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Frecuencia Cardíaca:</div>
+                                        <div id="modalFrecuenciaCardiaca" class="info-content"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Presión Arterial:</div>
+                                        <div id="modalPresionArterial" class="info-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fila 2 de Parámetros Vitales -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Frecuencia Respiratoria:</div>
+                                        <div id="modalFrecuenciaRespiratoria" class="info-content"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Saturación de Oxígeno:</div>
+                                        <div id="modalSaturacionOxigeno" class="info-content"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <!-- Espacio vacío para mantener la alineación -->
+                                </div>
+                            </div>
+
+                            <!-- Antropometría -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6 class="section-title">Antropometría</h6>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Peso:</div>
+                                        <div id="modalPeso" class="info-content"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">Talla:</div>
+                                        <div id="modalAltura" class="info-content"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-group">
+                                        <div class="info-label">IMC:</div>
+                                        <div id="modalIMC" class="info-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Información Clínica -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6 class="section-title">Información Clínica</h6>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="info-group">
+                                        <div class="info-label">Alergias:</div>
+                                        <div id="modalAlergias" class="info-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="info-group">
+                                        <div class="info-label">Observaciones:</div>
+                                        <div id="modalObservaciones" class="info-content"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña 2: Motivos de consulta -->
+            <div class="tab-pane fade" id="motivos" role="tabpanel" aria-labelledby="motivos-tab">
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <div style="width: 100%; min-height: 120px; padding: 12px; overflow-y: auto; overflow-x: auto;">
+                    <div class="info-group">
+                        <div class="info-label">Fecha de registro:</div>
+                        <div id="modalFechaMotivo" class="info-content"></div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Motivo de consulta:</div>
+                        <div id="modalMotivo" class="info-content"></div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Padecimiento actual:</div>
+                        <div id="modalPadecimiento" class="info-content"></div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Antecedentes relevantes:</div>
+                        <div id="modalAntecedentes" class="info-content"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pestaña 3: Receta médica -->
+            <div class="tab-pane fade" id="receta" role="tabpanel" aria-labelledby="receta-tab">
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <div style="width: 100%; min-height: 120px; padding: 12px; overflow-y: auto; overflow-x: auto;">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="info-group">
+                                <div class="info-label"><?php echo $translations['html_diagnoses']; ?>:</div>
+                                <div id="diagnostico" class="info-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-group">
+                                <div class="info-label"><?php echo $translations['html_creation_date']; ?>:</div>
+                                <div id="fecha_creacion" class="info-content"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 div_show_receta" style="width: 100%; min-height: 120px; overflow-y: auto; overflow-x: auto;">
+                            
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btn_download" class="btn btn-success"><?php echo $translations['html_download']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    let modulo_digital_record   = (function(){
+        //  ID DEL PACIENTE
+        const id_paciente       = '<?php echo $id_paciente; ?>';
+        const id_profesional    = '<?php echo $id_profesional; ?>';
+        const id_agenda_cita    = '<?php echo $id_agenda_cita; ?>';
+        const estatus           = '<?php echo $info_digital_record['info_paciente']['estatus']; ?>';
+        const nombre_completo   = '<?php echo $info_digital_record['info_paciente']['nombre_completo']; ?>';
+        const upload_max        = '<?php echo $upload_max; ?>';
+        const post_max          = '<?php echo $post_max; ?>';
+        const human_upload_max  = '<?php echo $human_upload_max; ?>';
+        const human_post_max    = '<?php echo $human_post_max; ?>';
+        let diagnosticos        = '<?php echo $diagnosticos ?>';
+        diagnosticos            = JSON.parse(diagnosticos);
+        let clinicalData        = '<?php echo $clinicalData; ?>';
+
+        let arr_subarea_paciente    = '<?php echo json_encode($arr_subarea_paciente); ?>';
+        arr_subarea_paciente        = JSON.parse(arr_subarea_paciente);
+
+        let estatus_asistencia  = {
+            0   : 'FALTA',
+            1   : 'ASISTENCIA',
+            2   : 'RETARDO',
+            3   : 'ACTIVIDAD EN CASA',   
+            null    : 'Sin asignar' 
+        };
+
+        //  URL
+        const controller    = '/Pacientes';
+        const url_digital   = controller+'/digitalRecord'
+        const url_clinical  = controller+'/clinicalData'
+        const url_update    = controller+"/update";
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+        let table2;
+        let draw            = 1;
+
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            deactivate_patient      : "<?= $translations['html_deactivate_patient']?>",
+            activate_patient        : "<?= $translations['html_activate_patient']?>",
+            schedule_appointments   : "<?= $translations['html_schedule_appointments']?>",
+            monday: "<?php echo $translations['html_monday'];     ?>",
+            thuesday: "<?php echo $translations['html_thuesday'];   ?>",
+            wednesday: "<?php echo $translations['html_wednesday'];  ?>",
+            thursday: "<?php echo $translations['html_thursday'];   ?>",
+            friday: "<?php echo $translations['html_friday'];     ?>",
+            saturday: "<?php echo $translations['html_saturday'];   ?>",     
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
+        };
+
+        //  MENSAJES DE ERROR
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena     : "<?php echo $translations['html_error_length_password']; ?>",
+            error_validate_cellphone    : "<?php echo $translations['html_error_validate_cellphone']; ?>",
+            error_verify_general_data   : "<?php echo $translations['html_error_verify_general_data']; ?>",
+            error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
+            question_return             : "<?php echo $translations['html_question_return']?>",
+        }
+
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url: url_digital,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_notes';
+                            d.id_paciente   = id_paciente;
+                        },
+                        dataSrc: function (json) {
+                            console.log("DataTables Response:", json); // <---- Depuración
+                            return json.data;
+                        }
+                    },
+                    columns: [
+                        { data: 'label_titulo' },
+                        { data: 'nombre_profesional' }, // Columna 1
+                        { data: 'label_fecha_creacion' } // Columna 1
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
+                        $(row).css('cursor','pointer');
+                        $(row).addClass('row_notas');
+                        
+                        if (data['nota_privada'] == 1) {
+                            // Aplica el fondo a toda la fila
+                            $(row).attr('title','Nota privada');
+                            $(row).css('background-color', '#F7F157');
+                            // Aplica el fondo a cada celda individualmente
+                            $('td', row).css('background-color', '#F7F157');
+                        }
+
+                        if (data['id_agenda_cita'] != null) {
+                            let info_cita   = data['fecha_cita']+', '+data['dia']+' de '+data['hora_inicio']+' a '+data['hora_termino'];
+                            if (data['nota_privada'] == 1){
+                                $(row).attr('title','Nota privada / Nota de cita: '+info_cita);
+                            } else {
+                                $(row).attr('title','Nota de cita: '+info_cita);
+                            }
+                        }
+                    }
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
+        // Mostrar vista previa
+        // Mostrar vista previa
+        async function show_preview(file, $container) {
+            const type = file.type;
+            if (!file) return;
+            
+            const mimeTypesPermitidos = [
+                // PDF
+                'application/pdf',
+                // Imágenes
+                'image/jpeg',
+                'image/png',
+                // Documentos de Office (Word)
+                'application/msword', // .doc
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                // Documentos de Office (Excel)
+                'application/vnd.ms-excel', // .xls
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                // Texto plano
+                'text/plain',
+                // DICOM (imágenes médicas)
+                'application/dicom'
+            ];
+            
+            if (!mimeTypesPermitidos.includes(type)) {
+                showAlert('danger', 'Formato de archivo no permitido');
+                return;
+            }
+
+            //  SE BUSCA QUE EL TAMAÑO DEL DOCUMENTO NO EXCEDA EL PERMITIDO
+            const file_size = file.size;
+
+            if (file_size >= upload_max){
+                showAlert('danger', 'Tamaño maximo excedido, limite de '+human_upload_max);
+                return;
+            }
+            
+            const fileType = file.type;
+            const fileURL = URL.createObjectURL(file);
+            let previewHTML = '';
+            
+            if (fileType.startsWith('image/')) {
+                // Vista previa para imágenes
+                previewHTML = `
+                    <div class="position-relative w-100 h-100">
+                        <img src="${fileURL}" class="w-100 h-100 object-fit-contain rounded" alt="Vista previa">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileType === 'application/pdf') {
+                // Vista previa PDF
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <embed src="${fileURL}" type="application/pdf" class="w-100 h-100 rounded" style="border:none;"/>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileType === 'text/plain') {
+                // Vista previa para archivos TXT
+                try {
+                    const text = await file.text();
+
+                    previewHTML = `
+                        <div class="position-relative w-100 p-3 bg-light rounded" 
+                            style="min-height:200px; max-height:100%; overflow-y:auto;">
+                            <pre class="mb-0" 
+                                style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
+                                ${escapeHtml(text)}
+                            </pre>
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                        </div>
+                    `;
+                } catch (error) {
+                    previewHTML = `<p class="text-muted">Error al leer el archivo de texto</p>`;
+                }
+            } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+                    fileType === 'application/msword') {
+                // Vista previa para documentos Word usando Google Docs Viewer o Office Online
+                const encodedURL = encodeURIComponent(fileURL);
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <div class="alert alert-info mb-2">
+                            <strong>Documento Word:</strong> ${file.name}
+                            <br><small>Los archivos .doc/.docx requieren descarga para vista previa completa</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="bi bi-file-earmark-word" style="font-size: 4rem; color: #2B579A;"></i>
+                                <p class="mt-2 mb-0">${file.name}</p>
+                                <small class="text-muted">${formatFileSize(file.size)}</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else {
+                previewHTML = `
+                    <div class="position-relative">
+                        <p class="text-muted">Archivo seleccionado: ${file.name}</p>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            }
+            
+            $container.html(previewHTML);
+        }
+
+        //  Mostrar vista previa de archivo ya almacenado
+        async function show_preview_file(tipo, filename,fileURL,$container,id_tipo_archivo,observaciones) {
+            const fileExt = filename.split('.').pop().toLowerCase();
+
+            let previewHTML = '';
+
+            if (fileExt === 'pdf') {
+                // PDF
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <embed src="${fileURL}" type="application/pdf" class="w-100 h-100 rounded" style="border:none;"/>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
+                // Imagen
+                previewHTML = `
+                    <div class="position-relative w-100 h-100">
+                        <img src="${fileURL}" class="w-100 h-100 object-fit-contain rounded" alt="Vista previa">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (fileExt === 'txt') {
+                // Texto plano
+                try {
+                    const response = await fetch(fileURL);
+                    const text = await response.text();
+
+                    previewHTML = `
+                        <div class="position-relative w-100 p-3 bg-light rounded" 
+                            style="min-height:200px; max-height:100%; overflow-y:auto;">
+                            <pre class="mb-0" 
+                                style="white-space:pre-wrap; word-wrap:break-word; margin:0;">
+                                ${escapeHtml(text)}
+                            </pre>
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                        </div>
+                    `;
+                } catch (error) {
+                    previewHTML = `<p class="text-muted">Error al leer el archivo de texto</p>`;
+                }
+            } else if (['doc', 'docx'].includes(fileExt)) {
+                // Documentos Word (.doc / .docx)
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <div class="alert alert-info mb-2">
+                            <strong>Documento Word:</strong> ${filename}
+                            <br><small>Los archivos .doc/.docx requieren descarga para vista previa completa</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="bi bi-file-earmark-word" style="font-size: 4rem; color: #2B579A;"></i>
+                                <p class="mt-2 mb-0">${filename}</p>                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else if (['xls', 'xlsx'].includes(fileExt)) {
+                // Documentos Excel
+                previewHTML = `
+                    <div class="position-relative w-100 h-100" style="min-height: 300px;">
+                        <div class="alert alert-info mb-2">
+                            <strong>Documento Excel:</strong> ${filename}
+                            <br><small>Los archivos .xls/.xlsx requieren descarga para vista previa completa</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="bi bi-file-earmark-excel" style="font-size: 4rem; color: #217346;"></i>
+                                <p class="mt-2 mb-0">${filename}</p>
+                                <a href="${fileURL}" class="btn btn-sm btn-outline-success mt-2" download>Descargar</a>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            } else {
+                // Otros archivos no previsualizables
+                previewHTML = `
+                    <div class="position-relative w-100 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <p class="mb-0 text-muted">Archivo: ${filename}</p>
+                            <a href="${fileURL}" class="btn btn-sm btn-outline-secondary" download>Descargar</a>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-file">×</button>
+                    </div>
+                `;
+            }
+
+            $("#select_categoria_archivo").val(id_tipo_archivo).prop('disabled',true);
+            $("#textarea_observaciones").val(observaciones).prop('disabled',true);
+            $("#btn_subir_archivo").hide();
+            $("#btn_close_preview").show();
+
+            $container.html(previewHTML);
+        }
+
+
+
+        // Función auxiliar para escapar HTML y prevenir XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Función auxiliar para formatear tamaño de archivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        //  FUNCION PARA FILTRAS ARCHIVOS
+        function show_filtros_archivos(){
+            let text_filter     = $("#input_filtro_archivos").val();
+            let select_filter   = $("#select_filtros").val();
+
+            //  SE OCULTAN TODOS LOS ROWS
+            $("#table_files").find('tbody tr').hide();
+            $("#table_files").find('.row_empty').remove();
+
+            //  RECORRIDO DE TODOS LOS ROWS
+            $("#table_files").find('tbody tr').each(function(){
+                let row_tr      = $(this);
+                let show_row    = true;
+
+                if (text_filter != '' && !row_tr.find('.td_nombre').text().includes(text_filter)){
+                    show_row    = false;
+                } else {
+                    if (select_filter != '' && row_tr.find('.td_tipo_archivo').data('idtipoarchivo') != select_filter){
+                        show_row    = false;
+                    }
+                }
+
+                if (show_row){
+                    $(row_tr).show();
+                } else {
+                    $(row_tr).hide();
+                }
+            });
+
+            //  SE PINTA ROW SIN REGISTROS
+            if ($("#table_files").find('tbody tr:visible').length == 0){
+                $("#table_files").find('tbody').append(' <tr class="row_empty">'+
+                                                                '<td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>'+
+                                                            '</tr>');
+            }
+        }
+
+        function formatearFecha(fecha) {
+            const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+            const partes = fechaFormateada.split(', ');
+            
+            function capitalizarPrimeraLetra(texto) {
+                return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+            }
+
+            if (partes.length > 1) {
+                // Si la fecha incluye coma (formato "día, fecha")
+                return capitalizarPrimeraLetra(partes[0]) + ', ' + partes[1];
+            } else {
+                // Si no hay coma, convertir la primera palabra (asumiendo que es el día)
+                const palabras = fechaFormateada.split(' ');
+                palabras[0] = capitalizarPrimeraLetra(palabras[0]);
+                return palabras.join(' ');
+            }
+        }
+
+        function formatearDuracion(minutos) {
+            if (isNaN(minutos) || minutos < 0) return '';
+
+            const horas = Math.floor(minutos / 60);
+            const minutosRestantes = minutos % 60;
+
+            let resultado = '';
+
+            if (horas > 0) {
+                resultado += `${horas} hr${horas > 1 ? 's' : ''}`;
+            }
+
+            if (minutosRestantes > 0) {
+                if (resultado) resultado += ' ';
+                resultado += `${minutosRestantes} min`;
+            }
+
+            // Si dura exactamente 0 min
+            if (resultado === '') {
+                resultado = '0 min';
+            }
+
+            return resultado;
+        }
+
+        function formatearFechaExtensa(fechaStr) {
+            if (!fechaStr) return '';
+
+            // Separar fecha y hora
+            const [fechaParte, horaParte] = fechaStr.split(' ');
+
+            if (!fechaParte || !horaParte) return fechaStr; // Si no tiene formato esperado, devolver tal cual
+
+            const [anio, mes, dia] = fechaParte.split('-');
+            const [hora, minuto] = horaParte.split(':');
+
+            // Retornar en formato más humano
+            return `${dia}/${mes}/${anio} ${hora}:${minuto} hrs`;
+        }
+
+        function show_info_cita(info_cita,registrar_pago = null){
+            let modal_clone = $("#modal_info_cita").clone().show();
+            $(modal_clone).find("#nombre_paciente").text(info_cita['nombre_completo']);
+            $(modal_clone).find("#nombre_profesional").text(info_cita['nombre_profesional']);
+
+            let split_today = info_cita['fecha_cita'].split('-');
+            let fecha_cita  = new Date(parseInt(split_today[0]), parseInt(split_today[1]) - 1, parseInt(split_today[2]));
+
+            $(modal_clone).find("#fecha_cita").text(formatearFecha(fecha_cita));
+            $(modal_clone).find("#hora_cita").text(info_cita['hora_cita']);
+            $(modal_clone).find("#duracion").text(formatearDuracion(info_cita['duracion']));
+            $(modal_clone).find("#usuario_captura").text(info_cita['usuario_captura']);
+
+            $(modal_clone).find("#asistencia").text(estatus_asistencia[info_cita['asistencia']]);
+            $(modal_clone).find("#tipo_cita").text(info_cita['id_cita_programada'] != null ? 'CITA PROGRAMADA' : 'CITA ORDINARIA');
+            $(modal_clone).find("#estatus").text(info_cita['estatus']);
+
+            console.log("info_cita['activa']",info_cita['activa'])
+            if (info_cita['activa'] != 1){
+                $(modal_clone).find("#fecha_cancelacion").text(formatearFechaExtensa(info_cita['fecha_cancelacion']));
+                $(modal_clone).find("#usuario_cancelacion").text(info_cita['usuario_cancelacion']);
+                $(modal_clone).find("#motivo_cancelacion").text(info_cita['motivo_cancelacion']);
+                $(modal_clone).find("#observaciones_cancelacion").text(info_cita['observaciones_cancelacion']);
+                $(modal_clone).find('.div_info_cancelacion').removeClass('hide');
+            }
+
+            //  SE RECORREN LOS SERVICIOS
+            for(let x in info_cita['servicios']){
+                let servicio        = info_cita['servicios'][x];
+                let row_servicio    = $("#template_servicio_cita_diaria").clone().removeAttr('id').addClass('d-flex').removeClass('hide');
+
+                $(row_servicio).find('.servicio').text(servicio['nombre_servicio']);
+                $(row_servicio).find('.duracion').text(servicio['duracion']);
+                $(row_servicio).find('.costo').text(servicio['costo']);
+
+                $(modal_clone).find('.div_header_servicios').append(row_servicio);
+            }
+            $(modal_clone).find('.total').text(info_cita['total']);
+
+            if (registrar_pago != null){
+                $(modal_clone).find('.hide_by_pay').hide();
+                $(modal_clone).find('.show_by_pay').show();
+
+                if (info_cita['pagada'] == 1){
+                    $(modal_clone).find('.btn_registrar_pago').addClass('btn-danger').text(translations['cancel_payment']);
+                    $(modal_clone).find('#pagada').text('SI');
+                    $(modal_clone).find('#fecha_pago').text(info_cita['fecha_pago']);
+                    $(modal_clone).find('#forma_pago').text(info_cita['forma_pago']);
+                    $(modal_clone).find(".div_forma_pago").hide();
+                } else {
+                    $(modal_clone).find('.btn_registrar_pago').addClass('btn-success').text(translations['pay']);
+                    $(modal_clone).find('#pagada').text('NO');
+                    $(modal_clone).find('#fecha_pago').text('S/A');
+                    $(modal_clone).find('#forma_pago').text('S/A');
+                }
+
+                $(modal_clone).on('click','.btn_registrar_pago',function(){
+                    let btn = $(this);
+                    $(btn).prop('disabled',true);
+                    $.ajax({
+                        url     : url_index,
+                        method  : 'post',
+                        data    : {
+                            accion          : info_cita['pagada'] == 1 ? 'cancelar_pago' : 'capturar_pago',
+                            id_agenda_cita  : info_cita['id_agenda_cita'],
+                            forma_pago      : $(modal_clone).find('[name="forma_pago"]:checked').val(),
+                            info_cita       : info_cita
+                        },
+                        success : function(data){
+                            $(modal_clone).modal('hide');
+                            showAlert('success','Captura exitosa!');
+                            if (!$("[name='filtro_citas_pago']:checked").length > 0){
+                                if (($('#input_rango_fecha_inicio').val() == '' || $('#input_rango_fecha_inicio').val() == null) && ($('#input_rango_fecha_termino').val() == '' || $('#input_rango_fecha_termino').val() == null)) {
+                                    return false;
+                                }
+
+                                if ($('#input_rango_fecha_termino').val() == '') {
+                                    return false;
+                                }
+                            }
+                            
+                            cargarTabla();
+
+                        },
+                        error   : function(error){
+                            $(btn).prop('disabled',false);
+                            console.log('error');
+                            //console.log(error);
+                            actionJsonError(error,btn);
+                        }
+                    });
+                });
+            }
+
+            $(modal_clone).modal('show');
+        }
+
+        $(document).ready(function() {
+            cargarTabla();
+            cargarTablaCitas();
+
+            //  CREAR SUMMERNOTE
+            $('#summernote').summernote({
+                lang: 'es-ES',
+                placeholder: 'Escribe tu nota aquí...',
+                tabsize: 2,
+                height: 100,
+                toolbar: [
+                    // Grupo más básico y funcional
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['fontsize', ['fontsize']],
+                    ['para', ['ul', 'ol', 'paragraph']]
+                ],
+                disableResizeEditor: true,
+                callbacks: {
+                    onPaste: function(e) {
+                        // Limpiar contenido pegado
+                        var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                        e.preventDefault();
+                        document.execCommand('insertText', false, bufferText);
+                    }
+                }
+            });
+            
+            $('#summernote').summernote('code', '');
+
+            // Color
+            $(document).on('click', '.note-color .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide(); // Cierra otros menús
+                menu.toggle(); // Abre/cierra el actual
+            });
+
+            // Font size
+            $(document).on('click', '.note-fontsize .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
+            // Paragraph
+            $(document).on('click', 'button[aria-label="Paragraph"]', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.note-dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
+            // Navegación entre secciones
+            $('#container_digital_record').on('click','.nav-link',function(e) {
+                e.preventDefault();
+                
+                // Remover clase active de todos los enlaces
+                $('#container_digital_record').find('.nav-link').removeClass('active bg-primary text-white').addClass('text-dark');
+                
+                // Añadir clase active al enlace clickeado
+                $(this).removeClass('text-dark').addClass('active bg-primary text-white');
+
+                $(".main-content").hide();
+                $(".div_"+$(this).data('section')).show();
+                
+                // // Cerrar sidebar en móvil
+                // if ($(window).width() < 992) {
+                //     closeSidebar();
+                // }
+            });
+
+            //  ------------------- INFORMACION PERSONAL    ----------------    //
+
+            $(".btn_edit_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").addClass('hide_element');
+                $(".btn_save_info_personal").removeClass('hide_element');
+                $(".btn_revert_info_personal").removeClass('hide_element');
+
+                $(".input_editar_datos").removeClass('hide_element');
+                $(".p_datos").addClass('hide_element');
+            });
+
+            $(".btn_revert_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").removeClass('hide_element');
+                $(".btn_save_info_personal").addClass('hide_element');
+                $(".btn_revert_info_personal").addClass('hide_element');
+
+                $(".input_editar_datos").addClass('hide_element');
+                $(".p_datos").removeClass('hide_element');
+            });
+
+            $(".btn_save_info_personal").on('click', function(){
+                const form = $('#form_info_personal')[0];
+                let flag_error = false;
+                
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                    // Proceder con el guardado
+                }
+                
+                //  VALIDACION DE DATOS
+                if ($('.input_celular').val() != '' && $('.input_celular').val().length != 10){
+                    //  ACTIVAR DE FORMA MANUAL ERROR DE FORM
+                    $('.input_celular')[0].setCustomValidity(error_list['error_celular']);
+                    $('.input_celular').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    //REMOVER CLASE DE ERROR FORM
+                    $('.input_celular')[0].setCustomValidity('');
+                    $('.input_celular').removeClass('is-invalid');
+                }
+
+                if ($('.input_correo_electronico').val() != '' && !validarEmail($('.input_correo_electronico').val())){
+                    $('.input_correo_electronico')[0].setCustomValidity(error_list['error_email']);
+                    $('.input_correo_electronico').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    $('.input_correo_electronico')[0].setCustomValidity('');
+                    $('.input_correo_electronico').removeClass('is-invalid');
+                }
+
+                let obj_info    = {
+                    id                  : id_paciente,
+                    primer_apellido     : $(".input_primer_apellido").val() != null ? $(".input_primer_apellido").val().trim() : null,
+                    segundo_apellido    : $(".input_segundo_apellido").val() != null ? $(".input_segundo_apellido").val().trim() : null,
+                    nombre              : $(".input_nombre").val() != null ? $(".input_nombre").val().trim() : null,
+                    fecha_nacimiento    : $(".input_fecha_nacimiento").val() != null ? $(".input_fecha_nacimiento").val().trim() : null,
+                    genero              : $(".select_genero").val() != null ? $(".select_genero").val().trim() : null,
+                    celular             : $(".input_celular").val() != null ? $(".input_celular").val().trim() : null,
+                    correo_electronico  : $(".input_correo_electronico").val() != null ? $(".input_correo_electronico").val().trim() : null,
+                    direccion           : $(".input_direccion").val() != null ? $(".input_direccion").val().trim() : null
+                };
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        obj_info    : obj_info,
+                        accion      : 'save_express'
+                    },
+                    success : function(data){
+                        console.log('data',data);
+                        showAlert('success','Edición exitosa!');
+                        
+                        $(".input_primer_apellido").closest('div').find('.p_datos').text($(".input_primer_apellido").val().trim());
+                        $(".input_segundo_apellido").closest('div').find('.p_datos').text($(".input_segundo_apellido").val().trim());
+                        $(".input_nombre").closest('div').find('.p_datos').text($(".input_nombre").val().trim());
+                        $(".input_fecha_nacimiento").closest('div').find('.p_datos').text(moment($(".input_fecha_nacimiento").val().trim(), 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                        $(".select_genero").closest('div').find('.p_datos').text($(".select_genero").find('option:selected').text());
+                        $(".input_celular").closest('div').find('.p_datos').text($(".input_celular").val().trim());
+                        $(".input_correo_electronico").closest('div').find('.p_datos').text($(".input_correo_electronico").val().trim());
+                        $(".input_direccion").closest('div').find('.p_datos').text($(".input_direccion").val().trim());
+
+                        $(".p_edad_actual").text(data['edad_actual'] + ' años');
+
+                        $(".btn_revert_info_personal").trigger('click');
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                    }
+                })
+            });
+
+            //  PARA REDIRIGIR A PROGRAMAR CITAS
+            $(".schedulle_appoitment_view").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+
+                window.location.href = '/Pacientes/scheduleappointments?id='+id_paciente;
+            })
+
+            //  EVENTO PARA MODOFICAR DIAGNOSTICO
+            $(".btn_diagnoses").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+                show_modal_diagnoses();
+            });
+
+            //  EVENTO PARA MOSTRAR AREAS DE ENFOQUE
+            $(".btn_focus").on('click',function(){
+                if (estatus != 1){
+                    showAlert('danger','El paciente no puede modificarse hasta que este en estatus ACTIVO');
+                    return false;
+                }
+                show_modal_focus();
+            });
+
+            //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
+            $("#form_info_personal").on('keypress','.input_celular',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
+
+            //  EVENTO PARA VISUALZAR LA INFORMACION DE LA CITA
+            $("#table_results_citas").on('click','.btn_preview',function(){
+                // Obtener los datos almacenados en la fila
+                let data = $(this).closest('tr').data('rowData');
+                show_info_cita(data);
+            });
+
+            //  EVENTO PARA VISUALZAR LA INFORMACION DE LA CITA
+            $("#table_results_citas").on('click','.btn_clinical_data',function(){
+                // Obtener los datos almacenados en la fila
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+                let id_agenda_cita  = $(this).data('id');
+                console.log('id_agenda_cita',id_agenda_cita);
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'get_historico',
+                        get_historico   : true,
+                        id_agenda_cita  : id_agenda_cita
+                    },
+                    success : function(data){
+                        console.log('data',data);
+                        show_modal_receta(data);
+                        $(btn).prop('disabled',false);
+
+                    },
+                    error   : function(error){
+                        console.log('error',error);
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            //  ------------------- DOCUMENTOS  -----------------------------   //
+
+            $("#input_filtro_archivos").on('keyup',function(){
+                show_filtros_archivos();
+            });
+
+            $("#select_filtros").on('change',function(){
+                show_filtros_archivos();
+            });
+
+            const $input = $('#input_file_document');
+            const $container = $('#dropzoneContainer');
+            const originalHTML = $container.html();
+
+
+            // Permitir clic en contenedor para abrir selector
+            $container.on('click', function(e) {
+                if(!$(e.target).hasClass('remove-file')){
+                    e.preventDefault();
+                    $input.trigger('click');
+                }
+            });
+
+            // Selección manual
+            $input.on('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    try {
+                        await show_preview(file, $container);
+                    } catch (error) {
+                        console.error('Error al mostrar preview:', error);
+                        showAlert('danger', 'Error al mostrar la vista previa del archivo');
+                    }
+                }
+            });
+
+            // Drag & Drop
+            $container.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('border-primary bg-light');
+            });
+            $container.on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).removeClass('border-primary bg-light');
+            });
+            $container.on('drop', async function(e) {
+                e.preventDefault();
+                $(this).removeClass('border-primary bg-light');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $input[0].files = files;
+                    try {
+                        await show_preview(files[0], $container);
+                    } catch (error) {
+                        console.error('Error al mostrar preview:', error);
+                        showAlert('danger', 'Error al mostrar la vista previa del archivo');
+                    }
+                }
+            });
+
+            $("#btn_subir_archivo").on('click', function() {
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+                let fileInput       = $('#input_file_document')[0]; // Elemento DOM nativo
+                let id_tipo_archivo = $("#select_categoria_archivo").val();
+                let observaciones   = $("#textarea_observaciones").val();
+
+                if (fileInput.files.length === 0) {
+                    showAlert('danger', 'Seleccione un archivo');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                if (!id_tipo_archivo) {
+                    showAlert('danger', 'Seleccione la categoría del documento');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                let clave_archivo   = $("#select_categoria_archivo").find('option:selected').data('clave');
+
+                // Prepara los datos para enviar
+                let formData = new FormData();
+                formData.append('archivo', fileInput.files[0]);
+                formData.append('id_tipo_archivo', id_tipo_archivo);
+                formData.append('clave_archivo', clave_archivo);
+                formData.append('accion', 'save_file');
+                formData.append('id_paciente', id_paciente);
+                formData.append('id_agenda_cita', id_agenda_cita);
+                formData.append('observaciones', observaciones);
+
+                // Si quieres enviar más datos, puedes agregar más campos aquí:
+                // formData.append('id_paciente', $("#id_paciente").val());
+
+                $.ajax({
+                    url: url_digital,
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // Evita que jQuery procese los datos
+                    contentType: false, // Evita que jQuery configure el encabezado Content-Type
+                    beforeSend: function() {
+                        $("#btn_subir_archivo").prop('disabled', true);
+                        showAlert('info', 'Subiendo archivo, espere...',2000);
+                    },
+                    success: function(data) {
+                        $("#btn_subir_archivo").prop('disabled', false);
+
+                        let html_row    = '';
+                        if (Object.keys(data).length > 0){
+                            for(let i in data){
+                                let row = data[i];
+
+                                html_row    += '<tr>'+
+                                                    '<td class="p-3 row_filtro td_nombre">'+row["nombre_original"]+'</td>'+
+                                                    '<td class="p-3 row_filtro td_tipo_archivo" data-idtipoarchivo="'+row["id_tipo_archivo"]+'">'+row["nombre_tipo_archivo"]+'</td>'+
+                                                    '<td class="p-3 row_filtro">'+row["fecha_registro"]+'</td>'+
+                                                    '<td class="p-3">'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_preview_file"><i class="bi bi-eye"></i></button>'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_download_file"><i class="bi bi-download"></i></button>'+
+                                                        '<button type="button" data-id="'+row["id"]+'" class="btn btn-outline-dark btn-sm btn_delete_file text-danger"><i class="bi bi-trash"></i></button>'+
+                                                    '</td>'+
+                                                '</tr>';
+                            }
+                        }
+
+                        showAlert('info', 'Captura de archivo exitosa!');
+
+                        $("#table_files").find('tbody').html('').append(html_row);
+                        $(".remove-file").trigger('click');
+                        $("#select_categoria_archivo").val('');
+                        $("#textarea_observaciones").val('');
+                    },
+                    error: function(error) {
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $("#btn_close_preview").on('click',function(){
+                $(".remove-file").trigger('click');
+                $("#select_categoria_archivo").val('').prop('disabled',false);
+                $("#textarea_observaciones").val('').prop('disabled',false);
+                $("#btn_subir_archivo").show();
+                $("#btn_close_preview").hide();
+            });
+
+            $("#table_files").on('click','.btn_delete_file',async function(){
+                let btn         = $(this);
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                let id_archivo      = $(btn).data('id');
+                let clave_archivo   = $(btn).data('clavetipoarchivo');
+                let nombre_original = $(btn).closest('tr').find('.td_nombre').text();
+
+                $(btn).prop('disabled',true);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_digital,
+                        method  : 'POST',
+                        data    :  {
+                            accion  : 'delete_file',
+                            nombre_completo : nombre_completo,
+                            id_archivo      : id_archivo,
+                            id_paciente     : id_paciente,
+                            clave_archivo   : clave_archivo,
+                            nombre_original : nombre_original
+                        },
+                        success : function(data){
+                            $(btn).closest('tr').remove();
+                            //  SE PINTA ROW SIN REGISTROS
+                            if ($("#table_files").find('tbody tr:visible').length == 0){
+                                $("#table_files").find('tbody').append(' <tr class="row_empty">'+
+                                                                                '<td class="p-3" colspan="4" align="center"><?php echo $translations['table_no_data']; ?></td>'+
+                                                                            '</tr>');
+                            }
+
+                            showAlert('success','Borrado exitoso!');
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
+            //  DESCARGAR ARCHIVO
+            $("#table_files").on('click','.btn_download_file',function(){
+                let id_archivo  = $(this).data('id');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'download_file',
+                        id_paciente : id_paciente,
+                        id_archivo  : id_archivo
+                    },
+                    success : function(data){
+                        
+                        window.open(data['url_descarga'], '_blank');
+                        $(btn).prop('disabled',false);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            //  DESCARGAR ARCHIVO
+            $("#table_files").on('click','.btn_preview_file',function(){
+                let id_archivo      = $(this).data('id');
+                let id_tipo_archivo = $(this).data('idtipoarchivo');
+                let observaciones   = $(this).data('observaciones');
+                let btn             = $(this);
+
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'download_file',
+                        id_paciente : id_paciente,
+                        id_archivo  : id_archivo,
+                        preview     : true
+                    },
+                    success : function(data){
+                        show_preview_file(data.tipo_archivo,data.nombre_archivo,data.url_descarga,$container,id_tipo_archivo,observaciones);
+                        $(btn).prop('disabled',false);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+ 
+
+            $(document).on('click', '.remove-file', function(e) {
+                e.preventDefault();
+                e.stopPropagation();           // ❗️evita que suba al contenedor
+                e.stopImmediatePropagation();  // evita otros eventos en el mismo elemento
+
+                $input.val('');
+                $container.html(originalHTML);
+
+                //  EN CASO DE QUE SEA UN PREVIEW O NO, SE REINICIA TODO
+                if ($("#select_categoria_archivo").prop('disabled')){
+                    $("#select_categoria_archivo").val('').prop('disabled',false);
+                    $("#textarea_observaciones").val('').prop('disabled',false);
+                    $("#btn_subir_archivo").show();
+                    $("#btn_close_preview").hide();
+                }
+                
+            });
+
+            //  ------------------- NOTAS   ---------------------------------   //
+            $(".btn_expandir").on("click", function(e) {
+                e.preventDefault();
+
+                let $tabla = $("section:has(h2:contains('Historial de Notas')) table");
+                let $nota = $("section:has(h2:contains('Añadir Nueva Nota'))");
+                let $historial = $("section:has(h2:contains('Historial de Notas'))");
+                let $icon = $(this).find("span.material-icons");
+
+                // Obtener la instancia de DataTable
+                let dataTable = $('#table_results').DataTable();
+
+                // Verificar si la columna 2 (índice 2) está visible
+                if (dataTable.column(2).visible()) {
+                    // Ocultar columna 2 (tercera columna)
+                    dataTable.column(2).visible(false);
+
+                    // Expandir "Añadir Nota" y reducir "Historial de Notas"
+                    $nota.removeClass("col-lg-6").addClass("col-lg-8");
+                    $historial.removeClass("col-lg-6").addClass("col-lg-4");
+
+                    // Cambiar icono a "reducir"
+                    $icon.text("fullscreen_exit");
+                } else {
+                    // Mostrar columna 2 (tercera columna)
+                    dataTable.column(2).visible(true);
+
+                    // Restaurar anchos originales
+                    $nota.removeClass("col-lg-8").addClass("col-lg-6");
+                    $historial.removeClass("col-lg-4").addClass("col-lg-6");
+
+                    // Cambiar icono a "expandir"
+                    $icon.text("fullscreen");
+                }
+            });
+
+            //  GUARDAR UNA NOTA
+            $(".btn_save_nota").on('click',function(){
+                if ($(".input_titulo_nota").val().trim() == null || $(".input_titulo_nota").val().trim() == ''){
+                    showAlert('danger','Ingrese el titulo de la nota');
+                    return false;
+                }
+
+                if ($('#summernote').summernote('isEmpty')) {
+                    showAlert('danger','Ingresa un contenido a la nota');
+                    return false;
+                }
+
+                // Get the formatted HTML first
+                var htmlContent = $('#summernote').summernote('code');
+
+                let id_nota = $(this).data('idnota');
+                let accion  = id_nota != null && id_nota != '' ? 'update_note' : 'create_note';
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : accion,
+                        titulo      : $(".input_titulo_nota").val().trim(),
+                        id_paciente : id_paciente,
+                        texto       : htmlContent,
+                        nombre_completo : nombre_completo,
+                        nota_privada    : $("#private-note").is(':checked') ? 1 : 0,
+                        id_nota         : id_nota,
+                        id_agenda_cita  : id_nota == null ? id_agenda_cita : null,
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $(".input_titulo_nota").val('');
+                        $('#summernote').summernote('code', '');
+                        $("#private-note").prop('checked',0);
+
+                        cargarTabla();
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                    }
+                })
+
+            });
+
+            //  CANCELAR EDICION
+            $(".btn_cancelar_edit").on('click',async function(){
+                const respuesta = await window.modalConfirm('Iniciaste la edici&oacute;n de una nota, al continuar se perderá el avance de dicha nota. ¿Desea continuar?');
+
+                if (respuesta){
+                    $(".input_titulo_nota").val('');
+                    $('#summernote').summernote('code', '');
+                    $("#private-note").prop('checked',0);
+                    $(".span_nota_cita").show();
+
+                    $(".btn_edit_nota").hide();
+                    $(".btn_save_nota").show();
+                }
+            });
+
+            //  GET INFO DE UNA NOTA
+            $(".div_notas").on('click','.row_notas',function(){
+                let row_data    = $(this).data('rowData');
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion  : 'get_notes',
+                        id_nota : row_data['id'],
+                        nombre_completo : nombre_completo
+                    },
+                    success : function(data){
+                        show_modal_notas(data['data'][0]);
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                        return false;
+                    }
+                })
+            });
+        });
+
+        //  --------------  FUNCIONES   ---------------------   //
+
+        // Función para inicializar o recargar la tabla
+        function cargarTablaCitas() {
+            draw    ++;
+            if (!table2) {
+                //  REINICIAR CONTADOR DE SELECCIONADOS A 0
+                table2 = new DataTable('#table_results_citas', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url     : url_digital,
+                        method  : 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.from_catalog      = true;
+                            d.get_servicios     = true;
+                            d.id_paciente       = id_paciente;
+                            d.from_digital_record   = true;
+                        }
+                    },
+                    columns: [
+                        { data: 'nombre_profesional' }, // Columna 1
+                        { data: 'num_servicios_costo' }, // Columna 1
+                        { data: 'fecha_completa' }, // Columna 1
+                        { data: 'estatus' }, // Columna 1
+                        { data: 'label_asistencia' }, // Columna 1
+                        { data: 'label_pagada' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
+
+                                let btn_preview = 
+                                '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                    '<i class="bi bi-search"></i> '+
+                                '</button>';
+
+                                let btn_clinical_data   = clinicalData ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_clinical_data" data-id="'+data['id_agenda_cita']+'" title="Datos clinicos de cita">' +
+                                    '<i class="bi bi-activity"></i> '+
+                                '</button>' 
+                                : '';
+
+                                return btn_preview + btn_clinical_data;
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        //console.log('data',data);
+                        $(row).data('rowData', data);
+                        
+                        if (data.activa == 0) {
+                            $(row).find('td:eq(3)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.activa == 1) {
+                            $(row).find('td:eq(3)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.activa == 2) {
+                            $(row).find('td:eq(3)').css('background-color', '#d9e757ff'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 1 || data.asistencia == 3) {
+                            $(row).find('td:eq(4)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.asistencia == 0) {
+                            $(row).find('td:eq(4)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 0) {
+                            $(row).find('td:eq(5)').css('background-color', '#fa7472'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.pagada == 1){
+                            $(row).find('td:eq(5)').css('background-color', '#5be574'); // La sexta columna tiene índice 5
+                        }
+
+                        if (data.codigo_color != null) {
+                            $(row).find('td:eq(1)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
+                        
+                    }
+                });
+            } else {
+                draw    ++;
+                table2.ajax.reload();
+            }
+        }
+
+        //  MODAL PARA CAPTURA Y EDICION DE DIAGNOSTICOS
+        function show_modal_diagnoses(){
+            let modal_clone = $("#modal_diagnostico").clone().removeAttr('id');
+
+            if (diagnosticos != null && Object.keys(diagnosticos).length > 0){
+                for(let i in diagnosticos){
+                    $(modal_clone).find('#diagnostico_'+diagnosticos[i]['id'])
+                        .addClass('row_selected')
+                        .find('.input_evidencia')
+                        .prop('disabled',false)
+                        .prop('checked',diagnosticos[i]['presento_evidencia'] == 1 ? true : false);
+                }
+            }
+
+            $(modal_clone).find('#nombre_paciente').text(nombre_completo);
+
+            $(modal_clone).on('click','.div_diagnostico',function(event){
+                // Evita que el evento se dispare si el clic fue en el input
+                if ($(event.target).is('input')) {
+                    return;
+                }
+                if ($(this).hasClass('row_selected')){
+                    $(this).removeClass('row_selected');
+                    $(this).find('input').prop('disabled',true).prop('checked',false)
+                } else {
+                    $(this).addClass('row_selected');
+                    $(this).find('input').prop('disabled',false);
+                }
+            });
+            
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                let obj_info    = [];
+
+                $(modal_clone).find('.div_diagnostico.row_selected').each(function(){
+                    let id_transtorno       = $(this).data('id');
+                    let presento_evidencia  = $(this).find('input').prop('checked') ? 1 : 0;
+                    obj_info.push({
+                        id_transtorno,
+                        presento_evidencia
+                    })
+                });
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_diagnoses',
+                        obj_info    : obj_info,
+                        id_paciente : id_paciente,
+                        data_old    : diagnosticos
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $(modal_clone).modal('hide');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            })
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_focus(){
+            let modal_clone = $("#modal_focus").clone().removeAttr('id').show();
+
+            $(modal_clone).on('click','.div_subarea',function(){
+                if ($(this).hasClass('row_disabled')){
+                    return false;
+                }
+                if ($(this).hasClass('row_selected')){
+                    $(this).removeClass('row_selected');
+                } else {
+                    $(this).addClass('row_selected').data('idprofesional',id_profesional);
+                }
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+                
+                let obj_info    = [];
+
+                $(modal_clone).find('.row_selected').each(function(){
+                    if ($(this).data('idprofesional') == id_profesional){
+                        obj_info.push($(this).data('id'));
+                    }
+                });
+
+                $.ajax({
+                    url     : url_digital,
+                    method  : 'post',
+                    data    : {
+                        accion      : 'save_subareas_focus',
+                        obj_info    : obj_info,
+                        nombre_completo : nombre_completo,
+                        id_paciente     : id_paciente
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $(modal_clone).modal('hide');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/digitalRecord?id='+id_paciente+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            //  SE RECORREO EL ARRAY PARA MARCAR LOS YA ASIGNADOS
+            $(modal_clone).find('.div_subarea').each(function(){
+                if (typeof (arr_subarea_paciente[$(this).data('id')]) != "undefined"){
+                    $(this).addClass('row_selected');
+                    $(this).data('idprofesional',arr_subarea_paciente[$(this).data('id')]);
+                    var $collapse = $(this).closest('.collapse');
+                    if ($collapse.length) {
+                        $collapse.collapse('show');
+                    }
+
+                    if (arr_subarea_paciente[$(this).data('id')] != id_profesional){
+                        $(this).addClass('row_disabled').prop('disabled',true).attr('title','Registro realizado por otro profesional');
+                    }
+                }
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_notas(data){
+            let modal_clone = $("#modal_preview_nota").clone().removeAttr('id').show();
+
+            if (id_profesional != data['id_profesional']){
+                $(modal_clone).find('#btn_edit').remove();
+            }
+
+            $(modal_clone).find("#nombre_profesional").text(data['nombre_profesional']);
+            $(modal_clone).find("#titulo").text(data['titulo']);
+            $(modal_clone).find("#nota_privada").text(data['nota_privada'] == 1 ? 'SI' : 'NO');
+            $(modal_clone).find("#nota_cita").text(
+                data['id_agenda_cita'] != null ? 'SI: '+data['fecha_cita']+', '+data['dia']+' de '+data['hora_inicio']+' a '+data['hora_termino'] : 'NO');
+            $(modal_clone).find(".div_show_nota").html(data['texto']);
+
+            $(modal_clone).on('click','#btn_edit',async function(){
+                if ($(".input_titulo_nota").val().trim() != '' || !$('#summernote').summernote('isEmpty')){
+                    const respuesta = await window.modalConfirm('Iniciaste la creación de una nota, al continuar se perderá el avance de dicha nota. ¿Desea continuar?');
+
+                    if (!respuesta){
+                        return false;
+                    }
+                }
+
+                $(".input_titulo_nota").val(data['titulo']);
+                $("#private-note").prop('checked',data['nota_privada'] == 1);
+                $('#summernote').summernote('code', '');
+                $('#summernote').summernote('code', data['texto']);
+                $(".btn_save_nota").hide();
+                $(".btn_edit_nota").data('idnota',data['id']).show();
+                $(".span_nota_cita").hide();
+
+                $(modal_clone).modal('hide');
+            });
+
+            $(modal_clone).on('click','#btn_delete', async function(){
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                if (respuesta){
+                    $.ajax({
+                        url     : url_digital,
+                        method  : 'post',
+                        data    : {
+                            accion  : 'delete_note',
+                            id_nota : data['id'],
+                            titulo  : data['titulo'],
+                            fecha_creacion  : data['fecha_creacion'],
+                            nombre_completo : nombre_completo
+                        },
+                        success : function(data){
+                            showAlert('success','Borrado exitoso!');
+                            $(modal_clone).modal('hide');
+                            cargarTabla();
+                        },
+                        error   : function(error){
+                            showAlert('danger',error.responseText);
+                        }
+                    })
+                }
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_receta(data){
+            // Solo mostrar el modal existente, no clonar
+            let modal_clone = $('#modal_preview_cita');
+
+            let info_exploracion_fisica = data['info_exploracion_fisica'];
+            let info_motivo_consulta    = data['info_motivo_consulta'];
+            let info_receta             = data['info_receta'];
+
+            //  DATOS DE EXPLORACION FISICA
+            $(modal_clone).find('#modalFecha').text(info_exploracion_fisica['fecha_registro'] || 'No registrado');
+            $(modal_clone).find('#modalTemperatura').text(info_exploracion_fisica['temperatura'] ? info_exploracion_fisica['temperatura'] + ' °C' : 'No registrado');
+            $(modal_clone).find('#modalFrecuenciaCardiaca').text(info_exploracion_fisica['frecuencia_cardiaca'] ? info_exploracion_fisica['frecuencia_cardiaca'] + ' lpm' : 'No registrado');
+            $(modal_clone).find('#modalPresionArterial').text(info_exploracion_fisica['presion_arterial'] ? info_exploracion_fisica['presion_arterial'] + ' mmHg' : 'No registrado');
+            $(modal_clone).find('#modalFrecuenciaRespiratoria').text(info_exploracion_fisica['frecuencia_respiratoria'] ? info_exploracion_fisica['frecuencia_cardiaca'] + ' rpm' : 'No registrado');
+            $(modal_clone).find('#modalSaturacionOxigeno').text(info_exploracion_fisica['saturacion_oxigeno'] ? info_exploracion_fisica['saturacion_oxigeno'] + '%' : 'No registrado');
+            $(modal_clone).find('#modalPeso').text(info_exploracion_fisica['peso'] ? info_exploracion_fisica['peso'] + ' kg' : 'No registrado');
+            $(modal_clone).find('#modalAltura').text(info_exploracion_fisica['altura'] ? info_exploracion_fisica['altura'] + ' cm' : 'No registrado');
+            $(modal_clone).find('#modalIMC').text(info_exploracion_fisica['imc'] || 'No registrado');
+            $(modal_clone).find('#modalAlergias').text(info_exploracion_fisica['alergias'] || 'No registra alergias');
+            $(modal_clone).find('#modalObservaciones').text(info_exploracion_fisica['observaciones'] || 'Sin observaciones adicionales'); // Este campo no aparece en tu tabla
+            
+            $(modal_clone).find('#modalFechaMotivo').text(info_motivo_consulta['fecha_registro']);
+            $(modal_clone).find('#modalMotivo').text(info_motivo_consulta['motivo_consulta']);
+            $(modal_clone).find('#modalPadecimiento').text(info_motivo_consulta['padecimientos_actual']);
+            $(modal_clone).find('#modalAntecedentes').text(info_motivo_consulta['antecedentes_relevantes']);
+
+            $(modal_clone).find("#fecha_creacion").text(info_receta['fecha_ultima_edicion']);
+            $(modal_clone).find("#diagnostico").text(info_receta['diagnostico']);
+            $(modal_clone).find(".div_show_receta").html(info_receta['tratamiento']);
+
+            $(modal_clone).on('click','#btn_download',function(){
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'download_receta',
+                        id_receta       : info_receta['id_receta'],
+                        nombre_completo : info_receta['nombre_completo']
+                    },
+                    success : function(data){
+                        console.log('data',data);
+
+                        if (data['url_receta'] != ''){
+                            window.open(data['url_receta'], '_blank');
+                        }
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+            
+            $(modal_clone).modal('show');
+        }
+    })();
+</script>

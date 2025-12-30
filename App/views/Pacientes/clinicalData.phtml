@@ -1,0 +1,1825 @@
+<style>
+    :root {
+        --bs-body-bg-dark: #121212;
+        --bs-tertiary-bg-dark: #1E1E1E;
+    }
+    
+    #container_digital_record {
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+    }
+    
+    #container_digital_record .sidebar {
+        width: 220px;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+    }
+    
+    #container_digital_record .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    #container_digital_record .nav-link:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    #container_digital_record .nav-link.active {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    #container_digital_record .nav-link .material-icons {
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+    
+    /* === CORRECCIÓN DEFINITIVA === */
+    #container_digital_record .main-content {
+        margin-left: 220px;
+        width: calc(100% - 220px); /* ← KEY CHANGE */
+        min-height: 100vh;
+        max-width: calc(100% - 220px); /* ← KEY CHANGE */
+        padding: 1rem;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    #container_digital_record .sidebar-toggle {
+        display: none;
+    }
+    
+    /* Contenedor principal - MEJORADO */
+    #container_digital_record .container-fluid {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        overflow-x: hidden;
+    }
+    
+    /* === NUEVAS REGLAS CRÍTICAS === */
+    #container_digital_record .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-radius: 0.75rem;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    #container_digital_record .card-body {
+        padding: 1.5rem;
+        overflow-x: hidden;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #container_digital_record .row {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    #container_digital_record [class*="col-"] {
+        max-width: 100%;
+        flex-shrink: 1;
+        min-width: 0; /* ← CRÍTICO */
+    }
+    
+    #container_digital_record .fw-medium {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    #container_digital_record .div_receta .card {
+        min-height: 40vh; /* 80% del alto de la ventana */
+    }
+
+    .note-editable {
+        height: calc(85vh - 200px) !important; /* Example: 100% of viewport height minus some offset */
+        /* Or, if within a container: */
+        /* height: 100% !important; */
+    }
+
+    #summernote, .note-editable {
+        font-weight: normal !important;
+    }
+
+    .note-fontsize .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important; /* Asegura que esté encima del editor pero debajo del botón */
+    }
+
+    .note-btn-group.btn-group {
+        position: relative !important;
+    }
+
+    .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1050 !important;
+        min-width: 120px; /* opcional para evitar que se colapse */
+    }
+
+    /* Aplica solo al dropdown que sigue a un botón con aria-label="Paragraph" */
+    button[aria-label="Paragraph"] + .note-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 0 !important;
+        z-index: 1050 !important;
+        transform: translateX(-20px); /* Ajusta según el espacio disponible */
+    }
+
+    .hide_element {
+        display: none !important;
+    }
+
+    .row_selected{
+        background-color: #288d28ff;
+        color: white;
+    }
+
+    .row_disabled{
+        background-color: #a1d4a1ff!important;
+        color: black!important;
+    }
+
+    .row_selected div {
+        color: white;
+    }
+
+    /* Contenedor de la tabla con altura máxima */
+    .table-scroll-container {
+        min-height: 400px;
+        max-height: calc(100vh - 250px); /* Se ajusta al tamaño de la pantalla */
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    /* Hacer que el thead sea sticky para que permanezca visible al hacer scroll */
+    .table-scroll-container thead {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        z-index: 10;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Asegurar que las columnas mantengan su ancho */
+    .table-scroll-container table {
+        margin-bottom: 0;
+    }
+
+    /*  ESTILO PARA MODAL DE MOTIVOS    */
+    .table-scroll-container {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    
+    .truncate-text {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .clickable-row:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .modal-body .info-group {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .modal-body .info-label {
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modal-body .info-content {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    /*  MODAL DE EXPLORACION FISICA */
+    .exploracion_fisica_modal .section-title {
+        color: #2c3e50;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    .exploracion_fisica_modal .info-group {
+        margin-bottom: 15px;
+    }
+    .exploracion_fisica_modal .info-label {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    .exploracion_fisica_modal .info-content {
+        color: #2c3e50;
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 4px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* .table th {
+        background-color: #f8f9fa;
+    } */
+
+    /* Eliminar las flechas en todos los navegadores */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Para Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    /* Estilo para inputs number dentro de la exploración física */
+    .header_exloracion_fisica input[type="number"] {
+        border: none !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        border-radius: 0 !important;
+        padding-left: 0 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        text-align: center !important;
+    }
+
+    /* Efecto hover y focus */
+    .header_exloracion_fisica input[type="number"]:focus {
+        border-bottom-color: #0d6efd !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .header_exloracion_fisica input[type="number"]:hover {
+        border-bottom-color: #6c757d !important;
+    }
+
+    /* Para los inputs de presión arterial que están dentro del div */
+    .header_exloracion_fisica .d-flex.gap-2 input[type="number"] {
+        border: none !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        border-radius: 0 !important;
+        padding-left: 0 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .header_exloracion_fisica .d-flex.gap-2 input[type="number"]:focus {
+        border-bottom-color: #0d6efd !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .note-editable p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .note-editable p + p {
+        margin-top: 0;
+    }
+
+    .div_show_receta p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .div_show_receta p + p {
+        margin-top: 0;
+    }
+
+    
+
+</style>
+<?php 
+//  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
+$genero = array(
+    'F'     => 'Femenino',
+    'M'     => 'Masculino',
+    null    => 'S/A'
+);
+
+$dias_semana = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado', 
+    7 => 'Domingo'
+];
+
+//  ARRAY DE AREAS YA ASIGNADAS AL PACIENTE
+$arr_subarea_paciente   = array();
+
+function cambiarFormatoFecha($fecha) {
+    if (empty($fecha)) return '';
+    return date('d/m/Y', strtotime($fecha));
+}
+
+?>
+
+<div id="container_digital_record">
+    <!-- Botón toggle para móvil -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <span class="material-icons">menu</span>
+    </button>
+
+    <!-- Overlay para móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container-fluid p-0">
+        <div class="row g-5">
+            <!-- Sidebar -->
+            <aside class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
+                <div class="p-3">
+                    <div class="mb-4">
+                        <h1 class="h5 fw-bold mb-1">Consulta</h1>
+                        <p class="small text-muted mb-0">Paciente: <?php echo $info_paciente['primer_apellido'].' '.$info_paciente['nombre']; ?></p>
+                    </div>
+                    <nav class="nav flex-column nav-pills">
+                        <a class="nav-link active bg-primary text-white" data-section="datos_personales">
+                            <i class="bi bi-card-list"></i>
+                            Datos personales
+                            <!-- <span class="text-success small ms-2">✔️</span> -->
+                        </a>
+                        <a class="nav-link text-dark" data-section="exploracion_fisica">
+                            <i class="bi bi-person-lines-fill"></i>
+                            Exploraci&oacute;n fisica
+                        </a>
+                        <a class="nav-link text-dark" data-section="motivo_consulta">
+                            <i class="bi bi-chat-left-text"></i>
+                            Motivo de consuta
+                        </a>
+                        <?php if ($info_cita['id_profesional'] == $id_profesional): ?>
+                        <a class="nav-link text-dark" data-section="receta">
+                            <i class="bi bi-pencil-square"></i>
+                            Receta
+                        </a>
+                        <?php endif; ?>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
+            <main class="main-content p-4 div_datos_personales">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Datos personales</h2>
+                        <p class="text-muted mb-0">Informaci&oacute;n general del paciente</p>
+                    </div>
+
+                    <!-- Información Personal -->
+                    <section class="mb-5">
+                        <h3 class="h4 fw-semibold mb-3">Información Personal</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="form_info_personal" class="needs-validation">
+                                    <div class="row g-4">
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Primer apellido</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['primer_apellido']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_primer_apellido hide_element" data-campo="primer_apellido" data-datooriginal="<?php echo $info_paciente['primer_apellido']; ?>" value="<?php echo $info_paciente['primer_apellido']; ?>" required />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_first_lastname']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Segundo apellido</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['segundo_apellido']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_segundo_apellido hide_element" data-campo="segundo_apellido" data-datooriginal="<?php echo $info_paciente['segundo_apellido']; ?>" value="<?php echo $info_paciente['segundo_apellido']; ?>" />
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Nombre</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['nombre']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_nombre hide_element" data-campo="nombre" data-datooriginal="<?php echo $info_paciente['nombre']; ?>" value="<?php echo $info_paciente['nombre']; ?>" required/>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_name']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-1">
+                                            <div class="d-flex flex-column align-items-end gap-1">
+                                                <?php if ($update): ?>
+                                                <button type="button" class="btn btn-xs btn_edit_info_personal">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn_save_info_personal hide_element">
+                                                    <i class="bi bi-floppy"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn_revert_info_personal hide_element">
+                                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                                </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Fecha de Nacimiento</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo cambiarFormatoFecha($info_paciente['fecha_nacimiento']); ?></p>
+                                            <input type="date" class="input_editar_datos form-control input_fecha_nacimiento hide_element" data-campo="fecha_nacimiento" data-datooriginal="<?php echo $info_paciente['fecha_nacimiento']; ?>" value="<?php echo $info_paciente['fecha_nacimiento']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-2">
+                                            <p class="small text-muted mb-1">Edad</p>
+                                            <p class="fw-medium mb-0"><?php echo empty($info_paciente['edad_actual']) ? '0.0 años' : $info_paciente['edad_actual'].' años'; ?> </p>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Género</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $genero[$info_paciente['genero']]; ?></p>
+                                            <select class="form-select input_editar_datos select_genero hide_element" data-campo="genero" data-datooriginal="<?php echo $info_paciente['genero']; ?>">
+                                                <option value="" <?php echo $genero[$info_paciente['genero']] == 'S/A' ? 'selected' : ''; ?>>Sin asignar</option>
+                                                <option value="F" <?php echo $genero[$info_paciente['genero']] == 'Femenino' ? 'selected' : ''; ?>>Femenino</option>
+                                                <option value="M" <?php echo $genero[$info_paciente['genero']] == 'Masculino' ? 'selected' : ''; ?>>Masculino</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Teléfono</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['celular']; ?></p>
+                                            <input type="text" class="input_editar_datos input_celular form-control hide_element" maxLength="10" data-campo="celular" data-datooriginal="<?php echo $info_paciente['celular']; ?>" value="<?php echo $info_paciente['celular']; ?>" required/>
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-4">
+                                            <p class="small text-muted mb-1">Correo Electrónico</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['correo_electronico'] == null ? 'S/A' : $info_paciente['correo_electronico']; ?></p>
+                                            <input type="text" class="input_editar_datos input_correo_electronico form-control hide_element" data-campo="correo_electronico" data-datooriginal="<?php echo $info_paciente['correo_electronico']; ?>" value="<?php echo $info_paciente['correo_electronico']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_email']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <p class="small text-muted mb-1">Dirección</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo $info_paciente['direccion'] == null ? 'S/A' : $info_paciente['direccion']; ?></p>
+                                            <input type="text" class="input_editar_datos form-control input_direccion hide_element" data-campo="direccion" data-datooriginal="<?php echo $info_paciente['direccion']; ?>" value="<?php echo $info_paciente['direccion']; ?>" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Citas -->
+                    <section class="mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="h4 fw-semibold mb-0">Historial de citas</h3>
+                        </div>
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table id="table_results" class="table table-hover mb-0 text-center:">
+                                    <thead>
+                                        <tr>
+                                            <th class="p-3"><?php echo $translations['html_day']; ?></th>
+                                            <th class="p-3"><?php echo $translations['html_hour']; ?></th>
+                                            <th class="p-3">Servicio(s)</th>
+                                            <th class="p-3"><?php echo $translations['html_options']; ?></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_exploracion_fisica" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Exploraci&oacute;n fisica</h2>
+                        <p class="text-muted mb-0">Captura de signos vitales</p>
+                    </div>
+                    <!-- Añadir exploracion -->
+                    <section class="col-12 col-lg-6 section_create">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Captura de datos</h2>
+                                    </div>
+                                </div>
+                                <form id="form_exploracion_fisica" class="flex-grow-1 d-flex flex-column gap-3">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            <label for="temperatura" class="form-label small text-muted">Temp. (°C)</label>
+                                            <input data-idrow="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica temperatura" data-nombre='Temperatura' placeholder="ej. 37.2" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['temperatura']) ? $exploracion_fisica_cita['temperatura'] : null; ?>">
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label for="frecuencia_cardiaca" class="form-label small text-muted">Fre. cardiaca (lpm)</label>
+                                            <input data-idrow="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica frecuencia_cardiaca" data-nombre='Frecuencia cardiaca' placeholder="ej. 72" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_cardiaca']) ? $exploracion_fisica_cita['frecuencia_cardiaca'] : null; ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <label class="form-label small text-muted">Pre. Arterial (mmHg)</label>
+                                        <div class="d-flex gap-2 mt-1">
+                                            <input data-idrow="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica presion_arterial_sistolica" data-nombre='Presión arterial sistónica' placeholder="Sistólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_sistolica']) ? $exploracion_fisica_cita['presion_arterial_sistolica'] : null; ?>">
+                                            <div class="align-self-center text-muted">/</div>
+                                            <input data-idrow="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica presion_arterial_diastolica" data-nombre='Presión arterial diastónica' placeholder="Diastólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_diastolica']) ? $exploracion_fisica_cita['presion_arterial_diastolica'] : null; ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            <label for="frecuencia_respiratoria" class="form-label small text-muted">Frec. Resp. (rpm)</label>
+                                            <input data-idrow="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica frecuencia_respiratoria" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label for="saturacion_oxigeno" class="form-label small text-muted">Satur. O₂ (%)</label>
+                                            <input data-idrow="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica saturacion_oxigeno" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6">
+                                            <label for="peso" class="form-label small text-muted">Peso (kg)</label>
+                                            <input data-idrow="peso" type="number" step="0.1" class="form-control input_exploracion_fisica peso" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label for="altura" class="form-label small text-muted">Talla (cm)</label>
+                                            <input data-idrow="altura" type="number" class="form-control input_exploracion_fisica altura" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="alergias" class="form-label small text-muted">Alergias</label>
+                                            <textarea data-idrow="alergias" rows="2" class="form-control input_exploracion_fisica alergias" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                            <textarea data-idrow="observaciones" rows="4" class="form-control input_exploracion_fisica observaciones" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-success text-white fw-semibold btn_save_exploracion_fisica">Capturar datos</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de exploracion fisica -->
+                    <section class="col-12 col-lg-6 section_history">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Historial de registros</h2>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                        <span class="material-icons">fullscreen</span>
+                                    </button>
+                                </div>
+                                <div class="table-scroll-container">
+                                    <table id="table_results_exploracion_fisica" class="display table table-hover table-bordered" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha captura</th>
+                                                <th>Temp. (°C)</th>
+                                                <th>Fre. cardiaca (lpm)</th>
+                                                <th>Pre. Arterial (mmHg)</th>
+                                                <th>Frec. Resp. (rpm)</th>
+                                                <th>Satur. O₂ (%)</th>
+                                                <th>Peso (kg)</th>
+                                                <th>Talla (cm)</th>
+                                                <th>IMC</th>
+                                                <th>Alergias</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (count($exploracion_fisica) > 0): ?>
+                                            <?php foreach($exploracion_fisica as $row): ?>
+                                            <tr class="clickable-row" data-observaciones="<?php echo $row['observaciones']; ?>">
+                                                <td class="p-3"><?php echo $row['fecha_registro']; ?></td>
+                                                <td class="p-3"><?php echo $row['temperatura']; ?></td>
+                                                <td class="p-3"><?php echo $row['frecuencia_cardiaca']; ?></td>
+                                                <td class="p-3"><?php echo $row['presion_arterial_sistolica'].'/'.$row['presion_arterial_diastolica']; ?></td>
+                                                <td class="p-3"><?php echo $row['frecuencia_respiratoria']; ?></td>
+                                                <td class="p-3"><?php echo $row['saturacion_oxigeno']; ?></td>
+                                                <td class="p-3"><?php echo $row['peso']; ?></td>
+                                                <td class="p-3"><?php echo $row['altura']; ?></td>
+                                                <td class="p-3"><?php echo $row['imc']; ?></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['alergias']; ?></div></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td class="p-3" colspan="10" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_motivo_consulta" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Motivo de consulta</h2>
+                    </div>
+                    <!-- Añadir exploracion -->
+                    <section class="col-12 col-lg-6 section_create">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Captura de datos</h2>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary btn_expandir">
+                                        <span class="material-icons">fullscreen</span>
+                                    </button>
+                                </div>
+                                <form id="form_motivo_consulta" class="flex-grow-1 d-flex flex-column gap-3">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="motivo_consulta" class="form-label small text-muted">Motivo de consulta</label>
+                                            <textarea id="motivo_consulta" rows="4" class="form-control input_motivo_consulta" data-nombre='motivo_consulta' placeholder="Campo obligatorio" style="resize: none;" required><?php echo count($motivo_consulta_cita) > 0 && !empty($motivo_consulta_cita['motivo_consulta']) ? $motivo_consulta_cita['motivo_consulta'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="padecimiento_actual" class="form-label small text-muted">Padecimientos actuales</label>
+                                            <textarea id="padecimiento_actual" rows="4" class="form-control input_motivo_consulta" data-nombre='padecimiento_actual' placeholder="Opcional" style="resize: none;"><?php echo count($motivo_consulta_cita) > 0 && !empty($motivo_consulta_cita['padecimiento_actual']) ? $motivo_consulta_cita['padecimiento_actual'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-12">
+                                            <label for="antecedentes_relevantes" class="form-label small text-muted">Antecedentes relevantes</label>
+                                            <textarea id="antecedentes_relevantes" rows="4" class="form-control input_motivo_consulta" data-nombre='antecedentes_relevantes' placeholder="Opcional" style="resize: none;"><?php echo count($motivo_consulta_cita) > 0 && !empty($motivo_consulta_cita['antecedentes_relevantes']) ? $motivo_consulta_cita['antecedentes_relevantes'] : null; ?></textarea>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-success text-white fw-semibold btn_save_motivo_consulta">Capturar datos</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de motivos consulta -->
+                    <section class="col-12 col-lg-6 section_history">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="h4 fw-bold">Historial de registros</h2>
+                                    </div>
+                                </div>
+                                <div class="table-scroll-container">
+                                    <table id="table_results_motivo_consulta" class="display table table-hover table-bordered" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha registro</th>
+                                                <th>Mot. de consulta</th>
+                                                <th>Padecimiento actual</th>
+                                                <th>Antecedentes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (count($motivo_consulta) > 0): ?>
+                                            <?php foreach($motivo_consulta as $row): ?>
+                                            <tr class="clickable-row" data-fecha="<?php echo $row['fecha_registro']; ?>" data-motivo="<?php echo $row['motivo_consulta']; ?>" data-padecimiento="<?php echo $row['padecimiento_actual']; ?>" data-antecedentes="<?php echo $row['antecedentes_relevantes']; ?>">
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_registro']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['motivo_consulta']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['padecimiento_actual']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['antecedentes_relevantes']; ?></div></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td class="p-3" colspan="9" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <main class="main-content flex-grow-1 p-4 overflow-auto div_receta" style="display:none;">
+                <div class="row g-2">
+                    <div class="mb-4">
+                        <h2 class="h3 fw-bold mb-1">Receta medica</h2>
+                        <p class="text-muted mb-0">Diagn&oacute;stico y generación de receta medica</p>
+                    </div>
+                    <!-- Añadir Nueva Nota -->
+                    <section class="col-12 col-lg-8">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body d-flex flex-column header_exloracion_fisica">
+                                <h2 class="h4 fw-bold mb-4">Exploraci&oacute;n fisica</h2>
+                                <!-- Primera fila con distribución más equilibrada -->
+                                <div class="row g-3 align-items-start">
+                                    <div class="col-12 col-sm-2">
+                                        <label for="temperatura" class="form-label small text-muted">Temp. (°C)</label>
+                                        <input data-idrow="temperatura" type="number" step="0.1" class="form-control input_exploracion_fisica temperatura" placeholder="ej. 37.2" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['temperatura']) ? $exploracion_fisica_cita['temperatura'] : null; ?>">
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="frecuencia_cardiaca" class="form-label small text-muted">Fre. cardiaca (lpm)</label>
+                                        <input data-idrow="frecuencia_cardiaca" type="number" class="form-control input_exploracion_fisica frecuencia_cardiaca" placeholder="ej. 72" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_cardiaca']) ? $exploracion_fisica_cita['frecuencia_cardiaca'] : null; ?>">
+                                    </div>
+                                    <div class="col-12 col-sm-4">
+                                        <label class="form-label small text-muted">Pre. Arterial (mmHg)</label>
+                                        <div class="d-flex gap-2 ">
+                                            <input data-idrow="presion_arterial_sistolica" type="number" class="form-control input_exploracion_fisica presion_arterial_sistolica" placeholder="Sistólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_sistolica']) ? $exploracion_fisica_cita['presion_arterial_sistolica'] : null; ?>">
+                                            <div class="align-self-center text-muted">/</div>
+                                            <input data-idrow="presion_arterial_diastolica" type="number" class="form-control input_exploracion_fisica presion_arterial_diastolica" placeholder="Diastólica" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['presion_arterial_diastolica']) ? $exploracion_fisica_cita['presion_arterial_diastolica'] : null; ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="frecuencia_respiratoria" class="form-label small text-muted">Frec. Resp. (rpm)</label>
+                                        <input data-idrow="frecuencia_respiratoria" type="number" class="form-control input_exploracion_fisica frecuencia_respiratoria" data-nombre='Frecuencia respiratoria' placeholder="ej. 16" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['frecuencia_respiratoria']) ? $exploracion_fisica_cita['frecuencia_respiratoria'] : null; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="row g-3" style="padding-top: 2rem !important;padding-bottom: 2rem !important;">
+                                    <div class="col-12 col-sm-3">
+                                        <label for="saturacion_oxigeno" class="form-label small text-muted">Satur. O₂ (%)</label>
+                                        <input data-idrow="saturacion_oxigeno" type="number" class="form-control input_exploracion_fisica saturacion_oxigeno" data-nombre='Saturación O₂' placeholder="ej. 98" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['saturacion_oxigeno']) ? $exploracion_fisica_cita['saturacion_oxigeno'] : null; ?>">
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="peso" class="form-label small text-muted">Peso (kg)</label>
+                                        <input data-idrow="peso" type="number" step="0.1" class="form-control input_exploracion_fisica peso" data-nombre="Peso" placeholder="ej. 65" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['peso']) ? $exploracion_fisica_cita['peso'] : null; ?>">
+                                    </div>
+                                    <div class="col-12 col-sm-3">
+                                        <label for="altura" class="form-label small text-muted">Talla (cm)</label>
+                                        <input data-idrow="altura" type="number" class="form-control input_exploracion_fisica altura" data-nombre="Altura" placeholder="ej. 170" value="<?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['altura']) ? $exploracion_fisica_cita['altura'] : null; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-6">
+                                        <label for="alergias" class="form-label small text-muted">Alergias</label>
+                                        <textarea data-idrow="alergias" rows="2" class="form-control input_exploracion_fisica alergias" data-nombre='Alergias' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['alergias']) ? $exploracion_fisica_cita['alergias'] : null; ?></textarea>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="observaciones" class="form-label small text-muted">Observaciones</label>
+                                        <textarea data-idrow="observaciones" rows="2" class="form-control input_exploracion_fisica observaciones" data-nombre='observaciones' placeholder="Opcional" style="resize: none;"><?php echo count($exploracion_fisica_cita) > 0 && !empty($exploracion_fisica_cita['observaciones']) ? $exploracion_fisica_cita['observaciones'] : null; ?></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h2 class="h4 fw-bold mb-4">Redactar receta</h2>
+                                <div class="row div_titulo mb-3">
+                                    <label>Diagn&oacute;stico</label>
+                                    <input type="text" class="form-control input_diagnostico" value="<?php echo count($receta_cita) > 0 ? $receta_cita['diagnostico'] : ''; ?>" />
+                                </div>
+                                <form class="d-flex flex-column flex-grow-1">
+                                    <div class="flex-grow-1 mb-3">
+                                    <div id="summernote"><?php echo count($receta_cita) > 0 ? $receta_cita['tratamiento'] : ''; ?></div>
+                                    </div>
+                                    <button type="button" class="btn btn-success text-white fw-semibold btn_save_prescription">Generar receta</button>
+                                </form>
+                                <!-- Contenedor para los botones alineados a la derecha -->
+                                <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn_edit_nota btn_cancelar_edit" style="display:none;">Cancelar</button>
+                                    <button type="button" class="btn btn-sm btn-success btn_edit_nota text-white btn_save_nota" style="display:none;">Guardar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Historial de Recetas -->
+                    <section class="col-12 col-lg-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h2 class="h4 fw-bold mb-4">Historial de recetas</h2>
+                                <table id="table_results_recetas" class="display table table-hover table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo $translations['html_creation_date']; ?></th>
+                                            <th><?php echo $translations['html_diagnoses']; ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (count($recetas_medicas) > 0): ?>
+                                            <?php foreach($recetas_medicas as $row): ?>
+                                            <tr class="clickable-row" data-fechacreacion="<?php echo $row['fecha_creacion']; ?>" data-id="<?php echo $row['id']; ?>" data-diagnostico="<?php echo $row['diagnostico']; ?>" data-tratamiento="<?php echo htmlspecialchars($row['tratamiento']); ?>">
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['fecha_creacion']; ?></div></td>
+                                                <td class="p-3"><div class="truncate-text"><?php echo $row['diagnostico']; ?></div></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                            <tr>
+                                                <td class="p-3" colspan="2" align="center"><?php echo $translations['table_no_data']; ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar detalles completos -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel">Detalles completos del registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="info-group">
+                    <div class="info-label">Fecha de registro:</div>
+                    <div id="modalFecha" class="info-content"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Motivo de consulta:</div>
+                    <div id="modalMotivo" class="info-content"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Padecimiento actual:</div>
+                    <div id="modalPadecimiento" class="info-content"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Antecedentes relevantes:</div>
+                    <div id="modalAntecedentes" class="info-content"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade exploracion_fisica_modal" id="exploracion_fisica_modal" tabindex="-1" aria-labelledby="exploracionFisicaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exploracionFisicaModalLabel">Exploración Física - Detalles Completos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Fecha de registro -->
+                <div class="info-group mb-3">
+                    <div class="info-label">Fecha de registro:</div>
+                    <div id="modalFecha" class="info-content"></div>
+                </div>
+
+                <!-- Parámetros Vitales - 3 por fila -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="section-title">Parámetros Vitales</h6>
+                    </div>
+                </div>
+
+                <!-- Fila 1 de Parámetros Vitales -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Temperatura:</div>
+                            <div id="modalTemperatura" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Frecuencia Cardíaca:</div>
+                            <div id="modalFrecuenciaCardiaca" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Presión Arterial:</div>
+                            <div id="modalPresionArterial" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila 2 de Parámetros Vitales -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Frecuencia Respiratoria:</div>
+                            <div id="modalFrecuenciaRespiratoria" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Saturación de Oxígeno:</div>
+                            <div id="modalSaturacionOxigeno" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Espacio vacío para mantener la alineación -->
+                    </div>
+                </div>
+
+                <!-- Antropometría -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="section-title">Antropometría</h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Peso:</div>
+                            <div id="modalPeso" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">Talla:</div>
+                            <div id="modalAltura" class="info-content"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-group">
+                            <div class="info-label">IMC:</div>
+                            <div id="modalIMC" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información Clínica -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="section-title">Información Clínica</h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="info-group">
+                            <div class="info-label">Alergias:</div>
+                            <div id="modalAlergias" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="info-group">
+                            <div class="info-label">Observaciones:</div>
+                            <div id="modalObservaciones" class="info-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_preview_receta" tabindex="-1" aria-labelledby="label_modal_preview_receta" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h3 class="modal-title" id="label_modal_diagnostico">Receta medica</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">            
+                <!-- Campo Clave -->
+                <div class="col-md-8">
+                    <label><?php echo $translations['html_diagnoses']; ?>:</label>
+                    <div id="diagnostico" class="d-block"></div>
+                </div>
+                <div class="col-md-4" align="right">
+                    <label><?php echo $translations['html_creation_date']; ?>:</label>
+                    <div id="fecha_creacion" class="d-block"></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-12 div_show_receta" style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: white; overflow-y: auto; overflow-x: auto;">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btn_download" class="btn btn-success"><?php echo $translations['html_download']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    let modulo_digital_record   = (function(){
+        //  ID DEL PACIENTE
+        const id_paciente       = '<?php echo $info_paciente['id']; ?>';
+        const id_profesional    = '<?php echo $id_profesional; ?>';
+        const id_agenda_cita    = '<?php echo $id_agenda_cita; ?>';
+        const estatus           = '<?php echo $info_paciente['estatus']; ?>';
+        const nombre_completo   = '<?php echo $info_paciente['nombre_completo']; ?>';
+
+        //  URL
+        const controller    = '/Pacientes';
+        const url_clinical  = controller+'/clinicalData'
+        const url_update    = controller+"/update";
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+        let draw            = 1;
+
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            deactivate_patient      : "<?= $translations['html_deactivate_patient']?>",
+            activate_patient        : "<?= $translations['html_activate_patient']?>",
+            schedule_appointments   : "<?= $translations['html_schedule_appointments']?>",
+            monday: "<?php echo $translations['html_monday'];     ?>",
+            thuesday: "<?php echo $translations['html_thuesday'];   ?>",
+            wednesday: "<?php echo $translations['html_wednesday'];  ?>",
+            thursday: "<?php echo $translations['html_thursday'];   ?>",
+            friday: "<?php echo $translations['html_friday'];     ?>",
+            saturday: "<?php echo $translations['html_saturday'];   ?>",     
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
+        };
+
+        //  MENSAJES DE ERROR
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena     : "<?php echo $translations['html_error_length_password']; ?>",
+            error_validate_cellphone    : "<?php echo $translations['html_error_validate_cellphone']; ?>",
+            error_verify_general_data   : "<?php echo $translations['html_error_verify_general_data']; ?>",
+            error_verify_cellphone_user : "<?php echo $translations['html_error_verify_cellphone_user']; ?>",
+            question_return             : "<?php echo $translations['html_question_return']?>",
+        }
+
+        const rangos_exploracion_fisica = {
+            peso: {
+                min: 1,    // kg (para cubrir pediatría o pacientes muy críticos)
+                max: 300   // kg (extremos de obesidad mórbida)
+            },
+            altura: {
+                min: 30,   // cm (neonatos prematuros)
+                max: 250   // cm (gigantismo extremo)
+            },
+            imc: {
+                min: 5,    // kg/m² (caquexia severa)
+                max: 80    // kg/m² (obesidad extrema)
+            },
+            temperatura: {
+                min: 30.0, // °C (hipotermia profunda, casos raros pero posibles)
+                max: 45.0  // °C (hipertermia extrema)
+            },
+            frecuencia_cardiaca: {
+                min: 20,   // lpm (bradicardia extrema)
+                max: 250   // lpm (taquicardia supraventricular en pediatría)
+            },
+            frecuencia_respiratoria: {
+                min: 5,    // rpm (respiración agónica)
+                max: 80    // rpm (taquipnea severa en niños/criticos)
+            },
+            presion_arterial_sistolica: {
+                min: 40,   // mmHg (shock severo)
+                max: 300   // mmHg (crisis hipertensiva extrema)
+            },
+            presion_arterial_diastolica: {
+                min: 20,   // mmHg
+                max: 200   // mmHg
+            },
+            saturacion_oxigeno: {
+                min: 30,   // % (incompatible con vida sostenida, pero posible en paro)
+                max: 100   // % (límite fisiológico)
+            }
+            };
+
+
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            
+            draw    ++;
+            if (!table) {
+                //  REINICIAR CONTADOR DE SELECCIONADOS A 0
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    pageLength: 10,
+                    ajax: {
+                        url     : url_clinical,
+                        method  : 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.from_catalog      = true;
+                            d.get_servicios     = true;
+                            d.id_profesional    = id_profesional;
+                            d.id_paciente       = id_paciente;
+                            d.tipo_busqueda     = 'activas';
+                        }
+                    },
+                    columns: [
+                        { data: 'fecha_cita',className: "dt-center" }, // Columna 1
+                        { data: 'start',className: "dt-center" }, // Columna 1
+                        { data: 'num_servicios_costo',className: "dt-center" }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                return '';
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        //console.log('data',data);
+                        $(row).data('rowData', data);
+                        //console.log('rowData',data);
+
+                        if (data.codigo_color != null) {
+                            $(row).find('td:eq(2)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
+                        }
+                        
+                    }
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
+        $(document).ready(function() {
+            cargarTabla();
+
+            //  CREAR SUMMERNOTE
+            $('#summernote').summernote({
+                lang: 'es-ES',
+                tabDisable: true,
+                placeholder: 'Escribe tu receta aquí...',
+                tabsize: 2,
+                height: 100,
+                toolbar: [
+                    // Grupo más básico y funcional
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['fontsize', ['fontsize']],
+                    ['para', ['ul', 'paragraph']]
+                ],
+                disableResizeEditor: true,
+                callbacks: {
+                    onPaste: function(e) {
+                        // Limpiar contenido pegado
+                        var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                        e.preventDefault();
+                        document.execCommand('insertText', false, bufferText);
+                    }
+                }
+            });
+            
+            //$('#summernote').summernote('code', '');
+            
+            // Color
+            $(document).on('click', '.note-color .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide(); // Cierra otros menús
+                menu.toggle(); // Abre/cierra el actual
+            });
+
+            // Font size
+            $(document).on('click', '.note-fontsize .dropdown-toggle', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
+            // Paragraph
+            $(document).on('click', 'button[aria-label="Paragraph"]', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = $(this).siblings('.note-dropdown-menu');
+                $('.dropdown-menu').not(menu).hide();
+                menu.toggle();
+            });
+
+
+            // Navegación entre secciones
+            $('#container_digital_record').on('click','.nav-link',function(e) {
+                e.preventDefault();
+                
+                // Remover clase active de todos los enlaces
+                $('#container_digital_record').find('.nav-link').removeClass('active bg-primary text-white').addClass('text-dark');
+                
+                // Añadir clase active al enlace clickeado
+                $(this).removeClass('text-dark').addClass('active bg-primary text-white');
+
+                $(".main-content").hide();
+                $(".div_"+$(this).data('section')).show();
+                
+                // // Cerrar sidebar en móvil
+                // if ($(window).width() < 992) {
+                //     closeSidebar();
+                // }
+            });
+
+            //  ------------------- INFORMACION PERSONAL    ----------------    //
+
+            $(".btn_edit_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").addClass('hide_element');
+                $(".btn_save_info_personal").removeClass('hide_element');
+                $(".btn_revert_info_personal").removeClass('hide_element');
+
+                $(".input_editar_datos").removeClass('hide_element');
+                $(".p_datos").addClass('hide_element');
+            });
+
+            $(".btn_revert_info_personal").on('click',function(){
+                $(".btn_edit_info_personal").removeClass('hide_element');
+                $(".btn_save_info_personal").addClass('hide_element');
+                $(".btn_revert_info_personal").addClass('hide_element');
+
+                $(".input_editar_datos").addClass('hide_element');
+                $(".p_datos").removeClass('hide_element');
+            });
+
+            $(".btn_save_info_personal").on('click', function(){
+                const form = $('#form_info_personal')[0];
+                let flag_error = false;
+                
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                    // Proceder con el guardado
+                }
+                
+                //  VALIDACION DE DATOS
+                if ($('.input_celular').val() != '' && $('.input_celular').val().length != 10){
+                    //  ACTIVAR DE FORMA MANUAL ERROR DE FORM
+                    $('.input_celular')[0].setCustomValidity(error_list['error_celular']);
+                    $('.input_celular').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    //REMOVER CLASE DE ERROR FORM
+                    $('.input_celular')[0].setCustomValidity('');
+                    $('.input_celular').removeClass('is-invalid');
+                }
+
+                if ($('.input_correo_electronico').val() != '' && !validarEmail($('.input_correo_electronico').val())){
+                    $('.input_correo_electronico')[0].setCustomValidity(error_list['error_email']);
+                    $('.input_correo_electronico').addClass('is-invalid').removeClass('is-valid');
+                    return false;
+                } else {
+                    $('.input_correo_electronico')[0].setCustomValidity('');
+                    $('.input_correo_electronico').removeClass('is-invalid');
+                }
+
+                let obj_info    = {
+                    id                  : id_paciente,
+                    primer_apellido     : $(".input_primer_apellido").val(),
+                    segundo_apellido    : $(".input_segundo_apellido").val(),
+                    nombre              : $(".input_nombre").val(),
+                    fecha_nacimiento    : $(".input_fecha_nacimiento").val(),
+                    genero              : $(".select_genero").val(),
+                    celular             : $(".input_celular").val(),
+                    correo_electronico  : $(".input_correo_electronico").val(),
+                    direccion           : $(".input_direccion").val()
+                };
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'post',
+                    data    : {
+                        obj_info    : obj_info,
+                        accion      : 'save_express'
+                    },
+                    success : function(data){
+                        showAlert('success','Edición exitosa!');
+                        setTimeout(function(){
+                            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
+                        },2000);
+                    },
+                    error   : function(error){
+                        showAlert('danger',error.responseText);
+                    }
+                })
+            });
+
+            //  EVENTOS PARA CONTROLAR LOS DATOS A INGRESAR
+            $("#form_info_personal").on('keypress','.input_celular',function(e) {
+                if(isNaN(this.value + String.fromCharCode(e.charCode))) 
+                return false;
+            })
+            .on("cut copy paste",function(e){
+                e.preventDefault();
+            });
+
+            //  ------------------- EXPLORACION FISICA   ---------------------------------   //
+            //  EVENTO PARA MOSTRAR MODAL DE HISTORICOS DE EXPLORACION FISICA
+            $("#table_results_exploracion_fisica").on('click','.clickable-row',function() {
+                var $row = $(this);
+                let modal_clone = $('#exploracion_fisica_modal').clone().removeAttr('id').show();
+                
+                // Obtener datos directamente de las celdas según el orden de tus columnas
+                var fecha = $row.find('td:eq(0)').text().trim();
+                var temperatura = $row.find('td:eq(1)').text().trim();
+                var frecuenciaCardiaca = $row.find('td:eq(2)').text().trim();
+                var presionArterial = $row.find('td:eq(3)').text().trim();
+                var frecuenciaRespiratoria = $row.find('td:eq(4)').text().trim();
+                var saturacionOxigeno = $row.find('td:eq(5)').text().trim();
+                var peso = $row.find('td:eq(6)').text().trim();
+                var altura = $row.find('td:eq(7)').text().trim();
+                var imc = $row.find('td:eq(8)').text().trim();
+                var alergias = $row.find('td:eq(9)').text().trim();
+                var observaciones   = $(this).data('observaciones');
+                
+                // Actualizar el contenido del modal
+                $(modal_clone).find('#modalFecha').text(fecha || 'No registrado');
+                $(modal_clone).find('#modalTemperatura').text(temperatura ? temperatura + ' °C' : 'No registrado');
+                $(modal_clone).find('#modalFrecuenciaCardiaca').text(frecuenciaCardiaca ? frecuenciaCardiaca + ' lpm' : 'No registrado');
+                $(modal_clone).find('#modalPresionArterial').text(presionArterial ? presionArterial + ' mmHg' : 'No registrado');
+                $(modal_clone).find('#modalFrecuenciaRespiratoria').text(frecuenciaRespiratoria ? frecuenciaRespiratoria + ' rpm' : 'No registrado');
+                $(modal_clone).find('#modalSaturacionOxigeno').text(saturacionOxigeno ? saturacionOxigeno + '%' : 'No registrado');
+                $(modal_clone).find('#modalPeso').text(peso ? peso + ' kg' : 'No registrado');
+                $(modal_clone).find('#modalAltura').text(altura ? altura + ' cm' : 'No registrado');
+                $(modal_clone).find('#modalIMC').text(imc || 'No registrado');
+                $(modal_clone).find('#modalAlergias').text(alergias || 'No registra alergias');
+                $(modal_clone).find('#modalObservaciones').text(observaciones || 'Sin observaciones adicionales'); // Este campo no aparece en tu tabla
+                
+                // Mostrar el modal
+                $(modal_clone).modal('show');
+            });
+
+            $(".btn_save_exploracion_fisica").on('click',function(){
+                
+                let btn = $(this);
+
+                let obj_info    = validar_exploracion_fisica('.div_exploracion_fisica',btn);
+
+                if (!obj_info){
+                    return false;
+                }
+
+                console.log('obj_info',obj_info);
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'save_exploracion_fisica',
+                        id_paciente     : id_paciente,
+                        id_agenda_cita  : id_agenda_cita,
+                        obj_info        : obj_info,
+                        nombre_completo : nombre_completo
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $("#table_results_exploracion_fisica").find('tbody').find('tr').remove();
+
+                        console.log('data',data);
+
+                        let row_table   = '';
+                        for(let i in data){
+                            let row = data[i];
+
+                            //  CUALQUIER VALOR = NULL LO CAMBIA A ''
+                            for(let key in row){
+                                if(row[key] === null){
+                                    row[key] = '';
+                                }
+                            }
+
+                            row_table   += '<tr class="clickable-row">'+
+                                                '<td class="p-3">'+row["fecha_registro"]+'</td>'+
+                                                '<td class="p-3">'+row["temperatura"]+'</td>'+
+                                                '<td class="p-3">'+row["frecuencia_cardiaca"]+'</td>'+
+                                                '<td class="p-3">'+row["presion_arterial_sistolica"]+'/'+row["presion_arterial_diastolica"]+'</td>'+
+                                                '<td class="p-3">'+row["frecuencia_respiratoria"]+'</td>'+
+                                                '<td class="p-3">'+row["saturacion_oxigeno"]+'</td>'+
+                                                '<td class="p-3">'+row["peso"]+'</td>'+
+                                                '<td class="p-3">'+row["altura"]+'</td>'+
+                                                '<td class="p-3">'+row["imc"]+'</td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["alergias"]+'</td>'+
+                                            '</tr>';
+                        }
+
+                        $("#table_results_exploracion_fisica").find('tbody').append(row_table);
+
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            $(".div_exploracion_fisica").on('click','.btn_expandir',function(e){
+                e.preventDefault();
+
+                let $icon = $(this).find("span.material-icons");
+
+                if ($icon.text() == 'fullscreen'){
+                    $icon.text("fullscreen_exit");
+                    $(".div_exploracion_fisica").find(".section_create").removeClass('col-lg-6').addClass('col-lg-4');
+                    $(".div_exploracion_fisica").find(".section_history").removeClass('col-lg-6').addClass('col-lg-8');
+
+                } else {
+                    $icon.text("fullscreen");
+                    $(".div_exploracion_fisica").find(".section_create").removeClass('col-lg-4').addClass('col-lg-6');
+                    $(".div_exploracion_fisica").find(".section_history").removeClass('col-lg-8').addClass('col-lg-6');
+                }
+            });
+
+            //  ------------------- MOTIVOS DE CONSULTA ---------------------   //
+            $(".div_motivo_consulta").on('click','.btn_expandir',function(e){
+                e.preventDefault();
+
+                let $icon = $(this).find("span.material-icons");
+
+                if ($icon.text() == 'fullscreen'){
+                    $icon.text("fullscreen_exit");
+                    $(".div_motivo_consulta").find(".section_create").removeClass('col-lg-6').addClass('col-lg-8');
+                    $(".div_motivo_consulta").find(".section_history").removeClass('col-lg-6').addClass('col-lg-4');
+
+                } else {
+                    $icon.text("fullscreen");
+                    $(".div_motivo_consulta").find(".section_create").removeClass('col-lg-8').addClass('col-lg-6');
+                    $(".div_motivo_consulta").find(".section_history").removeClass('col-lg-4').addClass('col-lg-6');
+                }
+            });
+            //  EVENTO PARA MOSTRAR MODAL DE HISTORICOS DE MOTIVOS DE CONSULTA
+            $("#table_results_motivo_consulta").on('click','.clickable-row',function() {
+                var $row = $(this);
+                
+                // Obtener datos directamente de las celdas
+                var fecha = $row.find('td:eq(0)').text().trim();
+                var motivo = $row.find('td:eq(1)').text().trim();
+                var padecimiento = $row.find('td:eq(2)').text().trim();
+                var antecedentes = $row.find('td:eq(3)').text().trim();
+                
+                // Actualizar el contenido del modal
+                $('#modalFecha').text('');
+                $('#modalMotivo').text('');
+                $('#modalPadecimiento').text('');
+                $('#modalAntecedentes').text('');
+
+                $('#modalFecha').text(fecha);
+                $('#modalMotivo').text(motivo);
+                $('#modalPadecimiento').text(padecimiento);
+                $('#modalAntecedentes').text(antecedentes);
+                
+                // Mostrar el modal
+                $('#detailModal').modal('show');
+            });
+
+            $(".btn_save_motivo_consulta").on('click',function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $('#form_motivo_consulta')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    return false;
+                }
+
+                let obj_info    = {
+                    motivo_consulta         : $("#motivo_consulta").val().trim(),
+                    padecimiento_actual     : $("#padecimiento_actual").val().trim(),
+                    antecedentes_relevantes : $("#antecedentes_relevantes").val().trim()
+                }
+
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'save_motivo_consulta',
+                        id_agenda_cita  : id_agenda_cita,
+                        obj_info        : obj_info,
+                        nombre_completo         : nombre_completo
+                    },
+                    success : function(data){
+                        showAlert('success','Captura exitosa!');
+                        $("#table_results_motivo_consulta").find('tbody').find('tr').remove();
+
+                        console.log('data',data);
+
+                        let row_table   = '';
+                        for(let i in data){
+                            let row = data[i];
+
+                            row_table   += '<tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#detailModal" data-fecha="'+row["fecha_registro"]+'" data-motivo="'+row["motivo_consulta"]+'" data-padecimiento="'+row["padecimiento_actual"]+'" data-antecedentes="'+row["antecedentes_relevantes"]+'">'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["fecha_registro"]+'</div></td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["motivo_consulta"]+'</div></td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["padecimiento_actual"]+'</div></td>'+
+                                                '<td class="p-3"><div class="truncate-text">'+row["antecedentes_relevantes"]+'</div></td>'+
+                                            '</tr>';
+                        }
+
+                        $("#table_results_motivo_consulta").find('tbody').append(row_table);
+
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            //  ---------   RECETA MEDICA   ----------------    //
+            //  EVENTO PARA PREVIO DE RECETAS MEDICAS
+            $("#table_results_recetas").on('click','.clickable-row',function(){
+                let btn = $(this);
+                console.log('diag',$(btn).data('diagnostico'));
+                console.log('trat',$(btn).data('tratamiento'));
+                show_preview_receta(btn);
+            });
+            //  EVENTO QUE CACHA CUANDO PIERDE EL FOCUS UN INPUT DE EXPLORACION FISICA
+            $(".input_exploracion_fisica").on('blur',function(){
+                let value   = $(this).val();
+                let header_input    = $(this).closest('.main-content');
+                let input_name      = $(this).data('idrow');
+
+                let div_header_mirror   = $(header_input).hasClass('div_exploracion_fisica') ? 'div_receta' : 'div_exploracion_fisica';
+
+                console.log('div_header_mirror value',div_header_mirror,value);
+                $('.'+div_header_mirror).find('.input_exploracion_fisica').each(function(){
+                    let tmp_input_name  = $(this).data('idrow');
+                    console.log('tmp_input_name',tmp_input_name);
+                    if (input_name == tmp_input_name){
+                        $(this).val(value);
+                        return;
+                    }
+                });
+            });
+
+            $(".btn_save_prescription").on('click',function(){
+                let btn         = $(this);
+                let diagnostico = $(".input_diagnostico").val();
+                let tratamiento = $('#summernote').summernote('code');
+
+                $(btn).prop('disabled',true);
+
+                if (diagnostico == ''){
+                    showAlert('danger','Ingresa el diagnostico');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                if (tratamiento == ''){
+                    showAlert('danger','Ingresa un valor a la receta');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+                
+                //  OBJETO DE RECETA
+                let obj_info_receta = {
+                    diagnostico,tratamiento
+                };
+
+                let obj_exploracion_fisica  = validar_exploracion_fisica('.div_receta',btn);
+
+                if (!obj_exploracion_fisica){
+                    return false;
+                }
+
+                const form = $('#form_motivo_consulta')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    showAlert('danger','Ingresa el motivo de consulta');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                let obj_motivo_consulta = {
+                    motivo_consulta         : $("#motivo_consulta").val().trim(),
+                    padecimiento_actual     : $("#padecimiento_actual").val().trim(),
+                    antecedentes_relevantes : $("#antecedentes_relevantes").val().trim()
+                }
+
+                //  CAPTURA DE MOTIVOS DE CITA
+                
+
+                console.log('obj_exploracion_fisica',obj_exploracion_fisica);
+                console.log('obj_motivo_consulta',obj_motivo_consulta);
+
+                $(btn).prop('disabled',false);
+
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'save_receta',
+                        id_paciente     : id_paciente,
+                        id_agenda_cita  : id_agenda_cita,
+                        obj_motivo_consulta : obj_motivo_consulta,
+                        obj_exploracion_fisica  : obj_exploracion_fisica,
+                        nombre_completo         : nombre_completo,
+                        obj_info_receta         : obj_info_receta
+                    },
+                    success : function(data){
+                        console.log('data',data);
+
+                        if (data['url_receta'] != ''){
+                            window.open(data['url_receta'], '_blank');
+                            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
+                        } else {
+                            showAlert('Captura de receta exitosa, pero hubo un inconveniente al momento de generar el archivo de la receta: '+data['msg_error']);
+                            setTimeout(function(){
+                                window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
+                            },3000);
+                        }
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+        });
+
+        //  --------------  FUNCIONES   ---------------------   //
+        function validar_exploracion_fisica(header,btn){
+
+            //$(btn).prop('disabled',true);
+            //  VERIFICACION DE VALORES
+            if ($(header).find(".presion_arterial_sistolica").val() == '' && $(header).find(".presion_arterial_diastolica").val() != ''){
+                showAlert('danger','Ingrese el dato de Presión arterial sistónica');
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            if ($(header).find(".presion_arterial_sistolica").val() != '' && $(header).find(".presion_arterial_diastolica").val() == ''){
+                showAlert('danger','Ingrese el dato de Presión arterial diastónica');
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            if ($(header).find(".presion_arterial_sistolica").val() != '' && $(header).find(".presion_arterial_diastolica").val() != ''
+                && parseInt($(header).find(".presion_arterial_sistolica").val()) < parseInt($(header).find(".presion_arterial_diastolica").val())){
+                showAlert('danger','La presión sistónica no puede ser menor que la presión diastónica');
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            let obj_info    = {};
+
+            let flag_error  = false;
+            $(header).find('.input_exploracion_fisica').each(function(){
+                //  SE VERIFICA QUE EL DATO ESTE DENTRO DE LOS RANGOS
+                let id_rango    = $(this).data('idrow');
+                let value       = $(this).val();
+                let input_nombre    = $(this).data('nombre');
+                
+                if (value != ''){
+                    if (id_rango != 'observaciones' && id_rango != 'alergias' && value < rangos_exploracion_fisica[id_rango]['min']){
+                        showAlert('danger','Rango minimo de '+input_nombre+' no valido, Valor: '+value+', minimo permitido: '+rangos_exploracion_fisica[id_rango]['min']);
+                        flag_error  = true;
+                        return false;
+                    }
+
+                    if (id_rango != 'observaciones' && id_rango != 'alergias' && value > rangos_exploracion_fisica[id_rango]['max']){
+                        showAlert('danger','Rango maximo de '+input_nombre+' no valido, Valor: '+value+', minimo permitido: '+rangos_exploracion_fisica[id_rango]['max']);
+                        flag_error  = true;
+                        return false;
+                    }
+
+                    if (id_rango == 'peso' || id_rango == 'temperatura' || id_rango == 'imc'){
+                        value   = formatoDinero(value);
+                    }
+                    obj_info[id_rango]  = value;
+                }
+            });
+
+            if (flag_error){
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            if (Object.keys(obj_info).length == 0){
+                showAlert('danger','Ingrese por lo menos un valor a capturar');
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            return obj_info;
+        }
+
+        function show_preview_receta(btn){
+            let modal_clone = $("#modal_preview_receta").clone().removeAttr('id').show();
+
+            $(modal_clone).find("#fecha_creacion").text($(btn).data('fechacreacion'));
+            $(modal_clone).find("#diagnostico").text($(btn).data('diagnostico'));
+            $(modal_clone).find(".div_show_receta").html($(btn).data('tratamiento'));
+
+            $(modal_clone).on('click','#btn_download',function(){
+                $.ajax({
+                    url     : url_clinical,
+                    method  : 'post',
+                    data    : {
+                        accion          : 'download_receta',
+                        id_receta       : $(btn).data('id'),
+                        nombre_completo : nombre_completo
+                    },
+                    success : function(data){
+                        console.log('data',data);
+
+                        if (data['url_receta'] != ''){
+                            window.open(data['url_receta'], '_blank');
+                        }
+                    },
+                    error   : function(error){
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            $(modal_clone).modal('show');
+        }
+            
+    })();
+</script>

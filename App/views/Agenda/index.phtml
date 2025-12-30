@@ -750,6 +750,15 @@ use App\Library\FuncionesGlobales;
     <div class="event-detail d-flex align-items-center" title="Estatus de cobro">
         <i class="bi bi-cash"></i>&nbsp<span id="pagada"></span>
     </div>
+
+    <div class="modal-footer div_ver_expediente" style="display:none;">
+        <?php if ($digitalRecord): ?>
+        <button type="button" class="btn btn_ver_expediente btn-outline-dark"><?php echo $translations['html_see_file']; ?></button>
+        <?php endif; ?>
+        <?php if ($clinicalData): ?>
+        <button type="button" class="btn btn_ir_datos_clinicos btn-outline-dark"><?php echo $translations['html_capture_clinical_data']; ?></button>
+        <?php endif; ?>
+    </div>
 </div>
 
 <div class="modal fade" id="modal_cancelar_cita" tabindex="-1" aria-labelledby="label_modal_agenda_opening" aria-hidden="true">
@@ -1123,6 +1132,9 @@ use App\Library\FuncionesGlobales;
     //  URL
     const controller    = '/Agenda';
     const url_index     = controller+"/index";
+
+    //  D PROFESIONA LDE SESION
+    const id_profesional_sesion = '<?php echo $id_profesional; ?>';
 
     //  CODIGO PARA CALENDARIO POR SEMANA
     const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -4375,6 +4387,18 @@ use App\Library\FuncionesGlobales;
             $("#closeModal").trigger('click');
         });
 
+        $("#infoBox").on('click','.btn_ver_expediente',function(){
+            let id_agenda_cita  = $(this).data('idagendacita');
+
+            window.location.href = '/Pacientes/digitalRecord?id_agenda_cita='+id_agenda_cita;
+        });
+
+        $("#infoBox").on('click','.btn_ir_datos_clinicos',function(){
+            let id_agenda_cita  = $(this).data('idagendacita');
+
+            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita;
+        });
+
         // Ocultar el modal al hacer clic en el botón de cerrar
         $("#closeModal").on("click", function () {
             $infoBox.css("display", "none"); // Ocultar el modal
@@ -4428,6 +4452,15 @@ use App\Library\FuncionesGlobales;
             .data('asistencia',$(element).data('asistencia'))
             .data('horainicio',$(element).data('horainicio'));
         $("#infoBox").css("display", "block"); // Mostrar el modal
+
+        console.log('id_profesional_sesion',id_profesional_sesion,$(element).data('idprofesional'));
+        if (true){
+            $("#infoBox").find('.div_ver_expediente').show();
+            $("#infoBox").find('.btn_ver_expediente').data('idagendacita',$(element).data('idagendacita'));
+            $("#infoBox").find('.btn_ir_datos_clinicos').data('idagendacita',$(element).data('idagendacita'));
+        } else {
+            $("#infoBox").find('.div_ver_expediente').hide();
+        }
 
         // CAMBIO PARA HACER MERGE
     }
