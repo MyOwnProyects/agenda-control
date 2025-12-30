@@ -1871,17 +1871,20 @@ use App\Library\FuncionesGlobales;
             //  EVENTOS DIV DE DIAS
             // Eventos para los botones de navegación
             $(modal_clone).find("#btn-anterior").on("click", function(){
+                $(modal_clone).find(".input_hora_inicio").val(null);
                 cambiarDia(-1,null,$(modal_clone));
                 console.log('entre funciones click anterior');
                 setTimeout(calcula_totales(modal_clone,id_profesional,id_agenda_cita),50);
             });
             $(modal_clone).find("#btn-siguiente").on("click", function(){
+                $(modal_clone).find(".input_hora_inicio").val(null);
                 cambiarDia(1,null,$(modal_clone));
                 console.log('entre funciones click siguiente');
                 setTimeout(calcula_totales(modal_clone,id_profesional,id_agenda_cita),50);
             });
 
             $(modal_clone).find("#btn-hoy").on('click',function(){
+                $(modal_clone).find(".input_hora_inicio").val(null);
                 //  SE REHACE LA INFORMACION DEL DIV DE FECHA
                 // Tu código aquí
                 fechaActual = tmp_fecha_actual;
@@ -1933,10 +1936,12 @@ use App\Library\FuncionesGlobales;
 
             // Eventos para cambiar semana
             $(modal_clone).find("#btn-semana-anterior").on("click", () => {
+                $(modal_clone).find(".input_hora_inicio").val(null);
                 cambiarSemana(-1,$(modal_clone),id_agenda_cita);
                 //calcula_totales(modal_clone,id_profesional,id_agenda_cita);
             });
             $(modal_clone).find("#btn-semana-siguiente").on("click", () => {
+                $(modal_clone).find(".input_hora_inicio").val(null);
                 cambiarSemana(1,$(modal_clone),id_agenda_cita);
                 //calcula_totales(modal_clone,id_profesional,id_agenda_cita);
             });
@@ -3391,10 +3396,7 @@ use App\Library\FuncionesGlobales;
                             }
                         });
                         console.log('id_agenda_cita id_agenda_cita',id_agenda_cita);
-                        setTimeout(() => {
-                            //calcula_totales($(div_header),id_profesional, id_agenda_cita);
-                        }, 50);
-
+                        let hora_cita_actual    = $(div_header).find('.input_hora_inicio').val();
                         setTimeout(function(){
                             if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
                                 //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
@@ -3402,6 +3404,27 @@ use App\Library\FuncionesGlobales;
                             } else {
                                 $(".watermark-message").hide();
                             }
+
+                            //  TIENE HORARIO DISPONIBLE
+                            console.log('timer');
+                            let options_hora        = '<option value="">Selecciona una opcion</option>';
+                            arr_solo_hora_inicio    = [];
+                            $(div_header).find('.div_header_days_container:visible').find('.agenda-time').each(function(){
+                                let hora_disponible = $(this).text();
+                                hora_disponible = hora_disponible.split('-');
+                                if (Array.isArray(hora_disponible) && hora_disponible.length == 2){
+                                    console.log('hora disponible ',hora_disponible[0]);
+                                    arr_solo_hora_inicio.push(hora_disponible[0]);
+                                    options_hora    += '<option value="'+hora_disponible[0]+'">'+hora_disponible[0]+'</option>';
+                                }
+
+                            });
+                            console.log('arr_solo_hora_inicio fin',arr_solo_hora_inicio);
+                            arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
+
+                            $(div_header).find('.div_header_citas').find('.input_hora_inicio').find('option').remove();
+                            $(div_header).find('.div_header_citas').find('.input_hora_termino').val('');
+                            $(div_header).find('.div_header_citas').find('.input_hora_inicio').append(options_hora);
                         },500);
                         
                     } else {
@@ -3586,6 +3609,25 @@ use App\Library\FuncionesGlobales;
                         } else {
                             $(".watermark-message").hide();
                         }
+
+                        let options_hora        = '<option value="">Selecciona una opcion</option>';
+                        arr_solo_hora_inicio    = [];
+                        $(modal_clone).find('.div_header_days_container:visible').find('.agenda-time').each(function(){
+                            let hora_disponible = $(this).text();
+                            hora_disponible = hora_disponible.split('-');
+                            if (Array.isArray(hora_disponible) && hora_disponible.length == 2){
+                                console.log('hora disponible ',hora_disponible);
+                                arr_solo_hora_inicio.push(hora_disponible[0]);
+                                options_hora    += '<option value="'+hora_disponible[0]+'">'+hora_disponible[0]+'</option>';
+                            }
+
+                        });
+                        console.log('arr_solo_hora_inicio fin',arr_solo_hora_inicio);
+                        arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
+
+                        $(modal_clone).find('.div_header_citas').find('.input_hora_inicio').find('option').remove();
+                        $(modal_clone).find('.div_header_citas').find('.input_hora_termino').val('');
+                        $(modal_clone).find('.div_header_citas').find('.input_hora_inicio').append(options_hora);
                     },1000);
                 },
                 error   : function(error){
