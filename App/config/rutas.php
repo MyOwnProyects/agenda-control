@@ -69,7 +69,19 @@ return [
         'delete_program_date'   => "/ctpacientes/delete_program_date",
         'fill_combo'            => '/ctpacientes/fill_combo',
         'save_express'          => '/ctpacientes/save_express',
-        'save_diagnoses'        => '/ctpacientes/save_diagnoses'
+        'save_diagnoses'        => '/ctpacientes/save_diagnoses',
+        'get_digital_record'    => '/ctpacientes/get_digital_record',
+        'delete_file'           => '/ctpacientes/delete_file',
+        'save_file'             => '/ctpacientes/save_file',
+        'show_file'             => '/ctpacientes/show_file',
+        'save_subareas_focus'   => '/ctpacientes/save_subareas_focus',
+        'save_exploracion_fisica'   => '/ctpacientes/save_exploracion_fisica',
+        'show_exploracion_fisica'   => '/ctpacientes/show_exploracion_fisica',
+        'show_motivo_consulta'      => '/ctpacientes/show_motivo_consulta',
+        'save_motivo_consulta'      => '/ctpacientes/save_motivo_consulta',
+        'get_clinical_data'         => '/ctpacientes/get_clinical_data',
+        'save_receta'               => '/ctpacientes/save_receta',
+        'show_receta'               => '/ctpacientes/show_receta',
     ],
     'ctvariables_sistema'   => array(
         'show'  => '/ctvariables_sistema/show'
@@ -94,8 +106,21 @@ return [
     'cttranstornos_neurodesarrollo' => array(
         'show'  => '/cttranstornos_neurodesarrollo/show'
     ),
+    'dashboard_menu'    => array(
+        'show'  => '/dashboard_menu/show',
+    ),
     'ctbitacora_acciones'   => array(
         'show'  => '/ctbitacora_acciones/show'
+    ),
+    'tbnotas'   => array(
+        'show'      => "/tbnotas/show",
+        'create'    => "/tbnotas/create",
+        'delete'    => "/tbnotas/delete",
+        'update'    => "/tbnotas/update",
+        'count'     => "/tbnotas/count",
+    ),
+    'ctareas_enfoque'   => array(
+        'show'  => '/ctareas_enfoque/show',
     )
 
 ];
