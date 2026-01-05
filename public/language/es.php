@@ -228,6 +228,7 @@ return [
     'html_error_minus_ending_date'      => 'La hora de termino es menor o igual a la hora de inicio',
     'html_error_range_allowed'          => 'El horario del profesional esta fuera de rango del horario de atenci&oacute;n de la locaci&oacute;n',
     'html_error_starting_date'          => 'Ingresa la fecha de inicio',
+    'html_error_ending_date'            => 'Ingresa la fecha de termino',
     'html_error_range_date'             => 'Rango fechas invalido',
     'html_error_reason_cancellation'    => 'Ingrese un motivo de cancelaci&oacute;n',
     'html_error_attendance_status'      => 'Especifique el estatus de la asistencia',
@@ -237,5 +238,6 @@ return [
     'html_error_birthdate'              => 'Formato de fecha invalido',
     'html_error_movement_type'          => 'Selecciona un tipo de movimiento',
     'html_error_description'            => 'Ingrese una descripci&oacute;n',
-    'html_error_date'                   => 'Ingresa una fecha'
+    'html_error_date'                   => 'Ingresa una fecha',
+    'html_error_type_lock'              => 'Seeccione un tipo de bloqueo',
 ];

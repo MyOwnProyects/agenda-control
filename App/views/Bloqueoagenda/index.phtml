@@ -48,7 +48,7 @@ use App\Library\FuncionesGlobales;
                         <?php echo $translations['html_btn_search']; ?>
                     </button>
                     <?php if ($create): ?>
-                        <button type="button" class="btn btn-outline-dark" id="btnCrearDiaInabil">
+                        <button type="button" class="btn btn-outline-dark" id="btnCrearDiaInhabil">
                             <i class="bi bi-plus-lg"></i> 
                             <?php echo $translations['html_create_off_day']; ?>
                         </button>
@@ -84,11 +84,11 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
-<div class="modal fade" id="modal_create_dia_inabil" tabindex="-1" aria-labelledby="label_modal_create_dia_inabil" aria-hidden="true">
+<div class="modal fade" id="modal_create_dia_inhabil" tabindex="-1" aria-labelledby="label_modal_create_dia_inhabil" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="label_modal_create_dia_inabil"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
+        <h5 class="modal-title" id="label_modal_create_dia_inhabil"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
@@ -99,10 +99,10 @@ use App\Library\FuncionesGlobales;
                     <select id="select_locaciones" class="form-select" aria-label="Default select example">
                         <option></option>    
                         <option value="-1" selected>TODAS</option>
-                            <?php foreach($arr_locaciones as $locacion): ?>
-                                <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
                 </div>    
                 <div class="col-md-6"></div>            
@@ -117,6 +117,60 @@ use App\Library\FuncionesGlobales;
                     <label for="input_label_bloqueo" class="col-form-label"><?php echo $translations['html_description']; ?></label>
                     <input type="text" class="form-control" id="input_label_bloqueo" required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_description']; ?></div>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--    MODAL PARA CREAR BLOQUEO A DOCENTE  -->
+<div class="modal fade" id="modal_create_dia_inhabil_profesional" tabindex="-1" aria-labelledby="label_modal_create_dia_inhabil_profesional" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_create_dia_inhabil_profesional"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-6 fix-padding">
+                    <label for="select_profesionales_modal" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales_modal" class="form-select" aria-label="Default select example" required>
+                        <option></option>    
+                        <?php foreach($all_professionals as $profesional): ?>
+                            <option value="<?php echo $profesional['id']; ?>"><?php echo $profesional['nombre_completo']; ?></option>
+                        <?php endforeach; ?>
+                        </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_professional']; ?></div>
+                </div>    
+                <div class="col-md-6 fix-padding">
+                    <label for="select_motivos_bloqueo" class="form-label"><?php echo $translations['html_type_lock']; ?></label>
+                    <select id="select_motivos_bloqueo" class="form-select" aria-label="Default select example" required>
+                        <option></option>    
+                        <?php foreach($motivos_bloqueo_agenda as $motivo): ?>
+                            <option value="<?php echo $motivo['id']; ?>"><?php echo $motivo['nombre']; ?></option>
+                        <?php endforeach; ?>
+                        </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_type_lock']; ?></div>
+                </div>           
+                <!-- Campo Clave -->
+                <div class="col-md-6">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <input type="date" id="input_fecha_inicio" name="input_fecha_inicio" class="form-control" maxLength="10" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-6">
+                    <label for="input_fecha_termino" class="col-form-label"><?php echo $translations['html_ending_date']; ?></label>
+                    <input type="date" id="input_fecha_termino" name="input_fecha_termino" class="form-control" maxLength="10" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_ending_date']; ?></div>
                 </div>
             </div>
         </form>
@@ -192,14 +246,27 @@ use App\Library\FuncionesGlobales;
 
             selectToSelect2($("#header_filters"),"select_profesionales");
 
+            $('#btn_clear_fecha_inicio').on('click', function() {
+                $('#input_rango_fecha_inicio').val('');
+            });
+
+            $('#btn_clear_fecha_termino').on('click', function() {
+                $('#input_rango_fecha_termino').val('');
+            });
+
             // Evento click del botón "Buscar"
             $("#header_filters").on('click',"#btnBuscar",function() {
                 cargarTabla();
             });
 
             //  EVENTO PARA CREAR DIA INHABIL
-            $("#btnCrearDiaInabil").on('click',function(){
+            $("#btnCrearDiaInhabil").on('click',function(){
                 show_modal_creacion_dia_inhabil();
+            });
+
+            //  EVENTO PARA CREAR DIA INHABIL PARA UN PROFESIONAL
+            $("#btnCrearDiaInhabilProfesional").on('click',function(){
+                show_modal_creacion_dia_inhabil_profesional();
             });
 
             $("#table_results").on('click','.btn_edit',function(){
@@ -322,7 +389,7 @@ use App\Library\FuncionesGlobales;
         }
 
         function show_modal_creacion_dia_inhabil(data = null,preview = false){
-            let modal_clone = $("#modal_create_dia_inabil").clone().show();
+            let modal_clone = $("#modal_create_dia_inhabil").clone().show();
 
             $(modal_clone).find('#select_locaciones').select2({
                 placeholder     : 'Seleccione una opción',
@@ -396,7 +463,93 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('select').prop('disabled',true);
                 $(modal_clone).find('input').prop('disabled',true);
                 $(modal_clone).find('#btnSave').remove();
-                $(modal_clone).find('#label_modal_create_dia_inabil').text(translations['title_preview'])
+                $(modal_clone).find('#label_modal_create_dia_inhabil').text(translations['title_preview'])
+            }
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_creacion_dia_inhabil_profesional(data = null,preview = false){
+            let modal_clone = $("#modal_create_dia_inhabil_profesional").clone().show();
+
+            $(modal_clone).find('#select_profesionales_modal').select2({
+                placeholder     : 'Seleccione una opción',
+                dropdownParent: $(modal_clone)
+            });
+
+            $(modal_clone).find('#select_motivos_bloqueo').select2({
+                placeholder     : 'Seleccione una opción',
+                dropdownParent: $(modal_clone)
+            });
+
+            //  SI DATA VIENE CON INFORMACION ES EDICION
+            if (data != null){
+                $(modal_clone).find('#select_locaciones').val(data['id_locacion']).trigger('change');
+                $(modal_clone).find('#input_fecha_inicio').val(data['fecha_inicio']);
+                $(modal_clone).find('#input_fecha_termino').val(data['fecha_termino']);
+                $(modal_clone).find('#input_label_bloqueo').val(data['label_bloqueo']);
+            }
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    return false;
+                }
+
+                let obj_info    = {
+                    id_profesional  : $(modal_clone).find('#select_profesionales_modal').val(),
+                    fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
+                    fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
+                    id_motivo_bloqueo   : $(modal_clone).find('#select_motivos_bloqueo').val(),
+                    tipo_bloqueo        : '2'
+                };
+
+                if (data != null){
+                    obj_info['id']  = data['id'];
+                }
+
+                console.log('obj_info');
+                console.log(obj_info);
+                //return false;
+
+                //  AJAX SAVE
+                $.ajax({
+                    url         : data != null ? url_update : url_create,
+                    method      : 'POST',
+                    dataType    : 'json',
+                    data        : {
+                        obj_info    : obj_info,
+                        accion      : data != null ? 'update_dia_inhabil_profesional' : 'create_dia_inhabil_profesional',
+                        data_old    : data
+                    },
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                        cargarTabla();
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            if (preview){
+                $(modal_clone).find('select').prop('disabled',true);
+                $(modal_clone).find('input').prop('disabled',true);
+                $(modal_clone).find('#btnSave').remove();
+                $(modal_clone).find('#label_modal_create_dia_inhabil_profesional').text(translations['title_preview'])
             }
 
             $(modal_clone).modal('show');
