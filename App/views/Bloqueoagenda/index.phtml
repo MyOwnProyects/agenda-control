@@ -1,0 +1,410 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<div class="container mt-4">
+    <!-- Section 1: Search Filters -->
+    <div>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_agenda_lock']); ?></h2>
+    </div>
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-3">
+                    <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_range_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_range_date']; ?>">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_clear_fecha_inicio">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="input_rango_fecha_termino" class="form-label"><?php echo $translations['html_limit_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_termino" placeholder="<?php echo $translations['html_limit_date']; ?>">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_clear_fecha_termino">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales" class="select_profesionales">
+                        <option value=""></option>
+                        <?php foreach($all_professionals as $profesional): ?>
+                            <option value="<?php echo $profesional['id']; ?>"><?php echo $profesional['nombre_completo']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                    <?php if ($create): ?>
+                        <button type="button" class="btn btn-outline-dark" id="btnCrearDiaInabil">
+                            <i class="bi bi-plus-lg"></i> 
+                            <?php echo $translations['html_create_off_day']; ?>
+                        </button>
+                        <button type="button" class="btn btn-outline-dark" id="btnCrearDiaInhabilProfesional">
+                            <i class="bi bi-plus-lg"></i> 
+                            <?php echo $translations['html_create_professional_off_day']; ?>
+                        </button>
+                    <?php endif; ?>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_results']; ?></h5>
+        </div>
+        <div class="card-body">
+            <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><?php echo $translations['html_date']; ?></th>
+                        <th><?php echo $translations['html_description']; ?></th>
+                        <th><?php echo $translations['html_title_professional']; ?></th>
+                        <th><?php echo $translations['html_action']; ?></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_create_dia_inabil" tabindex="-1" aria-labelledby="label_modal_create_dia_inabil" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_create_dia_inabil"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-6 fix-padding">
+                    <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
+                    <select id="select_locaciones" class="form-select" aria-label="Default select example">
+                        <option></option>    
+                        <option value="-1" selected>TODAS</option>
+                            <?php foreach($arr_locaciones as $locacion): ?>
+                                <option value="<?php echo $locacion['id']; ?>"><?php echo $locacion['nombre']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
+                </div>    
+                <div class="col-md-6"></div>            
+                <!-- Campo Clave -->
+                <div class="col-md-5">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_date']; ?></label>
+                    <input type="date" id="input_fecha_inicio" name="input_fecha_inicio" class="form-control" maxLength="10" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_date']; ?></div>
+                </div>
+                <!-- Campo Nombre -->
+                <div class="col-md-7">
+                    <label for="input_label_bloqueo" class="col-form-label"><?php echo $translations['html_description']; ?></label>
+                    <input type="text" class="form-control" id="input_label_bloqueo" required>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_description']; ?></div>
+                </div>
+            
+                <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    <div id="msg_error">
+                        
+                    </div>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    var module_bloqueo_agenda   = (function(){
+        let draw            = 1;
+        //  URL
+        const controller    = '/Bloqueoagenda';
+        const url_index     = controller+"/index";
+        const url_create    = controller+"/create";
+        const url_delete    = controller+"/delete";
+        const url_update    = controller+"/update";
+
+        //  PERMISOS
+        const action_create = '<?php echo $create; ?>';
+        const action_update = '<?php echo $update; ?>';
+        const action_delete = '<?php echo $delete; ?>';
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            deactivate_patient      : "<?= $translations['html_deactivate_patient']?>",
+            activate_patient        : "<?= $translations['html_activate_patient']?>",
+            schedule_appointments   : "<?= $translations['html_schedule_appointments']?>",
+            monday: "<?php echo $translations['html_monday'];     ?>",
+            thuesday: "<?php echo $translations['html_thuesday'];   ?>",
+            wednesday: "<?php echo $translations['html_wednesday'];  ?>",
+            thursday: "<?php echo $translations['html_thursday'];   ?>",
+            friday: "<?php echo $translations['html_friday'];     ?>",
+            saturday: "<?php echo $translations['html_saturday'];   ?>",     
+            diagnosis_capture   :  "<?php echo $translations['html_diagnosis_capture'];   ?>",
+            digital_record      :  "<?php echo $translations['html_digital_record'];   ?>",
+        };
+
+        //  LISTA DE ERRORES EN MODAL
+        const error_list = {
+            sin_permisos    : "<?php echo $translations['html_error_empty_list']; ?>",
+            error_email     : "<?php echo $translations['html_error_email']; ?>",
+            error_celular   : "<?php echo $translations['html_error_cellphone']; ?>",
+            error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
+            error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
+            error_spliced           : "<?php echo $translations['html_error_spliced']; ?>",
+            error_birthdate         : "<?php echo $translations['html_error_birthdate']; ?>"
+        }
+
+        // Variable global para almacenar la instancia de DataTable
+        let table;
+
+        $(document).ready(function(){
+            cargarTabla();
+
+            selectToSelect2($("#header_filters"),"select_profesionales");
+
+            // Evento click del botón "Buscar"
+            $("#header_filters").on('click',"#btnBuscar",function() {
+                cargarTabla();
+            });
+
+            //  EVENTO PARA CREAR DIA INHABIL
+            $("#btnCrearDiaInabil").on('click',function(){
+                show_modal_creacion_dia_inhabil();
+            });
+
+            $("#table_results").on('click','.btn_edit',function(){
+                show_modal_creacion_dia_inhabil($(this).closest('tr').data('rowData'));
+            });
+
+            $("#table_results").on('click','.btn_delete',async function(){
+                const data_row  = $(this).closest('tr').data('rowData');
+                console.log('data_row',data_row);
+                
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+
+                if (respuesta){
+                    $.ajax({
+                        url     : url_delete,
+                        method  : 'post',
+                        data    : {
+                            id          : data_row['id'],
+                            accion      : 'delete_dia_inhabil',
+                            data_old    : data_row
+                        },
+                        success : function(data){
+                            showAlert('success',data);
+                            $("#btnBuscar").trigger('click');
+                        },
+                        error   : function(error){
+                            console.log('error',error);
+                            showAlert('danger',error.responseText);
+                        }
+                    })
+                }
+            });
+
+            $("#table_results").on('click','.btn_preview',function(){
+                let data_row    = $(this).closest('tr').data('rowData');
+                if (data_row['id_profesional'] == null || data_row['id_profesional'] == ''){
+                    show_modal_creacion_dia_inhabil($(this).closest('tr').data('rowData'),true);
+                }
+            });
+
+            //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+            $(document).on('keydown', function(e) {
+                if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                    $("#btnBuscar").trigger('click');
+                }
+            });
+        });
+
+        // Función para inicializar o recargar la tabla
+        function cargarTabla() {
+            draw    ++;
+            if (!table) {
+                table = new DataTable('#table_results', {
+                    dom: 'lrtip',
+                    paging: true,
+                    info: true,
+                    lengthChange: false,
+                    language: translations,
+                    ordering: false,
+                    serverSide: true,
+                    ajax: {
+                        url: url_index,
+                        method: 'POST',
+                        data: function (d) {
+                            d.pageSize  = d.length == null || d.length == '' ? 1 : d.length;
+                            d.offset    = d.start == null || d.start == '' ? 0 : d.start;
+                            d.draw      = draw;
+                            d.accion    = 'get_rows';
+                            d.fecha_inicio      = $("#input_rango_fecha_inicio").val();
+                            d.fecha_termino     = $("#input_rango_fecha_termino").val();
+                            d.id_profesional    = $("#select_profesionales").val();
+                        },
+                        dataSrc: function (json) {
+                            console.log("DataTables Response:", json); // <---- Depuración
+                            return json.data;
+                        }
+                    },
+                    columns: [
+                        { data: 'label_fecha' }, // Columna 1
+                        { data: 'label_bloqueo' }, // Columna 1
+                        { data: 'nombre_profesional' }, // Columna 1
+                        {
+                            data: null, 
+                            className: "text-center", // Centra el contenido de la celda
+                            orderable: false, // Desactiva el ordenamiento para esta columna
+                            render: function (data, type, row) {
+                                draw    ++;
+                                // `data` contiene el objeto completo de la fila
+                                // Generamos un botón con un atributo dinámico para identificar la fila
+                                let btn_preview =
+                                '<button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                    '<i class="bi bi-search"></i> '+
+                                '</button>';
+                                
+                                let btn_update  = action_update ? 
+                                    '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
+                                        '<i class="bi bi-pencil-fill"></i>'+
+                                    '</button>'
+                                : '';
+
+                                let btn_delete  = action_delete ? 
+                                '<button class="btn btn-outline-dark btn-sm btn_delete" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-activo="'+data['activo']+'" title="'+translations['title_delete'] +'">' +
+                                    '<i class="bi bi-trash3-fill"></i>'+
+                                '</button>' : '';
+                                return btn_preview +btn_update  +btn_delete;
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        // Guardar el objeto completo en la fila como data
+                        $(row).data('rowData', data);
+                    }
+                });
+            } else {
+                draw    ++;
+                table.ajax.reload();
+            }
+        }
+
+        function show_modal_creacion_dia_inhabil(data = null,preview = false){
+            let modal_clone = $("#modal_create_dia_inabil").clone().show();
+
+            $(modal_clone).find('#select_locaciones').select2({
+                placeholder     : 'Seleccione una opción',
+                dropdownParent: $(modal_clone)
+            });
+
+            //  SI DATA VIENE CON INFORMACION ES EDICION
+            if (data != null){
+                data['id_locacion'] = data['id_locacion'] == null ? "-1" : data['id_locacion'];
+                $(modal_clone).find('#select_locaciones').val(data['id_locacion']).trigger('change');
+                $(modal_clone).find('#input_fecha_inicio').val(data['fecha_inicio']);
+                $(modal_clone).find('#input_label_bloqueo').val(data['label_bloqueo']);
+            }
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $(modal_clone).find('#form_modal_create')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    return false;
+                }
+
+                let obj_info    = {
+                    id_locacion     : $(modal_clone).find('#select_locaciones').val() == "-1" ? null : $(modal_clone).find('#select_locaciones').val(),
+                    fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
+                    fecha_termino   : $(modal_clone).find('#input_fecha_inicio').val(),
+                    label_bloqueo   : $(modal_clone).find('#input_label_bloqueo').val(),
+                    tipo_bloqueo    : '1'
+                };
+
+                if (data != null){
+                    obj_info['id']  = data['id'];
+                }
+
+                console.log('obj_info');
+                console.log(obj_info);
+                //return false;
+
+                //  AJAX SAVE
+                $.ajax({
+                    url         : data != null ? url_update : url_create,
+                    method      : 'POST',
+                    dataType    : 'json',
+                    data        : {
+                        obj_info    : obj_info,
+                        accion      : data != null ? 'update_dia_inhabil' : 'create_dia_inhabil',
+                        data_old    : data
+                    },
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        $(modal_clone).modal('hide');
+                        showAlert('success',data);
+                        cargarTabla();
+                    },
+                    error     : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
+
+            if (preview){
+                $(modal_clone).find('select').prop('disabled',true);
+                $(modal_clone).find('input').prop('disabled',true);
+                $(modal_clone).find('#btnSave').remove();
+                $(modal_clone).find('#label_modal_create_dia_inabil').text(translations['title_preview'])
+            }
+
+            $(modal_clone).modal('show');
+        }
+    })();
+</script>
