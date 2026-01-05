@@ -88,10 +88,17 @@ class BloqueoagendaController extends BaseController
 
         $this->view->all_professionals  = $all_professionals;
 
+        //  LOCACIONES
         $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
         $_POST['onlyallowed']   = 1;
         $arr_locaciones = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         $this->view->arr_locaciones = $arr_locaciones;
+
+        //  MOTIVOS PARA BLOQUEAR LA AGENDA POR PERSONAL
+        $route                  = $this->url_api.$this->rutas['ctmotivos_bloqueo_agenda']['show'];
+        $motivos_bloqueo_agenda = FuncionesGlobales::RequestApi('GET',$route,array());
+
+        $this->view->motivos_bloqueo_agenda  = $motivos_bloqueo_agenda;
     }
 
     public function createAction(){

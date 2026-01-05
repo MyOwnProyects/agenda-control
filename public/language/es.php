@@ -191,6 +191,7 @@ return [
     'html_date'                                 => 'Fecha',
     'html_create_off_day'                       => 'Crear d&iacute;a inhabil',
     'html_create_professional_off_day'          => 'Crear d&iacute;a inhabil para profesioales',
+    'html_type_lock'                            => 'Tipo de bloqueo',
     
 
 
@@ -236,5 +237,5 @@ return [
     'html_error_birthdate'              => 'Formato de fecha invalido',
     'html_error_movement_type'          => 'Selecciona un tipo de movimiento',
     'html_error_description'            => 'Ingrese una descripci&oacute;n',
-    'html_error_date'                   => 'Igresa una fecha'
+    'html_error_date'                   => 'Ingresa una fecha'
 ];
