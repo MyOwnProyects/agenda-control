@@ -124,9 +124,8 @@ return [
     ),
     'tbfechas_bloqueo_agenda'   => array(
         'show'      => "/tbfechas_bloqueo_agenda/show",
-        'create'    => "/tbfechas_bloqueo_agenda/create",
         'delete'    => "/tbfechas_bloqueo_agenda/delete",
-        'update'    => "/tbfechas_bloqueo_agenda/update",
+        'save'      => "/tbfechas_bloqueo_agenda/save",
         'count'     => "/tbfechas_bloqueo_agenda/count",
     ),
     'ctmotivos_bloqueo_agenda'  => array(

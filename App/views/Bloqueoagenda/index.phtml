@@ -72,7 +72,7 @@ use App\Library\FuncionesGlobales;
                 <thead>
                     <tr>
                         <th><?php echo $translations['html_date']; ?></th>
-                        <th><?php echo $translations['html_description']; ?></th>
+                        <th><?php echo $translations['html_description'] .' / '.$translations['html_reason']; ?></th>
                         <th><?php echo $translations['html_type_lock']; ?></th>
                         <th><?php echo $translations['html_location']; ?></th>
                         <th><?php echo $translations['html_title_professional']; ?></th>
@@ -173,6 +173,14 @@ use App\Library\FuncionesGlobales;
                     <div class="invalid-feedback"><?php echo $translations['html_error_ending_date']; ?></div>
                 </div>
             </div>
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -235,7 +243,8 @@ use App\Library\FuncionesGlobales;
             error_contrasena    : "<?php echo $translations['html_error_different_password']; ?>",
             error_length_contrasena : "<?php echo $translations['html_error_length_password']; ?>",
             error_spliced           : "<?php echo $translations['html_error_spliced']; ?>",
-            error_birthdate         : "<?php echo $translations['html_error_birthdate']; ?>"
+            error_birthdate         : "<?php echo $translations['html_error_birthdate']; ?>",
+            error_range_date        : "<?php echo $translations['html_error_range_date']; ?>",
         }
 
         // Variable global para almacenar la instancia de DataTable
@@ -261,16 +270,23 @@ use App\Library\FuncionesGlobales;
 
             //  EVENTO PARA CREAR DIA INHABIL
             $("#btnCrearDiaInhabil").on('click',function(){
-                show_modal_creacion_dia_inhabil();
+                show_modal_dia_inhabil();
             });
 
             //  EVENTO PARA CREAR DIA INHABIL PARA UN PROFESIONAL
             $("#btnCrearDiaInhabilProfesional").on('click',function(){
-                show_modal_creacion_dia_inhabil_profesional();
+                show_modal_dia_inhabil_profesional();
             });
 
             $("#table_results").on('click','.btn_edit',function(){
-                show_modal_creacion_dia_inhabil($(this).closest('tr').data('rowData'));
+                let data_row    = $(this).closest('tr').data('rowData');
+                if (data_row['id_profesional'] == null || data_row['id_profesional'] == ''){
+                    show_modal_dia_inhabil(data_row);
+                }
+
+                if (data_row['id_profesional'] != null){
+                    show_modal_dia_inhabil_profesional(data_row);
+                }
             });
 
             $("#table_results").on('click','.btn_delete',async function(){
@@ -303,7 +319,11 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_preview',function(){
                 let data_row    = $(this).closest('tr').data('rowData');
                 if (data_row['id_profesional'] == null || data_row['id_profesional'] == ''){
-                    show_modal_creacion_dia_inhabil($(this).closest('tr').data('rowData'),true);
+                    show_modal_dia_inhabil($(this).closest('tr').data('rowData'),true);
+                }
+
+                if (data_row['id_profesional'] != null){
+                    show_modal_dia_inhabil_profesional($(this).closest('tr').data('rowData'),true);
                 }
             });
 
@@ -388,7 +408,7 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function show_modal_creacion_dia_inhabil(data = null,preview = false){
+        function show_modal_dia_inhabil(data = null,preview = false){
             let modal_clone = $("#modal_create_dia_inhabil").clone().show();
 
             $(modal_clone).find('#select_locaciones').select2({
@@ -430,7 +450,7 @@ use App\Library\FuncionesGlobales;
                 };
 
                 if (data != null){
-                    obj_info['id']  = data['id'];
+                    obj_info['id']      = data['id'];
                 }
 
                 console.log('obj_info');
@@ -469,7 +489,7 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         }
 
-        function show_modal_creacion_dia_inhabil_profesional(data = null,preview = false){
+        function show_modal_dia_inhabil_profesional(data = null,preview = false){
             let modal_clone = $("#modal_create_dia_inhabil_profesional").clone().show();
 
             $(modal_clone).find('#select_profesionales_modal').select2({
@@ -484,10 +504,16 @@ use App\Library\FuncionesGlobales;
 
             //  SI DATA VIENE CON INFORMACION ES EDICION
             if (data != null){
-                $(modal_clone).find('#select_locaciones').val(data['id_locacion']).trigger('change');
+                $(modal_clone).find('#select_profesionales_modal').find('option').each(function(){
+                    if ($(this).val() != data['id_profesional']){
+                        $(this).remove();
+                    }
+                });
+                $(modal_clone).find('#select_profesionales_modal').val(data['id_profesional']).trigger('change');
+                $(modal_clone).find('#select_motivos_bloqueo').val(data['id_motivo_bloqueo']).trigger('change');
                 $(modal_clone).find('#input_fecha_inicio').val(data['fecha_inicio']);
                 $(modal_clone).find('#input_fecha_termino').val(data['fecha_termino']);
-                $(modal_clone).find('#input_label_bloqueo').val(data['label_bloqueo']);
+                $(modal_clone).find('#select_profesionales_modal').prop('disabled',true);
             }
 
             $(modal_clone).on('click','#btnSave',function(){
@@ -503,25 +529,39 @@ use App\Library\FuncionesGlobales;
                     $(form).removeClass('was-validated');
                 }
 
+                const fecha_inicio  = moment($(modal_clone).find('#input_fecha_inicio').val());
+                const fecha_termino = moment($(modal_clone).find('#input_fecha_termino').val());
+
+                console.log('fechas ',fecha_inicio,fecha_termino,fecha_termino.isAfter(fecha_inicio));
+
+                if (fecha_inicio.isAfter(fecha_termino)) {
+                    $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_range_date']);
+                    $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                } else {
+                    $(modal_clone).find('#alert_error').removeClass('d-flex').hide();
+                }
+
                 if (flag_error){
                     return false;
                 }
 
                 let obj_info    = {
-                    id_profesional  : $(modal_clone).find('#select_profesionales_modal').val(),
-                    fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
-                    fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
+                    id_profesional      : $(modal_clone).find('#select_profesionales_modal').val(),
+                    nombre_profesional  : $(modal_clone).find('#select_profesionales_modal').find('option:selected').text(),
+                    fecha_inicio        : $(modal_clone).find('#input_fecha_inicio').val(),
+                    fecha_termino       : $(modal_clone).find('#input_fecha_termino').val(),
                     id_motivo_bloqueo   : $(modal_clone).find('#select_motivos_bloqueo').val(),
+                    label_bloqueo       : $(modal_clone).find('#select_motivos_bloqueo').find('option:selected').text(),
                     tipo_bloqueo        : '2'
                 };
 
                 if (data != null){
-                    obj_info['id']  = data['id'];
+                    obj_info['id']      = data['id'];
                 }
 
                 console.log('obj_info');
                 console.log(obj_info);
-                //return false;
+                // return false;
 
                 //  AJAX SAVE
                 $.ajax({

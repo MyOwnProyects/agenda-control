@@ -239,5 +239,5 @@ return [
     'html_error_movement_type'          => 'Selecciona un tipo de movimiento',
     'html_error_description'            => 'Ingrese una descripci&oacute;n',
     'html_error_date'                   => 'Ingresa una fecha',
-    'html_error_type_lock'              => 'Seeccione un tipo de bloqueo',
+    'html_error_type_lock'              => 'Seleccione un tipo de bloqueo',
 ];

@@ -105,50 +105,64 @@ class BloqueoagendaController extends BaseController
         if ($this->request->isAjax()){
             $accion = $this->request->getPost('accion');
 
-            if ($accion == 'create_dia_inhabil'){
-                $_POST  = $_POST['obj_info'];
-                $route  = $this->url_api.$this->rutas['tbfechas_bloqueo_agenda']['create'];
-                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST); 
-                
-                $response = new Response();
+            $_POST              = $_POST['obj_info'];
+            $_POST['accion']    = 'create';
 
-                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
-                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
-                    $response->setStatusCode(404, 'Error');
-                    return $response;
-                }
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro de día inhabil para la fecha: '.$_POST['fecha_inicio'].' con la descripción:'.$_POST['label_bloqueo'] ,$_POST);
+            $route  = $this->url_api.$this->rutas['tbfechas_bloqueo_agenda']['save'];
+            $result = FuncionesGlobales::RequestApi('POST',$route,$_POST); 
+            
+            $response = new Response();
 
-                $response->setJsonContent('Captura exitosa');
-                $response->setStatusCode(200, 'OK');
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
                 return $response;
             }
+
+            if ($accion == 'create_dia_inhabil'){
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro de día inhabil para la fecha: '.$_POST['fecha_inicio'].' con la descripción:'.$_POST['label_bloqueo'] ,$_POST);
+            }
+
+            if ($accion == 'create_dia_inhabil_profesional'){
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro por motivo: '.$_POST['label_bloqueo'].' para el profesional: '.$_POST['nombre_profesional'].' en el rango de fecha: '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'] ,$_POST);
+            }
+
+            $response->setJsonContent('Captura exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
 
         }
     }
 
     public function updateAction(){
         if ($this->request->isAjax()){
-            $accion = $this->request->getPost('accion');
-            if ($accion == 'update_dia_inhabil'){
-                $data_old   = $_POST['data_old'];
-                $_POST      = $_POST['obj_info'];
-                $route      = $this->url_api.$this->rutas['tbfechas_bloqueo_agenda']['update'];
-                $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST); 
-                
-                $response = new Response();
+            $accion             = $this->request->getPost('accion');
+            $data_old           = $_POST['data_old'];
+            $_POST              = $_POST['obj_info'];
+            $_POST['accion']    = 'update';
 
-                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
-                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
-                    $response->setStatusCode(404, 'Error');
-                    return $response;
-                }
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de día inhabil de la fecha: '.$data_old["fecha_inicio"].' a '.$_POST['fecha_inicio'].' de la descripción: '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'] ,$_POST);
+            $route      = $this->url_api.$this->rutas['tbfechas_bloqueo_agenda']['save'];
+            $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST); 
+            
+            $response = new Response();
 
-                $response->setJsonContent('Edición exitosa');
-                $response->setStatusCode(200, 'OK');
+            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                $response->setStatusCode(404, 'Error');
                 return $response;
             }
+
+            if ($accion == 'update_dia_inhabil'){
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de día inhabil de la fecha: '.$data_old["fecha_inicio"].' a '.$_POST['fecha_inicio'].' de la descripción: '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'] ,$_POST);
+            }
+
+            if ($accion == 'update_dia_inhabil_profesional'){
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'].' del profesional: '.$_POST["nombre_profesional"].' de las fechas: '.$data_old["fecha_inicio"].' - '.$data_old["fecha_termino"].' a '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'] ,$_POST);
+            }
+
+            $response->setJsonContent('Edición exitosa');
+            $response->setStatusCode(200, 'OK');
+            return $response;
 
         }
     }
