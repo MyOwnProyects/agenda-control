@@ -72,6 +72,17 @@ class BloqueoagendaController extends BaseController
                 $result = $arr_return;
             }
 
+            if ($accion == 'verificar_citas'){
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+                $arr_return = array();
+
+                //  SE BUSCAN LOS PERMISOS ASIGNADOS AL USUARIO
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['count'];
+                $arr_return = FuncionesGlobales::RequestApi('GET',$route,$_POST['obj_info']);
+
+                $result = $arr_return;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
@@ -95,8 +106,8 @@ class BloqueoagendaController extends BaseController
         $this->view->arr_locaciones = $arr_locaciones;
 
         //  MOTIVOS PARA BLOQUEAR LA AGENDA POR PERSONAL
-        $route                  = $this->url_api.$this->rutas['ctmotivos_bloqueo_agenda']['show'];
-        $motivos_bloqueo_agenda = FuncionesGlobales::RequestApi('GET',$route,array());
+        $route                  = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
+        $motivos_bloqueo_agenda = FuncionesGlobales::RequestApi('GET',$route,array('bloqueo_agenda' => 1));
 
         $this->view->motivos_bloqueo_agenda  = $motivos_bloqueo_agenda;
     }
@@ -104,9 +115,9 @@ class BloqueoagendaController extends BaseController
     public function createAction(){
         if ($this->request->isAjax()){
             $accion = $this->request->getPost('accion');
-
-            $_POST              = $_POST['obj_info'];
-            $_POST['accion']    = 'create';
+            $num_citas_afectadas    = $_POST['num_citas_afectadas'];
+            $_POST                  = $_POST['obj_info'];
+            $_POST['accion']        = 'create';
 
             $route  = $this->url_api.$this->rutas['tbfechas_bloqueo_agenda']['save'];
             $result = FuncionesGlobales::RequestApi('POST',$route,$_POST); 
@@ -120,11 +131,11 @@ class BloqueoagendaController extends BaseController
             }
 
             if ($accion == 'create_dia_inhabil'){
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro de día inhabil para la fecha: '.$_POST['fecha_inicio'].' con la descripción:'.$_POST['label_bloqueo'] ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro de día inhabil para la fecha: '.$_POST['fecha_inicio'].' con la descripción:'.$_POST['label_bloqueo'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
             }
 
             if ($accion == 'create_dia_inhabil_profesional'){
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro por motivo: '.$_POST['label_bloqueo'].' para el profesional: '.$_POST['nombre_profesional'].' en el rango de fecha: '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'] ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro por motivo: '.$_POST['label_bloqueo'].' para el profesional: '.$_POST['nombre_profesional'].' en el rango de fecha: '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
             }
 
             $response->setJsonContent('Captura exitosa');
@@ -137,9 +148,10 @@ class BloqueoagendaController extends BaseController
     public function updateAction(){
         if ($this->request->isAjax()){
             $accion             = $this->request->getPost('accion');
-            $data_old           = $_POST['data_old'];
-            $_POST              = $_POST['obj_info'];
-            $_POST['accion']    = 'update';
+            $num_citas_afectadas    = $_POST['num_citas_afectadas'];
+            $data_old               = $_POST['data_old'];
+            $_POST                  = $_POST['obj_info'];
+            $_POST['accion']        = 'update';
 
             $route      = $this->url_api.$this->rutas['tbfechas_bloqueo_agenda']['save'];
             $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST); 
@@ -153,11 +165,11 @@ class BloqueoagendaController extends BaseController
             }
 
             if ($accion == 'update_dia_inhabil'){
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de día inhabil de la fecha: '.$data_old["fecha_inicio"].' a '.$_POST['fecha_inicio'].' de la descripción: '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'] ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de día inhabil de la fecha: '.$data_old["fecha_inicio"].' a '.$_POST['fecha_inicio'].' de la descripción: '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
             }
 
             if ($accion == 'update_dia_inhabil_profesional'){
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'].' del profesional: '.$_POST["nombre_profesional"].' de las fechas: '.$data_old["fecha_inicio"].' - '.$data_old["fecha_termino"].' a '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'] ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'].' del profesional: '.$_POST["nombre_profesional"].' de las fechas: '.$data_old["fecha_inicio"].' - '.$data_old["fecha_termino"].' a '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
             }
 
             $response->setJsonContent('Edición exitosa');

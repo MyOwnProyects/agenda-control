@@ -438,7 +438,7 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        function show_modal_dia_inhabil(data = null,preview = false){
+        function show_modal_dia_inhabil(data_actual = null,preview = false){
             let modal_clone = $("#modal_create_dia_inhabil").clone().show();
 
             $(modal_clone).find('#select_locaciones').select2({
@@ -447,14 +447,14 @@ use App\Library\FuncionesGlobales;
             });
 
             //  SI DATA VIENE CON INFORMACION ES EDICION
-            if (data != null){
-                data['id_locacion'] = data['id_locacion'] == null ? "-1" : data['id_locacion'];
-                $(modal_clone).find('#select_locaciones').val(data['id_locacion']).trigger('change');
-                $(modal_clone).find('#input_fecha_inicio').val(data['fecha_inicio']);
-                $(modal_clone).find('#input_label_bloqueo').val(data['label_bloqueo']);
+            if (data_actual != null){
+                data_actual['id_locacion'] = data_actual['id_locacion'] == null ? "-1" : data_actual['id_locacion'];
+                $(modal_clone).find('#select_locaciones').val(data_actual['id_locacion']).trigger('change');
+                $(modal_clone).find('#input_fecha_inicio').val(data_actual['fecha_inicio']);
+                $(modal_clone).find('#input_label_bloqueo').val(data_actual['label_bloqueo']);
             }
 
-            $(modal_clone).on('click','#btnSave',function(){
+            $(modal_clone).on('click','#btnSave',async function(){
                 let btn =  $(this);
                 $(btn).prop('disable',true);
 
@@ -479,34 +479,90 @@ use App\Library\FuncionesGlobales;
                     tipo_bloqueo    : '1'
                 };
 
-                if (data != null){
-                    obj_info['id']      = data['id'];
+                if (data_actual != null){
+                    obj_info['id']      = data_actual['id'];
                 }
 
                 console.log('obj_info');
                 console.log(obj_info);
                 //return false;
 
-                //  AJAX SAVE
+                //  SE VERIFICAN LA CANTIDAD DE CITAS ACTIVAS, ESTO PARA QUE EL USUARIO ESTE CONCIENTE
+                //  SEL NUMERO DE CITAS AFECTADAS AL CREAR EL REGISTRO
                 $.ajax({
-                    url         : data != null ? url_update : url_create,
+                    url         : url_index,
                     method      : 'POST',
                     dataType    : 'json',
                     data        : {
-                        obj_info    : obj_info,
-                        accion      : data != null ? 'update_dia_inhabil' : 'create_dia_inhabil',
-                        data_old    : data
+                        obj_info    : {
+                            id_locacion     : obj_info['id_locacion'],
+                            tipo_busqueda   : 'activas',
+                            fecha_inicio    : obj_info['fecha_inicio'],
+                            fecha_termino   : obj_info['fecha_termino'],
+                            from_catalog    : true
+                        },
+                        accion      : 'verificar_citas'
                     },
-                    success     : function(data){
-                        $(btn).prop('disabled',false);
-                        $(modal_clone).modal('hide');
-                        showAlert('success',data);
-                        cargarTabla();
+                    success     : async function(num_citas_afectadas){
+                        if (num_citas_afectadas == 0){
+                            //  AJAX SAVE
+                            $.ajax({
+                                url         : data_actual != null ? url_update : url_create,
+                                method      : 'POST',
+                                dataType    : 'json',
+                                data        : {
+                                    obj_info    : obj_info,
+                                    accion      : data_actual != null ? 'update_dia_inhabil' : 'create_dia_inhabil',
+                                    data_old    : data_actual,
+                                    num_citas_afectadas : num_citas_afectadas
+                                },
+                                success     : function(data){
+                                    $(btn).prop('disabled',false);
+                                    $(modal_clone).modal('hide');
+                                    showAlert('success',data);
+                                    cargarTabla();
+                                },
+                                error     : function(error){
+                                    actionJsonError(error,btn);
+                                }
+                            })
+                        } else {
+
+                            const respuesta = await window.modalConfirm('Numero de citas afectadas: '+num_citas_afectadas+'¿Deseas continuar?');
+
+                            if (respuesta) {
+                                $.ajax({
+                                    url         : data_actual != null ? url_update : url_create,
+                                    method      : 'POST',
+                                    dataType    : 'json',
+                                    data        : {
+                                        obj_info    : obj_info,
+                                        accion      : data_actual != null ? 'update_dia_inhabil' : 'create_dia_inhabil',
+                                        data_old    : data_actual,
+                                        num_citas_afectadas : num_citas_afectadas
+                                    },
+                                    success     : function(data){
+                                        $(btn).prop('disabled',false);
+                                        $(modal_clone).modal('hide');
+                                        showAlert('success',data);
+                                        cargarTabla();
+                                    },
+                                    error     : function(error){
+                                        actionJsonError(error,btn);
+                                    }
+                                })
+                            } else {
+                                $(btn).prop('disabled',false);
+                            }
+
+                        }
                     },
                     error     : function(error){
                         actionJsonError(error,btn);
                     }
                 })
+
+                
             });
 
             if (preview){
@@ -540,7 +596,7 @@ use App\Library\FuncionesGlobales;
                     }
                 });
                 $(modal_clone).find('#select_profesionales_modal').val(data['id_profesional']).trigger('change');
-                $(modal_clone).find('#select_motivos_bloqueo').val(data['id_motivo_bloqueo']).trigger('change');
+                $(modal_clone).find('#select_motivos_bloqueo').val(data['id_motivo_cancelacion_cita']).trigger('change');
                 $(modal_clone).find('#input_fecha_inicio').val(data['fecha_inicio']);
                 $(modal_clone).find('#input_fecha_termino').val(data['fecha_termino']);
                 $(modal_clone).find('#select_profesionales_modal').prop('disabled',true);
@@ -581,9 +637,9 @@ use App\Library\FuncionesGlobales;
                     nombre_profesional  : $(modal_clone).find('#select_profesionales_modal').find('option:selected').text(),
                     fecha_inicio        : $(modal_clone).find('#input_fecha_inicio').val(),
                     fecha_termino       : $(modal_clone).find('#input_fecha_termino').val(),
-                    id_motivo_bloqueo   : $(modal_clone).find('#select_motivos_bloqueo').val(),
-                    label_bloqueo       : $(modal_clone).find('#select_motivos_bloqueo').find('option:selected').text(),
-                    tipo_bloqueo        : '2'
+                    id_motivo_cancelacion_cita  : $(modal_clone).find('#select_motivos_bloqueo').val(),
+                    label_bloqueo               : $(modal_clone).find('#select_motivos_bloqueo').find('option:selected').text(),
+                    tipo_bloqueo                : '2'
                 };
 
                 if (data != null){
