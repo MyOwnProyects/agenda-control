@@ -528,7 +528,7 @@ use App\Library\FuncionesGlobales;
                             })
                         } else {
 
-                            const respuesta = await window.modalConfirm('Numero de citas afectadas: '+num_citas_afectadas+'¿Deseas continuar?');
+                            const respuesta = await window.modalConfirm('Se marcarán en total <b>'+num_citas_afectadas+' cita(s)</b> como PENDIENTES POR AGENDAR.<br>¿Deseas continuar?',true);
 
                             if (respuesta) {
                                 $.ajax({
@@ -575,7 +575,7 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         }
 
-        function show_modal_dia_inhabil_profesional(data = null,preview = false){
+        function show_modal_dia_inhabil_profesional(data_actual = null,preview = false){
             let modal_clone = $("#modal_create_dia_inhabil_profesional").clone().show();
 
             $(modal_clone).find('#select_profesionales_modal').select2({
@@ -589,16 +589,16 @@ use App\Library\FuncionesGlobales;
             });
 
             //  SI DATA VIENE CON INFORMACION ES EDICION
-            if (data != null){
+            if (data_actual != null){
                 $(modal_clone).find('#select_profesionales_modal').find('option').each(function(){
-                    if ($(this).val() != data['id_profesional']){
+                    if ($(this).val() != data_actual['id_profesional']){
                         $(this).remove();
                     }
                 });
-                $(modal_clone).find('#select_profesionales_modal').val(data['id_profesional']).trigger('change');
-                $(modal_clone).find('#select_motivos_bloqueo').val(data['id_motivo_cancelacion_cita']).trigger('change');
-                $(modal_clone).find('#input_fecha_inicio').val(data['fecha_inicio']);
-                $(modal_clone).find('#input_fecha_termino').val(data['fecha_termino']);
+                $(modal_clone).find('#select_profesionales_modal').val(data_actual['id_profesional']).trigger('change');
+                $(modal_clone).find('#select_motivos_bloqueo').val(data_actual['id_motivo_cancelacion_cita']).trigger('change');
+                $(modal_clone).find('#input_fecha_inicio').val(data_actual['fecha_inicio']);
+                $(modal_clone).find('#input_fecha_termino').val(datdata_actuala['fecha_termino']);
                 $(modal_clone).find('#select_profesionales_modal').prop('disabled',true);
             }
 
@@ -642,34 +642,89 @@ use App\Library\FuncionesGlobales;
                     tipo_bloqueo                : '2'
                 };
 
-                if (data != null){
-                    obj_info['id']      = data['id'];
+                if (data_actual != null){
+                    obj_info['id']      = data_actual['id'];
                 }
 
                 console.log('obj_info');
                 console.log(obj_info);
                 // return false;
 
-                //  AJAX SAVE
+                //  SE VERIFICAN LA CANTIDAD DE CITAS ACTIVAS, ESTO PARA QUE EL USUARIO ESTE CONCIENTE
+                //  SEL NUMERO DE CITAS AFECTADAS AL CREAR EL REGISTRO
                 $.ajax({
-                    url         : data != null ? url_update : url_create,
+                    url         : url_index,
                     method      : 'POST',
                     dataType    : 'json',
                     data        : {
-                        obj_info    : obj_info,
-                        accion      : data != null ? 'update_dia_inhabil_profesional' : 'create_dia_inhabil_profesional',
-                        data_old    : data
+                        obj_info    : {
+                            id_profesional  : $(modal_clone).find('#select_profesionales_modal').val(),
+                            tipo_busqueda   : 'activas',
+                            fecha_inicio    : obj_info['fecha_inicio'],
+                            fecha_termino   : obj_info['fecha_termino'],
+                            from_catalog    : true
+                        },
+                        accion      : 'verificar_citas'
                     },
-                    success     : function(data){
-                        $(btn).prop('disabled',false);
-                        $(modal_clone).modal('hide');
-                        showAlert('success',data);
-                        cargarTabla();
+                    success     : async function(num_citas_afectadas){
+                        if (num_citas_afectadas == 0){
+                            //  AJAX SAVE
+                            $.ajax({
+                                url         : data_actual != null ? url_update : url_create,
+                                method      : 'POST',
+                                dataType    : 'json',
+                                data        : {
+                                    obj_info    : obj_info,
+                                    accion      : data_actual != null ? 'update_dia_inhabil_profesional' : 'create_dia_inhabil_profesional',
+                                    data_old    : data_actual,
+                                    num_citas_afectadas : num_citas_afectadas
+                                },
+                                success     : function(data){
+                                    $(btn).prop('disabled',false);
+                                    $(modal_clone).modal('hide');
+                                    showAlert('success',data);
+                                    cargarTabla();
+                                },
+                                error     : function(error){
+                                    actionJsonError(error,btn);
+                                }
+                            })
+                        } else {
+
+                            const respuesta = await window.modalConfirm('Se marcarán en total <b>'+num_citas_afectadas+' cita(s)</b> como PENDIENTES POR AGENDAR.<br>¿Deseas continuar?',true);
+
+                            if (respuesta) {
+                                //  AJAX SAVE
+                                $.ajax({
+                                    url         : data_actual != null ? url_update : url_create,
+                                    method      : 'POST',
+                                    dataType    : 'json',
+                                    data        : {
+                                        obj_info    : obj_info,
+                                        accion      : data_actual != null ? 'update_dia_inhabil_profesional' : 'create_dia_inhabil_profesional',
+                                        data_old    : data_actual,
+                                        num_citas_afectadas : num_citas_afectadas
+                                    },
+                                    success     : function(data){
+                                        $(btn).prop('disabled',false);
+                                        $(modal_clone).modal('hide');
+                                        showAlert('success',data);
+                                        cargarTabla();
+                                    },
+                                    error     : function(error){
+                                        actionJsonError(error,btn);
+                                    }
+                                })
+                            } else {
+                                $(btn).prop('disabled',false);
+                            }
+
+                        }
                     },
                     error     : function(error){
                         actionJsonError(error,btn);
                     }
-                })
+                });
             });
 
             if (preview){
