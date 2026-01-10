@@ -2413,12 +2413,14 @@ use App\Library\FuncionesGlobales;
             });
 
             if (flag_fuera_rango_hora_termino){
-                showAlert('danger', 'No hay disponibidad de horario para el dia y la hora de inicio indicados');
-                $($weekContainer).closest('#form_modal_create').find(".header_row#" + id_horario_cita).remove();
-                $($weekContainer).closest('#form_modal_create').find(".floating-box#" + id_horario_cita).remove();
-                console.log('btn_add_appoitment 1');
-                $($weekContainer).closest('#form_modal_create').find('#btn_add_appoitment').trigger('click');
-                return false;
+                if ($($weekContainer).closest('.modal_save_class').length > 0){
+                    showAlert('danger', 'No hay disponibidad de horario para el dia y la hora de inicio indicados');
+                    $($weekContainer).closest('#form_modal_create').find(".header_row#" + id_horario_cita).remove();
+                    $($weekContainer).closest('#form_modal_create').find(".floating-box#" + id_horario_cita).remove();
+                    console.log('btn_add_appoitment 1');
+                    $($weekContainer).closest('#form_modal_create').find('#btn_add_appoitment').trigger('click');
+                    return false;
+                }
             }
 
             let hora_inicio = '';

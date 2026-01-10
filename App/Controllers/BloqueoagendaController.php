@@ -138,6 +138,8 @@ class BloqueoagendaController extends BaseController
                 FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro por motivo: '.$_POST['label_bloqueo'].' para el profesional: '.$_POST['nombre_profesional'].' en el rango de fecha: '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
             }
 
+            FuncionesGlobales::deleteCacheByPattern('info_location_');
+
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');
             return $response;
@@ -171,6 +173,8 @@ class BloqueoagendaController extends BaseController
             if ($accion == 'update_dia_inhabil_profesional'){
                 FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se edito el registro de '.$data_old["label_bloqueo"].' a '.$_POST['label_bloqueo'].' del profesional: '.$_POST["nombre_profesional"].' de las fechas: '.$data_old["fecha_inicio"].' - '.$data_old["fecha_termino"].' a '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
             }
+
+            FuncionesGlobales::deleteCacheByPattern('info_location_');
 
             $response->setJsonContent('Edición exitosa');
             $response->setStatusCode(200, 'OK');

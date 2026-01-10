@@ -83,7 +83,10 @@ class AgendaController extends BaseController
                 foreach($arr_return['all_professionals'] as $index => $profesional){
                     $horario_atencion_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
                         'id_locacion'           => $_POST['id_locacion'],
-                        'id_profesional'        => $profesional['id']
+                        'id_profesional'        => $profesional['id'],
+                        'omitir_dias_inhabiles' => true,
+                        'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                        'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
                     ));
 
                     $hora_cierre    = (INT) $arr_return['max_hora_inicio'] + 1;
@@ -320,7 +323,12 @@ class AgendaController extends BaseController
                 'horario_atencion'  => array()
             );
             $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array(
+                'id_locacion'           => $_POST['id_locacion'],
+                'omitir_dias_inhabiles' => true,
+                'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
+            ));
             $horario_atencion               = $arr_return['horario_atencion'];
 
             $response = new Response();
@@ -370,6 +378,9 @@ class AgendaController extends BaseController
             //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
             $arr_return['horario_atencion'][$horario['id']]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
         }
+
+        //  SE BUSCAN LOS DÍAS INHABILES EN EL INTERVALO DE CITAS
+
         
         return $arr_return;
     }
