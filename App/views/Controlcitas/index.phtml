@@ -1525,6 +1525,7 @@ use App\Library\FuncionesGlobales;
             console.log('arr_solo_hora_inicio',arr_solo_hora_inicio);
             //  AL TEMPLATE DE SERVICIOS SE AGREGAN LAS HORAS
             $("#modal_save_class").find('.input_hora_inicio').find('option').remove();
+            $("#modal_save_class").find('.input_hora_inicio').append('<option value="">Selecciona una opcion</option>');
             for(let i in arr_solo_hora_inicio){
                 $("#modal_save_class").find('.input_hora_inicio').append('<option value="'+arr_solo_hora_inicio[i]+'">'+arr_solo_hora_inicio[i]+'</option>');
             }
@@ -2224,6 +2225,13 @@ use App\Library\FuncionesGlobales;
                 }
                 
             });
+
+            if ($(modal_clone).find('.div_header_days_container').not('.hide').length == 0){
+                //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
+                $(modal_clone).find(".watermark-message").show();
+            } else {
+                $(modal_clone).find(".watermark-message").hide();
+            }
 
             //  SE MUESTRAN TODOS LOS ELEMENTOS OCULTOS MENOS EL TURNO QUE NO TIENE HORARIO
             $(modal_clone).find('.hide').each(function(){
@@ -3558,7 +3566,8 @@ use App\Library\FuncionesGlobales;
                     accion          : 'get_info_locacion',
                     id_locacion     : id_locacion,
                     rango_fechas    : rango_semana_actual,
-                    id_profesional  : id_profesional
+                    id_profesional  : id_profesional,
+                    omitir_dias_inhabiles   : true
                 },
                 success : function(data){
                     console.log('data info 1');

@@ -60,7 +60,7 @@ class AgendaController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacuite;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacute;n: '.$obj_info['nombre'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_limite'],$obj_info);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -68,6 +68,7 @@ class AgendaController extends BaseController
             }
 
             if ($accion == 'get_info_locacion'){
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
                 $arr_return = $this->get_info_by_location();
 
                 if (!is_array($arr_return)){
@@ -83,7 +84,10 @@ class AgendaController extends BaseController
                 foreach($arr_return['all_professionals'] as $index => $profesional){
                     $horario_atencion_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
                         'id_locacion'           => $_POST['id_locacion'],
-                        'id_profesional'        => $profesional['id']
+                        'id_profesional'        => $profesional['id'],
+                        'omitir_dias_inhabiles' => true,
+                        'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                        'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
                     ));
 
                     $hora_cierre    = (INT) $arr_return['max_hora_inicio'] + 1;
@@ -320,7 +324,12 @@ class AgendaController extends BaseController
                 'horario_atencion'  => array()
             );
             $route              = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array(
+                'id_locacion'           => $_POST['id_locacion'],
+                'omitir_dias_inhabiles' => true,
+                'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
+            ));
             $horario_atencion               = $arr_return['horario_atencion'];
 
             $response = new Response();
@@ -345,7 +354,7 @@ class AgendaController extends BaseController
             $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
             $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
 
-            FuncionesGlobales::saveCache($cacheKey,$arr_return);
+            //FuncionesGlobales::saveCache($cacheKey,$arr_return);
         } else {
             $arr_return = FuncionesGlobales::cacheToArray($arr_return);
             $horario_atencion   = $arr_return['horario_atencion'];
@@ -370,6 +379,9 @@ class AgendaController extends BaseController
             //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
             $arr_return['horario_atencion'][$horario['id']]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
         }
+
+        //  SE BUSCAN LOS DÍAS INHABILES EN EL INTERVALO DE CITAS
+
         
         return $arr_return;
     }
