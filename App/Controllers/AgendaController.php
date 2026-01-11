@@ -68,6 +68,7 @@ class AgendaController extends BaseController
             }
 
             if ($accion == 'get_info_locacion'){
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
                 $arr_return = $this->get_info_by_location();
 
                 if (!is_array($arr_return)){
@@ -353,7 +354,7 @@ class AgendaController extends BaseController
             $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
             $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
 
-            FuncionesGlobales::saveCache($cacheKey,$arr_return);
+            //FuncionesGlobales::saveCache($cacheKey,$arr_return);
         } else {
             $arr_return = FuncionesGlobales::cacheToArray($arr_return);
             $horario_atencion   = $arr_return['horario_atencion'];

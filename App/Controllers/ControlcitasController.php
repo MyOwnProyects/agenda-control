@@ -158,6 +158,7 @@ class ControlcitasController extends BaseController
             }
 
             if ($accion == 'get_info_locacion'){
+                FuncionesGlobales::deleteCacheByPattern('info_location_');
                 $arr_return = $this->get_info_by_location();
 
                 if (!is_array($arr_return)){
@@ -173,7 +174,10 @@ class ControlcitasController extends BaseController
                 foreach($arr_return['all_professionals'] as $index => $profesional){
                     $horario_atencion_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
                         'id_locacion'           => $_POST['id_locacion'],
-                        'id_profesional'        => $profesional['id']
+                        'id_profesional'        => $profesional['id'],
+                        'omitir_dias_inhabiles' => true,
+                        'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                        'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
                     ));
 
                     $hora_cierre    = (INT) $arr_return['max_hora_inicio'] + 1;
@@ -371,7 +375,7 @@ class ControlcitasController extends BaseController
     function get_info_by_location(){
         $cacheKey   = 'info_location_cc_'.$_POST['id_locacion'];
 
-        $arr_return = FuncionesGlobales::searchCache($cacheKey);
+        //$arr_return = FuncionesGlobales::searchCache($cacheKey);
         $horario_atencion   = array();
 
         if ($arr_return == null){
@@ -381,7 +385,12 @@ class ControlcitasController extends BaseController
 
             //  SE CREA LA ESTRUCTURA POR LOS HORARIOS DE ATENCION
             $route                          = $this->url_api.$this->rutas['tbhorarios_atencion']['get_opening_hours'];
-            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion']));
+            $arr_return['horario_atencion'] = FuncionesGlobales::RequestApi('GET',$route,array(
+                'id_locacion' => $_POST['id_locacion'],
+                'omitir_dias_inhabiles' => true,
+                'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
+            ));
             $horario_atencion               = $arr_return['horario_atencion'];
 
             $response = new Response();
@@ -406,7 +415,7 @@ class ControlcitasController extends BaseController
                 $arr_return['all_professionals'][$profesional['id']]    = $profesional;
             }
 
-            FuncionesGlobales::saveCache($cacheKey,$arr_return);
+            //FuncionesGlobales::saveCache($cacheKey,$arr_return);
         } else {
             $arr_return = FuncionesGlobales::cacheToArray($arr_return);
             $horario_atencion   = $arr_return['horario_atencion'];
