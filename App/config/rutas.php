@@ -121,6 +121,15 @@ return [
     ),
     'ctareas_enfoque'   => array(
         'show'  => '/ctareas_enfoque/show',
+    ),
+    'tbfechas_bloqueo_agenda'   => array(
+        'show'      => "/tbfechas_bloqueo_agenda/show",
+        'delete'    => "/tbfechas_bloqueo_agenda/delete",
+        'save'      => "/tbfechas_bloqueo_agenda/save",
+        'count'     => "/tbfechas_bloqueo_agenda/count",
+    ),
+    'ctmotivos_bloqueo_agenda'  => array(
+        'show'  => "/ctmotivos_bloqueo_agenda/show",
     )
 
 ];
