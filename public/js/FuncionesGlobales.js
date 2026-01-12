@@ -73,9 +73,10 @@ function showAlert(type = 'success' , message,timer = null) {
  * @param {*} message 
  * @returns {Promise}
  */
-function modalConfirm(message) {
+function modalConfirm(message,timer_confirm = false) {
     return new Promise((resolve) => {
         const confirmModal = $('#confirmModal');
+        let intervalo;
 
         // Ajustar el z-index dinámico antes de mostrar el modal
         confirmModal.on('show.bs.modal', function () {
@@ -96,6 +97,12 @@ function modalConfirm(message) {
 
         confirmModal.on('hidden.bs.modal', function () {
             // Restaurar el z-index al valor predeterminado al cerrar el modal
+            try{
+                $("#confirmDelete").prop('disabled',false).text('Aceptar');
+                clearInterval(intervalo);
+            } catch(err){
+
+            }
             confirmModal.css('zIndex', '');
             $('.modal-backdrop').css('zIndex', '');
         });
@@ -121,6 +128,22 @@ function modalConfirm(message) {
             confirmModal.modal('hide');
             resolve(false); // Devuelve false si se cancela
         });
+
+        if (timer_confirm){
+            let seconds = 5;
+            $("#confirmDelete").prop('disabled',true).text('('+seconds+') seg...');
+
+            intervalo = setInterval(() => {
+                if (seconds > 0) {
+                    $("#confirmDelete").prop('disabled',true).text(`(${seconds}) seg...`);
+                    seconds--;
+                } else {
+                    clearInterval(intervalo);
+                    $("#confirmDelete").prop('disabled',false).text('Aceptar');
+                }
+            }, 1000);
+            
+        }
     });
 }
 
