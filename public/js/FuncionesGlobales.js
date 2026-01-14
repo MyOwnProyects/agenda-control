@@ -169,8 +169,13 @@ $(document).ajaxSend(function (event, jqXHR, settings) {
     const url = settings.url;
     const data = settings.data || "";
 
-    // Si la URL contiene "Menu" o la data contiene "__fromSelect2"
-    if (url.includes("Menu") || data.includes("form_select2_pacientes")) {
+    // Si la URL contiene "Menu"
+    if (url.includes("Menu")) {
+        return; // 🚫 No mostrar cargando
+    }
+    
+    // Solo verificar includes si data es string
+    if (typeof data === 'string' && data.includes("form_select2_pacientes")) {
         return; // 🚫 No mostrar cargando
     }
 
