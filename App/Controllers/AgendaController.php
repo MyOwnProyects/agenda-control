@@ -311,6 +311,14 @@ class AgendaController extends BaseController
         $this->view->digitalRecord  = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
         $this->view->clinicalData   = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
 
+        //  CITAS FUERA DE HORARIO
+        $this->view->citas_fuera_horario   = FuncionesGlobales::HasAccess("Agenda","Afterhoursappoitments");
+
+        //  SE OBTIENE EL DIA ACTUAL DE BD
+        $route              = $this->url_api.$this->rutas['motivos_citas_fuera_horario']['show'];
+        $result_motivos_citas_fuera_horario         = FuncionesGlobales::RequestApi('GET',$route);
+        $this->view->motivos_citas_fuera_horario    = $result_motivos_citas_fuera_horario;
+
     }
 
     function get_info_by_location(){
