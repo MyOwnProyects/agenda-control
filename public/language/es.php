@@ -192,6 +192,8 @@ return [
     'html_create_off_day'                       => 'Crear d&iacute;a inhabil',
     'html_create_professional_off_day'          => 'Crear d&iacute;a inhabil para profesioales',
     'html_type_lock'                            => 'Tipo de bloqueo',
+    'html_create_after_hours_appoitment'        => 'Crear cita fuera de horario',
+    'html_select'                               => 'Seleccionar',
     
 
 

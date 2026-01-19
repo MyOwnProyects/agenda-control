@@ -500,6 +500,35 @@ use App\Library\FuncionesGlobales;
         white-space: nowrap;
     }
 
+    /* ESTILO SCROLL TABLA DE CITAS SIMULTANEAS */
+    #table_citas_activas {
+        display: block;
+    }
+
+    #table_citas_activas thead,
+    #table_citas_activas tbody {
+        display: block;
+    }
+
+    #table_citas_activas tbody {
+        height: 300px; /* Ajusta la altura según necesites */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    #table_citas_activas thead tr,
+    #table_citas_activas tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed; /* Importante para que las columnas mantengan el ancho */
+    }
+
+    #table_citas_activas th:last-child,
+    #table_citas_activas td:last-child { 
+        width: 75px; /* O el valor que necesites */
+        max-width: 75px;
+    }
+
 </style>
 <div class="container div_principal_filter div_header_filters col-11">
     <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
@@ -518,19 +547,19 @@ use App\Library\FuncionesGlobales;
             </select>
         </div>
         <div class="col-3">
-            <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_services']; ?></label>
+            <label for="select_servicios" class="form-label"><?php echo $translations['html_services']; ?></label>
             <select id="select_servicios" class="select_servicios select_filtros">
                 <option value=""></option>
             </select>
         </div>
         <div class="col-3">
-            <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+            <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
             <select id="select_profesionales" class="select_profesionales select_filtros">
                 <option value=""></option>
             </select>
         </div>
         <div class="col-3">
-            <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+            <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
             <select id="select_pacientes" class="select_pacientes select_filtros">
                 <option value=""></option>
             </select>
@@ -1062,78 +1091,139 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
-<div class="modal fade" id="modal_create_cita_fuera_horario" tabindex="-1" aria-labelledby="label_modal_create_cita_fuera_horario" aria-hidden="true">
-  <div class="modal-dialog">
+<div class="modal fade modal-xl" id="modal_create_cita_fuera_horario" tabindex="-1" aria-labelledby="label_save_class" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="label_modal_create_cita_fuera_horario"><?php echo FuncionesGlobales::UpperString($translations['html_new']); ?></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="label_modal_create_cita_fuera_horario"><?php echo FuncionesGlobales::UpperString($translations['html_create_after_hours_appoitment']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
-            <div class="row mb-3">
-                <div class="col-md-6 fix-padding">
-                    <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
-                    <?php $count_locaciones = count($arr_locaciones); ?>
-                    <select id="select_locaciones" class="form-select" aria-label="Default select example" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
-                        <option></option>    
-                        <?php foreach($arr_locaciones as $locacion): ?>
-                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
-                        <?php endforeach; ?>
+            <div class="row mb-3 div_input_paciente">
+                <div class="div_select_paciente col-md-6">
+                    <label for="select_paciente_modal_cfh" class="col-form-label"><?php echo $translations['html_title_patient']; ?></label>
+                    <select id="select_paciente_modal_cfh" class="select_paciente_modal">
+                        <option value=""></option>
                     </select>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
-                </div>    
-                <div class="col-md-6">
-                    <label for="select_motivo" class="form-label"><?php echo $translations['html_reason']; ?></label>
-                    <?php $count_locaciones = count($arr_locaciones); ?>
-                    <select id="select_motivo" class="form-select" aria-label="Default select example">
-                        <option selected>Selecciona una opci&oacute;n</option>    
-                        <?php foreach($motivos_citas_fuera_horario as $motivo): ?>
-                            <option value="<?php echo $motivo['id']; ?>"><?php echo $motivo['nombre']; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
-                </div>            
-                <!-- Campo Clave -->
-                <div class="col-md-6">
-                    <label for="input_fecha" class="col-form-label"><?php echo $translations['html_date']; ?></label>
-                    <input type="date" id="input_fecha" name="input_fecha" class="form-control" required />
-                    <div class="invalid-feedback"><?php echo $translations['html_error_date']; ?></div>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
                 </div>
-                <!-- Campo Nombre -->
-                <div class="col-md-6">
-                    <label for="input_hora" class="col-form-label"><?php echo $translations['html_hour']; ?></label>
-                    <input type="time" id="input_hora" name="input_hora" class="form-control" required />
-                    <div class="invalid-feedback"><?php echo $translations['html_error_hour']; ?></div>
+                <div class=" col-md-6">
+                    <label for="select_motivos" class="col-form-label"><?php echo $translations['html_reason']; ?></label>
+                    <select id="select_motivos" class="select_motivos form-select">
+                        <option value="">Selecciona una opci&oacute;n</option>
+                        <?php foreach($motivos_citas_fuera_horario as $motivo): ?>
+                        <option value="<?php echo $motivo['id'] ?>" class="<?php echo $motivo['clave'] ?>"><?php echo $motivo['nombre'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
+                </div>
+                <div class="div_datos_paciente col-md-3" style="display:none;">
+                    <label for="input_celular" class="col-form-label"><?php echo $translations['html_cellphone']; ?></label>
+                    <input type="text" id="input_celular" name="input_celular" class="form-control" maxLength="10" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_cellphone']; ?></div>
+                </div>
+                <div class="div_datos_paciente col-md-3" style="display:none;">
+                    <label for="input_primer_apellido" class="col-form-label"><?php echo $translations['html_first_lastname']; ?></label>
+                    <input type="text" id="input_primer_apellido" name="input_primer_apellido" class="form-control input_nombres" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_first_lastname']; ?></div>
+                </div>
+                <div class="div_datos_paciente col-md-3" style="display:none;">
+                    <label for="input_segundo_apellido" class="col-form-label"><?php echo $translations['html_second_lastname']; ?></label>
+                    <input type="text" id="input_segundo_apellido" name="input_segundo_apellido" class="form-control input_nombres" />
+                    <div class="invalid-feedback"><?php echo $translations['html_second_lastname']; ?></div>
+                </div>
+                <div class="div_datos_paciente col-md-3" style="display:none;">
+                    <label for="input_nombre" class="col-form-label"><?php echo $translations['html_name']; ?></label>
+                    <input type="text" id="input_nombre" name="input_nombre" class="form-control input_nombres" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_name']; ?></div>
                 </div>
             </div>
-            <div class="row mb-3 div_nuevo_estatus">
-                <div class="alert alert-warning mb-4">
-                    <div class="d-flex align-items-start">
-                    <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
-                    <div>
-                        <div id="warning_pendiente" class="warning_message">
-                        <p class="mb-2 fw-semibold">Esta cita se agenda fuera del horario normal del sistema.</p>
-                        <ul class="mb-2 ps-3">
-                            <li class="mb-1">No aparecerá en la agenda (Pero esta estará como cita ACTIVA)</li>
-                            <li class="mb-1">La cita será visible en el apartado de "Ver citas fuera de horario"</li>
-                            <li class="mb-1">No permitir&aacute; la creación si existe disponibilidad en la fecha y hora en la agenda</li>
-                        </ul>
+            <div class="row mb-3 div_header_motivo_cs" style="display: none;">
+                <table id="table_citas_activas" class="table table-striped">
+                    <thead>
+                       <tr>
+                            <th scope="col"><?php echo $translations['html_title_patient']; ?></th>
+                            <th scope="col"><?php echo $translations['html_title_professional']; ?></th>
+                            <th scope="col"><?php echo $translations['html_service_cost']; ?></th>
+                            <th scope="col"><?php echo $translations['html_appointment_date']; ?></th>
+                            <th scope="col"><?php echo $translations['html_option']; ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         
+                    </tbody>
+                </table>
+            </div>
+            <div class="row col-md-12 div_header_otros_motivos" style="display: none;">
+                <div class="div_append_days_container col-md-6" style="max-height: 50vh;overflow-y: auto;">
+                    <div class="">
+                        <label for="select_profesional_modal_cfh" class="col-form-label"><?php echo $translations['html_title_professional']; ?></label>
+                        <select id="select_profesional_modal_cfh" class="select_profesional_modal_cfh form-select">
+                            <option value=""></option>
+                        </select>
+                        <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
+                    </div>
+                </div>
+                <div class="div_header_citas col-md-6" style="max-height: 50vh;overflow-y: auto;">
+                    <div id="" class="row">
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '6'; ?>" style="padding-right:5px;">
+                            <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_starting_hour']; ?></label>
+                            <input type="time" class="form-control input_hora_inicio" required />
+                            <div class="invalid-feedback"><?php echo $translations['html_error_starting_hour']; ?></div>
+                        </div>
+                        <!-- Campo Nombre -->
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '6'; ?>" style="padding-right:5px;">
+                            <label for="input_hora_termino" class="col-form-label"><?php echo $translations['html_ending_hour']; ?></label>
+                            <input type="time" step="60" class="form-control input_hora_termino" required disabled>
+                            <div class="invalid-feedback"><?php echo $translations['html_error_ending_hour']; ?></div>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios == 1 ? '4' : '0'; ?> d-flex flex-column align-items-center" align="center" <?php echo $multiservicios == 1 ? '' : 'style="display:none!important"'; ?>>
+                            <label for="input_hora_inicio" class="col-form-label"><?php echo $translations['html_options']; ?></label>
+                            <button type="button" class="btn btn-outline-dark btn_add_service"><?php echo $translations['html_add_service']; ?></button>
                         </div>
                     </div>
+                    <div class="row div_header_labels">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
+                            <label class="col-form-label"><?php echo $translations['html_service']; ?></label>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
+                            <label class="col-form-label"><?php echo $translations['html_duration']; ?></label>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
+                            <label class="col-form-label"><?php echo $translations['html_price']; ?></label>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 0; ?>" style="padding-right:5px;<?php echo $multiservicios ? '' : 'display:none!important;'; ?>">
+                            <label class="col-form-label"><?php echo $translations['html_option']; ?></label>
+                        </div>
+                    </div>
+                    <div class="row div_header_servicios">
+                    </div>
+                    <div class="row div_header_total border-top" align="center">
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
+                            <label class="col-form-label"><?php echo $translations['html_totals']; ?>:</label>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
+                            <label class="col-form-label"><span id="total_duracion">0</span> min</label>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 4; ?>" style="padding-right:5px;">
+                            <label class="col-form-label total_costo">$<span id ="total_costo">0</span></label>
+                        </div>
+                        <div class="col-md-<?php echo $multiservicios ? '3' : 0; ?>" style="padding-right:5px;">
+                            
+                        </div>
                     </div>
                 </div>
             </div>
+            
             <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
                     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                 </svg>
-            <div id="msg_error">
-                
+                <div id="msg_error">
+                    
+                </div>
             </div>
-            </div>
-            
         </form>
       </div>
       <div class="modal-footer">
@@ -1143,6 +1233,25 @@ use App\Library\FuncionesGlobales;
     </div>
   </div>
 </div>
+
+<!-- <div class="row mb-3 div_nuevo_estatus">
+    <div class="alert alert-warning mb-4">
+        <div class="d-flex align-items-start">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+        <div>
+            <div id="warning_pendiente" class="warning_message">
+            <p class="mb-2 fw-semibold">Esta cita se agenda fuera del horario normal del sistema.</p>
+            <ul class="mb-2 ps-3">
+                <li class="mb-1">No aparecerá en la agenda (Pero esta estará como cita ACTIVA)</li>
+                <li class="mb-1">La cita será visible en el apartado de "Ver citas fuera de horario"</li>
+                <li class="mb-1">No permitir&aacute; la creación si existe disponibilidad en la fecha y hora en la agenda</li>
+            </ul>
+            
+            </div>
+        </div>
+        </div>
+    </div>
+</div> -->
 
 <div id="template_servicio_cita_diaria" class=" py-2 border-bottom hide">
     <div class="flex-fill servicio">Lenguaje</div>
@@ -1595,6 +1704,9 @@ use App\Library\FuncionesGlobales;
                         .data('horatermino',evento.end)
                         .data('asistencia',evento.asistencia)
                         .data('pagada',evento.pagada)
+                        .data('fechacompleta',evento.fecha_completa)
+                        .data('servicios',JSON.stringify(evento.servicios))
+                        .data('codigocolor',codigo_color)
                         .html(mensaje)
                         .css({
                             top: `${top}%`, // Posición vertical
@@ -2110,7 +2222,7 @@ use App\Library\FuncionesGlobales;
             },
             success : function(data){
                 try {
-                    console.log('data info 1', typeof data);
+                    console.log('data info 1', data);
 
                     // Si es objeto, conviértelo a string seguro
                     if (typeof data === 'object') {
@@ -2158,11 +2270,27 @@ use App\Library\FuncionesGlobales;
 
                         options = '<option></option>';
                         for(let i in data['all_professionals']){
-                            let row = data['all_professionals'][i];
-                            options += '<option value="'+row["id"]+'">'+row["nombre_completo"]+'</option>';
+                            let row                 = data['all_professionals'][i];
+                            let tmp_obj_servicio    = [];
+
+                            for(let i in row["servicios"]){
+                                tmp_obj_servicio.push({
+                                    id  : row["servicios"][i]['id_servicio'],
+                                    nombre  : row["servicios"][i]['nombre'],
+                                    duracion  : row["servicios"][i]['duracion'],
+                                    duracion_minutos  : row["servicios"][i]['duracion_minutos'],
+                                    costo  : row["servicios"][i]['costo']
+                                });
+                            }
+
+                            options += '<option value="'+row["id"]+'" data-servicios="'+JSON.stringify(tmp_obj_servicio)+'">'+row["nombre_completo"]+'</option>';
                         }
                         $("#select_profesionales").find('option').remove();
                         $("#select_profesionales").append(options);
+                        
+                        //  PARA EL MODAL DE CITAS FUERA DE HORARIO
+                        $("#modal_create_cita_fuera_horario").find("#select_profesional_modal_cfh").find('option').remove();
+                        $("#modal_create_cita_fuera_horario").find("#select_profesional_modal_cfh").append(options);
                     }
                     console.log('data info '+3);
                     // $(modal_clone).find('.floating-box').remove();
@@ -4445,6 +4573,112 @@ use App\Library\FuncionesGlobales;
     //  CREAR CITA FUERA DE HORARIO
     function show_modal_crear_cita_fuera_horario(){
         let modal_clone = $("#modal_create_cita_fuera_horario").clone().show();
+
+        let cadena_enviada  = '';
+        $(modal_clone).find('#select_paciente_modal_cfh').select2({
+            placeholder: 'Seleccione una opción',
+            dropdownParent: $(modal_clone).find('.div_select_paciente'),
+            width: '50px',
+            minimumInputLength: 3,
+            ajax: {
+                url: url_index,
+                method: 'post',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    cadena_enviada  = params.term;
+                    return {
+                        accion: 'fill_combo',
+                        cadena: params.term,
+                        form_select2_pacientes  : true
+                    };
+                },
+                processResults: function (data) {
+                    // Aquí adaptamos la respuesta al formato que select2 necesita
+                    return {
+                        results: data.map(function (item) {
+                            return {
+                                id: item.id,
+                                text: item.celular + ' - ' + item.nombre_completo,
+                                nombre: item.nombre,
+                                primer_apellido: item.primer_apellido,
+                                segundo_apellido: item.segundo_apellido,
+                                celular: item.celular
+                            };
+                        })
+                    };
+                },
+                cache: true
+            }
+        }).on('select2:select', function (e) {
+            // Acción al seleccionar una opción
+            let data            = e.params.data;
+            let input_disabled  = true;
+            //  SI ES -1 SIGNIFICA QUE QUIERE AGREGAR UN NUEVO REGISTRO
+            if (data.id == -1){
+                input_disabled  = false;
+                if(!isNaN(cadena_enviada)){
+                    data.celular    = cadena_enviada;
+                }
+            }
+
+            $(modal_clone).find('.div_datos_paciente').find('#input_celular').val(data.celular);
+            $(modal_clone).find('.div_datos_paciente').find('#input_nombre').val(data.nombre);
+            $(modal_clone).find('.div_datos_paciente').find('#input_primer_apellido').val(data.primer_apellido);
+            $(modal_clone).find('.div_datos_paciente').find('#input_segundo_apellido').val(data.segundo_apellido);
+            $(modal_clone).find('.div_datos_paciente').show().find('input').prop('disabled',input_disabled);
+            
+        });
+
+        $(modal_clone).on('change','.select_motivos',function(){
+            if ($(modal_clone).find('.select_motivos').find('option:selected').hasClass('CS')){
+                $(modal_clone).find('.div_header_motivo_cs').show();
+                $(modal_clone).find('.div_header_otros_motivos').hide();
+            } else {
+                if ($(modal_clone).find('.select_motivos').val() != null && $(modal_clone).find('.select_motivos').val() != '') {
+                    $(modal_clone).find('.div_header_motivo_cs').hide();
+                    $(modal_clone).find('.div_header_otros_motivos').show();
+                } else {
+                    $(modal_clone).find('.div_header_motivo_cs').hide();
+                    $(modal_clone).find('.div_header_otros_motivos').hide();
+                }
+            }
+        
+        });
+
+        //  SI NO EXISTE AL MENOS UNA CITA CREADA EL TIPO CS APARECERA DISABLED
+        let tr_citas_activas    = '';
+        $("#div_header_agenda").find('.div_header_days_container').not('.hide').each(function(){
+            $(this).find('.flot_cita').each(function(){
+                let obj_data    = $(this).data();
+                servicios       = JSON.parse(obj_data.servicios);
+
+                let row_servicios   = '';
+                for(let i in servicios){
+                    row_servicios   += servicios[i]['clave']+' / '+servicios[i]['costo'];
+                }
+
+                tr_citas_activas    +=  '<tr class="tr_header" style="cursor: pointer">'+
+                                            '<td class="td_row">'+obj_data.paciente+'</td>'+
+                                            '<td class="td_row">'+obj_data.profesional+'</td>'+
+                                            '<td class="td_row" align="center" style="background: '+obj_data.codigocolor+'">'+row_servicios+'</td>'+
+                                            '<td class="td_row">'+obj_data.fechacompleta+'</td>'+
+                                            '<td align="center"><input type="radio" class="radio_cita" name="radio_cita" data-idagendacita="'+obj_data.idagendacita+'" /></td>'+
+                                        '</tr>';
+            });
+        });
+
+        if (tr_citas_activas != ''){
+            $(modal_clone).find('#table_citas_activas').find('tbody').append(tr_citas_activas);
+
+            $(modal_clone).on('click','.td_row',function(){
+                $(this).closest('.tr_header').find('.radio_cita').prop('checked',true)
+            });
+        } else {
+            $(modal_clone).find('#select_motivos').find('.CS').prop('disabled',true);
+        }
+
+        //  EVENTO DE PROFESIONAL
 
         $(modal_clone).modal('show');
     }
