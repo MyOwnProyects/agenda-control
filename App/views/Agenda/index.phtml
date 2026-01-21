@@ -1160,7 +1160,7 @@ use App\Library\FuncionesGlobales;
                     <div class="">
                         <label for="select_profesional_modal_cfh" class="col-form-label"><?php echo $translations['html_title_professional']; ?></label>
                         <select id="select_profesional_modal_cfh" class="select_profesional_modal_cfh form-select">
-                            <option value=""></option>
+                            <option value="">Seleccione una opci&oacute;n</option>
                         </select>
                         <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
                     </div>
@@ -2279,11 +2279,16 @@ use App\Library\FuncionesGlobales;
                                     nombre  : row["servicios"][i]['nombre'],
                                     duracion  : row["servicios"][i]['duracion'],
                                     duracion_minutos  : row["servicios"][i]['duracion_minutos'],
-                                    costo  : row["servicios"][i]['costo']
+                                    costo  : row["servicios"][i]['costo'],
+                                    activo : row["servicios"][i]['activo']
                                 });
                             }
 
-                            options += '<option value="'+row["id"]+'" data-servicios="'+JSON.stringify(tmp_obj_servicio)+'">'+row["nombre_completo"]+'</option>';
+                            options += '<option value="' + row["id"] + 
+                                        '" data-servicios=\'' + JSON.stringify(tmp_obj_servicio) + '\'>' +
+                                        row["nombre_completo"] +
+                                        '</option>';
+
                         }
                         $("#select_profesionales").find('option').remove();
                         $("#select_profesionales").append(options);
@@ -4668,6 +4673,7 @@ use App\Library\FuncionesGlobales;
             });
         });
 
+        //  SE AGREGA A LA TABLA LAS DEL CITAS DEL DIA
         if (tr_citas_activas != ''){
             $(modal_clone).find('#table_citas_activas').find('tbody').append(tr_citas_activas);
 
@@ -4679,6 +4685,102 @@ use App\Library\FuncionesGlobales;
         }
 
         //  EVENTO DE PROFESIONAL
+        let option_servicios    = '';
+        $(modal_clone).on('change','#select_profesional_modal_cfh',function(){
+            if ($(this).val() == null || $(this).val() == ''){
+                return;
+            }
+
+            let obj_servicios   = $(modal_clone).find('#select_profesional_modal_cfh').find('option:selected').data('servicios');
+            console.log('obj_servicios',obj_servicios);
+
+            option_servicios    = obj_servicios;
+
+            let row_servicios   = '<option></option>';
+            for(let i in obj_servicios){
+                row_servicios   += '<option value="'+obj_servicios[i]['id_servicio']+'" data-duracionminutos="'+obj_servicios[i]['duracion_minutos']+'" data-duracion="'+obj_servicios[i]['duracion']+'" data-costo="'+obj_servicios[i]['costo']+'">'+obj_servicios[i]['nombre']+'</option>'
+            }
+
+            $(modal_clone).find('.div_header_servicios').find('.header_servicio').remove();
+            $(modal_clone).find('.btn_add_service').trigger('click');
+            $(modal_clone).find('#total_duracion').text(0);
+            $(modal_clone).find('#total_costo').text(0);
+        });
+
+        $(modal_clone).on('click','.btn_add_service',function(){
+            let div_clone   = $("#template_servicio").clone().removeAttr('id').addClass('header_servicio').show();
+
+            //codigo de prueba
+            $(div_clone).find('.select_servicios_modal').find('option').remove();
+            $(div_clone).find('.select_servicios_modal').append('<option></option>');
+            for(let i in option_servicios){
+                let service = option_servicios[i];
+                console.log('servicio info',service);
+
+                let not_active  = service['activo'] != 1 ? 'disabled' : '';
+                let option  = '<option value="'+service["id_servicio"]+'" data-duracionminutos="'+service['duracion_minutos'] +'" data-duracion="'+service['duracion'] +'" data-costo="'+service['costo'] +'" data-codigocolor="'+service['codigo_color'] +'" '+not_active+'>'+service["nombre"]+'</option>'
+                $(div_clone).find('.select_servicios_modal').append(option);
+
+            }
+
+            $(div_clone).find('.select_servicios_modal').select2({
+                placeholder: 'Seleccione una opción',
+                dropdownParent: $(modal_clone),
+                width: '50px'
+            }).on('select2:select',function(){
+                let duracion    = $(this).find('option:selected').data('duracionminutos');
+                let costo       = $(this).find('option:selected').data('costo');
+
+                $(this).closest('.header_servicio').find('.duracion').val(duracion);
+                $(this).closest('.header_servicio').find('.costo').text(costo);
+
+                let total_duracion  = 0;
+                let total_costo     = 0;
+                let has_servicio    = false;
+
+                $(modal_clone).find('.header_servicio').each(function(){
+                    let val_duracion    = $(this).find('.duracion').val() != null && $(this).find('.duracion').val() != '' ? $(this).find('.duracion').val() : 0;
+                    let val_costo       = $(this).find('.costo').text() != null && $(this).find('.costo').text() != '' ? $(this).find('.costo').text() : 0;
+                    total_duracion      = parseInt(total_duracion) + parseInt(val_duracion);
+                    total_costo         = (parseFloat(total_costo) + parseFloat(val_costo)).toFixed(2);
+
+                    if ($(this).find('.select_servicios_modal').val() != null && $(this).find('.select_servicios_modal').val() != ''){
+                        has_servicio    = true;
+                    }
+
+                });
+
+                $(modal_clone).find('#total_duracion').text(total_duracion);
+                $(modal_clone).find('#total_costo').text(total_costo);
+            });
+
+            $(modal_clone).find('.div_header_servicios').append(div_clone);
+        });
+
+        $(modal_clone).on('change', '.input_hora_inicio', function() {
+            //@TODO OBTENER LA HORA INICIO ANTERIOR EN CASO DE EXISTIR EMPALMADOS
+            const valor = $(this).val(); // Obtener el valor del input
+            const patron = /^([01]\d|2[0-3]):([0-5]\d)$/; // Expresión regular para validar HH:MM
+
+            // Validar el formato de la hora
+            //let input_termino_val   = $(modal_clone).find('.input_hora_termino').val();
+            $(modal_clone).find('.input_hora_termino').val('');
+            let total_duracion  = 0;
+            if (patron.test(valor)) {
+                //  SE BUSCA QUE EXISTA AL MENOS UN VALOR DE SERVICIO ELEGIDO
+                let flag_servicio   = false;
+                $(modal_clone).find('.header_servicio').each(function(){
+                    if ($(this).find('.select_servicios_modal').val() != null && $(this).find('.select_servicios_modal').val() != ''){
+                        total_duracion  = parseInt(total_duracion) + parseInt($(this).find('.duracion').val())
+                        flag_servicio   = true;
+                    }
+                });
+                // Ejecutar la función solo si el formato es correcto
+                if (flag_servicio){
+                    $(modal_clone).find('.input_hora_termino').val(sumarUnMinuto(valor,total_duracion));
+                } 
+            }
+        });
 
         $(modal_clone).modal('show');
     }
