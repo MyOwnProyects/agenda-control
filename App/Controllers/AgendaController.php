@@ -255,7 +255,7 @@ class AgendaController extends BaseController
                 if ($_POST['obj_info']['accion'] == 'crear_cita_fuera_horario'){
                     $accion_bitacota    = 'CREAR'; 
                     $accion_mensaje     = 'programo';
-                    $mensaje_fuera_horario  = 'FUERA DE HORARIO con el motivo: '.$_POST['obj_info']['nombre_motivo'];
+                    $mensaje_fuera_horario  = 'FUERA DE HORARIO con el motivo: '.$_POST['obj_info']['nombre_motivo_cita_fuera_horario'];
                 }
 
                 FuncionesGlobales::saveBitacora($this->bitacora,$accion_bitacota,'Se '.$accion_mensaje.' la cita '.$mensaje_fuera_horario.' para el paciente: '.$_POST['info_bitacora']['nombre'].' para el día: '. $_POST['info_bitacora']['fecha_cita'],$_POST['obj_info']);

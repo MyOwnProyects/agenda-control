@@ -1130,7 +1130,7 @@ use App\Library\FuncionesGlobales;
                     <select id="select_motivos" class="select_motivos form-select" required>
                         <option value="">Selecciona una opci&oacute;n</option>
                         <?php foreach($motivos_citas_fuera_horario as $motivo): ?>
-                        <option value="<?php echo $motivo['id'] ?>" data-clave="<?php echo $motivo['clave'] ?>"><?php echo $motivo['nombre'] ?></option>
+                        <option value="<?php echo $motivo['id'] ?>" data-clave="<?php echo $motivo['clave'] ?>" data-obligatorioobservaciones="<?php echo $motivo['obligatorio_observaciones'] ?>"><?php echo $motivo['nombre'] ?></option>
                         <?php endforeach; ?>
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
@@ -1230,6 +1230,14 @@ use App\Library\FuncionesGlobales;
                             
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="row md-3 col-md-6">
+                <div class="">
+                    <label for="textarea_observaciones_cita_fuera_horario" class="col-form-label"><?php echo $translations['html_observations']; ?></label>
+                    <textarea id ="textarea_observaciones_cita_fuera_horario" rows="2" class="form-control textarea_observaciones_cita_fuera_horario" placeholder="Opcional" style="resize: none;"></textarea>
+                    <div class="invalid-feedback"><?php echo $translations['html_error_observations']; ?></div>
                 </div>
             </div>
             
@@ -4675,6 +4683,12 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.div_header_otros_motivos').hide();
                 }
             }
+
+            if ($(modal_clone).find('.select_motivos').find('option:selected').data('obligatorioobservaciones') == 1){
+                $(modal_clone).find('.textarea_observaciones_cita_fuera_horario').prop('required', true);
+            } else {
+                $(modal_clone).find('.textarea_observaciones_cita_fuera_horario').prop('required', false);
+            }
         
         });
 
@@ -4889,15 +4903,16 @@ use App\Library\FuncionesGlobales;
                 primer_apellido     : $(modal_clone).find('#input_primer_apellido').val(),
                 segundo_apellido    : $(modal_clone).find('#input_segundo_apellido').val(),
                 nombre              : $(modal_clone).find('#input_nombre').val(),
-                id_motivo           : $(modal_clone).find("#select_motivos").val(),
-                clave_motivo        : $(modal_clone).find("#select_motivos").find('option:selected').data('clave'),
-                nomrbe_motivo       : $(modal_clone).find("#select_motivos").find('option:selected').text(),
-                id_agenda_cita_origen   : $(modal_clone).find(".radio_cita:checked").closest('.tr_header').data('idagendacita'),
-                id_servicios            : id_servicios,
-                id_profesional          : $(modal_clone).find('#select_profesional_modal_cfh').val(),
-                hora_inicio             : $(modal_clone).find('.input_hora_inicio').val(),
-                hora_termino            : $(modal_clone).find('.input_hora_termino').val(),
-                accion                  : 'crear_cita_fuera_horario'
+                id_motivo_cita_fuera_horario        : $(modal_clone).find("#select_motivos").val(),
+                clave_motivo_cita_fuera_horario     : $(modal_clone).find("#select_motivos").find('option:selected').data('clave'),
+                nombre_motivo_cita_fuera_horario    : $(modal_clone).find("#select_motivos").find('option:selected').text(),
+                observaciones_motivo_cita_fuera_horario : $(modal_clone).find("#textarea_observaciones_cita_fuera_horario").val(),
+                id_cita_simultanea                      : $(modal_clone).find(".radio_cita:checked").closest('.tr_header').data('idagendacita'),
+                id_servicios                            : id_servicios,
+                id_profesional                          : $(modal_clone).find('#select_profesional_modal_cfh').val(),
+                hora_inicio                             : $(modal_clone).find('.input_hora_inicio').val(),
+                hora_termino                            : $(modal_clone).find('.input_hora_termino').val(),
+                accion                                  : 'crear_cita_fuera_horario'
             };
             
             console.log('obj_info ',obj_info);
@@ -4909,7 +4924,7 @@ use App\Library\FuncionesGlobales;
 
             console.log('obj_info');
             console.log(obj_info);
-            //return false;
+            return false;
 
             $.ajax({
                 url         : url_index,

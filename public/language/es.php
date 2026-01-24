@@ -244,4 +244,5 @@ return [
     'html_error_type_lock'              => 'Seleccione un tipo de bloqueo',
     'html_error_hour'                   => 'Ingrese la hora',
     'html_error_select_appoitment'      => 'Seleccione una cita',
+    'html_error_observations'           => 'Ingrese una observacion',
 ];
