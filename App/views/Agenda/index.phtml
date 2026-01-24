@@ -4891,14 +4891,62 @@ use App\Library\FuncionesGlobales;
                 nombre              : $(modal_clone).find('#input_nombre').val(),
                 id_motivo           : $(modal_clone).find("#select_motivos").val(),
                 clave_motivo        : $(modal_clone).find("#select_motivos").find('option:selected').data('clave'),
+                nomrbe_motivo       : $(modal_clone).find("#select_motivos").find('option:selected').text(),
                 id_agenda_cita_origen   : $(modal_clone).find(".radio_cita:checked").closest('.tr_header').data('idagendacita'),
                 id_servicios            : id_servicios,
                 id_profesional          : $(modal_clone).find('#select_profesional_modal_cfh').val(),
                 hora_inicio             : $(modal_clone).find('.input_hora_inicio').val(),
                 hora_termino            : $(modal_clone).find('.input_hora_termino').val(),
+                accion                  : 'crear_cita_fuera_horario'
             };
             
             console.log('obj_info ',obj_info);
+
+            let info_bitacora   = {
+                nombre      : $(modal_clone).find('#input_primer_apellido').val() + ' ' +$(modal_clone).find('#input_nombre').val(),
+                fecha_cita  : diasSemana[(diasSemana.indexOf(fecha_actual[0]))] + ' ' +fecha_actual[1].trim()+' de '+$(modal_clone).find('.input_hora_inicio').val()+' a '+$(modal_clone).find('.input_hora_termino').val()
+            }
+
+            console.log('obj_info');
+            console.log(obj_info);
+            //return false;
+
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                data        : {
+                    obj_info        : obj_info,
+                    info_bitacora   : info_bitacora,
+                    accion          : 'save_appoinment'
+                },
+                success : function(data){
+                    /* // Tu código aquí
+                    fechaActual = tmp_fecha_actual;
+
+                    //  CITAS POR DIA
+                    //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
+                    citas_desglosadas = Object.fromEntries(
+                        Object.entries(tmp_citas_desglosadas).map(([key, arr]) => [
+                            key,
+                            arr.map(obj => ({ ...obj })) // copia cada objeto dentro del array
+                        ])
+                    );
+                    $(btn).prop('disabled',false);
+                    $(modal_clone).modal('hide');
+                    showAlert('success',data);
+                    //$("#btnBuscar").trigger('click');
+                    get_all_appointments($(".filters"),null,true);
+                    $("#btn-dia").trigger('click'); */
+
+                },
+                error : function(error){
+                    $(btn).prop('disabled',false);
+                    console.log('error');
+                    //console.log(error);
+                    actionJsonError(error,btn);
+                }
+            });
+            
         });
 
         $(modal_clone).modal('show');
