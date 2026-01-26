@@ -154,6 +154,7 @@ class AgendaController extends BaseController
                 $estatus_asistencia  = array(
                     '1'     => 'ASISTENCIA',
                     '2'     => 'RETARDO',
+                    '3'     => 'ACTIVIDAD EN CASA',
                     '0'     => 'FALTA',
                     null    => 'Sin asignar' 
                 );

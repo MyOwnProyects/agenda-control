@@ -810,7 +810,7 @@ use App\Library\FuncionesGlobales;
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="close_modal" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
         <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
       </div>
     </div>
@@ -2806,10 +2806,10 @@ use App\Library\FuncionesGlobales;
         console.log('---------  fin semana   --------------- ');
     }
 
-    function show_modal_cancelar_cita(element){
+    function show_modal_cancelar_cita(element, texto_cfh = null){
         let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
         let id_agenda_cita  = $(element).data('idagendacita');
-        let texto_cita      = limpiarCadena($(element).closest('#infoBox').find('#nombre').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text());
+        let texto_cita      = texto_cfh == null ? limpiarCadena($(element).closest('#infoBox').find('#nombre').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text()) : limpiarCadena(texto_cfh);
 
         $(modal_clone).on('click','.tipo_movimiento',function(){
             let element = $(modal_clone).find('.tipo_movimiento:checked');
@@ -2819,7 +2819,16 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('#warning_'+$(element).val()).show();
 
             $(modal_clone).find('.alert-warning').show();
-        })
+        });
+
+        if (texto_cfh != null){
+            $(modal_clone).on('click','#close_modal',function (e) {
+                $("#btn_ver_cita_fuera_horario").trigger('click');
+            });
+
+            $(modal_clone).find('.form-check.mb-2').remove();
+            $(modal_clone).find('.tipo_movimiento').trigger('click');
+        }
 
         $(modal_clone).on('click','#btnSave',function(){
             let btn = $(this);
@@ -2855,12 +2864,20 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).modal('hide');
                     showAlert('success',$(modal_clone).find('.tipo_movimiento:checked').val() == 'cancelar' ? 'Cancelación exitosa!' : 'Cita modificada exitosamente!');
 
-                    $(".flot_cita").each(function(){
-                        if ($(this).data('idagendacita') == id_agenda_cita){
-                            $(this).remove();
-                        }
-                    });
+                    if (texto_cfh == null){
+                        $(".flot_cita").each(function(){
+                            if ($(this).data('idagendacita') == id_agenda_cita){
+                                $(this).remove();
+                            }
+                        });
+                    } else {
+                        arr_citas_fuera_horario = arr_citas_fuera_horario.filter(cita => {
+                            return cita.id_agenda_cita != id_agenda_cita;
+                        });
 
+                        $("#span_count_citas_fuera_horario").text(Object.keys(arr_citas_fuera_horario).length)
+                    }
+                    
                     $(modal_clone).find('#btnSave').prop('disabled',false);
                 },
                 error     : function(error){
@@ -2880,7 +2897,7 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).modal('show');
     }
 
-    function show_modal_asistencia(element,texto_cita_cfh = null){
+    function show_modal_asistencia(element,texto_cfh = null){
         let estatus_actual  = $(element).data('asistencia');
         let id_agenda_cita  = $(element).data('idagendacita');
         let modal_clone = $("#modal_asistencia").clone().show();
@@ -2903,7 +2920,7 @@ use App\Library\FuncionesGlobales;
             width: '50px'
         });
 
-        if (texto_cita_cfh != null){
+        if (texto_cfh != null){
             $(modal_clone).on('click','#close_modal',function (e) {
                 $("#btn_ver_cita_fuera_horario").trigger('click');
             });
@@ -2926,7 +2943,7 @@ use App\Library\FuncionesGlobales;
                 return false;
             }
 
-            let texto_cita  = texto_cita_cfh == null ? limpiarCadena($(element).closest('#infoBox').find('#nombre').text() + ' ' +$(element).closest('#infoBox').find('#dia').text()+ ' ' +$(element).closest('#infoBox').find('#horario').text()) : limpiarCadena(texto_cita_cfh);
+            let texto_cita  = texto_cfh == null ? limpiarCadena($(element).closest('#infoBox').find('#nombre').text() + ' ' +$(element).closest('#infoBox').find('#dia').text()+ ' ' +$(element).closest('#infoBox').find('#horario').text()) : limpiarCadena(texto_cfh);
 
             $.ajax({
                 url         : url_index,
@@ -2940,7 +2957,7 @@ use App\Library\FuncionesGlobales;
                     nuevo_estatus_asistencia    : $(modal_clone).find("#select_asistencia").val()
                 },
                 success     : function(data){
-                    if (texto_cita_cfh == null){
+                    if (texto_cfh == null){
                         $(".flot_cita").each(function(){
                             if ($(this).data('idagendacita') == id_agenda_cita){
                                 $(this).data('asistencia',$(modal_clone).find("#select_asistencia").val());
@@ -5094,7 +5111,7 @@ use App\Library\FuncionesGlobales;
                                                 '<button type="button" class="btn btn_asistencia" data-nombre="'+obj_data.nombre_completo+'" data-asistencia="'+obj_data.asistencia+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus actual: '+texto_asistencia+'">'+
                                                     '<i class="bi '+icono_asistencia+'"></i>'+
                                                 '</button>'+
-                                                '<button type="button" class="btn btn_cancelar" title="Modificar estatus de cita">'+
+                                                '<button type="button" class="btn btn_cancelar" data-nombre="'+obj_data.nombre_completo+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus de cita">'+
                                                     '<i class="bi bi-calendar-x"></i>'+
                                                 '</button>'+
                                             '</div>'+
@@ -5110,7 +5127,14 @@ use App\Library\FuncionesGlobales;
             let texto_cita  = $(this).data('nombre') + ' '+ $(this).data('fecha');
             $(modal_clone).modal('hide');
             show_modal_asistencia($(this),texto_cita);
-        })
+        });
+
+        //  EVENTO PARA CANCELAR CITA FUERA DE HORARIO
+        $(modal_clone).on('click','.btn_cancelar',function(){
+            let texto_cita  = $(this).data('nombre') + ' '+ $(this).data('fecha');
+            $(modal_clone).modal('hide');
+            show_modal_cancelar_cita($(this),texto_cita);
+        });
 
         $(modal_clone).modal('show');
 
