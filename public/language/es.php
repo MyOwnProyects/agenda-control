@@ -193,6 +193,7 @@ return [
     'html_create_professional_off_day'          => 'Crear d&iacute;a inhabil para profesioales',
     'html_type_lock'                            => 'Tipo de bloqueo',
     'html_create_after_hours_appoitment'        => 'Crear cita fuera de horario para el día: ',
+    'html_view_after_hours_appoitment'          => 'Ver citas fuera de horario e la semana: ',
     'html_select'                               => 'Seleccionar',
     
 

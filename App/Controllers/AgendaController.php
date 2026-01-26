@@ -381,7 +381,17 @@ class AgendaController extends BaseController
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
         $_POST['activa']                = 1;
         $_POST['get_servicios']         = 1;
-        $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $arr_citas_agendadas            = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+        $arr_citas_ordinarias       = array();
+        $arr_citas_fuera_horario    = array();
+        foreach($arr_citas_agendadas as $info_cita){
+            if (is_numeric($info_cita['id_motivo_cita_fuera_horario'])){
+                $arr_citas_fuera_horario[]  = $info_cita;
+            } else {
+                $arr_citas_ordinarias[] = $info_cita;
+            }
+        }
 
         //  SE BUSCA EL INTERVALO DE CITAS POR HORARIO 
         foreach($horario_atencion as $id => $horario){
@@ -392,11 +402,11 @@ class AgendaController extends BaseController
             $arr_return['horario_atencion'][$horario['id']]['dias']             = $horario['dias'];
 
             //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
-            $arr_return['horario_atencion'][$horario['id']]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
+            $arr_return['horario_atencion'][$horario['id']]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_citas_ordinarias,$horario);
         }
 
-        //  SE BUSCAN LOS DÍAS INHABILES EN EL INTERVALO DE CITAS
-
+        //  CITAS FUERA DE HORARIO
+        $arr_return['citas_fuera_horario']  = $arr_citas_fuera_horario;
         
         return $arr_return;
     }
@@ -418,7 +428,13 @@ class AgendaController extends BaseController
                     'duracion'      => $info_citas['duracion'],
                     'id_cita_programada_servicio'           => $id_cita_programada_servicio,
                     'id_cita_programada_servicio_horario'   => $horario['id_cita_programada_servicio_horario'],
-                    'nombre_locacion'                       => $info_citas['nombre_locacion']
+                    'nombre_locacion'                       => $info_citas['nombre_locacion'],
+                    'info_cita_fuera_horario'               =>  $info_citas['id_motivo_cita_fuera_horario'] != null ? array(
+                        'id_cita_simultanea'                        => $info_citas['id_cita_simultanea'],
+                        'id_motivo_cita_fuera_horario'              => $info_citas['id_motivo_cita_fuera_horario'],
+                        'nombre_motivo_cita_fuera_horario'          => $info_citas['nombre_motivo_cita_fuera_horario'],
+                        'observaciones_motivo_cita_fuera_horario'   => $info_citas['id_cita_simultanea']
+                    )   : array()
                 );
             }
         }

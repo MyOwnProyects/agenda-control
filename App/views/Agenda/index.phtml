@@ -690,7 +690,7 @@ use App\Library\FuncionesGlobales;
     <div class="event-header mb-2">
         <div class="d-flex align-items-center">
             <span class="dot"></span>
-            <span id="servicio" class="event-title"></span>
+            <span id="nombre" class="event-title"></span>
         </div>
         <div>
             <button class="icon-button btn_edit" title="Agregar/Quitar Servicios - Reagendar"><i class="bi bi-pencil-fill"></i></button>
@@ -854,7 +854,7 @@ use App\Library\FuncionesGlobales;
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="close_modal" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
         <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
       </div>
     </div>
@@ -1130,7 +1130,7 @@ use App\Library\FuncionesGlobales;
                     <select id="select_motivos" class="select_motivos form-select" required>
                         <option value="">Selecciona una opci&oacute;n</option>
                         <?php foreach($motivos_citas_fuera_horario as $motivo): ?>
-                        <option value="<?php echo $motivo['id'] ?>" data-clave="<?php echo $motivo['clave'] ?>" data-obligatorioobservaciones="<?php echo $motivo['obligatorio_observaciones'] ?>"><?php echo $motivo['nombre'] ?></option>
+                        <option class="<?php echo $motivo['clave'] ?>" value="<?php echo $motivo['id'] ?>" data-clave="<?php echo $motivo['clave'] ?>" data-obligatorioobservaciones="<?php echo $motivo['obligatorio_observaciones'] ?>"><?php echo $motivo['nombre'] ?></option>
                         <?php endforeach; ?>
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_enter_cellphone_name']; ?></div>
@@ -1259,6 +1259,41 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
+<div class="modal fade modal-xl" id="modal_ver_cita_fuera_horario" tabindex="-1" aria-labelledby="label_save_class" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal_ver_cita_fuera_horario"><?php echo FuncionesGlobales::UpperString($translations['html_view_after_hours_appoitment']); ?> <b><span id="span_fecha"></span></b></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3 div_header_motivo_cs">
+                <table id="table_citas_activas" class="table table-striped">
+                    <thead>
+                       <tr>
+                            <th scope="col"><?php echo $translations['html_title_patient']; ?></th>
+                            <th scope="col"><?php echo $translations['html_title_professional']; ?></th>
+                            <th scope="col"><?php echo $translations['html_service_cost']; ?></th>
+                            <th scope="col"><?php echo $translations['html_appointment_date']; ?></th>
+                            <th scope="col"><?php echo $translations['html_option']; ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- <div class="row mb-3 div_nuevo_estatus">
     <div class="alert alert-warning mb-4">
         <div class="d-flex align-items-start">
@@ -1289,8 +1324,11 @@ use App\Library\FuncionesGlobales;
     const controller    = '/Agenda';
     const url_index     = controller+"/index";
 
-    //  D PROFESIONA LDE SESION
+    //  ID PROFESIONA LDE SESION
     const id_profesional_sesion = '<?php echo $id_profesional; ?>';
+
+    //  PERMISO CITA FUERA HORARIO
+    const permiso_citas_fuera_horario   = '<?php echo $citas_fuera_horario; ?>';
 
     //  CODIGO PARA CALENDARIO POR SEMANA
     const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -1397,6 +1435,9 @@ use App\Library\FuncionesGlobales;
 
     //  OBJECTO DE HORARIO DE ATENCION POR LOCACION
     let horario_atencion    = {};
+
+    //  CITAS FUERA DE HORARIO
+    let arr_citas_fuera_horario = [];
 
     //  RETORNA LA CLASE DEL COLOR BACKGROUND DEL DIV FLOTANTE
     function background_tipo_cita(info_cita){
@@ -2331,6 +2372,12 @@ use App\Library\FuncionesGlobales;
                     console.log('data info '+3);
                     // $(modal_clone).find('.floating-box').remove();
                     setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
+
+                    //  SE PINTA EL NUMERO DE CITAS FUERA DE HORARIO
+                    if (typeof data['citas_fuera_horario'] != "undefined"){
+                        $("#span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
+                        arr_citas_fuera_horario = data['citas_fuera_horario'];
+                    }
                 } else {
                     console.log('segundo data info 1');
                     console.log(data);
@@ -2762,7 +2809,7 @@ use App\Library\FuncionesGlobales;
     function show_modal_cancelar_cita(element){
         let modal_clone     = $("#modal_cancelar_cita").clone().removeAttr('id').show();
         let id_agenda_cita  = $(element).data('idagendacita');
-        let texto_cita      = limpiarCadena($(element).closest('#infoBox').find('#servicio').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text());
+        let texto_cita      = limpiarCadena($(element).closest('#infoBox').find('#nombre').text() + ' ' +$(element).closest('#infoBox').find('.event-detail').text());
 
         $(modal_clone).on('click','.tipo_movimiento',function(){
             let element = $(modal_clone).find('.tipo_movimiento:checked');
@@ -2833,7 +2880,7 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).modal('show');
     }
 
-    function show_modal_asistencia(element){
+    function show_modal_asistencia(element,texto_cita_cfh = null){
         let estatus_actual  = $(element).data('asistencia');
         let id_agenda_cita  = $(element).data('idagendacita');
         let modal_clone = $("#modal_asistencia").clone().show();
@@ -2856,6 +2903,12 @@ use App\Library\FuncionesGlobales;
             width: '50px'
         });
 
+        if (texto_cita_cfh != null){
+            $(modal_clone).on('click','#close_modal',function (e) {
+                $("#btn_ver_cita_fuera_horario").trigger('click');
+            });
+        }
+
         $(modal_clone).on('click','#btnSave',function(){
             let btn = $(this);
             $(btn).prop('disabled',true);
@@ -2873,7 +2926,7 @@ use App\Library\FuncionesGlobales;
                 return false;
             }
 
-            let texto_cita  = limpiarCadena($(element).closest('#infoBox').find('#servicio').text() + ' ' +$(element).closest('#infoBox').find('#dia').text()+ ' ' +$(element).closest('#infoBox').find('#horario').text());
+            let texto_cita  = texto_cita_cfh == null ? limpiarCadena($(element).closest('#infoBox').find('#nombre').text() + ' ' +$(element).closest('#infoBox').find('#dia').text()+ ' ' +$(element).closest('#infoBox').find('#horario').text()) : limpiarCadena(texto_cita_cfh);
 
             $.ajax({
                 url         : url_index,
@@ -2887,11 +2940,23 @@ use App\Library\FuncionesGlobales;
                     nuevo_estatus_asistencia    : $(modal_clone).find("#select_asistencia").val()
                 },
                 success     : function(data){
-                    $(".flot_cita").each(function(){
-                        if ($(this).data('idagendacita') == id_agenda_cita){
-                            $(this).data('asistencia',$(modal_clone).find("#select_asistencia").val());
-                        }
-                    });
+                    if (texto_cita_cfh == null){
+                        $(".flot_cita").each(function(){
+                            if ($(this).data('idagendacita') == id_agenda_cita){
+                                $(this).data('asistencia',$(modal_clone).find("#select_asistencia").val());
+                            }
+                        });
+                    } else {
+                        arr_citas_fuera_horario = arr_citas_fuera_horario.map(cita => {
+                            if (cita.id_agenda_cita == id_agenda_cita) {
+                                return {
+                                    ...cita,
+                                    asistencia: $(modal_clone).find("#select_asistencia").val()
+                                };
+                            }
+                            return cita;
+                        });
+                    }
 
                     $(modal_clone).modal('hide');
                     showAlert('success','Asistencia modificada!');
@@ -4432,7 +4497,7 @@ use App\Library\FuncionesGlobales;
                 showAlert('danger','No esta permitido agendar ni modificar citas con fecha menor a :'+date_limit);
                 return false;
             }
-            show_modal_asistencia($(this));
+            show_modal_asistencia($(this),null);
             $("#closeModal").trigger('click');
         });
 
@@ -4453,6 +4518,10 @@ use App\Library\FuncionesGlobales;
             show_modal_crear_cita_fuera_horario();
         });
 
+        $("#btn_ver_cita_fuera_horario").on('click',function(){
+            show_modal_citas_fuera_horario();
+        });
+
         // Ocultar el modal al hacer clic en el botón de cerrar
         $("#closeModal").on("click", function () {
             $infoBox.css("display", "none"); // Ocultar el modal
@@ -4462,7 +4531,7 @@ use App\Library\FuncionesGlobales;
     function show_info_cita(element){
         let horario = $(element).data('horainicio')+' Hrs. - '+$(element).data('horatermino')+' Hrs.';
         $("#infoBox").find("#profesional").text($(element).data('profesional'));
-        $("#infoBox").find("#servicio").text($(element).data('paciente'));
+        $("#infoBox").find("#nombre").text($(element).data('paciente'));
         $("#infoBox").find("#duracion").text($(element).data('duracion')+' Minutos');
         $("#infoBox").find("#dia").text($(element).data('dialabel'));
         $("#infoBox").find("#horario").text(horario);
@@ -4507,7 +4576,6 @@ use App\Library\FuncionesGlobales;
             .data('horainicio',$(element).data('horainicio'));
         $("#infoBox").css("display", "block"); // Mostrar el modal
 
-        console.log('id_profesional_sesion',id_profesional_sesion,$(element).data('idprofesional'));
         if (true){
             $("#infoBox").find('.div_ver_expediente').show();
             $("#infoBox").find('.btn_ver_expediente').data('idagendacita',$(element).data('idagendacita'));
@@ -4716,6 +4784,7 @@ use App\Library\FuncionesGlobales;
         });
 
         //  SE AGREGA A LA TABLA LAS DEL CITAS DEL DIA
+
         if (tr_citas_activas != ''){
             $(modal_clone).find('#table_citas_activas').find('tbody').append(tr_citas_activas);
 
@@ -4887,17 +4956,21 @@ use App\Library\FuncionesGlobales;
             }
 
 
-            let id_servicios    = [];
-            $(modal_clone).find('.select_servicios_modal').each(function(){
-                let id_servicio = $(this).val();
-                let duracion    = 
-                id_servicios.push($(this).val());
+            let lista_servicios = [];
+            $(modal_clone).find('.header_servicio').each(function(){
+                lista_servicios.push({
+                    id_servicio : $(this).find('.select_servicios_modal').val(),
+                    duracion    : $(this).find('.duracion').val(),
+                    costo       : $(this).find('.costo').text(),
+                });
             });
 
             //  OBJ A ENVIAR
-            fecha_actual    = fecha_actual.split(",");
+            let fecha_actual_split  = fecha_actual.split(",");
             let obj_info    = {
-                fecha_cita  : fecha_actual[1].trim(),
+                id_locacion : $("#select_locaciones").val(),
+                fecha_cita  : fecha_actual_split[1].trim(),
+                dia         : diasSemana.indexOf(fecha_actual_split[0]) + 1,
                 id_paciente : info_cita == null ? $(modal_clone).find('#select_paciente_modal_cfh').val() : info_cita['id_paciente'],
                 celular     : $(modal_clone).find('#input_celular').val(),
                 primer_apellido     : $(modal_clone).find('#input_primer_apellido').val(),
@@ -4908,7 +4981,7 @@ use App\Library\FuncionesGlobales;
                 nombre_motivo_cita_fuera_horario    : $(modal_clone).find("#select_motivos").find('option:selected').text(),
                 observaciones_motivo_cita_fuera_horario : $(modal_clone).find("#textarea_observaciones_cita_fuera_horario").val(),
                 id_cita_simultanea                      : $(modal_clone).find(".radio_cita:checked").closest('.tr_header').data('idagendacita'),
-                id_servicios                            : id_servicios,
+                servicios                               : lista_servicios,
                 id_profesional                          : $(modal_clone).find('#select_profesional_modal_cfh').val(),
                 hora_inicio                             : $(modal_clone).find('.input_hora_inicio').val(),
                 hora_termino                            : $(modal_clone).find('.input_hora_termino').val(),
@@ -4919,12 +4992,12 @@ use App\Library\FuncionesGlobales;
 
             let info_bitacora   = {
                 nombre      : $(modal_clone).find('#input_primer_apellido').val() + ' ' +$(modal_clone).find('#input_nombre').val(),
-                fecha_cita  : diasSemana[(diasSemana.indexOf(fecha_actual[0]))] + ' ' +fecha_actual[1].trim()+' de '+$(modal_clone).find('.input_hora_inicio').val()+' a '+$(modal_clone).find('.input_hora_termino').val()
+                fecha_cita  : diasSemana[(diasSemana.indexOf(fecha_actual_split[0]))] + ' ' +fecha_actual_split[1].trim()+' de '+$(modal_clone).find('.input_hora_inicio').val()+' a '+$(modal_clone).find('.input_hora_termino').val()
             }
 
             console.log('obj_info');
             console.log(obj_info);
-            return false;
+            // return false;
 
             $.ajax({
                 url         : url_index,
@@ -4935,6 +5008,8 @@ use App\Library\FuncionesGlobales;
                     accion          : 'save_appoinment'
                 },
                 success : function(data){
+                    console.log('data ',data);
+                    $(btn).prop('disabled',false);
                     /* // Tu código aquí
                     fechaActual = tmp_fecha_actual;
 
@@ -4965,6 +5040,80 @@ use App\Library\FuncionesGlobales;
         });
 
         $(modal_clone).modal('show');
+    }
+
+    function show_modal_citas_fuera_horario(){
+        let modal_clone = $("#modal_ver_cita_fuera_horario").clone().show();
+
+        let tr_citas_activas    = '';
+        for(let i in arr_citas_fuera_horario){
+            let obj_data    = arr_citas_fuera_horario[i];
+                console.log('obj_data',obj_data);
+                servicios       = obj_data.servicios;
+
+                let row_servicios   = '';
+                for(let i in servicios){
+                    row_servicios   += servicios[i]['clave']+' / '+servicios[i]['costo'];
+                }
+
+                let icono_asistencia    = '';
+                let texto_asistencia    = '';
+                if (obj_data['asistencia'] == null){
+                    icono_asistencia    = 'bi-person-fill';
+                    texto_asistencia    = 'Sin asignar';
+                } 
+
+                if (obj_data['asistencia'] == 1){
+                    icono_asistencia    = 'bi-person-check-fill';
+                    texto_asistencia    = 'Asistencia';
+                }  
+                
+                if (obj_data['asistencia'] == 2){
+                    icono_asistencia    = 'bi-person-fill-exclamation';
+                    texto_asistencia    = 'Retardo';
+                }
+
+                if (obj_data['asistencia'] == 3){
+                    icono_asistencia    = 'bi-house-check-fill';
+                    texto_asistencia    = 'Actividad en casa';
+                }
+
+                if (obj_data['asistencia'] == 0){
+                    icono_asistencia    = 'bi-person-dash-fill';
+                    texto_asistencia    = 'Falta';
+                }
+
+                tr_citas_activas += 
+                                    '<tr class="tr_header" data-idagendacita="'+obj_data.id_agenda_cita+'">'+
+                                        '<td class="td_row">'+obj_data.nombre_completo+'</td>'+
+                                        '<td class="td_row">'+obj_data.nombre_profesional+'</td>'+
+                                        '<td class="td_row td_servicio" align="center" data-color="'+obj_data.codigo_color+'" style="background: '+obj_data.codigo_color+'">'+row_servicios+'</td>'+
+                                        '<td class="td_row">'+obj_data.fecha_completa+'</td>'+
+                                        '<td align="center">'+
+                                            '<div class="btn-group" role="group" aria-label="Acciones de cita">'+
+                                                '<button type="button" class="btn btn_asistencia" data-nombre="'+obj_data.nombre_completo+'" data-asistencia="'+obj_data.asistencia+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus actual: '+texto_asistencia+'">'+
+                                                    '<i class="bi '+icono_asistencia+'"></i>'+
+                                                '</button>'+
+                                                '<button type="button" class="btn btn_cancelar" title="Modificar estatus de cita">'+
+                                                    '<i class="bi bi-calendar-x"></i>'+
+                                                '</button>'+
+                                            '</div>'+
+                                        '</td>'+
+                                    '</tr>';
+
+        }
+
+        $(modal_clone).find('#table_citas_activas').find('tbody').append(tr_citas_activas);
+
+        //  EVENTO PARA MARCAR LA ASISTENCIA
+        $(modal_clone).on('click','.btn_asistencia',function(){
+            let texto_cita  = $(this).data('nombre') + ' '+ $(this).data('fecha');
+            $(modal_clone).modal('hide');
+            show_modal_asistencia($(this),texto_cita);
+        })
+
+        $(modal_clone).modal('show');
+
     }
 
 </script>
