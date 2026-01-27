@@ -501,30 +501,30 @@ use App\Library\FuncionesGlobales;
     }
 
     /* ESTILO SCROLL TABLA DE CITAS SIMULTANEAS */
-    #table_citas_activas {
+    .table_citas_activas {
         display: block;
     }
 
-    #table_citas_activas thead,
-    #table_citas_activas tbody {
+    .table_citas_activas thead,
+    .table_citas_activas tbody {
         display: block;
     }
 
-    #table_citas_activas tbody {
+    .table_citas_activas tbody {
         height: 300px; /* Ajusta la altura según necesites */
         overflow-y: auto;
         overflow-x: hidden;
     }
 
-    #table_citas_activas thead tr,
-    #table_citas_activas tbody tr {
+    .table_citas_activas thead tr,
+    .table_citas_activas tbody tr {
         display: table;
         width: 100%;
         table-layout: fixed; /* Importante para que las columnas mantengan el ancho */
     }
 
-    #table_citas_activas th:last-child,
-    #table_citas_activas td:last-child { 
+    .table_citas_activas th:last-child,
+    .table_citas_activas td:last-child { 
         width: 75px; /* O el valor que necesites */
         max-width: 75px;
     }
@@ -1157,7 +1157,7 @@ use App\Library\FuncionesGlobales;
                 </div>
             </div>
             <div class="row mb-3 div_header_motivo_cs" style="display: none;">
-                <table id="table_citas_activas" class="table table-striped">
+                <table class="table_citas_activas table table-striped">
                     <thead>
                        <tr>
                             <th scope="col"><?php echo $translations['html_title_patient']; ?></th>
@@ -1269,7 +1269,7 @@ use App\Library\FuncionesGlobales;
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3 div_header_motivo_cs">
-                <table id="table_citas_activas" class="table table-striped">
+                <table class="table_citas_activas table table-striped">
                     <thead>
                        <tr>
                             <th scope="col"><?php echo $translations['html_title_patient']; ?></th>
@@ -1327,8 +1327,10 @@ use App\Library\FuncionesGlobales;
     //  ID PROFESIONA LDE SESION
     const id_profesional_sesion = '<?php echo $id_profesional; ?>';
 
-    //  PERMISO CITA FUERA HORARIO
+    //  PERMISOS
     const permiso_citas_fuera_horario   = '<?php echo $citas_fuera_horario; ?>';
+    const permiso_digital_record        = '<?php echo $digitalRecord; ?>';
+    const permiso_clinicalData          = '<?php echo $clinicalData; ?>';
 
     //  CODIGO PARA CALENDARIO POR SEMANA
     const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -4803,7 +4805,7 @@ use App\Library\FuncionesGlobales;
         //  SE AGREGA A LA TABLA LAS DEL CITAS DEL DIA
 
         if (tr_citas_activas != ''){
-            $(modal_clone).find('#table_citas_activas').find('tbody').append(tr_citas_activas);
+            $(modal_clone).find('.table_citas_activas').find('tbody').append(tr_citas_activas);
 
             $(modal_clone).on('click','.td_row, .radio_cita',function(){
 
@@ -5062,6 +5064,9 @@ use App\Library\FuncionesGlobales;
     function show_modal_citas_fuera_horario(){
         let modal_clone = $("#modal_ver_cita_fuera_horario").clone().show();
 
+        //  REMIEVE EL ANCHO DE 300, CONSIDERANDO QUE SIEMPRE HABRAN POCAS CITAS FUERA DE HORARIO
+        $(modal_clone).find('.table_citas_activas tbody').css('height', 'auto');
+
         let tr_citas_activas    = '';
         for(let i in arr_citas_fuera_horario){
             let obj_data    = arr_citas_fuera_horario[i];
@@ -5120,7 +5125,11 @@ use App\Library\FuncionesGlobales;
 
         }
 
-        $(modal_clone).find('#table_citas_activas').find('tbody').append(tr_citas_activas);
+        if (tr_citas_activas == ''){
+            tr_citas_activas    = '<tr><td colspan="5" align="center">'+translations['emptyTable']+'</td></tr>';
+        }
+
+        $(modal_clone).find('.table_citas_activas').find('tbody').append(tr_citas_activas);
 
         //  EVENTO PARA MARCAR LA ASISTENCIA
         $(modal_clone).on('click','.btn_asistencia',function(){
