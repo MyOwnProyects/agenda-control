@@ -354,10 +354,6 @@ class AgendaController extends BaseController
                 return 'No existe un horario de atenci&oacute;n registrado a la locaci&oacute;n';
             }
 
-            $arr_return['min_hora_inicio']      = $arr_horas['min_hora'];
-            $arr_return['max_hora_inicio']      = $arr_horas['max_hora'];
-            $arr_return['rangos_no_incluidos']  = $arr_horas['rangos_no_incluidos'];
-
             //  SE BUSCA LA ULTIMA FECHA DISPONIBLE ANTES DEL CIERRE DE AGENDA
             $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
             $arr_return['cierre_agenda']    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
@@ -387,7 +383,7 @@ class AgendaController extends BaseController
         $arr_citas_ordinarias       = array();
         $arr_citas_fuera_horario    = array();
         foreach($arr_citas_agendadas as $info_cita){
-            if (is_numeric($info_cita['id_motivo_cita_fuera_horario'])){
+            if (isset($info_cita['id_motivo_cita_fuera_horario']) && is_numeric($info_cita['id_motivo_cita_fuera_horario'])){
                 $arr_citas_fuera_horario[]  = $info_cita;
             } else {
                 $arr_citas_ordinarias[] = $info_cita;

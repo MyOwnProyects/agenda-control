@@ -2438,6 +2438,9 @@ use App\Library\FuncionesGlobales;
                     } else {
                         $(".watermark-message").hide();
                     }
+
+                    //  SE RECORREN TODAS LAS CITAS DEL DIA Y SE MARCA, LAS CITAS QUE SEAN SIMULTANEAS
+                    
                 },50);
                 
                 
@@ -4695,8 +4698,8 @@ use App\Library\FuncionesGlobales;
 
     //  CREAR CITA FUERA DE HORARIO
     function show_modal_crear_cita_fuera_horario(info_cita = null){
-        let modal_clone = $("#modal_create_cita_fuera_horario").clone().show();
-        
+        let modal_clone     = $("#modal_create_cita_fuera_horario").clone().show();
+        tmp_fecha_actual    = fechaActual;
         let fecha_actual    = formatearFecha(fechaActual);
 
         $(modal_clone).find("#span_fecha").text(fecha_actual.toUpperCase());
@@ -5029,23 +5032,13 @@ use App\Library\FuncionesGlobales;
                 success : function(data){
                     console.log('data ',data);
                     $(btn).prop('disabled',false);
-                    /* // Tu código aquí
+                    // Tu código aquí
                     fechaActual = tmp_fecha_actual;
 
-                    //  CITAS POR DIA
-                    //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
-                    citas_desglosadas = Object.fromEntries(
-                        Object.entries(tmp_citas_desglosadas).map(([key, arr]) => [
-                            key,
-                            arr.map(obj => ({ ...obj })) // copia cada objeto dentro del array
-                        ])
-                    );
-                    $(btn).prop('disabled',false);
                     $(modal_clone).modal('hide');
                     showAlert('success',data);
-                    //$("#btnBuscar").trigger('click');
                     get_all_appointments($(".filters"),null,true);
-                    $("#btn-dia").trigger('click'); */
+                    $("#btn-dia").trigger('click');
 
                 },
                 error : function(error){
@@ -5075,7 +5068,7 @@ use App\Library\FuncionesGlobales;
 
                 let row_servicios   = '';
                 for(let i in servicios){
-                    row_servicios   += servicios[i]['clave']+' / '+servicios[i]['costo'];
+                    row_servicios   += servicios[i]['clave']+' / $'+servicios[i]['costo'];
                 }
 
                 let icono_asistencia    = '';
