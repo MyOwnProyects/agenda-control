@@ -69,6 +69,25 @@ use App\Library\FuncionesGlobales;
         display: block;
     }
 
+    .div_header_days_container .evento-flotante.has_citas_simultaneas {
+        z-index: 20; /* Mayor que los otros evento-flotante */
+    }
+
+    .badge-citas-simultaneas {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: #ff6961;
+        color: white;
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 100;
+    }
+
 
     .div_principal_filter .navigation {
         display: flex;
@@ -499,7 +518,6 @@ use App\Library\FuncionesGlobales;
         text-align: center;
         white-space: nowrap;
     }
-
     /* ESTILO SCROLL TABLA DE CITAS SIMULTANEAS */
     .table_citas_activas {
         display: block;
@@ -511,7 +529,7 @@ use App\Library\FuncionesGlobales;
     }
 
     .table_citas_activas tbody {
-        height: 300px; /* Ajusta la altura según necesites */
+        height: 300px;
         overflow-y: auto;
         overflow-x: hidden;
     }
@@ -520,13 +538,44 @@ use App\Library\FuncionesGlobales;
     .table_citas_activas tbody tr {
         display: table;
         width: 100%;
-        table-layout: fixed; /* Importante para que las columnas mantengan el ancho */
+        table-layout: fixed;
     }
 
-    .table_citas_activas th:last-child,
-    .table_citas_activas td:last-child { 
-        width: 75px; /* O el valor que necesites */
-        max-width: 75px;
+    /* Columna de Paciente */
+    .table_citas_activas th:nth-child(1),
+    .table_citas_activas td:nth-child(1) {
+        width: 25%;
+    }
+
+    /* Columna de Profesional */
+    .table_citas_activas th:nth-child(2),
+    .table_citas_activas td:nth-child(2) {
+        width: 22%;
+    }
+
+    /* Columna de Servicios (la que ya redujiste) */
+    .table_citas_activas th:nth-child(3),
+    .table_citas_activas td:nth-child(3) {
+         width: 22%;
+    }
+
+    /* Columna de Fecha */
+    .table_citas_activas th:nth-child(4),
+    .table_citas_activas td:nth-child(4) {
+        width: 26%;
+    }
+
+    /* Columna de Opciones - AUMENTAR ANCHO */
+    .table_citas_activas th:nth-child(5),
+    .table_citas_activas td:nth-child(5) { 
+        width: 15%; /* Aumentado de 75px a 15% */
+        min-width: 130px; /* Mínimo para que quepan los 3 botones */
+    }
+
+    /* Hacer los botones más compactos */
+    .table_citas_activas .btn-group .btn {
+        padding: 0.25rem 0.35rem;
+        font-size: 0.875rem;
     }
 
 </style>
@@ -1266,29 +1315,30 @@ use App\Library\FuncionesGlobales;
         <h5 class="modal-title" id="modal_ver_cita_fuera_horario"><?php echo FuncionesGlobales::UpperString($translations['html_view_after_hours_appoitment']); ?> <b><span id="span_fecha"></span></b></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body col-md-12">
+      <div class="modal-body">
         <form id="form_modal_create" class="needs-validation" novalidate>
-            <div class="row mb-3 div_header_motivo_cs">
-                <table class="table_citas_activas table table-striped">
-                    <thead>
-                       <tr>
-                            <th scope="col"><?php echo $translations['html_title_patient']; ?></th>
-                            <th scope="col"><?php echo $translations['html_title_professional']; ?></th>
-                            <th scope="col"><?php echo $translations['html_service_cost']; ?></th>
-                            <th scope="col"><?php echo $translations['html_appointment_date']; ?></th>
-                            <th scope="col"><?php echo $translations['html_option']; ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                </table>
+            <div class="mb-3 div_header_motivo_cs">
+                <div class="table-responsive">
+                    <table class="table_citas_activas table table-striped">
+                        <thead>
+                        <tr>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_title_patient']; ?></th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_title_professional']; ?></th>
+                                <th scope="col" style="text-align: center;" title="<?php echo $translations['html_service_cost']; ?>">S/C</th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_appointment_date']; ?></th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_options']; ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
-        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
       </div>
     </div>
   </div>
@@ -1381,7 +1431,9 @@ use App\Library\FuncionesGlobales;
         wednesday: "<?php echo $translations['html_wednesday'];  ?>",
         thursday: "<?php echo $translations['html_thursday'];   ?>",
         friday: "<?php echo $translations['html_friday'];     ?>",
-        saturday: "<?php echo $translations['html_saturday'];   ?>",      
+        saturday: "<?php echo $translations['html_saturday'];   ?>",     
+        see_file : "<?php echo $translations['html_see_file'];   ?>",
+        capture_clinical_data : "<?php echo $translations['html_capture_clinical_data'];   ?>"
     };
 
     //  LISTA DE ERRORES EN MODAL
@@ -1578,8 +1630,9 @@ use App\Library\FuncionesGlobales;
                             $(".watermark-message").show();
                         } else {
                             $(".watermark-message").hide();
+                            show_div_citas_simultaneas();
                         }
-                    },500);
+                    },50);
                     
                 } else {
                     if ( $(div_header).hasClass('modal') ){
@@ -1794,6 +1847,10 @@ use App\Library\FuncionesGlobales;
 
                     if (evento.id_agenda_cita != null && pagada != 1) {
                         eventoDiv.css("border", "2px solid #FF6961"); // Puedes usar #dc3545 para rojo Bootstrap si prefieres
+                    }
+
+                    if (evento.num_citas_simultaneas > 0){
+                        eventoDiv.addClass('has_citas_simultaneas').data('citassimultaneas',evento.num_citas_simultaneas);
                     }
                     columnaProfesional.append(eventoDiv);
                 }
@@ -2437,9 +2494,9 @@ use App\Library\FuncionesGlobales;
                         $(".watermark-message").show();
                     } else {
                         $(".watermark-message").hide();
-                    }
 
-                    //  SE RECORREN TODAS LAS CITAS DEL DIA Y SE MARCA, LAS CITAS QUE SEAN SIMULTANEAS
+                        show_div_citas_simultaneas();
+                    }
                     
                 },50);
                 
@@ -4498,6 +4555,18 @@ use App\Library\FuncionesGlobales;
             show_info_cita($(this));
         });
 
+        $("#div_append_days_container").on("click", '.badge-citas-simultaneas', function(event) {
+            event.stopPropagation(); // Evita que se propague al .flot_cita padre
+            
+            const $citaPadre = $(this).closest('.flot_cita');
+            const numCitasSimultaneas = $citaPadre.data('citassimultaneas');
+            
+            // Aquí puedes hacer lo que necesites
+            console.log('Citas simultáneas:', numCitasSimultaneas);
+            console.log('idagendacita',$citaPadre.data('idagendacita'));
+            show_modal_citas_fuera_horario($citaPadre.data('idagendacita'));
+        });
+
         $("#infoBox").on('click','.btn_edit',function(){
             ajax_previo_show_modal($(this));
             $("#closeModal").trigger('click');
@@ -5054,7 +5123,7 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).modal('show');
     }
 
-    function show_modal_citas_fuera_horario(){
+    function show_modal_citas_fuera_horario(id_agenda_cita = null){
         let modal_clone = $("#modal_ver_cita_fuera_horario").clone().show();
 
         //  REMIEVE EL ANCHO DE 300, CONSIDERANDO QUE SIEMPRE HABRAN POCAS CITAS FUERA DE HORARIO
@@ -5063,58 +5132,70 @@ use App\Library\FuncionesGlobales;
         let tr_citas_activas    = '';
         for(let i in arr_citas_fuera_horario){
             let obj_data    = arr_citas_fuera_horario[i];
-                console.log('obj_data',obj_data);
-                servicios       = obj_data.servicios;
+            console.log('obj_data',obj_data);
+            servicios       = obj_data.servicios;
 
-                let row_servicios   = '';
-                for(let i in servicios){
-                    row_servicios   += servicios[i]['clave']+' / $'+servicios[i]['costo'];
-                }
+            if (id_agenda_cita != null && obj_data['id_cita_simultanea'] != id_agenda_cita ){
+                continue;
+            }
 
-                let icono_asistencia    = '';
-                let texto_asistencia    = '';
-                if (obj_data['asistencia'] == null){
-                    icono_asistencia    = 'bi-person-fill';
-                    texto_asistencia    = 'Sin asignar';
-                } 
+            let row_servicios   = '';
+            for(let i in servicios){
+                row_servicios   += servicios[i]['clave']+' / $'+servicios[i]['costo'];
+            }
 
-                if (obj_data['asistencia'] == 1){
-                    icono_asistencia    = 'bi-person-check-fill';
-                    texto_asistencia    = 'Asistencia';
-                }  
-                
-                if (obj_data['asistencia'] == 2){
-                    icono_asistencia    = 'bi-person-fill-exclamation';
-                    texto_asistencia    = 'Retardo';
-                }
+            let icono_asistencia    = '';
+            let texto_asistencia    = '';
+            if (obj_data['asistencia'] == null){
+                icono_asistencia    = 'bi-person-fill';
+                texto_asistencia    = 'Sin asignar';
+            } 
 
-                if (obj_data['asistencia'] == 3){
-                    icono_asistencia    = 'bi-house-check-fill';
-                    texto_asistencia    = 'Actividad en casa';
-                }
+            if (obj_data['asistencia'] == 1){
+                icono_asistencia    = 'bi-person-check-fill';
+                texto_asistencia    = 'Asistencia';
+            }  
+            
+            if (obj_data['asistencia'] == 2){
+                icono_asistencia    = 'bi-person-fill-exclamation';
+                texto_asistencia    = 'Retardo';
+            }
 
-                if (obj_data['asistencia'] == 0){
-                    icono_asistencia    = 'bi-person-dash-fill';
-                    texto_asistencia    = 'Falta';
-                }
+            if (obj_data['asistencia'] == 3){
+                icono_asistencia    = 'bi-house-check-fill';
+                texto_asistencia    = 'Actividad en casa';
+            }
 
-                tr_citas_activas += 
-                                    '<tr class="tr_header" data-idagendacita="'+obj_data.id_agenda_cita+'">'+
-                                        '<td class="td_row">'+obj_data.nombre_completo+'</td>'+
-                                        '<td class="td_row">'+obj_data.nombre_profesional+'</td>'+
-                                        '<td class="td_row td_servicio" align="center" data-color="'+obj_data.codigo_color+'" style="background: '+obj_data.codigo_color+'">'+row_servicios+'</td>'+
-                                        '<td class="td_row">'+obj_data.fecha_completa+'</td>'+
-                                        '<td align="center">'+
-                                            '<div class="btn-group" role="group" aria-label="Acciones de cita">'+
-                                                '<button type="button" class="btn btn_asistencia" data-nombre="'+obj_data.nombre_completo+'" data-asistencia="'+obj_data.asistencia+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus actual: '+texto_asistencia+'">'+
-                                                    '<i class="bi '+icono_asistencia+'"></i>'+
-                                                '</button>'+
-                                                '<button type="button" class="btn btn_cancelar" data-nombre="'+obj_data.nombre_completo+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus de cita">'+
-                                                    '<i class="bi bi-calendar-x"></i>'+
-                                                '</button>'+
-                                            '</div>'+
-                                        '</td>'+
-                                    '</tr>';
+            if (obj_data['asistencia'] == 0){
+                icono_asistencia    = 'bi-person-dash-fill';
+                texto_asistencia    = 'Falta';
+            }
+
+            tr_citas_activas += 
+                                '<tr class="tr_header" data-idagendacita="'+obj_data.id_agenda_cita+'">'+
+                                    '<td class="td_row">'+obj_data.nombre_completo+'</td>'+
+                                    '<td class="td_row">'+obj_data.nombre_profesional+'</td>'+
+                                    '<td class="td_row td_servicio" align="center" data-color="'+obj_data.codigo_color+'" style="background: '+obj_data.codigo_color+';width: 80px; max-width: 80px; font-size: 0.85rem;">'+row_servicios+'</td>'+
+                                    '<td class="td_row">'+obj_data.fecha_completa+'</td>'+
+                                    '<td align="center">'+
+                                        '<div class="btn-group" role="group" aria-label="Acciones de cita">'+
+                                            '<button type="button" class="btn btn_asistencia" data-nombre="'+obj_data.nombre_completo+'" data-asistencia="'+obj_data.asistencia+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus actual: '+texto_asistencia+'">'+
+                                                '<i class="bi '+icono_asistencia+'"></i>'+
+                                            '</button>'+
+                                            '<button type="button" class="btn btn_cancelar" data-nombre="'+obj_data.nombre_completo+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus de cita">'+
+                                                '<i class="bi bi-calendar-x"></i>'+
+                                            '</button>';
+            if (permiso_digital_record){
+                tr_citas_activas    +=      '<button type="button" class="btn btn_ver_expediente" data-idagendacita="'+obj_data.id_agenda_cita+'" title="'+translations["see_file"]+'"><i class="bi bi-archive"></i></button>';
+            }
+
+            if (permiso_clinicalData){
+                tr_citas_activas    +=      '<button type="button" class="btn btn_ir_datos_clinicos" data-idagendacita="'+obj_data.id_agenda_cita+'" title="'+translations["capture_clinical_data"]+'"><i class="bi bi-activity"></i></button>';
+            }
+                                    
+            tr_citas_activas    +=      '</div>'+
+                                    '</td>'+
+                                '</tr>';
 
         }
 
@@ -5138,8 +5219,40 @@ use App\Library\FuncionesGlobales;
             show_modal_cancelar_cita($(this),texto_cita);
         });
 
+        $(modal_clone).on('click','.btn_ver_expediente',function(){
+            let id_agenda_cita  = $(this).data('idagendacita');
+
+            window.location.href = '/Pacientes/digitalRecord?id_agenda_cita='+id_agenda_cita;
+        });
+
+        $(modal_clone).on('click','.btn_ir_datos_clinicos',function(){
+            let id_agenda_cita  = $(this).data('idagendacita');
+
+            window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita;
+        });
+
         $(modal_clone).modal('show');
 
+    }
+
+    function show_div_citas_simultaneas(){
+        $('.has_citas_simultaneas').each(function() {
+            const $cita = $(this);
+            const numCitasSimultaneas = parseInt($cita.data('citassimultaneas'));
+            console.log('numCitasSimultaneas',numCitasSimultaneas);
+            
+            // Verificar si el badge ya existe para evitar duplicados
+            if ($cita.find('.badge-citas-simultaneas').length === 0 && numCitasSimultaneas > 0) {
+                const textoBadge = `+${numCitasSimultaneas} C`;
+                
+                const $badge = $('<div>', {
+                    class: 'badge-citas-simultaneas',
+                    text: textoBadge
+                });
+                
+                $cita.append($badge);
+            }
+        });
     }
 
 </script>

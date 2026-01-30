@@ -1083,7 +1083,7 @@ use App\Library\FuncionesGlobales;
                                     '<i class="bi bi-search"></i> '+
                                 '</button>';
 
-                                let btn_update  = data['activa'] == 0 || (data['vencida'] == 1 && data['activa'] == 1) ? '' : 
+                                let btn_update  = data['activa'] == 0 || (data['vencida'] == 1 && data['activa'] == 1) || (data['id_motivo_cita_fuera_horario'] != null && data['id_motivo_cita_fuera_horario'] != '') ? '' : 
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['appoinment_edit'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>';
@@ -1338,7 +1338,21 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find("#usuario_captura").text(info_cita['usuario_captura']);
 
             $(modal_clone).find("#asistencia").text(estatus_asistencia[info_cita['asistencia']]);
-            $(modal_clone).find("#tipo_cita").text(info_cita['id_cita_programada'] != null ? 'CITA PROGRAMADA' : 'CITA ORDINARIA');
+
+            if (info_cita['id_cita_programada'] != null){
+                $(modal_clone).find("#tipo_cita").text('CITA PROGRAMADA');
+            } else {
+                if (info_cita['id_cita_simultanea'] != null && info_cita['id_cita_simultanea'] != ''){
+                    $(modal_clone).find("#tipo_cita").text('CITA SIMULTANEA');
+                } else {
+                    if (info_cita['id_motivo_cita_fuera_horario'] != null && info_cita['id_motivo_cita_fuera_horario'] != ''){
+                        $(modal_clone).find("#tipo_cita").text('CITA FUERA DE HORARIO');
+                    } else {
+                        $(modal_clone).find("#tipo_cita").text('CITA ORDINARIA');
+                    }
+                }
+            }
+
             $(modal_clone).find("#estatus").text(info_cita['estatus']);
 
             if (info_cita['activa'] != 1){
@@ -2634,6 +2648,7 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_preview',function(){
                 // Obtener los datos almacenados en la fila
                 let data = $(this).closest('tr').data('rowData');
+                console.log('data',data);
                 show_info_cita(data);
             });
 
