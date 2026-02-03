@@ -294,11 +294,28 @@ use App\Library\FuncionesGlobales;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
+    }
+
+    #infoBox .event-header > div:first-child {
+        flex: 1; /* Permite que crezca */
+        min-width: 0; /* Permite que se encoja por debajo de su contenido */
+        overflow: hidden; /* Oculta el desbordamiento */
+    }
+
+    #infoBox .event-header > div:last-child {
+        flex-shrink: 0; /* Evita que los botones se encojan */
+        display: flex;
+        gap: 4px; /* Espacio entre botones */
     }
 
     #infoBox .event-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+        font-size: 1.1rem;
+        font-weight: 600;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Máximo 2 líneas */
+        -webkit-box-orient: vertical;
     }
 
     #infoBox .icon-button {
@@ -307,6 +324,7 @@ use App\Library\FuncionesGlobales;
       font-size: 1rem;
       color: #6c757d;
       cursor: pointer;
+      padding: 4px 8px;
     }
 
     #infoBox .event-detail {
@@ -319,12 +337,13 @@ use App\Library\FuncionesGlobales;
     }
 
     #infoBox .dot {
-      height: 12px;
-      width: 12px;
-      background-color: #2196f3;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 8px;
+        height: 12px;
+        width: 12px;
+        background-color: #2196f3;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        flex-shrink: 0;
     }
     
 
@@ -850,6 +869,38 @@ use App\Library\FuncionesGlobales;
                     <textarea rows="2" id="textarea_observaciones_cancelacion" class="form-control"></textarea>
                     <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
                 </div>
+                <div class="div_citas_simultaneas col-md-12 mb-3 hide">
+                    <label class="mb-2">Opciones sobre citas simultáneas:</label>
+                    <div class="d-flex flex-column" role="radiogroup">
+
+                        <label class="form-check mb-2">
+                            <input type="radio" class="form-check-input tipo_accion_simultanea" name="tipo_accion_simultanea" value="solo_base" required />
+                            <span class="form-check-label">Afectar solo esta cita</span>
+                        </label>
+
+                        <label class="form-check">
+                            <input type="radio" class="form-check-input tipo_accion_simultanea" name="tipo_accion_simultanea" value="todas" required/>
+                            <span class="form-check-label">Afectar todas las citas simultáneas</span>
+                        </label>
+
+                    </div>
+
+                    <!-- Texto informativo -->
+                    <div id="infoSoloBase" class="alert alert-warning mt-3 d-none">
+                        <strong>Afectar solo esta cita</strong><br>
+                        Las demás citas simultáneas permanecerán activas.
+                        Una de ellas se convertirá en la nueva cita base.
+                    </div>
+
+                    <div id="infoTodas" class="alert alert-warning mt-3 d-none">
+                        <strong>Afectar todas las citas simultáneas</strong><br>
+                        Todas las citas cambiarán de estado y se eliminará la relación
+                        de simultaneidad. Cada cita quedará como una cita individual.
+                    </div>
+
+                    <div class="invalid-feedback"><?php echo $translations['html_error_movement_type']; ?></div>
+                </div>
+
                 </div>
             <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -2323,8 +2374,7 @@ use App\Library\FuncionesGlobales;
 
     //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
     function get_all_appointments(element,modal_clone = null,refresh_filtros = null){
-        console.log('modal_clone get_all_appointments',modal_clone);
-        console.log('elemen get_all_appointments',element);
+
         let id_locacion = $("#select_locaciones").val();
         if (modal_clone != null){
             $(modal_clone).find('.evento-flotante').remove();
@@ -2891,7 +2941,20 @@ use App\Library\FuncionesGlobales;
             let flag_error  = false;
             if (form.checkValidity() === false) {
                 $(form).addClass('was-validated');
-                flag_error  = true;
+                
+
+                // Revisar cada campo que sea inválido
+                const invalidFields = Array.from(form.elements).filter(el => 
+                    !el.validity.valid && $(el).is(':visible')
+                );
+
+                invalidFields.forEach(field => {
+                    console.log('Campo inválido:', field,field.name || field.id, field.validationMessage);
+                });
+
+                if (invalidFields.length > 0){
+                    flag_error = true;
+                }
             } else {
                 $(form).removeClass('was-validated');
             }
@@ -2900,6 +2963,8 @@ use App\Library\FuncionesGlobales;
                 $(btn).prop('disabled',false);
                 return false;
             }
+
+            //return false;
 
             $.ajax({
                 url         : url_index,
@@ -2910,29 +2975,25 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita  : id_agenda_cita,
                     id_motivo_cancelacion       : $(modal_clone).find("#select_motivo_cancelacion").val(),
                     observaciones_cancelacion   : $(modal_clone).find("#textarea_observaciones_cancelacion").val(),
-                    id_agenda_cita              : $(element).data('idagendacita'),
                     tipo_movimiento             : $(modal_clone).find('.tipo_movimiento:checked').val(),
-                    texto_cita                  : texto_cita
+                    texto_cita                  : texto_cita,
+                    tipo_accion_cita_simultanea : $(modal_clone).find('.tipo_accion_simultanea:checked').val(),
                 },
                 success     : function(data){
-                    $(modal_clone).modal('hide');
-                    showAlert('success',$(modal_clone).find('.tipo_movimiento:checked').val() == 'cancelar' ? 'Cancelación exitosa!' : 'Cita modificada exitosamente!');
-
-                    if (texto_cfh == null){
+                    console.log ('hascitassimultaneas',$(element).data('hascitassimultaneas'));
+                    if ($(element).data('hascitassimultaneas') == 0){
                         $(".flot_cita").each(function(){
                             if ($(this).data('idagendacita') == id_agenda_cita){
                                 $(this).remove();
                             }
                         });
                     } else {
-                        arr_citas_fuera_horario = arr_citas_fuera_horario.filter(cita => {
-                            return cita.id_agenda_cita != id_agenda_cita;
-                        });
-
-                        $("#span_count_citas_fuera_horario").text(Object.keys(arr_citas_fuera_horario).length)
+                        get_all_appointments($(".filters"),null,true);
                     }
                     
+                    showAlert('success',$(modal_clone).find('.tipo_movimiento:checked').val() == 'cancelar' ? 'Cancelación exitosa!' : 'Cita modificada exitosamente!');
                     $(modal_clone).find('#btnSave').prop('disabled',false);
+                    $(modal_clone).modal('hide');
                 },
                 error     : function(error){
                     showAlert('danger',error.responseText);
@@ -2942,11 +3003,25 @@ use App\Library\FuncionesGlobales;
             });
         });
 
-        // $(modal_clone).find('#select_motivo_cancelacion').select2({
-        //     placeholder: 'Seleccione una opción',
-        //     dropdownParent: $(modal_clone),
-        //     width: '50px'
-        // });
+        if ($(element).data('hascitassimultaneas') === 1){
+
+            $(modal_clone).find(".div_citas_simultaneas").removeClass('hide');
+
+            $(modal_clone).on('change', '.tipo_accion_simultanea', function () {
+                console.log('aqui');
+                let valor = $(this).val();
+
+                $('#infoSoloBase, #infoTodas').addClass('d-none');
+
+                if (valor === 'solo_base') {
+                    $(modal_clone).find('#infoSoloBase').removeClass('d-none');
+                }
+
+                if (valor === 'todas') {
+                    $(modal_clone).find('#infoTodas').removeClass('d-none');
+                }
+            });
+        }
 
         $(modal_clone).modal('show');
     }
@@ -4648,9 +4723,13 @@ use App\Library\FuncionesGlobales;
             .data('idprofesional',$(element).data('idprofesional'))
             .data('dia',$(element).data('dialabel'))
             .data('asistencia',$(element).data('asistencia'))
-            .data('horainicio',$(element).data('horainicio'));
+            .data('horainicio',$(element).data('horainicio'))
+            .data('hascitassimultaneas',0);
 
-
+        if ($(element).hasClass('has_citas_simultaneas')){
+            $("#infoBox").find(".icon-button").data('hascitassimultaneas',1);
+        }
+        
         if (permiso_digital_record || permiso_clinicalData){
             $("#infoBox").find('.div_ver_expediente').show();
             $("#infoBox").find('.btn_ver_expediente').data('idagendacita',$(element).data('idagendacita'));
