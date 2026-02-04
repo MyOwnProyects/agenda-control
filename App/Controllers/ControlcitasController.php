@@ -370,6 +370,11 @@ class ControlcitasController extends BaseController
         $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
         $motivos_cancelacion_cita   = FuncionesGlobales::RequestApi('GET',$route);
         $this->view->motivos_cancelacion_cita   = $motivos_cancelacion_cita;
+
+        //  MOTIVOS CITAS FUERA DE HORARIO
+        $route                          = $this->url_api.$this->rutas['motivos_citas_fuera_horario']['show'];
+        $motivos_citas_fuera_horario    = FuncionesGlobales::RequestApi('GET',$route);
+        $this->view->motivos_citas_fuera_horario    = $motivos_citas_fuera_horario;
     }
 
     function get_info_by_location(){

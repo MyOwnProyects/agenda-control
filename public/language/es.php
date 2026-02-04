@@ -196,6 +196,8 @@ return [
     'html_view_after_hours_appoitment'          => 'Ver citas fuera de horario de la semana: ',
     'html_select'                               => 'Seleccionar',
     'html_convert_simultaneous_appointment'     => 'Convertir a cita simultanea',
+    'html_after_hours_appointments'             => 'Citas fuera de horario',
+    'html_selected_option'                      => 'Selecciona una opcion',
     
 
 

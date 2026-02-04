@@ -329,7 +329,14 @@ use App\Library\FuncionesGlobales;
                     </div>
                 </div>
                 <div class="col-md-4">
-                    
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_after_hours_appointments']; ?></label>
+                    <select id="select_citas_fuera_horario" class="select_citas_fuera_horario">
+                        <option value=""></option>
+                        <option value="-1">Todas las opciones</option>
+                        <?php foreach($motivos_citas_fuera_horario as $row): ?>
+                            <option value="<?php echo $row['id']; ?>"><?php echo $row['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label"><b><?php echo $translations['html_filter_appoitments']; ?></b></label>
@@ -349,6 +356,12 @@ use App\Library\FuncionesGlobales;
                         <input class="form-check-input" type="radio" name="filtro_citas" id="radio_pendientes" value="pendientes">
                         <label class="form-check-label" for="radio_pendientes">
                             <?php echo $translations['html_pending_appoitments']; ?>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filtro_citas" id="radio_canceladas" value="canceladas">
+                        <label class="form-check-label" for="radio_canceladas">
+                            <?php echo $translations['html_canceled_appoitments']; ?>
                         </label>
                     </div>
                     <div class="form-check">
@@ -967,6 +980,7 @@ use App\Library\FuncionesGlobales;
             register_payment        : "<?= $translations['html_register_payment']?>",
             pay                     : "<?= $translations['html_pay']?>",
             cancel_payment          : "<?= $translations['html_cancel_payment']?>",
+            selected_option         : "<?= $translations['html_selected_option']?>"
         };
 
         const error_list = {
@@ -1047,6 +1061,7 @@ use App\Library\FuncionesGlobales;
                             d.citas_pagadas     = $("#check_pagadas").prop('checked') == true ? 1 : 0;
                             d.citas_adeudo      = $("#check_adeudo").prop('checked') == true ? 1 : 0;
                             d.citas_pagadas_rango   = $("#check_pagadas_rango").prop('checked') == true ? 1 : 0;
+                            d.citas_fuera_horario   = $("#select_citas_fuera_horario").val();
                         }
                     },
                     columns: [
@@ -2401,6 +2416,11 @@ use App\Library\FuncionesGlobales;
 
             $('.select_profesionales').select2({
                 placeholder: translations['error_professional'],
+                allowClear: true
+            });
+
+            $('.select_citas_fuera_horario').select2({
+                placeholder: translations['selected_option'],
                 allowClear: true
             });
 
