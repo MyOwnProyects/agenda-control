@@ -3476,7 +3476,6 @@ use App\Library\FuncionesGlobales;
         let id_template_cita        = '';  
         tmp_fecha_actual            = fechaActual;
 
-        console.log('info_profesional show_modal_citas',info_profesional);
         citas_desglosadas       = {};
         //profesionales           = info_profesional['info_ajax']['all_professionals'];
         // min_hora_inicio         = info_profesional['info_ajax']['min_hora_inicio'];
@@ -4677,8 +4676,6 @@ use App\Library\FuncionesGlobales;
     function show_info_cita_diaria(element){
         let obj_data_element = $(element).data();
 
-        console.log(obj_data_element);
-
         let horario = $(element).data('horainicio')+' Hrs. - '+$(element).data('horatermino')+' Hrs.';
         $("#infoBox").find("#profesional").text($(element).data('profesional'));
         $("#infoBox").find("#nombre").text($(element).data('paciente'));
@@ -4728,6 +4725,9 @@ use App\Library\FuncionesGlobales;
 
         if ($(element).hasClass('has_citas_simultaneas')){
             $("#infoBox").find(".icon-button").data('hascitassimultaneas',1);
+            $("#infoBox").find('.btn_edit_afterhours').hide();
+        } else {
+            $("#infoBox").find('.btn_edit_afterhours').show();
         }
         
         if (permiso_digital_record || permiso_clinicalData){
