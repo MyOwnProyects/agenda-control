@@ -198,6 +198,7 @@ return [
     'html_convert_simultaneous_appointment'     => 'Convertir a cita simultanea',
     'html_after_hours_appointments'             => 'Citas fuera de horario',
     'html_selected_option'                      => 'Selecciona una opcion',
+    'html_info_after_hours_appoitment'          => 'Información de la cita fuera de horario',
     
 
 

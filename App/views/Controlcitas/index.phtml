@@ -66,7 +66,7 @@ use App\Library\FuncionesGlobales;
     }
 
     /* Información de cancelación */
-    .modal_info_cita .div_info_cancelacion {
+    .modal_info_cita .div_info_estaus_cita {
     background-color: #fff3cd;
     border: 1px solid #ffeeba;
     padding: 15px;
@@ -74,7 +74,7 @@ use App\Library\FuncionesGlobales;
     margin-top: 15px;
     }
 
-    .modal_info_cita .div_info_cancelacion label {
+    .modal_info_cita .div_info_estaus_cita label {
     font-weight: bold;
     color: #856404;
     margin-bottom: 10px;
@@ -364,12 +364,6 @@ use App\Library\FuncionesGlobales;
                             <?php echo $translations['html_canceled_appoitments']; ?>
                         </label>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="filtro_citas" id="radio_canceladas" value="canceladas">
-                        <label class="form-check-label" for="radio_canceladas">
-                            <?php echo $translations['html_canceled_appoitments']; ?>
-                        </label>
-                    </div>
                     <label class="form-label"><b><?php echo $translations['html_pay_filters']; ?></b></label>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="filtro_citas_pago" id="check_pagadas" value="">
@@ -564,6 +558,37 @@ use App\Library\FuncionesGlobales;
                     <textarea rows="2" id="textarea_observaciones_cancelacion" class="form-control"></textarea>
                     <div class="invalid-feedback"><?php echo $translations['html_error_reason_cancellation']; ?></div>
                 </div>
+                <div class="div_citas_simultaneas col-md-12 mb-3 hide">
+                    <label class="mb-2">Opciones sobre citas simultáneas:</label>
+                    <div class="d-flex flex-column" role="radiogroup">
+
+                        <label class="form-check mb-2">
+                            <input type="radio" class="form-check-input tipo_accion_simultanea" name="tipo_accion_simultanea" value="solo_base" required />
+                            <span class="form-check-label">Afectar solo esta cita</span>
+                        </label>
+
+                        <label class="form-check">
+                            <input type="radio" class="form-check-input tipo_accion_simultanea" name="tipo_accion_simultanea" value="todas" required/>
+                            <span class="form-check-label">Afectar todas las citas simultáneas</span>
+                        </label>
+
+                    </div>
+
+                    <!-- Texto informativo -->
+                    <div id="infoSoloBase" class="alert alert-warning mt-3 d-none">
+                        <strong>Afectar solo esta cita</strong><br>
+                        Las demás citas simultáneas permanecerán activas.
+                        Una de ellas se convertirá en la nueva cita base.
+                    </div>
+
+                    <div id="infoTodas" class="alert alert-warning mt-3 d-none">
+                        <strong>Afectar todas las citas simultáneas</strong><br>
+                        Todas las citas cambiarán de estado y se eliminará la relación
+                        de simultaneidad. Cada cita quedará como una cita individual.
+                    </div>
+
+                    <div class="invalid-feedback"><?php echo $translations['html_error_movement_type']; ?></div>
+                </div>
                 </div>
             <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -641,7 +666,7 @@ use App\Library\FuncionesGlobales;
                     <label><?php echo $translations['html_method_payment']; ?>:</label>
                     <div id="forma_pago" class="d-block"></div>
                 </div>
-                <div class="col-md-12 div_info_cancelacion hide">
+                <div class="col-md-12 div_info_estaus_cita div_info_cancelacion hide">
                     <label><?php echo $translations['html_info_cancel_appoitment']; ?></label>
                     <div class="row">
                         <div class="col-md-4">
@@ -659,6 +684,19 @@ use App\Library\FuncionesGlobales;
                         <div class="col-md-12">
                             <label><?php echo $translations['html_observations']; ?>:</label>
                             <div id="observaciones_cancelacion" class="d-block"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 div_info_estaus_cita div_info_cita_fuera_horario hide">
+                    <label><?php echo $translations['html_info_after_hours_appoitment']; ?></label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label><?php echo $translations['html_reason']; ?>:</label>
+                            <div id="motivo_cita_fuera_horario" class="d-block"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <label><?php echo $translations['html_observations']; ?>:</label>
+                            <div id="observaciones_cita_fuera_horario" class="d-block"></div>
                         </div>
                     </div>
                 </div>
@@ -1104,7 +1142,7 @@ use App\Library\FuncionesGlobales;
                                 '</button>';
 
                                 let btn_delete  = data['activa'] == 0 || (data['vencida'] == 1 && data['activa'] == 1) ? '' : 
-                                '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" title="'+translations['cancel_appointment'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_cancelar" data-id="'+data['id_agenda_cita']+'" data-hascitassimultaneas="'+data['num_citas_simultaneas']+'" title="'+translations['cancel_appointment'] +'">' +
                                     '<i class="bi bi-calendar-x"></i>'+
                                 '</button>';
 
@@ -1168,6 +1206,7 @@ use App\Library\FuncionesGlobales;
             let id_agenda_cita  = $(element).data('id');
             let row_data        = $(element).closest('tr').data('rowData');
             console.log('id_agenda_cita',id_agenda_cita);
+            console.log('row_data ',row_data);
 
             $(modal_clone).on('click','.tipo_movimiento',function(){
                 let element = $(modal_clone).find('.tipo_movimiento:checked');
@@ -1186,7 +1225,20 @@ use App\Library\FuncionesGlobales;
                 let flag_error  = false;
                 if (form.checkValidity() === false) {
                     $(form).addClass('was-validated');
-                    flag_error  = true;
+                
+
+                    // Revisar cada campo que sea inválido
+                    const invalidFields = Array.from(form.elements).filter(el => 
+                        !el.validity.valid && $(el).is(':visible')
+                    );
+
+                    invalidFields.forEach(field => {
+                        console.log('Campo inválido:', field,field.name || field.id, field.validationMessage);
+                    });
+
+                    if (invalidFields.length > 0){
+                        flag_error = true;
+                    }
                 } else {
                     $(form).removeClass('was-validated');
                 }
@@ -1219,7 +1271,8 @@ use App\Library\FuncionesGlobales;
                         arr_id_agenda_cita          : arr_id_agenda_cita,
                         tipo_movimiento             : $(modal_clone).find('.tipo_movimiento:checked').val(),
                         texto_cita                  : texto_cita,
-                        multiappoitment             : multiappoitment
+                        multiappoitment             : multiappoitment,
+                        tipo_accion_cita_simultanea : $(modal_clone).find('.tipo_accion_simultanea:checked').val(),
                     },
                     success     : function(data){
                         $(modal_clone).modal('hide');
@@ -1245,6 +1298,26 @@ use App\Library\FuncionesGlobales;
                     }
                 });
             });
+
+            if (row_data['num_citas_simultaneas'] > 0){
+
+                $(modal_clone).find(".div_citas_simultaneas").removeClass('hide');
+
+                $(modal_clone).on('change', '.tipo_accion_simultanea', function () {
+                    console.log('aqui');
+                    let valor = $(this).val();
+
+                    $('#infoSoloBase, #infoTodas').addClass('d-none');
+
+                    if (valor === 'solo_base') {
+                        $(modal_clone).find('#infoSoloBase').removeClass('d-none');
+                    }
+
+                    if (valor === 'todas') {
+                        $(modal_clone).find('#infoTodas').removeClass('d-none');
+                    }
+                });
+            }
 
             $(modal_clone).modal('show');
         }
@@ -1376,6 +1449,12 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find("#motivo_cancelacion").text(info_cita['motivo_cancelacion']);
                 $(modal_clone).find("#observaciones_cancelacion").text(info_cita['observaciones_cancelacion']);
                 $(modal_clone).find('.div_info_cancelacion').removeClass('hide');
+            }
+
+            if (info_cita['id_motivo_cita_fuera_horario'] != null && info_cita['id_motivo_cita_fuera_horario'] != ''){
+                $(modal_clone).find("#motivo_cita_fuera_horario").text(info_cita['nombre_motivo_cita_fuera_horario']);
+                $(modal_clone).find("#observaciones_cita_fuera_horario").text(info_cita['observaciones_motivo_cita_fuera_horario']);
+                $(modal_clone).find('.div_info_cita_fuera_horario').removeClass('hide');
             }
 
             //  SE RECORREN LOS SERVICIOS
