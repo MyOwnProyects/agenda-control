@@ -309,6 +309,16 @@ class ControlcitasController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'get_info_cita_simultanea'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
