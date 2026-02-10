@@ -245,7 +245,7 @@ class ControlcitasController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
-            $aqui = 1;
+
 
             if ($accion == 'cancelar_pago' || $accion == 'capturar_pago'){
                 $info_cita  = $_POST['info_cita'];
@@ -305,6 +305,16 @@ class ControlcitasController extends BaseController
                 FuncionesGlobales::saveBitacora($this->bitacora,'MULTIPAGO',$mensaje_bitacora,$_POST['arr_id_agenda_cita']);
 
                 $response->setJsonContent('Captura exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_info_cita_simultanea'){
+                $route      = $this->url_api.$this->rutas['tbagenda_citas']['show'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($arr_info);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
@@ -370,6 +380,11 @@ class ControlcitasController extends BaseController
         $route                      = $this->url_api.$this->rutas['ctmotivos_cancelacion_cita']['show'];
         $motivos_cancelacion_cita   = FuncionesGlobales::RequestApi('GET',$route);
         $this->view->motivos_cancelacion_cita   = $motivos_cancelacion_cita;
+
+        //  MOTIVOS CITAS FUERA DE HORARIO
+        $route                          = $this->url_api.$this->rutas['motivos_citas_fuera_horario']['show'];
+        $motivos_citas_fuera_horario    = FuncionesGlobales::RequestApi('GET',$route);
+        $this->view->motivos_citas_fuera_horario    = $motivos_citas_fuera_horario;
     }
 
     function get_info_by_location(){
@@ -433,7 +448,18 @@ class ControlcitasController extends BaseController
         $route                          = $this->url_api.$this->rutas['tbagenda_citas']['show'];
         $_POST['activa']                = 1;
         $_POST['get_servicios']         = 1;
-        $arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        //$arr_return['citas_agendadas']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        $arr_citas_agendadas            = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+        $arr_citas_ordinarias       = array();
+        $arr_citas_fuera_horario    = array();
+        foreach($arr_citas_agendadas as $info_cita){
+            if (isset($info_cita['id_motivo_cita_fuera_horario']) && is_numeric($info_cita['id_motivo_cita_fuera_horario'])){
+                $arr_citas_fuera_horario[]  = $info_cita;
+            } else {
+                $arr_citas_ordinarias[] = $info_cita;
+            }
+        }
 
         foreach($horario_atencion as $id => $horario){
             $arr_return['horario_atencion'][$id]                    = FuncionesGlobales::allStructureSchedule(array($horario));
@@ -443,7 +469,7 @@ class ControlcitasController extends BaseController
             $arr_return['horario_atencion'][$id]['dias']            = $horario['dias'];
 
             //  FILTRA DE LAS CITAS DEL PACIENTE, LAS QUE CORRESPONDAN POR HORARIO
-            $arr_return['horario_atencion'][$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_return['citas_agendadas'],$horario);
+            $arr_return['horario_atencion'][$id]['citas_paciente']  = FuncionesGlobales::AppoitmentByLocation($arr_citas_ordinarias,$horario);
         }
         
         return $arr_return;
