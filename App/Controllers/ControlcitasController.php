@@ -245,7 +245,7 @@ class ControlcitasController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
-            $aqui = 1;
+
 
             if ($accion == 'cancelar_pago' || $accion == 'capturar_pago'){
                 $info_cita  = $_POST['info_cita'];
