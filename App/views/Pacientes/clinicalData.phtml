@@ -379,6 +379,10 @@ function cambiarFormatoFecha($fecha) {
                         <p class="small text-muted mb-0">Paciente: <?php echo $info_paciente['primer_apellido'].' '.$info_paciente['nombre']; ?></p>
                     </div>
                     <nav class="nav flex-column nav-pills">
+                        <a class="nav-link text-dark btn_regresar" title="Regresar">
+                            <i class="bi bi-arrow-90deg-left"></i>
+                            Regresar
+                        </a>
                         <a class="nav-link active bg-primary text-white" data-section="datos_personales">
                             <i class="bi bi-card-list"></i>
                             Datos personales
@@ -1066,6 +1070,10 @@ function cambiarFormatoFecha($fecha) {
         const url_clinical  = controller+'/clinicalData'
         const url_update    = controller+"/update";
 
+        //  PARA REGRESAR
+        let ultima_ruta = '<?php echo $ultima_ruta ?>';
+        ultima_ruta     = ultima_ruta == null || ultima_ruta == '' ? 'Pacientes' : ultima_ruta;
+
         // Variable global para almacenar la instancia de DataTable
         let table;
         let draw            = 1;
@@ -1198,9 +1206,7 @@ function cambiarFormatoFecha($fecha) {
                     ],
                     createdRow: function (row, data, dataIndex) {
                         // Guardar el objeto completo en la fila como data
-                        //console.log('data',data);
                         $(row).data('rowData', data);
-                        //console.log('rowData',data);
 
                         if (data.codigo_color != null) {
                             $(row).find('td:eq(2)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
@@ -1216,6 +1222,11 @@ function cambiarFormatoFecha($fecha) {
 
         $(document).ready(function() {
             cargarTabla();
+
+            $(".btn_regresar").on('click',function(){
+                event.stopPropagation();
+                window.location.href = `/${ultima_ruta}/`;
+            });
 
             //  CREAR SUMMERNOTE
             $('#summernote').summernote({
@@ -1430,7 +1441,6 @@ function cambiarFormatoFecha($fecha) {
                     return false;
                 }
 
-                console.log('obj_info',obj_info);
                 $.ajax({
                     url     : url_clinical,
                     method  : 'post',
@@ -1444,8 +1454,6 @@ function cambiarFormatoFecha($fecha) {
                     success : function(data){
                         showAlert('success','Captura exitosa!');
                         $("#table_results_exploracion_fisica").find('tbody').find('tr').remove();
-
-                        console.log('data',data);
 
                         let row_table   = '';
                         for(let i in data){
@@ -1576,8 +1584,6 @@ function cambiarFormatoFecha($fecha) {
                         showAlert('success','Captura exitosa!');
                         $("#table_results_motivo_consulta").find('tbody').find('tr').remove();
 
-                        console.log('data',data);
-
                         let row_table   = '';
                         for(let i in data){
                             let row = data[i];
@@ -1603,8 +1609,6 @@ function cambiarFormatoFecha($fecha) {
             //  EVENTO PARA PREVIO DE RECETAS MEDICAS
             $("#table_results_recetas").on('click','.clickable-row',function(){
                 let btn = $(this);
-                console.log('diag',$(btn).data('diagnostico'));
-                console.log('trat',$(btn).data('tratamiento'));
                 show_preview_receta(btn);
             });
             //  EVENTO QUE CACHA CUANDO PIERDE EL FOCUS UN INPUT DE EXPLORACION FISICA
@@ -1615,10 +1619,8 @@ function cambiarFormatoFecha($fecha) {
 
                 let div_header_mirror   = $(header_input).hasClass('div_exploracion_fisica') ? 'div_receta' : 'div_exploracion_fisica';
 
-                console.log('div_header_mirror value',div_header_mirror,value);
                 $('.'+div_header_mirror).find('.input_exploracion_fisica').each(function(){
                     let tmp_input_name  = $(this).data('idrow');
-                    console.log('tmp_input_name',tmp_input_name);
                     if (input_name == tmp_input_name){
                         $(this).val(value);
                         return;
@@ -1678,10 +1680,6 @@ function cambiarFormatoFecha($fecha) {
                 }
 
                 //  CAPTURA DE MOTIVOS DE CITA
-                
-
-                console.log('obj_exploracion_fisica',obj_exploracion_fisica);
-                console.log('obj_motivo_consulta',obj_motivo_consulta);
 
                 $(btn).prop('disabled',false);
 
@@ -1698,8 +1696,6 @@ function cambiarFormatoFecha($fecha) {
                         obj_info_receta         : obj_info_receta
                     },
                     success : function(data){
-                        console.log('data',data);
-
                         if (data['url_receta'] != ''){
                             window.open(data['url_receta'], '_blank');
                             window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita+'&r='+Math.floor(Math.random() * 1000);
@@ -1804,7 +1800,6 @@ function cambiarFormatoFecha($fecha) {
                         nombre_completo : nombre_completo
                     },
                     success : function(data){
-                        console.log('data',data);
 
                         if (data['url_receta'] != ''){
                             window.open(data['url_receta'], '_blank');
