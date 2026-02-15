@@ -597,7 +597,6 @@ class PacientesController extends BaseController
 
     public function digitalRecordAction(){
         //  EN CASO DE QUE SEA PETICION AJAX
-        $aqui = 1;
         if($this->request->isAjax()){
             $accion = $this->request->getPost('accion', 'string');
             $result = array();
@@ -960,6 +959,11 @@ class PacientesController extends BaseController
         $route              = $this->url_api.$this->rutas['cttranstornos_neurodesarrollo']['show'];
         $arr_transtornos    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         $this->view->arr_transtornos    = $arr_transtornos;
+        
+        //  OBTENCION DE LA RUTA DE PROCEDENCIA
+        $url_anterior   = $this->request->getHTTPReferer();
+        preg_match('/\/([^\/]+)\/?$/', $url_anterior, $matches);
+        $url_anterior   = $matches[1];
 
         //  GET AREAS DE DESARROLLO
         $route              = $this->url_api.$this->rutas['ctareas_enfoque']['show'];
@@ -980,6 +984,7 @@ class PacientesController extends BaseController
         $this->view->schedule_appointments  = FuncionesGlobales::HasAccess("Pacientes","scheduleappointments");
         $this->view->download               = FuncionesGlobales::HasAccess("Menu","download");
         $this->view->clinicalData           = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
+        $this->view->ultima_ruta            = $url_anterior;
     }
 
 
@@ -1212,6 +1217,11 @@ class PacientesController extends BaseController
             }
         }
 
+        //  OBTENCION DE LA RUTA DE PROCEDENCIA
+        $url_anterior   = $this->request->getHTTPReferer();
+        preg_match('/\/([^\/]+)\/?$/', $url_anterior, $matches);
+        $url_anterior   = $matches[1];
+
         $this->view->info_paciente  = $result['info_paciente'];
         $this->view->info_cita      = $result['info_cita'];
         $this->view->id_profesional = $this->session->get('id_profesional');
@@ -1223,6 +1233,7 @@ class PacientesController extends BaseController
         $this->view->motivo_consulta_cita       = $motivo_consulta_cita;
         $this->view->recetas_medicas            = $recetas_medicas;
         $this->view->receta_cita                = $receta_cita;
+        $this->view->ultima_ruta            = $url_anterior;
 
     }
 

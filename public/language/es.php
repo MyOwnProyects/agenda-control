@@ -192,6 +192,14 @@ return [
     'html_create_off_day'                       => 'Crear d&iacute;a inhabil',
     'html_create_professional_off_day'          => 'Crear d&iacute;a inhabil para profesioales',
     'html_type_lock'                            => 'Tipo de bloqueo',
+    'html_create_after_hours_appoitment'        => 'Crear cita fuera de horario para el día: ',
+    'html_view_after_hours_appoitment'          => 'Ver citas fuera de horario de la semana: ',
+    'html_select'                               => 'Seleccionar',
+    'html_convert_simultaneous_appointment'     => 'Convertir a cita simultanea',
+    'html_after_hours_appointments'             => 'Citas fuera de horario',
+    'html_selected_option'                      => 'Selecciona una opcion',
+    'html_info_after_hours_appoitment'          => 'Información de la cita fuera de horario',
+    'html_info_simultaneous_appointment'        => 'Información de las citas simultaneas',
     
 
 
@@ -240,4 +248,7 @@ return [
     'html_error_description'            => 'Ingrese una descripci&oacute;n',
     'html_error_date'                   => 'Ingresa una fecha',
     'html_error_type_lock'              => 'Seleccione un tipo de bloqueo',
+    'html_error_hour'                   => 'Ingrese la hora',
+    'html_error_select_appoitment'      => 'Seleccione una cita',
+    'html_error_observations'           => 'Ingrese una observacion',
 ];

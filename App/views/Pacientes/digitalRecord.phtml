@@ -396,6 +396,10 @@ function cambiarFormatoFecha($fecha) {
                     </div>
                     
                     <nav class="nav flex-column nav-pills">
+                        <a class="nav-link text-dark btn_regresar" title="Regresar">
+                            <i class="bi bi-arrow-90deg-left"></i>
+                            Regresar
+                        </a>
                         <a class="nav-link active bg-primary text-white" data-section="resumen">
                             <i class="bi bi-card-list"></i>
                             Resumen
@@ -1285,6 +1289,10 @@ function cambiarFormatoFecha($fecha) {
         diagnosticos            = JSON.parse(diagnosticos);
         let clinicalData        = '<?php echo $clinicalData; ?>';
 
+        //  PARA REGRESAR
+        let ultima_ruta = '<?php echo $ultima_ruta ?>';
+        ultima_ruta     = ultima_ruta == null || ultima_ruta == '' ? 'Pacientes' : ultima_ruta;
+
         let arr_subarea_paciente    = '<?php echo json_encode($arr_subarea_paciente); ?>';
         arr_subarea_paciente        = JSON.parse(arr_subarea_paciente);
 
@@ -1372,7 +1380,6 @@ function cambiarFormatoFecha($fecha) {
                             d.id_paciente   = id_paciente;
                         },
                         dataSrc: function (json) {
-                            console.log("DataTables Response:", json); // <---- Depuración
                             return json.data;
                         }
                     },
@@ -1751,7 +1758,6 @@ function cambiarFormatoFecha($fecha) {
             $(modal_clone).find("#tipo_cita").text(info_cita['id_cita_programada'] != null ? 'CITA PROGRAMADA' : 'CITA ORDINARIA');
             $(modal_clone).find("#estatus").text(info_cita['estatus']);
 
-            console.log("info_cita['activa']",info_cita['activa'])
             if (info_cita['activa'] != 1){
                 $(modal_clone).find("#fecha_cancelacion").text(formatearFechaExtensa(info_cita['fecha_cancelacion']));
                 $(modal_clone).find("#usuario_cancelacion").text(info_cita['usuario_cancelacion']);
@@ -1834,6 +1840,11 @@ function cambiarFormatoFecha($fecha) {
         $(document).ready(function() {
             cargarTabla();
             cargarTablaCitas();
+
+            $(".btn_regresar").on('click',function(){
+                event.stopPropagation();
+                window.location.href = `/${ultima_ruta}/`;
+            });
 
             //  CREAR SUMMERNOTE
             $('#summernote').summernote({
@@ -1980,7 +1991,6 @@ function cambiarFormatoFecha($fecha) {
                         accion      : 'save_express'
                     },
                     success : function(data){
-                        console.log('data',data);
                         showAlert('success','Edición exitosa!');
                         
                         $(".input_primer_apellido").closest('div').find('.p_datos').text($(".input_primer_apellido").val().trim());
@@ -2052,7 +2062,6 @@ function cambiarFormatoFecha($fecha) {
                 let btn = $(this);
                 $(btn).prop('disabled',true);
                 let id_agenda_cita  = $(this).data('id');
-                console.log('id_agenda_cita',id_agenda_cita);
                 $.ajax({
                     url     : url_digital,
                     method  : 'post',
@@ -2062,7 +2071,6 @@ function cambiarFormatoFecha($fecha) {
                         id_agenda_cita  : id_agenda_cita
                     },
                     success : function(data){
-                        console.log('data',data);
                         show_modal_receta(data);
                         $(btn).prop('disabled',false);
 
@@ -2515,7 +2523,6 @@ function cambiarFormatoFecha($fecha) {
                     ],
                     createdRow: function (row, data, dataIndex) {
                         // Guardar el objeto completo en la fila como data
-                        //console.log('data',data);
                         $(row).data('rowData', data);
                         
                         if (data.activa == 0) {
@@ -2798,7 +2805,6 @@ function cambiarFormatoFecha($fecha) {
                         nombre_completo : info_receta['nombre_completo']
                     },
                     success : function(data){
-                        console.log('data',data);
 
                         if (data['url_receta'] != ''){
                             window.open(data['url_receta'], '_blank');
