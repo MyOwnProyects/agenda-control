@@ -1,0 +1,355 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+/* ════════════════════════════════════════
+    BACKDROP
+════════════════════════════════════════ */
+.panel-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(1px);
+    z-index: 1039;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.panel-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ════════════════════════════════════════
+    DETAIL PANEL
+════════════════════════════════════════ */
+.detail-panel {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: 420px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(calc(100% + 1.5rem));
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.detail-panel.is-open {
+    transform: translateX(0);
+}
+
+.detail-panel-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: rgba(248, 250, 252, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.detail-icon-box {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(99, 102, 241, 0.1);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.detail-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.detail-panel-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+
+.dict-table {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.dict-table table { margin-bottom: 0; }
+
+.dict-table thead th {
+    background-color: #f8fafc;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.65rem 1rem;
+}
+
+.dict-table tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dict-table tbody tr:last-child td { border-bottom: none; }
+
+.dict-table tbody tr:hover td { background-color: rgba(248, 250, 252, 0.6); }
+
+.tip-box {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-dismiss {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    width: 100%;
+    transition: background 0.2s;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.btn-dismiss:hover { background-color: #1e293b; color: white; }
+
+@media (max-width: 768px) {
+    .detail-panel { width: calc(100% - 2rem); }
+}
+</style>
+
+<div class="container mt-4">
+
+    <!-- Selección de Reporte -->
+    <div>
+        <h2>Reportes Administrativos</h2>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Selección de Reporte</h5>
+        </div>
+        <div class="card-body">
+            <form class="row g-3">
+                <div class="col-md-10">
+                    <label class="form-label">Tipo de Reporte</label>
+                    <select class="form-select" id="reportSelect">
+                        <option value="appointments">Reporte General de Citas</option>
+                        <option value="revenue">Ingresos y Facturación</option>
+                        <option value="demographics">Demografía de Pacientes</option>
+                        <option value="performance">Productividad por Profesional</option>
+                        <option value="cancellations">Análisis de Cancelaciones</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-dark w-100" id="infoBtn">
+                        <i class="bi bi-info-circle"></i>
+                        Detalles
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros de Búsqueda -->
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5>Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" class="form-control" id="input_fecha_inicio">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" class="form-control" id="input_fecha_fin">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Locación / Sucursal</label>
+                    <select class="form-select" id="input_locacion">
+                        <option>Todas las locaciones</option>
+                        <option>Matriz Central</option>
+                        <option>Sucursal Norte</option>
+                        <option>Clínica del Valle</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Médico / Profesional</label>
+                    <select class="form-select" id="input_medico">
+                        <option>Todos los profesionales</option>
+                        <option>Dr. Armando Casas</option>
+                        <option>Dra. Elena Nito</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de Consulta</label>
+                    <select class="form-select" id="input_tipo">
+                        <option>Todos los tipos</option>
+                        <option>Primera vez</option>
+                        <option>Seguimiento</option>
+                        <option>Urgencia</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Estatus de Pago</label>
+                    <div class="d-flex flex-wrap gap-3 pt-1">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkPagadas" checked>
+                            <label class="form-check-label" for="chkPagadas">Pagadas</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkPendientes">
+                            <label class="form-check-label" for="chkPendientes">Pendientes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkCanceladas">
+                            <label class="form-check-label" for="chkCanceladas">Canceladas</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkCortecias">
+                            <label class="form-check-label" for="chkCortecias">Cortesías</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnLimpiar">
+                        <i class="bi bi-funnel"></i>
+                        Limpiar Filtros
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnExportar">
+                        <i class="bi bi-file-earmark-arrow-down"></i>
+                        Exportar a Excel
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Backdrop -->
+<div class="panel-backdrop" id="panelBackdrop"></div>
+
+<!-- ════════════════════════════════════════
+     DETAIL PANEL (floating, slides in from right)
+════════════════════════════════════════ -->
+<aside class="detail-panel" id="detailPanel" aria-label="Detalles del reporte">
+
+    <!-- Panel Header -->
+    <div class="detail-panel-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="detail-icon-box">
+                <i class="bi bi-file-text"></i>
+            </div>
+            <h2 class="h6 fw-bold mb-0">Detalles del Reporte</h2>
+        </div>
+        <button class="btn btn-icon" id="closePanel" aria-label="Cerrar panel">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <!-- Panel Body -->
+    <div class="detail-panel-body">
+
+        <!-- Report name -->
+        <div>
+            <p class="panel-section-label">Reporte Seleccionado</p>
+            <h4 class="fw-semibold mb-2" style="font-size:1rem;" id="panelReportTitle">Reporte General de Citas</h4>
+            <p class="text-secondary small lh-lg mb-0">
+                Este reporte permite analizar la ocupación de consultorios por semana y obtener un desglose detallado de la actividad clínica. Es la herramienta principal para el control de asistencia y seguimiento de pacientes en el periodo administrativo vigente.
+            </p>
+        </div>
+
+        <!-- Data dictionary -->
+        <div>
+            <p class="panel-section-label">Diccionario de Datos</p>
+            <div class="dict-table">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Columna</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="fw-medium text-nowrap">Nombre del Paciente</td>
+                            <td>Identificador oficial del paciente registrado en su ficha clínica.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Estado</td>
+                            <td>Situación actual de la cita (Agendada, Confirmada, Cancelada o Finalizada).</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-nowrap">Folio Cita</td>
+                            <td>Código único alfanumérico generado por el sistema para auditoría.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium">Diagnóstico</td>
+                            <td>Resumen de la nota médica preliminar cargada por el profesional.</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-nowrap">Método Pago</td>
+                            <td>Vía por la cual se liquidaron los honorarios (Efectivo, Tarjeta, Seguro).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tip box -->
+        <div class="tip-box">
+            <i class="bi bi-lightbulb text-warning fs-5 flex-shrink-0"></i>
+            <p>
+                <strong>Nota:</strong> Los datos mostrados en este diccionario corresponden a la versión más reciente del esquema de reportes (v2.4).
+            </p>
+        </div>
+
+    </div><!-- /panel body -->
+
+    <!-- Panel Footer -->
+    <div class="detail-panel-footer">
+        <button class="btn-dismiss" id="dismissBtn">Entendido</button>
+    </div>
+
+</aside><!-- /detail-panel -->
+
+<script>
+    var modulo_reporteador  = (function(){
+        $(document).ready(function(){
+            $('#infoBtn').on('click', function(){
+                $('#detailPanel, #panelBackdrop').addClass('is-open');
+            });
+            $('#closePanel, #dismissBtn, #panelBackdrop').on('click', function(){
+                $('#detailPanel, #panelBackdrop').removeClass('is-open');
+            });
+
+            // ── Sync panel title with selected report ──
+            $('#reportSelect').on('change', function () {
+                $('#panelReportTitle').text($(this).find('option:selected').text());
+            });
+        });
+
+        //  FUNCIONES
+    })();
+</script>
