@@ -132,6 +132,10 @@ use App\Library\FuncionesGlobales;
 @media (max-width: 768px) {
     .detail-panel { width: calc(100% - 2rem); }
 }
+
+.hide {
+    display: none!important;
+}
 </style>
 
 <div class="container mt-4">
@@ -148,16 +152,13 @@ use App\Library\FuncionesGlobales;
             <form class="row g-3">
                 <div class="col-md-10">
                     <label class="form-label">Tipo de Reporte</label>
-                    <select class="form-select" id="reportSelect">
-                        <option value="appointments">Reporte General de Citas</option>
-                        <option value="revenue">Ingresos y Facturación</option>
-                        <option value="demographics">Demografía de Pacientes</option>
-                        <option value="performance">Productividad por Profesional</option>
-                        <option value="cancellations">Análisis de Cancelaciones</option>
+                    <select class="form-select" id="select_tipo_reporte">
+                        <option class="option_clear" value="" selected>Selecciona una opción</option>
+                        <option value="general_citas">Reporte General de Citas</option>
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-dark w-100" id="infoBtn">
+                    <button type="button" class="btn btn-outline-dark w-100 hide" id="btn_panel_informacion">
                         <i class="bi bi-info-circle"></i>
                         Detalles
                     </button>
@@ -172,77 +173,67 @@ use App\Library\FuncionesGlobales;
             <h5>Filtros de Búsqueda</h5>
         </div>
         <div class="card-body">
-            <form id="searchForm" class="row g-3">
+            <form id="form_filtros_generales" class="row g-3">
 
                 <div class="col-md-4">
-                    <label class="form-label">Fecha Inicio</label>
-                    <input type="date" class="form-control" id="input_fecha_inicio">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Fin</label>
-                    <input type="date" class="form-control" id="input_fecha_fin">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Locación / Sucursal</label>
-                    <select class="form-select" id="input_locacion">
-                        <option>Todas las locaciones</option>
-                        <option>Matriz Central</option>
-                        <option>Sucursal Norte</option>
-                        <option>Clínica del Valle</option>
+                    <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Médico / Profesional</label>
-                    <select class="form-select" id="input_medico">
-                        <option>Todos los profesionales</option>
-                        <option>Dr. Armando Casas</option>
-                        <option>Dra. Elena Nito</option>
+                    <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales" class="select_profesionales">
+                        <option value=""></option>
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Tipo de Consulta</label>
-                    <select class="form-select" id="input_tipo">
-                        <option>Todos los tipos</option>
-                        <option>Primera vez</option>
-                        <option>Seguimiento</option>
-                        <option>Urgencia</option>
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+                    <select id="select_pacientes" class="select_pacientes">
+                        <option value=""></option>
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Estatus de Pago</label>
-                    <div class="d-flex flex-wrap gap-3 pt-1">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkPagadas" checked>
-                            <label class="form-check-label" for="chkPagadas">Pagadas</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkPendientes">
-                            <label class="form-check-label" for="chkPendientes">Pendientes</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkCanceladas">
-                            <label class="form-check-label" for="chkCanceladas">Canceladas</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkCortecias">
-                            <label class="form-check-label" for="chkCortecias">Cortesías</label>
-                        </div>
+                    <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_starting_date']; ?>">
                     </div>
                 </div>
-
-                <div class="col-md-12 text-end">
-                    <button type="button" class="btn btn-outline-dark" id="btnLimpiar">
-                        <i class="bi bi-funnel"></i>
-                        Limpiar Filtros
-                    </button>
-                    <button type="button" class="btn btn-success" id="btnExportar">
-                        <i class="bi bi-file-earmark-arrow-down"></i>
-                        Exportar a Excel
-                    </button>
+                <div class="col-md-4">
+                    <label for="input_rango_fecha_termino" class="form-label"><?php echo $translations['html_ending_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_ending_date']; ?>">
+                    </div>
                 </div>
 
             </form>
         </div>
+    </div>
+
+    <div id="header_especific_filters" class="card mb-4 hide">
+        <div class="card-header">
+            <h5>Filtros especificos</h5>
+        </div>
+        <div class="card-body div_filtros_especificos div_filtros_especificos_general_citas hide">
+            <form id="form_general_citas" class="row g-3">
+
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-12 text-end">
+        <button type="button" class="btn btn-outline-dark" id="btnLimpiar">
+            <i class="bi bi-funnel"></i>
+            Limpiar Filtros
+        </button>
+        <button type="button" class="btn btn-success" id="btnExportar">
+            <i class="bi bi-file-earmark-arrow-down"></i>
+            Exportar a Excel
+        </button>
     </div>
 </div>
 
@@ -250,10 +241,7 @@ use App\Library\FuncionesGlobales;
 <!-- Backdrop -->
 <div class="panel-backdrop" id="panelBackdrop"></div>
 
-<!-- ════════════════════════════════════════
-     DETAIL PANEL (floating, slides in from right)
-════════════════════════════════════════ -->
-<aside class="detail-panel" id="detailPanel" aria-label="Detalles del reporte">
+<aside class="detail-panel" id="panel_detalles" aria-label="Detalles del reporte">
 
     <!-- Panel Header -->
     <div class="detail-panel-header">
@@ -273,10 +261,9 @@ use App\Library\FuncionesGlobales;
 
         <!-- Report name -->
         <div>
-            <p class="panel-section-label">Reporte Seleccionado</p>
-            <h4 class="fw-semibold mb-2" style="font-size:1rem;" id="panelReportTitle">Reporte General de Citas</h4>
-            <p class="text-secondary small lh-lg mb-0">
-                Este reporte permite analizar la ocupación de consultorios por semana y obtener un desglose detallado de la actividad clínica. Es la herramienta principal para el control de asistencia y seguimiento de pacientes en el periodo administrativo vigente.
+            <h4 class="fw-semibold mb-2" style="font-size:1rem;" id="titulo_reporte"></h4>
+            <p id="descripcion_reporte" class="text-secondary small lh-lg mb-0">
+                
             </p>
         </div>
 
@@ -291,34 +278,15 @@ use App\Library\FuncionesGlobales;
                             <th>Descripción</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="fw-medium text-nowrap">Nombre del Paciente</td>
-                            <td>Identificador oficial del paciente registrado en su ficha clínica.</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-medium">Estado</td>
-                            <td>Situación actual de la cita (Agendada, Confirmada, Cancelada o Finalizada).</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-medium text-nowrap">Folio Cita</td>
-                            <td>Código único alfanumérico generado por el sistema para auditoría.</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-medium">Diagnóstico</td>
-                            <td>Resumen de la nota médica preliminar cargada por el profesional.</td>
-                        </tr>
-                        <tr>
-                            <td class="fw-medium text-nowrap">Método Pago</td>
-                            <td>Vía por la cual se liquidaron los honorarios (Efectivo, Tarjeta, Seguro).</td>
-                        </tr>
+                    <tbody id="body_columnas">
+                        
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- Tip box -->
-        <div class="tip-box">
+        <div class="tip-box hide">
             <i class="bi bi-lightbulb text-warning fs-5 flex-shrink-0"></i>
             <p>
                 <strong>Nota:</strong> Los datos mostrados en este diccionario corresponden a la versión más reciente del esquema de reportes (v2.4).
@@ -336,20 +304,172 @@ use App\Library\FuncionesGlobales;
 
 <script>
     var modulo_reporteador  = (function(){
+        const controller    = '/Controlcitas';
+        const url_index     = controller+"/index";
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>",
+            schedule_availability   : "<?= $translations['html_schedule_availability']?>",
+            error_selected_location : "<?= $translations['error_selected_location']?>",
+            error_professional      : "<?= $translations['html_error_professional']?>",
+            error_selected_patient  : "<?= $translations['html_error_selected_patient']?>",
+            error_starting_date     : "<?= $translations['html_error_starting_date']?>",
+            appoinment_edit         : "<?= $translations['html_appoinment_edit']?>",
+            cancel_appointment      : "<?= $translations['html_cancel_appointment']?>",
+            register_payment        : "<?= $translations['html_register_payment']?>",
+            pay                     : "<?= $translations['html_pay']?>",
+            cancel_payment          : "<?= $translations['html_cancel_payment']?>",
+            selected_option         : "<?= $translations['html_selected_option']?>",
+            info_simultaneous_appointment   : "<?= $translations['html_info_simultaneous_appointment']?>",
+        };
+
         $(document).ready(function(){
-            $('#infoBtn').on('click', function(){
-                $('#detailPanel, #panelBackdrop').addClass('is-open');
-            });
-            $('#closePanel, #dismissBtn, #panelBackdrop').on('click', function(){
-                $('#detailPanel, #panelBackdrop').removeClass('is-open');
+
+            // Initialize the select elements
+            $('.select_locaciones').select2({
+                placeholder: translations['error_selected_location']
             });
 
-            // ── Sync panel title with selected report ──
-            $('#reportSelect').on('change', function () {
-                $('#panelReportTitle').text($(this).find('option:selected').text());
+            $('.select_profesionales').select2({
+                placeholder: translations['error_professional'],
+                allowClear: true
+            });
+
+            if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
+                fill_profesionales($("#select_locaciones").val());
+            }
+
+            $('#select_pacientes').select2({
+                placeholder: translations['error_selected_patient'],
+                width: '50px',
+                minimumInputLength: 3,
+                allowClear : true,
+                ajax: {
+                    url: url_index,
+                    method: 'post',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        cadena_enviada  = params.term;
+                        return {
+                            accion: 'fill_combo',
+                            cadena: params.term,
+                            form_select2_pacientes  : true
+                        };
+                    },
+                    processResults: function (data) {
+                        // Aquí adaptamos la respuesta al formato que select2 necesita
+                        return {
+                            results: data.map(function (item) {
+                                if (item.id == -1) return true;
+                                return {
+                                    id: item.id,
+                                    text: item.celular + ' - ' + item.nombre_completo,
+                                    nombre: item.nombre,
+                                    primer_apellido: item.primer_apellido,
+                                    segundo_apellido: item.segundo_apellido,
+                                    celular: item.celular
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            //  EVENTO PARA ABRIR MODAL DE AYUDA
+            $('#btn_panel_informacion').on('click', function(){
+                $('#panel_detalles, #panelBackdrop').addClass('is-open');
+            });
+
+            //  EVENTO PARA CERRAR MODAL DE AYUDA
+            $('#closePanel, #dismissBtn, #panelBackdrop').on('click', function(){
+                $('#panel_detalles, #panelBackdrop').removeClass('is-open');
+            });
+
+            //  EVENTO PARA SELECCIONAR EL TIPO DE REPORTE
+            $('#select_tipo_reporte').on('change', function () {
+
+                $(this).find('.option_clear').prop('disabled',true);
+                $("#btn_panel_informacion").removeClass('hide');
+
+                let tipo_reporte    = $(this).val();
+
+                //  INFORMACION DEL REPORTE PARA MOSTRAR EN PANEL
+                let info_reporte    = data_reportes($(this).val());
+
+                $("#panel_detalles").find('#titulo_reporte').text(info_reporte['titulo']);
+                $("#panel_detalles").find('#descripcion_reporte').text(info_reporte['descripcion']);
+
+                //  SE LIMPIAN LOS REGISTROS DE LA TABLA
+                $("#panel_detalles").find('#body_columnas').html('');
+                for(let info_columna of Object.values(info_reporte.datos_tabla)){
+                    let row =   '<tr id="template_row_reporte">'+
+                                    '<td class="fw-medium columna">'+info_columna.columna+'</td>'+
+                                    '<td class="descripcion">'+info_columna.descripcion+'</td>'+
+                                '</tr>';
+
+                    console.log(row);
+
+                    $("#panel_detalles").find('#body_columnas').append(row);
+                }
+
+                //  SE MUESTRA EL DIV DE LOS FILTROS
+                $("#header_filters").removeClass('hide');
+                $(".div_filtros_especificos").addClass('hide');
+                $(".div_filtros_especificos_"+tipo_reporte).removeClass('hide');
+
+                if ($(".div_filtros_especificos_"+tipo_reporte+':visible').length > 0){
+                    $("#header_especific_filters").removeClass('hide');
+                } else {
+                    $("#header_especific_filters").addCLass('hide');
+                }
             });
         });
 
         //  FUNCIONES
+        function fill_profesionales(id_locacion){
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                data        : {
+                    accion      : 'fill_profesionales',
+                    id_locacion : id_locacion
+                },
+                success     : function(data){
+
+                    $("#select_profesionales").val(null).trigger('change');
+                    $("#select_profesionales").find('option').remove();
+
+                    let options = '<option></option>';
+                    for(let i in data){
+                        options += '<option value="'+data[i]['id']+'">'+data[i]['nombre_completo']+'</option>';
+                    }
+                    
+                    $("#select_profesionales").append(options);
+                },
+                error     : function(error){
+                    $("#select_profesionales").val(null).trigger('change');
+                    $("#select_profesionales").find('option').remove();
+                    $("#select_profesionales").append('<option></option>');
+                }
+            })
+        }
     })();
 </script>

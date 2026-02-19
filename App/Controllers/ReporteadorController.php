@@ -23,24 +23,31 @@ class ReporteadorController extends BaseController
     public function IndexAction(){
 
         if ($this->request->isAjax()){
-            $route          = $this->url_api.$this->rutas['dashboard_menu']['show'];
-            $data_dashboard = FuncionesGlobales::RequestApi('GET',$route);
+            if ($accion == 'fill_profesionales'){
+                $route      = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
-            $response = new Response();
-
-            if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
-                $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
-                $response->setStatusCode(404, 'Error');
+                $response = new Response();
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
                 return $response;
             }
 
-            $response->setJsonContent(array(
-                'citas' => $data_dashboard['citas'],
-                'fecha_actual_label'    => $data_dashboard['fecha_actual_label']
-            ));
-            $response->setStatusCode(200, 'OK');
-            return $response;
+            if ($accion == 'fill_combo'){
+                $route      = $this->url_api.$this->rutas['ctpacientes']['fill_combo'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
+
+        $route                  = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $arr_locaciones= FuncionesGlobales::RequestApi('GET',$route,array('onlyallowed' => 1));
+
+        $this->view->arr_locaciones     = $arr_locaciones; 
     }
 
 }
