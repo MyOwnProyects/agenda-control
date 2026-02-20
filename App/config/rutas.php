@@ -131,6 +131,9 @@ return [
     'ctmotivos_bloqueo_agenda'  => array(
         'show'  => "/ctmotivos_bloqueo_agenda/show",
     ),
+    'reportes'  => array(
+        'general_citas' => '/reportes/general_citas',
+    ),
     'motivos_citas_fuera_horario'   => array(
         'show'  => '/motivos_citas_fuera_horario/show'
     )

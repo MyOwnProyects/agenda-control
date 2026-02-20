@@ -653,6 +653,9 @@ class FuncionesGlobales{
             case 'recetas':
                 $path_save = '/tmp/';
                 break;
+            case 'reportes':
+                $path_save = '/tmp/';
+                break;
             case 'otros':
                 $path_save = '/otros_documentos/';
                 break;

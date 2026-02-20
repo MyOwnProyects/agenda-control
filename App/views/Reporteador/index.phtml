@@ -200,13 +200,13 @@ use App\Library\FuncionesGlobales;
                 <div class="col-md-4">
                     <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_starting_date']; ?></label>
                     <div class="input-group">
-                        <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_starting_date']; ?>">
+                        <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_starting_date']; ?>" required>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label for="input_rango_fecha_termino" class="form-label"><?php echo $translations['html_ending_date']; ?></label>
                     <div class="input-group">
-                        <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_ending_date']; ?>">
+                        <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_ending_date']; ?>" required>
                     </div>
                 </div>
 
@@ -304,7 +304,7 @@ use App\Library\FuncionesGlobales;
 
 <script>
     var modulo_reporteador  = (function(){
-        const controller    = '/Controlcitas';
+        const controller    = '/Reporteador';
         const url_index     = controller+"/index";
 
         //  language
@@ -425,8 +425,6 @@ use App\Library\FuncionesGlobales;
                                     '<td class="descripcion">'+info_columna.descripcion+'</td>'+
                                 '</tr>';
 
-                    console.log(row);
-
                     $("#panel_detalles").find('#body_columnas').append(row);
                 }
 
@@ -438,8 +436,63 @@ use App\Library\FuncionesGlobales;
                 if ($(".div_filtros_especificos_"+tipo_reporte+':visible').length > 0){
                     $("#header_especific_filters").removeClass('hide');
                 } else {
-                    $("#header_especific_filters").addCLass('hide');
+                    $("#header_especific_filters").addClass('hide');
                 }
+            });
+
+            $("#btnExportar").on('click',function(){
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+
+                const form = $('#form_filtros_generales')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                
+                if (!form.checkValidity()) {
+                    $(form).addClass('was-validated');
+                    
+
+                    // Revisar cada campo que sea inválido
+                    const invalidFields = Array.from(form.elements).filter(el => 
+                        !el.validity.valid && $(el).is(':visible')
+                    );
+
+                    invalidFields.forEach(field => {
+                        console.log('Campo inválido:', field,field.name || field.id, field.validationMessage);
+                    });
+
+                    if (invalidFields.length > 0){
+                        flag_error = true;
+                    }
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion          : 'reportes',
+                        tipo_reporte    : $("#select_tipo_reporte").val(),
+                        rango_fechas    : {
+                            fecha_inicio    : $("#input_rango_fecha_inicio").val(),
+                            fecha_termino   : $("#input_rango_fecha_termino").val(),
+                        }
+                    },
+                    success     : function(data){
+                        console.log('data',data);
+                        $(btn).prop('disabled',false);
+                        window.open(data['path_file'], '_blank');
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
             });
         });
 
