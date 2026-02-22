@@ -48,7 +48,7 @@ class ReporteadorController extends BaseController
             }
 
             if ($accion == 'reportes'){
-
+                set_time_limit(3000);
                 $route_file     = array();
                 $tipo_reporte   = $_POST['tipo_reporte'];
 
@@ -56,8 +56,8 @@ class ReporteadorController extends BaseController
                     case 'general_citas':
                         $route_file = $this->reporte_general_citas();
                         break;
-                    case 'pacientes':
-                        echo "i igual 1";
+                    case 'general_ingresos':
+                        $route_file = $this->reporte_general_ingresos();
                         break;
                 }
 
@@ -98,6 +98,7 @@ class ReporteadorController extends BaseController
             // 1. Crear nueva hoja de cálculo
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Resumen general de citas');
 
             $sheet->mergeCells('A1:E1');
             $sheet->setCellValue('A1', 'REPORTE GENERAL DE CITAS');
@@ -110,8 +111,11 @@ class ReporteadorController extends BaseController
             $sheet->setCellValue('A5', 'Hora de impresión: ');
             $sheet->setCellValue('B5', date('H:i:s'));
 
-            $sheet->setCellValue('A6', 'Generado por:');
-            $sheet->setCellValue('B6', $info_usuario);
+            $sheet->setCellValue('A6', 'Rango de fechas: ');
+            $sheet->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet->setCellValue('A7', 'Generado por:');
+            $sheet->setCellValue('B7', $info_usuario);
 
             // == ESTILOS ==
 
@@ -149,7 +153,7 @@ class ReporteadorController extends BaseController
             ]);
 
             // Etiquetas de info
-            $sheet->getStyle('A4:A6')->applyFromArray([
+            $sheet->getStyle('A4:A7')->applyFromArray([
                 'font' => ['bold' => true],
                 'fill' => [
                     'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -157,23 +161,23 @@ class ReporteadorController extends BaseController
                 ],
             ]);
 
-            $sheet->setCellValue('A8', 'FECHA DE LA CITA');
-            $sheet->setCellValue('B8', 'DÍA');
-            $sheet->setCellValue('C8', 'HORA INICIO');
-            $sheet->setCellValue('D8', 'HORA TERMINO');
-            $sheet->setCellValue('E8', 'SERVICIO(S)');
-            $sheet->setCellValue('F8', 'ESTATUS');
-            $sheet->setCellValue('G8', 'PROFESIONAL');
-            $sheet->setCellValue('H8', 'PACIENTE');
-            $sheet->setCellValue('I8', 'FECHA DE NACIMIENTO');
-            $sheet->setCellValue('J8', 'EDAD ACTUAL');
-            $sheet->setCellValue('K8', 'CELULAR');
-            $sheet->setCellValue('L8', 'FECHA DE CAPTURA');
-            $sheet->setCellValue('M8', 'ESTATUS DE ASISTENCIA');
-            $sheet->setCellValue('N8', 'TOTAL');
-            $sheet->setCellValue('O8', 'PAGADA');
+            $sheet->setCellValue('A9', 'FECHA DE LA CITA');
+            $sheet->setCellValue('B9', 'DÍA');
+            $sheet->setCellValue('C9', 'HORA INICIO');
+            $sheet->setCellValue('D9', 'HORA TERMINO');
+            $sheet->setCellValue('E9', 'SERVICIO(S)');
+            $sheet->setCellValue('F9', 'ESTATUS');
+            $sheet->setCellValue('G9', 'PROFESIONAL');
+            $sheet->setCellValue('H9', 'PACIENTE');
+            $sheet->setCellValue('I9', 'FECHA DE NACIMIENTO');
+            $sheet->setCellValue('J9', 'EDAD');
+            $sheet->setCellValue('K9', 'CELULAR');
+            $sheet->setCellValue('L9', 'FECHA DE CAPTURA');
+            $sheet->setCellValue('M9', 'ESTATUS DE ASISTENCIA');
+            $sheet->setCellValue('N9', 'TOTAL');
+            $sheet->setCellValue('O9', 'PAGADA');
 
-            $sheet->getStyle('A8:O8')->applyFromArray([
+            $sheet->getStyle('A9:O9')->applyFromArray([
                 'font' => [
                     'bold'  => true,
                     'color' => ['argb' => 'FFFFFFFF'],
@@ -184,8 +188,12 @@ class ReporteadorController extends BaseController
                 ],
             ]);
 
+            $sheet->getStyle('J11:J'.(count($arr_rows) + 11))
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
             // 4. Llenar datos
-            $columna    = 9;
+            $columna    = 10;
             foreach ($arr_rows as $row) {
                 $sheet->setCellValue('A'.$columna, $row['fecha_cita']);
                 $sheet->setCellValue('B'.$columna, $row['label_dia']);
@@ -196,7 +204,12 @@ class ReporteadorController extends BaseController
                 $sheet->setCellValue('G'.$columna, $row['nombre_profesional']);
                 $sheet->setCellValue('H'.$columna, $row['nombre'].' '.$row['primer_apellido'].' '.$row['segundo_apellido']);
                 $sheet->setCellValue('I'.$columna, $row['fecha_nacimiento']);
-                $sheet->setCellValue('J'.$columna, $row['edad_actual']);
+                //$sheet->setCellValue('J'.$columna, $row['edad_actual']);
+                $sheet->setCellValueExplicit(
+                    'J'.$columna,
+                    $row['edad_actual'],
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                );
                 $sheet->setCellValue('K'.$columna, $row['celular']);
                 $sheet->setCellValue('L'.$columna, $row['fecha_captura']);
                 $sheet->setCellValue('M'.$columna, $row['label_asistencia']);
@@ -228,6 +241,312 @@ class ReporteadorController extends BaseController
             // 5. Guardar archivo
             $writer     = new Xlsx($spreadsheet);
             $file_name  = 'reporte_general_citas.xlsx';
+            $writer->save($path_file.$file_name);
+
+            return [
+                'path_file'     => FuncionesGlobales::get_url_download('reportes',$file_name),
+                'error_msg'     => '',
+                'status_code'   => 200
+            ];
+
+        } catch(\Exception $e){
+            return [
+                'path_file'     => '',
+                'error_msg'     => $e->getMessage(),
+                'status_code'   => $e->getCode()
+            ];
+        }
+    }
+
+    //  REPORTE GENERAL DE CITAS
+    public function reporte_general_ingresos(){
+        try{
+
+            $route      = $this->url_api.$this->rutas['reportes']['general_ingresos'];
+            $arr_rows   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+            if (isset($arr_rows['status_code']) && $arr_rows['status_code'] > 399){
+                throw new Exception($arr_rows['error'],$arr_rows['status_code']);
+            }
+
+            $info_usuario   = $this->session->get('nombre').' '.$this->session->get('primer_apellido');
+
+            // 1. Crear nueva hoja de cálculo
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Resumen general de ingresos');
+
+            $sheet->mergeCells('A1:E1');
+            $sheet->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet->mergeCells('A2:E2');
+            $sheet->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet->setCellValue('B4', date('d/m/Y'));
+
+            $sheet->setCellValue('A5', 'Hora de impresión: ');
+            $sheet->setCellValue('B5', date('H:i:s'));
+
+            $sheet->setCellValue('A6', 'Rango de fechas: ');
+            $sheet->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet->setCellValue('A7', 'Generado por:');
+            $sheet->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+
+            //  INFORMACION DE LA HOJA 1
+            $sheet->setCellValue('A9', 'Indicador');
+            $sheet->setCellValue('B9', 'Valor');
+
+            $sheet->getStyle('A9:B9')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'color' => ['argb' => 'FFFFFFFF'], // Letras blancas
+                    'name'  => 'Arial',
+                    'size'  => 11,
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF000000'], // Fondo negro
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            $sheet->setCellValue('A10', 'Total de pagos en efectivo');
+            $sheet->setCellValue('B10', '$'.FuncionesGlobales::formatoMonetario($arr_rows['hoja_1']['total_efectivo']));
+
+            $sheet->setCellValue('A11', 'Total de pagos por transferencia');
+            $sheet->setCellValue('B11', '$'.FuncionesGlobales::formatoMonetario($arr_rows['hoja_1']['total_transferencia']));
+
+            $sheet->setCellValue('A12', 'Total');
+            $sheet->setCellValue('B12', '$'.FuncionesGlobales::formatoMonetario($arr_rows['hoja_1']['total_pagos']));
+
+            $sheet->getStyle('A9:B12')->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color'       => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ]);
+
+            $sheet2 = $spreadsheet->createSheet();
+
+            $sheet2->setTitle('DETALLE DE INFORMACIÓN');
+
+            $sheet2->mergeCells('A1:E1');
+            $sheet2->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet2->mergeCells('A2:E2');
+            $sheet2->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet2->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet2->setCellValue('B4', date('d/m/Y'));
+
+            $sheet2->setCellValue('A5', 'Hora de impresión: ');
+            $sheet2->setCellValue('B5', date('H:i:s'));
+
+            $sheet2->setCellValue('A6', 'Rango de fechas: ');
+            $sheet2->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet2->setCellValue('A7', 'Generado por:');
+            $sheet2->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet2->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet2->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet2->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+        
+            foreach (range('A', 'E') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $sheet2->setTitle('DETALLE DE INFORMACIÓN');
+
+            $sheet2->mergeCells('A1:E1');
+            $sheet2->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet2->mergeCells('A2:E2');
+            $sheet2->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet2->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet2->setCellValue('B4', date('d/m/Y'));
+
+            $sheet2->setCellValue('A5', 'Hora de impresión: ');
+            $sheet->setCellValue('B5', date('H:i:s'));
+
+            $sheet2->setCellValue('A6', 'Rango de fechas: ');
+            $sheet2->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet2->setCellValue('A7', 'Generado por:');
+            $sheet2->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet2->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet2->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet2->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+            
+
+            $sheet2->setCellValue('A9', 'FECHA DE PAGO');
+            $sheet2->setCellValue('B9', 'TOTAL POR TRANSFERENCIAS');
+            $sheet2->setCellValue('C9', 'TOTAL POR EFECTIVO');
+            $sheet2->setCellValue('D9', 'TOTAL PAGADO');
+
+            $sheet2->getStyle('A9:D9')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF000000'],
+                ],
+            ]);
+
+            // 4. Llenar datos
+            $columna    = 10;
+            foreach ($arr_rows['hoja_2'] as $row) {
+                $sheet2->setCellValue('A'.$columna, $row['fecha_pago']);
+                $sheet2->setCellValue('B'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_transferencia']));
+                $sheet2->setCellValue('C'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_efectivo']));
+                $sheet2->setCellValue('D'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_pagos']));
+
+                $columna++;
+            }
+
+            foreach (range('A', 'E') as $col) {
+                $sheet2->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $spreadsheet->setActiveSheetIndex(0);
+
+            $path_file = FuncionesGlobales::get_path_file('reportes');
+
+            // 5. Guardar archivo
+            $writer     = new Xlsx($spreadsheet);
+            $file_name  = 'reporte_general_ingresos.xlsx';
             $writer->save($path_file.$file_name);
 
             return [

@@ -150,17 +150,18 @@ use App\Library\FuncionesGlobales;
         </div>
         <div class="card-body">
             <form class="row g-3">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <label class="form-label">Tipo de Reporte</label>
                     <select class="form-select" id="select_tipo_reporte">
                         <option class="option_clear" value="" selected>Selecciona una opción</option>
-                        <option value="general_citas">Reporte General de Citas</option>
+                        <option value="general_citas">General de Citas</option>
+                        <option value="general_ingresos">General de Ingresos</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-dark w-100 hide" id="btn_panel_informacion">
-                        <i class="bi bi-info-circle"></i>
-                        Detalles
+                <div class="col-md-4 d-flex align-items-end justify-content-end">
+                    <button type="button" class="btn btn-outline-dark w-50 hide" id="btn_panel_informacion">
+                        <i class="bi bi-info-circle align-middle"></i>
+                        <span class="align-middle">Detalles</span>
                     </button>
                 </div>
             </form>
@@ -192,7 +193,7 @@ use App\Library\FuncionesGlobales;
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="nameFilter" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+                    <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
                     <select id="select_pacientes" class="select_pacientes">
                         <option value=""></option>
                     </select>
@@ -227,12 +228,12 @@ use App\Library\FuncionesGlobales;
 
     <div class="col-md-12 text-end">
         <button type="button" class="btn btn-outline-dark" id="btnLimpiar">
-            <i class="bi bi-funnel"></i>
-            Limpiar Filtros
+            <i class="bi bi-funnel align-middle"></i>
+            <span class="align-middle">Limpiar Filtros</span>
         </button>
         <button type="button" class="btn btn-success" id="btnExportar">
-            <i class="bi bi-file-earmark-arrow-down"></i>
-            Exportar a Excel
+            <i class="bi bi-file-earmark-arrow-down align-middle"></i>
+            <span class="align-middle">Exportar a Excel</span>
         </button>
     </div>
 </div>
@@ -347,7 +348,7 @@ use App\Library\FuncionesGlobales;
             });
 
             $('.select_profesionales').select2({
-                placeholder: translations['error_professional'],
+                placeholder: 'Todos los profesionales',
                 allowClear: true
             });
 
@@ -356,7 +357,7 @@ use App\Library\FuncionesGlobales;
             }
 
             $('#select_pacientes').select2({
-                placeholder: translations['error_selected_patient'],
+                placeholder: 'Todos los pacientes',
                 width: '50px',
                 minimumInputLength: 3,
                 allowClear : true,
@@ -411,6 +412,23 @@ use App\Library\FuncionesGlobales;
 
                 let tipo_reporte    = $(this).val();
 
+                $("#select_profesionales").val('').trigger('change');
+                $("#select_pacientes").val('').trigger('change');
+
+                if (tipo_reporte == 'general_ingresos'){
+                    $("#select_profesionales").prop('disabled',true);
+                    $("#select_pacientes").prop('disabled',true);
+
+                    $("#select_profesionales").closest('div').addClass('hide');
+                    $("#select_pacientes").closest('div').addClass('hide');
+                } else {
+                    $("#select_profesionales").prop('disabled',false);
+                    $("#select_pacientes").prop('disabled',false);
+
+                    $("#select_profesionales").closest('div').removeClass('hide');
+                    $("#select_pacientes").closest('div').removeClass('hide');
+                }
+
                 //  INFORMACION DEL REPORTE PARA MOSTRAR EN PANEL
                 let info_reporte    = data_reportes($(this).val());
 
@@ -441,6 +459,12 @@ use App\Library\FuncionesGlobales;
             });
 
             $("#btnExportar").on('click',function(){
+
+                if ($("#select_tipo_reporte").val() == null || $("#select_tipo_reporte").val() == ''){
+                    showAlert('danger','Seleccione un tipo de reporte');
+                    return false;
+                }
+                            
                 let btn = $(this);
                 $(btn).prop('disabled',true);
 
@@ -467,6 +491,15 @@ use App\Library\FuncionesGlobales;
                     $(form).removeClass('was-validated');
                 }
 
+                //  VERIFICA QUE EL RANGO DE FECHAS SEA CORRECTO
+                let tmp_fecha_inicio    = $("#input_rango_fecha_inicio").val();
+                let tmp_fecha_termino   = $("#input_rango_fecha_termino").val();
+
+                if (moment(tmp_fecha_inicio).isAfter(moment(tmp_fecha_termino))) {
+                    showAlert("danger","La fecha de inicio no puede ser mayor que la fecha de término.");
+                    flag_error  = true;
+                }
+
                 if (flag_error){
                     $(btn).prop('disabled',false);
                     return false;
@@ -482,7 +515,10 @@ use App\Library\FuncionesGlobales;
                         rango_fechas    : {
                             fecha_inicio    : $("#input_rango_fecha_inicio").val(),
                             fecha_termino   : $("#input_rango_fecha_termino").val(),
-                        }
+                        },
+                        id_locacion     : $("#select_locaciones").val(),
+                        id_profesional  : $("#select_profesionales").val(),
+                        id_paciente     : $("#select_pacientes").val(),
                     },
                     success     : function(data){
                         console.log('data',data);
@@ -493,6 +529,14 @@ use App\Library\FuncionesGlobales;
                         actionJsonError(error,btn);
                     }
                 });
+            });
+
+            $("#btnLimpiar").on('click',function(){
+                $("#input_rango_fecha_inicio").val('');
+                $("#input_rango_fecha_termino").val('');
+
+                $("#select_profesionales").val('').trigger('change');
+                $("#select_pacientes").val('').trigger('change');
             });
         });
 
