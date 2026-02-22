@@ -303,3 +303,30 @@ aside:not(.aside-collapsed) .nav-pills .nav-link .bi {
 .aside.aside-collapsed .nav-item {
     overflow: visible !important;
 }
+
+/* Hacer que el aside tenga altura completa y scroll interno */
+aside.aside_menu {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+}
+
+/* Personalizar el scrollbar para que sea discreto */
+aside.aside_menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+aside.aside_menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+aside.aside_menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+aside.aside_menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
