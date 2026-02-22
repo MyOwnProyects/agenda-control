@@ -200,6 +200,7 @@ return [
     'html_selected_option'                      => 'Selecciona una opcion',
     'html_info_after_hours_appoitment'          => 'Información de la cita fuera de horario',
     'html_info_simultaneous_appointment'        => 'Información de las citas simultaneas',
+    'html_title_reporter'                       => 'Reporteador',
     
 
 

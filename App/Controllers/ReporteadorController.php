@@ -240,7 +240,8 @@ class ReporteadorController extends BaseController
 
             // 5. Guardar archivo
             $writer     = new Xlsx($spreadsheet);
-            $file_name  = 'reporte_general_citas.xlsx';
+            $fecha_archivo  = $this->cadena_fecha();
+            $file_name      = 'reporte_general_citas_'.$fecha_archivo.'.xlsx';
             $writer->save($path_file.$file_name);
 
             return [
@@ -545,8 +546,9 @@ class ReporteadorController extends BaseController
             $path_file = FuncionesGlobales::get_path_file('reportes');
 
             // 5. Guardar archivo
-            $writer     = new Xlsx($spreadsheet);
-            $file_name  = 'reporte_general_ingresos.xlsx';
+            $writer         = new Xlsx($spreadsheet);
+            $fecha_archivo  = $this->cadena_fecha();
+            $file_name      = 'reporte_general_ingresos_'.$fecha_archivo.'.xlsx';
             $writer->save($path_file.$file_name);
 
             return [
@@ -562,6 +564,11 @@ class ReporteadorController extends BaseController
                 'status_code'   => $e->getCode()
             ];
         }
+    }
+
+    //  FUNCION PARA GENERAR NOMBRE DE ARCHIVO
+    public function cadena_fecha(){
+        return date('dmy_His');
     }
 
 }

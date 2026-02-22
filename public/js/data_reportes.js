@@ -51,11 +51,11 @@ function data_reportes(reporte){
                     columna     : 'Total por tranferencias (Hoja 2)',
                     descripcion : 'Suma de todas las citas pagadas por transferencia'
                 },
-                3   : {
+                4   : {
                     columna     : 'Total por efectivo (Hoja 2)',
                     descripcion : 'Suma de todas las citas pagadas en efectivo'
                 },
-                4   : {
+                5   : {
                     columna     : 'Total pagado (Hoja 2)',
                     descripcion : 'Suma de todos los ingresos registrados en ese día'
                 }

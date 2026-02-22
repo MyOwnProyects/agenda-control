@@ -521,7 +521,6 @@ use App\Library\FuncionesGlobales;
                         id_paciente     : $("#select_pacientes").val(),
                     },
                     success     : function(data){
-                        console.log('data',data);
                         $(btn).prop('disabled',false);
                         window.open(data['path_file'], '_blank');
                     },
