@@ -38,76 +38,178 @@ class FuncionesGlobales{
      * 
      * @return  mixed               RETORNA LA RESPUESTA DE LA API
      */
-    public static function RequestApi($method,$route,$params = null,$headers = null){
-        try{
-
+    public static function RequestApi($method, $route, $params = null, $headers = null) {
+        try {
             $method = self::UpperString($method);
-
-            // Obtén el contenedor DI global
+            
+            // Obtener el contenedor DI global
             $di = Di::getDefault();
-
-            // Verifica si el servicio de sesión está disponible
+            
+            // Verificar si el servicio de sesión está disponible
             if (!$di instanceof DiInterface || !$di->has('session')) {
-                return $flag_return;
+                return ['error' => 'Sesión no disponible', 'status_code' => 500];
             }
-
-            // Obtén el servicio de sesión
+            
+            // Obtener el servicio de sesión
             $session = $di->get('session');
-
-            $params['usuario_solicitud']    = $session->get('clave');
-
-            // Configurar cURL
+            
+            // ============================================
+            // AGREGAR TOKEN JWT AUTOMÁTICAMENTE
+            // ============================================
+            if (!is_array($headers)) {
+                $headers = [];
+            }
+            
+            // Verificar si es una ruta que NO requiere token (login, refresh)
+            $publicRoutes = ['/autenticacion/login', '/autenticacion/refresh'];
+            $isPublicRoute = false;
+            
+            foreach ($publicRoutes as $publicRoute) {
+                if (strpos($route, $publicRoute) !== false) {
+                    $isPublicRoute = true;
+                    break;
+                }
+            }
+            
+            // Agregar Authorization header si NO es ruta pública
+            if (!$isPublicRoute && $session->has('access_token')) {
+                $headers[] = 'Authorization: Bearer ' . $session->get('access_token');
+            }
+            
+            // Agregar usuario_solicitud (tu lógica actual)
+            if ($params === null) {
+                $params = [];
+            }
+            $params['usuario_solicitud'] = $session->get('clave');
+            
+            // ============================================
+            // CONFIGURAR cURL
+            // ============================================
             $ch = curl_init();
-
+            
             // RUTA
             curl_setopt($ch, CURLOPT_URL, $route);
-
+            
             // METODO DE ENVIO
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             
-            if (!empty($params)){
-                if ($method == 'GET'){
-                    curl_setopt($ch,CURLOPT_URL,$route . '?'. http_build_query($params,'flags_'));
+            if (!empty($params)) {
+                if ($method == 'GET') {
+                    curl_setopt($ch, CURLOPT_URL, $route . '?' . http_build_query($params, 'flags_'));
                 } else {
-                    curl_setopt($ch,CURLOPT_POSTFIELDS, json_encode($params));
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
                     $headers[] = 'Content-Type: application/json';
                 }
             }
-
-            if (!empty($headers)){
-                curl_setopt($ch,CURLOPT_HTTPHEADER, $headers);
+            
+            if (!empty($headers)) {
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             }
-
-            //  DEVUELVE LA SOLICITUD COMO STRING EN LUGAR DE PINTARLA
+            
+            // DEVUELVE LA SOLICITUD COMO STRING
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
+            
             // Ejecutar la solicitud
             $response = curl_exec($ch);
-
+            
             // STATUS CODE DE RESPUESTA
             $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            // Manejar errores
-            if (curl_errno($ch) || $httpStatus >= 400) {
-                $error = curl_error($ch);
-                curl_close($ch);
-                $msg_error  = $response;
-                try{
-                    $response   = json_decode($response);
-                } catch(\Exception $ex){
-                    $response   = $msg_error;
-                }
-                
-                return ['error' => $response,'status_code' => 400];
-            }
-
+            
             curl_close($ch);
-
+            
+            // ============================================
+            // MANEJAR 401 - TOKEN EXPIRADO - REFRESH AUTOMÁTICO
+            // ============================================
+            if ($httpStatus === 401 && !$isPublicRoute && $session->has('refresh_token')) {
+                // Intentar renovar el token
+                $refreshed = self::refreshToken($session);
+                
+                if ($refreshed) {
+                    // Reintentar la petición original con el nuevo token
+                    return self::RequestApi($method, $route, $params);
+                } else {
+                    // Refresh falló, destruir sesión y redirigir a login
+                    $session->destroy();
+                    
+                    return [
+                        'error' => 'Sesión expirada. Por favor, inicie sesión nuevamente.',
+                        'status' => 401,
+                        'redirect' => '/'
+                    ];
+                }
+            }
+            
+            // ============================================
+            // MANEJAR OTROS ERRORES
+            // ============================================
+            if (curl_errno($ch) || $httpStatus >= 400) {
+                $msg_error = $response;
+                try {
+                    $response = json_decode($response, true);
+                } catch (\Exception $ex) {
+                    $response = $msg_error;
+                }
+                return ['error' => $response, 'status_code' => $httpStatus];
+            }
+            
             // Devolver la respuesta como JSON
             return json_decode($response, true);
+            
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage(), 'status_code' => 500];
+        }
+    }
 
-        }catch(\Exception $e){
-            return $e->getMessage();
+    /**
+     * Renovar access token usando refresh token
+     */
+    private static function refreshToken($session)
+    {
+        try {
+            $refreshToken = $session->get('refresh_token');
+            
+            if (!$refreshToken) {
+                return false;
+            }
+            
+            // Obtener URL de la API desde config o variable global
+            $di = Di::getDefault();
+            $config = $di->get('config'); // Asume que tienes config en DI
+            $apiUrl = $config['BASEAPI']; // Ajustar según tu config
+            
+            $refreshRoute = $apiUrl . '/autenticacion/refresh';
+            
+            // Hacer petición de refresh
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $refreshRoute);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'refresh_token' => $refreshToken
+            ]));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+            $response = curl_exec($ch);
+            $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpStatus === 200) {
+                $data = json_decode($response, true);
+                
+                if (isset($data['access_token'])) {
+                    // Actualizar access token en sesión
+                    $session->set('access_token', $data['access_token']);
+                    $session->set('token_created_at', time());
+                    return true;
+                }
+            }
+
+            return false;
+            
+        } catch (\Exception $e) {
+            return false;
         }
     }
 

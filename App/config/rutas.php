@@ -137,6 +137,11 @@ return [
     ),
     'motivos_citas_fuera_horario'   => array(
         'show'  => '/motivos_citas_fuera_horario/show'
+    ),
+    'autenticacion'     => array(
+        'login'     => '/autenticacion/login',
+        'refresh'   => '/autenticacion/refresh',
+        'logout'    => '/autenticacion/logout',
     )
 
 ];
