@@ -755,6 +755,9 @@ class FuncionesGlobales{
             case 'recetas':
                 $path_save = '/tmp/';
                 break;
+            case 'reportes':
+                $path_save = '/tmp/';
+                break;
             case 'otros':
                 $path_save = '/otros_documentos/';
                 break;
@@ -1142,6 +1145,20 @@ class FuncionesGlobales{
             substr($telefonoLimpio, 3, 3),
             substr($telefonoLimpio, 6, 4)
         );
+    }
+
+    public static function formatearFecha($fecha,$formato_retorno = null) {
+        if(empty($fecha)) return '';
+        $formato_retorno    = $formato_retorno != null ? $formato_retorno : "d/m/Y";
+        return date($formato_retorno, strtotime($fecha));
+    }
+
+    public static function formatoMonetario($numero, int $decimales = 2): string{
+        // Convertimos a número por seguridad
+        $numero = (float)$numero;
+
+        // Formato: miles con coma, decimales con punto
+        return number_format($numero, $decimales, '.', ',');
     }
 
 }
