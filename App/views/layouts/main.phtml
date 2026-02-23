@@ -30,8 +30,8 @@
 
   <!-- Estilos adicionales -->
   <link rel="stylesheet" href="/css/alerts.css">
-  <link rel="stylesheet" href="/css/menu.css?rm=5">
-  <link rel="stylesheet" href="/css/general.css">
+  <link rel="stylesheet" href="/css/menu.css?rm=6">
+  <link rel="stylesheet" href="/css/general.css?rm=1">
   <link rel="stylesheet" href="/css/select2-bootstrap-5.min.css">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -60,6 +60,7 @@
     $control_citas  = \App\Library\FuncionesGlobales::HasAccess('Controlcitas', 'index');
     $bitacora       = \App\Library\FuncionesGlobales::HasAccess('Bitacora', 'index');
     $bloqueo_agenda = \App\Library\FuncionesGlobales::HasAccess('Bloqueoagenda', 'index');
+    $reporteador    = \App\Library\FuncionesGlobales::HasAccess('Reporteador', 'index');
     $di             = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
     $session        = $di->getShared('session');
     $nombre_usuario = $session->has('nombre') ? $session->get('nombre') : '';
@@ -186,7 +187,7 @@
               <!-- ─────────────── -->
               <!-- ADMINISTRACIÓN -->
               <!-- ─────────────── -->
-               <?php if ($profesionales || $locaciones || $servicios || $bloqueo_agenda): ?>
+               <?php if ($profesionales || $locaciones || $servicios || $bloqueo_agenda || $reporteador): ?>
                 <li class="menu-divider"></li>
                 <li class="menu-section-title">Administración</li>
 
@@ -197,6 +198,17 @@
                         <i class="bi bi-calendar-x me-2"></i>
                         <span><?php echo $translations['html_agenda_lock']; ?></span>
                         <div class="nav-item-text"><?php echo $translations['html_agenda_lock']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- Locaciones -->
+                <?php if($locaciones): ?>
+                <li class="nav-item" title="<?php echo $translations['html_locations']; ?>">
+                    <a href="/Locaciones/" class="nav-link text-white <?php echo $currentController == 'Locaciones' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-building me-2"></i>
+                        <span><?php echo $translations['html_locations']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_locations']; ?></div>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -212,13 +224,13 @@
                 </li>
                 <?php endif; ?>
 
-                <!-- Locaciones -->
-                <?php if($locaciones): ?>
-                <li class="nav-item" title="<?php echo $translations['html_locations']; ?>">
-                    <a href="/Locaciones/" class="nav-link text-white <?php echo $currentController == 'Locaciones' ? 'active-view' : ''; ?>">
-                        <i class="bi bi-building me-2"></i>
-                        <span><?php echo $translations['html_locations']; ?></span>
-                        <div class="nav-item-text"><?php echo $translations['html_locations']; ?></div>
+                <!-- Profesionales -->
+                <?php if($reporteador): ?>
+                <li class="nav-item" title="<?php echo $translations['html_title_reporter']; ?>">
+                    <a href="/Reporteador/" class="nav-link text-white <?php echo $currentController == 'Reporteador' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-filetype-xlsx"></i>
+                        <span><?php echo $translations['html_title_reporter']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_title_reporter']; ?></div>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -351,6 +363,7 @@
 
     <!-- Incluir el archivo global.js al final del body -->
     <script src="/js/FuncionesGlobales.js?rm=7"></script>
+    <script src="/js/data_reportes.js?rm=1"></script>
 
     <!-- Script para manejar la alerta -->
     <script>
