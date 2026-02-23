@@ -1,0 +1,571 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+/* ════════════════════════════════════════
+    BACKDROP
+════════════════════════════════════════ */
+.panel-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(1px);
+    z-index: 1039;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.panel-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ════════════════════════════════════════
+    DETAIL PANEL
+════════════════════════════════════════ */
+.detail-panel {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: 420px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(calc(100% + 1.5rem));
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.detail-panel.is-open {
+    transform: translateX(0);
+}
+
+.detail-panel-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: rgba(248, 250, 252, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.detail-icon-box {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(99, 102, 241, 0.1);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.detail-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.detail-panel-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+
+.dict-table {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.dict-table table { margin-bottom: 0; }
+
+.dict-table thead th {
+    background-color: #f8fafc;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.65rem 1rem;
+}
+
+.dict-table tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dict-table tbody tr:last-child td { border-bottom: none; }
+
+.dict-table tbody tr:hover td { background-color: rgba(248, 250, 252, 0.6); }
+
+.tip-box {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-dismiss {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    width: 100%;
+    transition: background 0.2s;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.btn-dismiss:hover { background-color: #1e293b; color: white; }
+
+@media (max-width: 768px) {
+    .detail-panel { width: calc(100% - 2rem); }
+}
+
+.hide {
+    display: none!important;
+}
+</style>
+
+<div class="container mt-4">
+
+    <!-- Selección de Reporte -->
+    <div>
+        <h2>Reportes Administrativos</h2>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Selección de Reporte</h5>
+        </div>
+        <div class="card-body">
+            <form class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">Tipo de Reporte</label>
+                    <select class="form-select" id="select_tipo_reporte">
+                        <option class="option_clear" value="" selected>Selecciona una opción</option>
+                        <option value="general_citas">General de Citas</option>
+                        <option value="general_ingresos">General de Ingresos</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end justify-content-end">
+                    <button type="button" class="btn btn-outline-dark w-50 hide" id="btn_panel_informacion">
+                        <i class="bi bi-info-circle align-middle"></i>
+                        <span class="align-middle">Detalles</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros de Búsqueda -->
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5>Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form id="form_filtros_generales" class="row g-3">
+
+                <div class="col-md-4">
+                    <label for="select_locaciones" class="form-label"><?php echo $translations['html_locations']; ?></label>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales" class="select_profesionales">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+                    <select id="select_pacientes" class="select_pacientes">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_rango_fecha_inicio" class="form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_inicio" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_starting_date']; ?>" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="input_rango_fecha_termino" class="form-label"><?php echo $translations['html_ending_date']; ?></label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_ending_date']; ?>" required>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div id="header_especific_filters" class="card mb-4 hide">
+        <div class="card-header">
+            <h5>Filtros especificos</h5>
+        </div>
+        <div class="card-body div_filtros_especificos div_filtros_especificos_general_citas hide">
+            <form id="form_general_citas" class="row g-3">
+
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-12 text-end">
+        <button type="button" class="btn btn-outline-dark" id="btnLimpiar">
+            <i class="bi bi-funnel align-middle"></i>
+            <span class="align-middle">Limpiar Filtros</span>
+        </button>
+        <button type="button" class="btn btn-success" id="btnExportar">
+            <i class="bi bi-file-earmark-arrow-down align-middle"></i>
+            <span class="align-middle">Exportar a Excel</span>
+        </button>
+    </div>
+</div>
+
+
+<!-- Backdrop -->
+<div class="panel-backdrop" id="panelBackdrop"></div>
+
+<aside class="detail-panel" id="panel_detalles" aria-label="Detalles del reporte">
+
+    <!-- Panel Header -->
+    <div class="detail-panel-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="detail-icon-box">
+                <i class="bi bi-file-text"></i>
+            </div>
+            <h2 class="h6 fw-bold mb-0">Detalles del Reporte</h2>
+        </div>
+        <button class="btn btn-icon" id="closePanel" aria-label="Cerrar panel">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <!-- Panel Body -->
+    <div class="detail-panel-body">
+
+        <!-- Report name -->
+        <div>
+            <h4 class="fw-semibold mb-2" style="font-size:1rem;" id="titulo_reporte"></h4>
+            <p id="descripcion_reporte" class="text-secondary small lh-lg mb-0">
+                
+            </p>
+        </div>
+
+        <!-- Data dictionary -->
+        <div>
+            <p class="panel-section-label">Diccionario de Datos</p>
+            <div class="dict-table">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Columna</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body_columnas">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tip box -->
+        <div class="tip-box hide">
+            <i class="bi bi-lightbulb text-warning fs-5 flex-shrink-0"></i>
+            <p>
+                <strong>Nota:</strong> Los datos mostrados en este diccionario corresponden a la versión más reciente del esquema de reportes (v2.4).
+            </p>
+        </div>
+
+    </div><!-- /panel body -->
+
+    <!-- Panel Footer -->
+    <div class="detail-panel-footer">
+        <button class="btn-dismiss" id="dismissBtn">Entendido</button>
+    </div>
+
+</aside><!-- /detail-panel -->
+
+<script>
+    var modulo_reporteador  = (function(){
+        const controller    = '/Reporteador';
+        const url_index     = controller+"/index";
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>",
+            schedule_availability   : "<?= $translations['html_schedule_availability']?>",
+            error_selected_location : "<?= $translations['error_selected_location']?>",
+            error_professional      : "<?= $translations['html_error_professional']?>",
+            error_selected_patient  : "<?= $translations['html_error_selected_patient']?>",
+            error_starting_date     : "<?= $translations['html_error_starting_date']?>",
+            appoinment_edit         : "<?= $translations['html_appoinment_edit']?>",
+            cancel_appointment      : "<?= $translations['html_cancel_appointment']?>",
+            register_payment        : "<?= $translations['html_register_payment']?>",
+            pay                     : "<?= $translations['html_pay']?>",
+            cancel_payment          : "<?= $translations['html_cancel_payment']?>",
+            selected_option         : "<?= $translations['html_selected_option']?>",
+            info_simultaneous_appointment   : "<?= $translations['html_info_simultaneous_appointment']?>",
+        };
+
+        $(document).ready(function(){
+
+            // Initialize the select elements
+            $('.select_locaciones').select2({
+                placeholder: translations['error_selected_location']
+            });
+
+            $('.select_profesionales').select2({
+                placeholder: 'Todos los profesionales',
+                allowClear: true
+            });
+
+            if ($("#select_locaciones").val() != null && $("#select_locaciones").val() != ''){
+                fill_profesionales($("#select_locaciones").val());
+            }
+
+            $('#select_pacientes').select2({
+                placeholder: 'Todos los pacientes',
+                width: '50px',
+                minimumInputLength: 3,
+                allowClear : true,
+                ajax: {
+                    url: url_index,
+                    method: 'post',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        cadena_enviada  = params.term;
+                        return {
+                            accion: 'fill_combo',
+                            cadena: params.term,
+                            form_select2_pacientes  : true
+                        };
+                    },
+                    processResults: function (data) {
+                        // Aquí adaptamos la respuesta al formato que select2 necesita
+                        return {
+                            results: data.map(function (item) {
+                                if (item.id == -1) return true;
+                                return {
+                                    id: item.id,
+                                    text: item.celular + ' - ' + item.nombre_completo,
+                                    nombre: item.nombre,
+                                    primer_apellido: item.primer_apellido,
+                                    segundo_apellido: item.segundo_apellido,
+                                    celular: item.celular
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            //  EVENTO PARA ABRIR MODAL DE AYUDA
+            $('#btn_panel_informacion').on('click', function(){
+                $('#panel_detalles, #panelBackdrop').addClass('is-open');
+            });
+
+            //  EVENTO PARA CERRAR MODAL DE AYUDA
+            $('#closePanel, #dismissBtn, #panelBackdrop').on('click', function(){
+                $('#panel_detalles, #panelBackdrop').removeClass('is-open');
+            });
+
+            //  EVENTO PARA SELECCIONAR EL TIPO DE REPORTE
+            $('#select_tipo_reporte').on('change', function () {
+
+                $(this).find('.option_clear').prop('disabled',true);
+                $("#btn_panel_informacion").removeClass('hide');
+
+                let tipo_reporte    = $(this).val();
+
+                $("#select_profesionales").val('').trigger('change');
+                $("#select_pacientes").val('').trigger('change');
+
+                if (tipo_reporte == 'general_ingresos'){
+                    $("#select_profesionales").prop('disabled',true);
+                    $("#select_pacientes").prop('disabled',true);
+
+                    $("#select_profesionales").closest('div').addClass('hide');
+                    $("#select_pacientes").closest('div').addClass('hide');
+                } else {
+                    $("#select_profesionales").prop('disabled',false);
+                    $("#select_pacientes").prop('disabled',false);
+
+                    $("#select_profesionales").closest('div').removeClass('hide');
+                    $("#select_pacientes").closest('div').removeClass('hide');
+                }
+
+                //  INFORMACION DEL REPORTE PARA MOSTRAR EN PANEL
+                let info_reporte    = data_reportes($(this).val());
+
+                $("#panel_detalles").find('#titulo_reporte').text(info_reporte['titulo']);
+                $("#panel_detalles").find('#descripcion_reporte').text(info_reporte['descripcion']);
+
+                //  SE LIMPIAN LOS REGISTROS DE LA TABLA
+                $("#panel_detalles").find('#body_columnas').html('');
+                for(let info_columna of Object.values(info_reporte.datos_tabla)){
+                    let row =   '<tr id="template_row_reporte">'+
+                                    '<td class="fw-medium columna">'+info_columna.columna+'</td>'+
+                                    '<td class="descripcion">'+info_columna.descripcion+'</td>'+
+                                '</tr>';
+
+                    $("#panel_detalles").find('#body_columnas').append(row);
+                }
+
+                //  SE MUESTRA EL DIV DE LOS FILTROS
+                $("#header_filters").removeClass('hide');
+                $(".div_filtros_especificos").addClass('hide');
+                $(".div_filtros_especificos_"+tipo_reporte).removeClass('hide');
+
+                if ($(".div_filtros_especificos_"+tipo_reporte+':visible').length > 0){
+                    $("#header_especific_filters").removeClass('hide');
+                } else {
+                    $("#header_especific_filters").addClass('hide');
+                }
+            });
+
+            $("#btnExportar").on('click',function(){
+
+                if ($("#select_tipo_reporte").val() == null || $("#select_tipo_reporte").val() == ''){
+                    showAlert('danger','Seleccione un tipo de reporte');
+                    return false;
+                }
+                            
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+
+                const form = $('#form_filtros_generales')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                
+                if (!form.checkValidity()) {
+                    $(form).addClass('was-validated');
+                    
+
+                    // Revisar cada campo que sea inválido
+                    const invalidFields = Array.from(form.elements).filter(el => 
+                        !el.validity.valid && $(el).is(':visible')
+                    );
+
+                    invalidFields.forEach(field => {
+                        console.log('Campo inválido:', field,field.name || field.id, field.validationMessage);
+                    });
+
+                    if (invalidFields.length > 0){
+                        flag_error = true;
+                    }
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                //  VERIFICA QUE EL RANGO DE FECHAS SEA CORRECTO
+                let tmp_fecha_inicio    = $("#input_rango_fecha_inicio").val();
+                let tmp_fecha_termino   = $("#input_rango_fecha_termino").val();
+
+                if (moment(tmp_fecha_inicio).isAfter(moment(tmp_fecha_termino))) {
+                    showAlert("danger","La fecha de inicio no puede ser mayor que la fecha de término.");
+                    flag_error  = true;
+                }
+
+                if (flag_error){
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion          : 'reportes',
+                        tipo_reporte    : $("#select_tipo_reporte").val(),
+                        rango_fechas    : {
+                            fecha_inicio    : $("#input_rango_fecha_inicio").val(),
+                            fecha_termino   : $("#input_rango_fecha_termino").val(),
+                        },
+                        id_locacion     : $("#select_locaciones").val(),
+                        id_profesional  : $("#select_profesionales").val(),
+                        id_paciente     : $("#select_pacientes").val(),
+                    },
+                    success     : function(data){
+                        $(btn).prop('disabled',false);
+                        window.open(data['path_file'], '_blank');
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $("#btnLimpiar").on('click',function(){
+                $("#input_rango_fecha_inicio").val('');
+                $("#input_rango_fecha_termino").val('');
+
+                $("#select_profesionales").val('').trigger('change');
+                $("#select_pacientes").val('').trigger('change');
+            });
+        });
+
+        //  FUNCIONES
+        function fill_profesionales(id_locacion){
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                data        : {
+                    accion      : 'fill_profesionales',
+                    id_locacion : id_locacion
+                },
+                success     : function(data){
+
+                    $("#select_profesionales").val(null).trigger('change');
+                    $("#select_profesionales").find('option').remove();
+
+                    let options = '<option></option>';
+                    for(let i in data){
+                        options += '<option value="'+data[i]['id']+'">'+data[i]['nombre_completo']+'</option>';
+                    }
+                    
+                    $("#select_profesionales").append(options);
+                },
+                error     : function(error){
+                    $("#select_profesionales").val(null).trigger('change');
+                    $("#select_profesionales").find('option').remove();
+                    $("#select_profesionales").append('<option></option>');
+                }
+            })
+        }
+    })();
+</script>
