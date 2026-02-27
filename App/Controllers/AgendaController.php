@@ -222,6 +222,40 @@ class AgendaController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'get_plantillas_whatsapp'){
+                $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_por_cita'];
+                $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'save_envio_whatsapp'){
+                $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_por_cita'];
+                $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             if ($accion == 'save_appoinment'){
                 $route      = $this->url_api.$this->rutas['tbagenda_citas']['save'];
                 $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST['obj_info']);

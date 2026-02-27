@@ -597,6 +597,162 @@ use App\Library\FuncionesGlobales;
         font-size: 0.875rem;
     }
 
+    /* ESTILO PARA MODAL DE WHATSAPP */
+    .whatsappModal {
+      --primary: #7f13ec;
+      --primary-rgb: 127, 19, 236;
+      --whatsapp: #25D366;
+      --whatsapp-hover: #20ba5a;
+    }
+
+    /* ── Todos los estilos del modal apuntan a .whatsappModal ── */
+
+    .whatsappModal .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
+      align-items: flex-start;
+    }
+
+    .whatsappModal .modal-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .whatsappModal .modal-header p {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin: 0.25rem 0 0;
+    }
+
+    .whatsappModal .btn-close-custom {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .whatsappModal .btn-close-custom:hover {
+      color: var(--primary);
+    }
+
+    .whatsappModal .modal-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+      max-height: 55vh;
+    }
+
+    .whatsappModal .template-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      margin: 0;
+    }
+
+    .whatsappModal .template-card:hover {
+      border-color: rgba(var(--primary-rgb), 0.5);
+    }
+
+    .whatsappModal .template-card.selected {
+      border: 2px solid var(--primary);
+      background-color: rgba(var(--primary-rgb), 0.04);
+    }
+
+    .whatsappModal .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .whatsappModal .card-top-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .whatsappModal .template-card input[type="radio"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .whatsappModal .card-title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 0.95rem;
+    }
+
+    .whatsappModal .badge-recommended {
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .whatsappModal .template-preview {
+      background-color: #f1f5f9;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .whatsappModal .template-preview p {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-style: italic;
+      line-height: 1.625;
+      margin: 0;
+    }
+
+    .whatsappModal .var-highlight {
+      color: var(--primary);
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    .whatsappModal .info-hint {
+      padding: 0.75rem 1.5rem;
+      background-color: rgba(var(--primary-rgb), 0.05);
+      border-top: 1px solid rgba(var(--primary-rgb), 0.1);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .whatsappModal .info-hint .material-symbols-outlined {
+      color: var(--primary);
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .whatsappModal .info-hint p {
+      font-size: 0.75rem;
+      color: #475569;
+      margin: 0;
+    }
+
+    .whatsappModal .modal-footer{
+        padding: 1.25rem 1.5rem;
+    }
 </style>
 <div class="container div_principal_filter div_header_filters col-11">
     <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
@@ -761,6 +917,7 @@ use App\Library\FuncionesGlobales;
             <span id="nombre" class="event-title"></span>
         </div>
         <div>
+            <button class="icon-button btn_modal_whatsapp" title="Enviar Whatsapp"><i class="bi bi-whatsapp"></i></button>
             <button class="icon-button btn_edit" title="Agregar/Quitar Servicios - Reagendar"><i class="bi bi-pencil-fill"></i></button>
             <button class="icon-button btn_asistencia" title=""></button>
             <button class="icon-button btn_cancelar" title="Modificar estatus de cita"><i class="bi bi-calendar-x"></i></button>
@@ -1420,6 +1577,69 @@ use App\Library\FuncionesGlobales;
     <div class="flex-fill"><span class="duracion"></span> Min</div>
     <div class="flex-fill costo">$<span clas="costo"></span></div>
 </div>
+
+<!-- ===================== MODAL BOOTSTRAP 5 ===================== -->
+<div class="modal fade whatsappModal" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:640px;">
+        <div class="modal-content">
+
+        <!-- Header -->
+        <div class="modal-header">
+            <div>
+            <h2 id="whatsappModalLabel">Seleccionar Plantilla de WhatsApp</h2>
+            <p>Elija una plantilla pre-definida para enviar al paciente</p>
+            </div>
+        </div>
+
+        <!-- Body (scrollable) -->
+        <div class="modal-body div_header_plantillas">
+
+            <!-- Card 1 (Seleccionada)
+            <label class="template-card selected">
+            <div class="card-top">
+                <div class="card-top-left">
+                <input checked name="template" type="radio"/>
+                <span class="card-title">Confirmación de Cita</span>
+                </div>
+                <span class="badge-recommended">Recomendado</span>
+            </div>
+            <div class="template-preview">
+                <p>
+                "Hola <span class="var-highlight">[Nombre]</span>, confirmamos su cita para el día
+                <span class="var-highlight">[Fecha]</span> a las <span class="var-highlight">[Hora]</span>
+                en nuestro centro médico. Por favor, llegue 10 minutos antes."
+                </p>
+            </div>
+            </label> -->
+
+            <!-- Card 2 -->
+            
+
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer justify-content-between">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button class="btn btn-success btn_enviar_whatsapp d-flex align-items-center gap-2">
+                <i class="bi bi-whatsapp"></i>
+                <span>Enviar mensaje</span>
+            </button>
+            <a target="_blank" href="" class="hide"></a>
+        </div>
+
+        </div>
+    </div>
+</div>
+
+<label id="template_info_plantilla" class="template-card hide">
+    <div class="card-top-left">
+        <input name="template" type="radio"/>
+        <span class="card-title tipo_mensaje"></span>
+    </div>
+    <div class="template-preview texto_mensaje">
+        <p></p>
+    </div>
+</label>
 
 <script>
     //  URL
@@ -4468,6 +4688,33 @@ use App\Library\FuncionesGlobales;
             window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita;
         });
 
+        $("#infoBox").on('click','.btn_modal_whatsapp',function(){
+            // show_modal_whatsapp($(this).data('cita'));
+
+            let info_cita   = $(this).data('cita');
+
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                dataType    : 'json',
+                data        : {
+                    accion          : 'get_plantillas_whatsapp',
+                    id_agenda_cita  : info_cita['idagendacita']
+                },
+                success     : function(data){
+                    console.log(data);
+                    show_modal_whatsapp(data);
+                    $("#closeModal").trigger('click');
+                },
+                error       : function(error){
+                    actionJsonError(error,null);
+                    $("#closeModal").trigger('click');
+                }
+            });
+
+            
+        });
+
         //  EVENTOS CITAS FUERA DE HORARIO
         $("#btn_crear_cita_fuera_horario").on('click',function(){
             show_modal_crear_cita_fuera_horario();
@@ -4555,6 +4802,8 @@ use App\Library\FuncionesGlobales;
         if (permiso_citas_fuera_horario){
              $("#infoBox").find('.btn_edit_afterhours').data('cita', { ...$(element).data() });
         }
+
+        $("#infoBox").find('.btn_modal_whatsapp').data('cita', { ...$(element).data() });
 
         $("#infoBox").css("display", "block");
     }
@@ -5275,5 +5524,71 @@ use App\Library\FuncionesGlobales;
                 }
             })
         }
+    }
+
+    function show_modal_whatsapp(info_plantillas){
+        console.log('info_plantilla');
+        console.log(info_plantillas);
+
+        let modal_clone = $("#whatsappModal").clone().removeAttr('id').show();
+
+        for (let plantilla of info_plantillas.plantillas){
+            console.log(plantilla);
+            let row = $("#template_info_plantilla").clone().removeAttr('id').show();
+
+            $(row).find('.tipo_mensaje').text(plantilla['nombre_plantilla']);
+            $(row).find('.texto_mensaje').html(mensaje_preview_Html(plantilla['mensaje']));
+
+            $(row).find('input[type="radio"]').data('link',plantilla['link']);
+
+            $(modal_clone).find('.div_header_plantillas').append(row);
+        }
+
+        $(modal_clone).on('change', 'input[type="radio"]', function () {
+            var $modal = $(this).closest('.whatsappModal');
+            $modal.find('.template-card').removeClass('selected');
+            $(this).closest('.template-card').addClass('selected');
+        });
+
+        $(modal_clone).on('click','.btn_enviar_whatsapp',function(){
+            let btn = $(this);
+            $(btn).prop('disabled',true);
+            if ($(modal_clone).find('input[type="radio"]:checked').length == 0){
+                showAlert('danger','Seleccione una plantilla');
+                $(btn).prop('disabled',false);
+                return false;
+            }
+
+            let link    = $(modal_clone).find('input[type="radio"]:checked').data('link');
+
+            window.open(link, '_blank');
+        })
+
+        if (Object.keys(info_plantillas.plantillas).length == 1){
+            $(modal_clone).find('input[type="radio"]').first().trigger('click');
+        }
+
+
+        $(modal_clone).modal('show');
+    }
+
+    function mensaje_preview_Html(mensaje) {
+        if (!mensaje) return '';
+
+        // Decodifica %0A, emojis, etc.
+        let texto = decodeURIComponent(mensaje);
+
+        // Escapa HTML para evitar inyecciones
+        texto = texto
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        // Saltos de línea reales → <br>
+        texto = texto.replace(/\n/g, '<br>');
+
+        return texto;
     }
 </script>

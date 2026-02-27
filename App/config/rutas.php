@@ -142,6 +142,9 @@ return [
         'login'     => '/autenticacion/login',
         'refresh'   => '/autenticacion/refresh',
         'logout'    => '/autenticacion/logout',
+    ),
+    'plantillas_mensajes'   => array(
+        'plantilla_por_cita'    => '/plantillas_mensajes/plantilla_por_cita'
     )
 
 ];
