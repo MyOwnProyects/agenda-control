@@ -144,7 +144,8 @@ return [
         'logout'    => '/autenticacion/logout',
     ),
     'plantillas_mensajes'   => array(
-        'plantilla_por_cita'    => '/plantillas_mensajes/plantilla_por_cita'
+        'plantilla_por_cita'    => '/plantillas_mensajes/plantilla_por_cita',
+        'plantilla_enviada'     => '/plantillas_mensajes/plantilla_enviada',
     )
 
 ];

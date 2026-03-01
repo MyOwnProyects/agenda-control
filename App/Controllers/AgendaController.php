@@ -240,8 +240,8 @@ class AgendaController extends BaseController
             }
 
             if ($accion == 'save_envio_whatsapp'){
-                $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_por_cita'];
-                $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_enviada'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST);
 
                 $response = new Response();
 
@@ -250,6 +250,8 @@ class AgendaController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'ENVIOMENSAJE','Plantilla: '.$_POST['nombre_plantilla'].' enviada al número: '.$_POST['celular'].' Para el paciente: '.$_POST['nombre_completo'],$_POST);
 
                 $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');

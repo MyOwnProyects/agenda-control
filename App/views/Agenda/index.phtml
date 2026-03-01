@@ -1586,8 +1586,8 @@ use App\Library\FuncionesGlobales;
         <!-- Header -->
         <div class="modal-header">
             <div>
-            <h2 id="whatsappModalLabel">Seleccionar Plantilla de WhatsApp</h2>
-            <p>Elija una plantilla pre-definida para enviar al paciente</p>
+                <h2 id="whatsappModalLabel">Seleccionar Plantilla de WhatsApp</h2>
+                <p>Enviar al número: <span id="celular"></span></p>
             </div>
         </div>
 
@@ -1618,13 +1618,12 @@ use App\Library\FuncionesGlobales;
         </div>
 
         <!-- Footer -->
-        <div class="modal-footer justify-content-between">
-            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <div class="modal-footer justify-content-end">
+            <button class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
             <button class="btn btn-success btn_enviar_whatsapp d-flex align-items-center gap-2">
                 <i class="bi bi-whatsapp"></i>
                 <span>Enviar mensaje</span>
             </button>
-            <a target="_blank" href="" class="hide"></a>
         </div>
 
         </div>
@@ -4689,7 +4688,6 @@ use App\Library\FuncionesGlobales;
         });
 
         $("#infoBox").on('click','.btn_modal_whatsapp',function(){
-            // show_modal_whatsapp($(this).data('cita'));
 
             let info_cita   = $(this).data('cita');
 
@@ -5343,6 +5341,7 @@ use App\Library\FuncionesGlobales;
                                     '<td class="td_row">'+obj_data.fecha_completa+'</td>'+
                                     '<td align="center">'+
                                         '<div class="btn-group" role="group" aria-label="Acciones de cita">'+
+                                            '<button type="button" class="btn btn_modal_whatsapp" title="Enviar Whatsapp" data-idagendacita="'+obj_data.id_agenda_cita+'"><i class="bi bi-whatsapp"></i></button>'+
                                             '<button type="button" class="btn btn_asistencia" data-nombre="'+obj_data.nombre_completo+'" data-asistencia="'+obj_data.asistencia+'" data-idagendacita="'+obj_data.id_agenda_cita+'" data-fecha="'+obj_data.fecha_completa+'" title="Modificar estatus actual: '+texto_asistencia+'">'+
                                                 '<i class="bi '+icono_asistencia+'"></i>'+
                                             '</button>'+
@@ -5393,6 +5392,30 @@ use App\Library\FuncionesGlobales;
             let id_agenda_cita  = $(this).data('idagendacita');
 
             window.location.href = '/Pacientes/clinicalData?id_agenda_cita='+id_agenda_cita;
+        });
+
+        $(modal_clone).on('click','.btn_modal_whatsapp',function(){
+
+            let id_agenda_cita  = $(this).data('idagendacita');
+
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                dataType    : 'json',
+                data        : {
+                    accion          : 'get_plantillas_whatsapp',
+                    id_agenda_cita  : id_agenda_cita
+                },
+                success     : function(data){
+                    console.log(data);
+                    show_modal_whatsapp(data,true);
+                    $(modal_clone).modal('hide');
+                },
+                error       : function(error){
+                    actionJsonError(error,null);
+                    $("#closeModal").trigger('click');
+                }
+            });
         });
 
         $(modal_clone).modal('show');
@@ -5526,11 +5549,10 @@ use App\Library\FuncionesGlobales;
         }
     }
 
-    function show_modal_whatsapp(info_plantillas){
-        console.log('info_plantilla');
-        console.log(info_plantillas);
-
+    function show_modal_whatsapp(info_plantillas,cita_fuera_horario = false){
         let modal_clone = $("#whatsappModal").clone().removeAttr('id').show();
+
+        $(modal_clone).find("#celular").text(info_plantillas['celular']);
 
         for (let plantilla of info_plantillas.plantillas){
             console.log(plantilla);
@@ -5539,7 +5561,11 @@ use App\Library\FuncionesGlobales;
             $(row).find('.tipo_mensaje').text(plantilla['nombre_plantilla']);
             $(row).find('.texto_mensaje').html(mensaje_preview_Html(plantilla['mensaje']));
 
-            $(row).find('input[type="radio"]').data('link',plantilla['link']);
+            $(row).find('input[type="radio"]')
+                .data('link',plantilla['link'])
+                .data('mensaje',plantilla['mensaje'])
+                .data('nombreplantilla',plantilla['nombre_plantilla'])
+                .data('idplantillamensaje',plantilla['id_plantilla_mensaje']);
 
             $(modal_clone).find('.div_header_plantillas').append(row);
         }
@@ -5559,36 +5585,48 @@ use App\Library\FuncionesGlobales;
                 return false;
             }
 
-            let link    = $(modal_clone).find('input[type="radio"]:checked').data('link');
+            let link                    = $(modal_clone).find('input[type="radio"]:checked').data('link');
+            let mensaje_generado        = $(modal_clone).find('input[type="radio"]:checked').data('mensaje');
+            let id_plantilla_mensaje    = $(modal_clone).find('input[type="radio"]:checked').data('idplantillamensaje');
+            let nombre_plantilla        = $(modal_clone).find('input[type="radio"]:checked').data('nombreplantilla');
 
             window.open(link, '_blank');
+
+            //  SE GUARDA EN BD EL REGISTRO DE ENVIO
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                dataTpe     : 'json',
+                data        : {
+                    accion          : 'save_envio_whatsapp',
+                    id_agenda_cita  : info_plantillas['id_agenda_cita'],
+                    id_paciente     : info_plantillas['id_paciente'],
+                    id_plantilla_mensaje    : id_plantilla_mensaje,
+                    mensaje_generado        : mensaje_generado,
+                    nombre_plantilla        : nombre_plantilla,
+                    celular                 : $(modal_clone).find('#celular').text(),
+                    link                    : link,
+                    nombre_completo         : info_plantillas['paciente']
+                }
+            });
+
+            cita_fuera_horario  = false;
+            $(modal_clone).modal('hide');
+
+            showAlert('success','Plantilla enviada a Whatsapp');
         })
 
         if (Object.keys(info_plantillas.plantillas).length == 1){
             $(modal_clone).find('input[type="radio"]').first().trigger('click');
         }
 
+        $(modal_clone).on('hidden.bs.modal', function (e) {
+            if (cita_fuera_horario){
+                show_modal_citas_fuera_horario();
+            }
+        });
+
 
         $(modal_clone).modal('show');
-    }
-
-    function mensaje_preview_Html(mensaje) {
-        if (!mensaje) return '';
-
-        // Decodifica %0A, emojis, etc.
-        let texto = decodeURIComponent(mensaje);
-
-        // Escapa HTML para evitar inyecciones
-        texto = texto
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-
-        // Saltos de línea reales → <br>
-        texto = texto.replace(/\n/g, '<br>');
-
-        return texto;
     }
 </script>
