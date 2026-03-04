@@ -275,21 +275,21 @@ function formatoDinero(numero) {
 
 //  FUNCION PARA MOSTRAR MENSAJE SANITIZADO DE PLANTILLA
 function mensaje_preview_Html(mensaje) {
-        if (!mensaje) return '';
+    if (!mensaje) return '';
 
-        // Decodifica %0A, emojis, etc.
-        let texto = decodeURIComponent(mensaje);
+    // Decodifica %0A, emojis, etc.
+    let texto = decodeURIComponent(mensaje);
 
-        // Escapa HTML para evitar inyecciones
-        texto = texto
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    // Escapa HTML para evitar inyecciones
+    texto = texto
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 
-        // Saltos de línea reales → <br>
-        texto = texto.replace(/\n/g, '<br>');
+    // Saltos de línea reales → <br>
+    texto = texto.replace(/\n/g, '<br>');
 
-        return texto;
-    }
+    return texto;
+}

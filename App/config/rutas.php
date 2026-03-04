@@ -134,6 +134,7 @@ return [
     'reportes'  => array(
         'general_citas'     => '/reportes/general_citas',
         'general_ingresos'  => '/reportes/general_ingresos',
+        'mensajes_enviados' => '/reportes/mensajes_enviados'
     ),
     'motivos_citas_fuera_horario'   => array(
         'show'  => '/motivos_citas_fuera_horario/show'
