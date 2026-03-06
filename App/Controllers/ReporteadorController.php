@@ -15,12 +15,14 @@ class ReporteadorController extends BaseController
 {
     protected $rutas;
     protected $url_api;
+    protected $bitacora;
 
     public function initialize(){
         $config         = $this->getDI();
         $this->rutas    = $config->get('rutas');
         $config         = $config->get('config');
         $this->url_api  = $config['BASEAPI'];
+        $this->bitacora = 'Reporteador';
     }
 
     public function IndexAction(){
@@ -62,6 +64,15 @@ class ReporteadorController extends BaseController
                     case 'mensajes_enviados':
                         $route_file = $this->reporte_mensajes_enviados();
                 }
+
+                //  BITACORA
+                $arr_mensaje_bitacora   = array(
+                    'general_citas'     => 'GENERAL_CITAS',
+                    'general_ingresos'  => 'GENERAL_INGRESOS',
+                    'mensajes_enviados' => 'MENSAJES_ENVIADOS'
+                );
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'REPORTE_'.$arr_mensaje_bitacora[$tipo_reporte],'Reporte generado con el rango de fechas: '.$_POST['rango_fechas']['fecha_inicio'].' - '.$_POST['rango_fechas']['fecha_termino'],$_POST);
 
                 if ($route_file['status_code'] > 399){
                     $response = new Response();
