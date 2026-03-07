@@ -3,290 +3,650 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Gestión de Plantillas WhatsApp - Sistema Médico</title>
+
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet"/>
-  <title>Seleccionar Plantilla de WhatsApp</title>
+  <!-- Google Fonts -->
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
   <style>
-
-
-    /* ── Todos los estilos del modal apuntan a .whatsappModal ── */
-
-    .whatsappModal .modal-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
-      align-items: flex-start;
+    :root {
+      --primary:       #135bec;
+      --primary-light: #e8effd;
+      --primary-dark:  #0d44c0;
+      --body-bg:       #f0f2f8;
+      --card-bg:       #ffffff;
+      --border:        #e4e7ef;
+      --text-muted:    #8891a5;
+      --text-dark:     #1a2035;
+      --green:         #16a34a;
+      --green-light:   #dcfce7;
+      --wa-header:     #075e54;
+      --wa-bg:         #e5ddd5;
     }
 
-    .whatsappModal .modal-header h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      color: #0f172a;
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--body-bg);
+      color: var(--text-dark);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Layout wrapper ── */
+    .app-shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+
+    /* ══════════════════════════════
+       TEMPLATE LIST PANEL
+    ══════════════════════════════ */
+    .template-list {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .template-list-header {
+      padding: 20px 16px 12px;
+    }
+
+    .template-list-header h2 {
+      font-size: 16px;
+      font-weight: 800;
       margin: 0;
     }
 
-    .whatsappModal .modal-header p {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin: 0.25rem 0 0;
-    }
 
-    .whatsappModal .btn-close-custom {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      transition: color 0.15s;
-    }
-
-    .whatsappModal .btn-close-custom:hover {
-      color: var(--primary);
-    }
-
-    .whatsappModal .modal-body {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    .template-items {
+      flex: 1;
       overflow-y: auto;
-      max-height: 55vh;
     }
 
-    .whatsappModal .template-card {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid #e2e8f0;
-      background: #fff;
+    .template-items::-webkit-scrollbar { width: 4px; }
+    .template-items::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    .template-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
       cursor: pointer;
-      transition: border-color 0.15s;
+      transition: background .15s;
+    }
+
+    .template-item:hover { background: var(--body-bg); }
+
+    .template-item.active {
+      background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+    }
+
+    .template-item .t-id {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 4px;
+    }
+
+    .template-item.active .t-id { color: var(--primary); }
+    .template-item:not(.active) .t-id { color: var(--text-muted); }
+
+    .template-item h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: var(--text-dark);
+    }
+
+    .template-item p {
+      font-size: 11px;
+      color: var(--text-muted);
       margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .whatsappModal .template-card:hover {
-      border-color: rgba(var(--primary-rgb), 0.5);
+    /* ══════════════════════════════
+       EDITOR SECTION
+    ══════════════════════════════ */
+    .editor-section {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--body-bg);
     }
 
-    .whatsappModal .template-card.selected {
-      border: 2px solid var(--primary);
-      background-color: rgba(var(--primary-rgb), 0.04);
-    }
+    .editor-section::-webkit-scrollbar { width: 4px; }
+    .editor-section::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-    .whatsappModal .card-top {
+    .editor-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .whatsappModal .card-top-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
+    .editor-topbar h2 {
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0;
     }
 
-    .whatsappModal .template-card input[type="radio"] {
-      width: 1.25rem;
-      height: 1.25rem;
-      accent-color: var(--primary);
-      flex-shrink: 0;
-    }
-
-    .whatsappModal .card-title {
+    .badge-active {
+      background: var(--green-light);
+      color: var(--green);
+      font-size: 10px;
       font-weight: 700;
-      color: #0f172a;
-      font-size: 0.95rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-left: 10px;
     }
 
-    .whatsappModal .badge-recommended {
-      font-size: 0.625rem;
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: #64748b;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .btn-cancel:hover { background: var(--body-bg); }
+
+    .btn-save {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 22px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(19,91,236,.25);
+      transition: background .15s, box-shadow .15s;
+    }
+
+    .btn-save:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 18px rgba(19,91,236,.35);
+    }
+
+    /* ── Form card ── */
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .form-label-custom {
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 0.2rem 0.5rem;
-      border-radius: 9999px;
-      background-color: var(--primary);
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fff;
+    }
+
+    .form-control-custom:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(19,91,236,.12);
+    }
+
+    .form-control-custom[readonly] {
+      background: var(--body-bg);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* Message editor toolbar */
+    .msg-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--body-bg);
+      border-bottom: 1px solid var(--border);
+      border-radius: 10px 10px 0 0;
+    }
+
+    .var-pill {
+      padding: 3px 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(19,91,236,.2);
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .var-pill:hover { background: rgba(19,91,236,.2); }
+
+    .toolbar-divider {
+      width: 1px; height: 20px;
+      background: var(--border);
+      margin: 0 2px;
+    }
+
+    .msg-body {
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+    }
+
+    .msg-body textarea {
+      width: 100%;
+      border: none;
+      resize: none;
+      padding: 14px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.7;
+      outline: none;
+      background: #fff;
+    }
+
+    .char-count {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Action button card */
+
+    /* ══════════════════════════════
+       PHONE PREVIEW
+    ══════════════════════════════ */
+    .preview-label {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .phone-frame {
+      margin: 0 auto;
+      width: 300px;
+      border: 8px solid #1a2035;
+      border-radius: 44px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.1);
+      background: #fff;
+      position: relative;
+    }
+
+    .phone-notch {
+      background: #1a2035;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 3px;
+    }
+
+    .phone-notch-inner {
+      width: 72px; height: 14px;
+      background: #111;
+      border-radius: 10px;
+    }
+
+    .wa-header {
+      background: var(--wa-header);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       color: #fff;
     }
 
-    .whatsappModal .template-preview {
-      background-color: #f1f5f9;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      border: 1px solid #e2e8f0;
-    }
+    .wa-header .bi { font-size: 18px; }
 
-    .whatsappModal .template-preview p {
-      font-size: 0.875rem;
-      color: #64748b;
-      font-style: italic;
-      line-height: 1.625;
-      margin: 0;
-    }
-
-    .whatsappModal .var-highlight {
-      color: var(--primary);
-      font-weight: 600;
-      font-style: normal;
-    }
-
-    .whatsappModal .info-hint {
-      padding: 0.75rem 1.5rem;
-      background-color: rgba(var(--primary-rgb), 0.05);
-      border-top: 1px solid rgba(var(--primary-rgb), 0.1);
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-
-    .whatsappModal .info-hint .material-symbols-outlined {
-      color: var(--primary);
-      font-size: 1.25rem;
+    .wa-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      overflow: hidden;
       flex-shrink: 0;
     }
 
-    .whatsappModal .info-hint p {
-      font-size: 0.75rem;
-      color: #475569;
-      margin: 0;
+    .wa-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .wa-info { flex: 1; }
+    .wa-info .wa-name { font-size: 12px; font-weight: 700; margin: 0; }
+    .wa-info .wa-status { font-size: 9px; opacity: .8; margin: 0; }
+
+    .wa-actions { display: flex; gap: 10px; }
+    .wa-actions .bi { font-size: 16px; }
+
+    .wa-chat-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 400px;
     }
 
-    .whatsappModal .modal-footer {
-      padding: 1.25rem 1.5rem;
-      background-color: rgba(241, 245, 249, 0.6);
-      border-top: 1px solid rgba(var(--primary-rgb), 0.1);
-      justify-content: space-between;
+    .wa-body {
+      background: var(--wa-bg);
+      padding: 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .wa-body::-webkit-scrollbar { width: 3px; }
+    .wa-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 10px; }
+    .wa-body::-webkit-scrollbar-track { background: transparent; }
+
+    .wa-input {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px;
+      background: var(--wa-bg);
+      border-top: 1px solid rgba(0,0,0,.08);
+      flex-shrink: 0;
+    }
+
+    .wa-date {
+      text-align: center;
+      font-size: 9px;
+      color: #5c6b6e;
+      background: rgba(255,255,255,.7);
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin: 0 auto 10px;
+      display: block;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .wa-bubble {
+      background: #fff;
+      border-radius: 0 12px 12px 12px;
+      padding: 10px 12px;
+      max-width: 92%;
+      box-shadow: 0 1px 2px rgba(0,0,0,.12);
+      font-size: 11px;
+      line-height: 1.65;
+      color: #1a1a1a;
+    }
+
+    .wa-bubble-meta {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .wa-bubble-meta span { font-size: 9px; color: #aaa; text-transform: uppercase; }
+    .wa-bubble-meta .bi { font-size: 12px; color: #4fc3f7; }
+
+
+    .wa-input-box {
+      flex: 1;
+      background: #fff;
+      border-radius: 20px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+
+    .wa-input-box span {
+      font-size: 10px;
+      color: #aaa;
+      flex: 1;
+    }
+
+    .wa-input-box .bi { font-size: 16px; color: #aaa; }
+
+    .wa-mic {
+      width: 36px; height: 36px;
+      background: #128c7e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .wa-mic .bi { font-size: 16px; color: #fff; }
+
+    .hint-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
     }
   </style>
 </head>
 <body>
 
-  <!-- Page content (background mock) -->
-  <div class="p-4" style="max-width:72rem; margin:0 auto;">
-    <div class="bg-secondary rounded-3 mb-4" style="height:3rem; width:16rem; opacity:.3;"></div>
-    <div class="row g-3 mb-4">
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-    </div>
-    <div class="bg-white rounded-3 mb-4" style="height:10rem; opacity:.3;"></div>
+<div class="app-shell">
 
-    <!-- Botón disparador del modal -->
-    <div class="d-flex justify-content-center mt-5">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#whatsappModal">
-        <span class="material-symbols-outlined" style="font-size:1.2rem;">send</span>
-        Enviar plantilla de WhatsApp
-      </button>
+
+  <!-- ═══ TEMPLATE LIST ═══ -->
+  <div class="template-list">
+    <div class="template-list-header">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2>Plantillas</h2>
+        <button class="btn p-1 rounded-circle" style="color:var(--primary)">
+          <i class="bi bi-plus-circle"></i>
+        </button>
+      </div>
+
+
+    </div>
+
+    <div class="template-items">
+      <div class="template-item active">
+        <p class="t-id">WABA-001</p>
+        <h3>Recordatorio de Cita</h3>
+        <p>Hola {{Nombre_Paciente}}, te recordamos...</p>
+      </div>
+      <div class="template-item">
+        <p class="t-id">WABA-002</p>
+        <h3>Promoción Blanqueamiento</h3>
+        <p>¡Sonrisa perfecta! Aprovecha el 20%...</p>
+      </div>
+      <div class="template-item">
+        <p class="t-id">WABA-003</p>
+        <h3>Seguimiento Post-Op</h3>
+        <p>Hola, ¿Cómo te sientes después de...</p>
+      </div>
+      <div class="template-item">
+        <p class="t-id">WABA-004</p>
+        <h3>Confirmación de Pago</h3>
+        <p>Hemos recibido tu pago por el...</p>
+      </div>
     </div>
   </div>
 
-  <!-- ===================== MODAL BOOTSTRAP 5 ===================== -->
-  <div class="modal fade whatsappModal" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:640px;">
-      <div class="modal-content">
+  <!-- ═══ EDITOR ═══ -->
+  <div class="editor-section">
+    <!-- Top Bar -->
+    <div class="editor-topbar">
+      <div class="d-flex align-items-center">
+        <h2>Editar Plantilla</h2>
+        <span class="badge-active">Activa</span>
+      </div>
+      <div class="d-flex gap-2">
+      </div>
+    </div>
 
-        <!-- Header -->
-        <div class="modal-header">
-          <div>
-            <h2 id="whatsappModalLabel">Seleccionar Plantilla de WhatsApp</h2>
-            <p>Elija una plantilla pre-definida para enviar al paciente</p>
-          </div>
-        </div>
+    <!-- Content grid -->
+    <div class="container-fluid px-4 py-4">
+      <div class="row g-4">
 
-        <!-- Body (scrollable) -->
-        <div class="modal-body">
-
-          <!-- Card 1 (Seleccionada) -->
-          <label class="template-card selected">
-            <div class="card-top">
-              <div class="card-top-left">
-                <input checked name="template" type="radio"/>
-                <span class="card-title">Confirmación de Cita</span>
+        <!-- FORM -->
+        <div class="col-12 col-xl-7">
+          <div class="form-card mb-4">
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label-custom">Clave de Plantilla</label>
+                <input type="text" class="form-control-custom" value="WABA-001" readonly/>
               </div>
-              <span class="badge-recommended">Recomendado</span>
+              <div class="col-6">
+                <label class="form-label-custom">Tipo de Mensaje</label>
+                <select class="form-control-custom">
+                  <option>Servicio / Utilidad</option>
+                  <option>Marketing</option>
+                  <option>Autenticación</option>
+                </select>
+              </div>
             </div>
-            <div class="template-preview">
-              <p>
-                "Hola <span class="var-highlight">[Nombre]</span>, confirmamos su cita para el día
-                <span class="var-highlight">[Fecha]</span> a las <span class="var-highlight">[Hora]</span>
-                en nuestro centro médico. Por favor, llegue 10 minutos antes."
-              </p>
-            </div>
-          </label>
 
-          <!-- Card 2 -->
-          <label class="template-card">
-            <div class="card-top-left">
-              <input name="template" type="radio"/>
-              <span class="card-title">Recordatorio de Cita</span>
+            <div class="mb-3">
+              <label class="form-label-custom">Nombre Descriptivo</label>
+              <input type="text" class="form-control-custom" value="Recordatorio de Cita"/>
             </div>
-            <div class="template-preview">
-              <p>"Le recordamos su próxima cita médica programada para mañana. Si necesita reprogramar, por favor responda a este mensaje."</p>
-            </div>
-          </label>
 
-          <!-- Card 3 -->
-          <label class="template-card">
-            <div class="card-top-left">
-              <input name="template" type="radio"/>
-              <span class="card-title">Aviso de Retraso</span>
-            </div>
-            <div class="template-preview">
-              <p>"Estimado paciente, el doctor presenta un breve retraso en las consultas de hoy. Le atenderemos lo más pronto posible. Agradecemos su comprensión."</p>
-            </div>
-          </label>
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label-custom mb-0">Cuerpo del Mensaje</label>
+                <span class="char-count">142 / 1024 caracteres</span>
+              </div>
 
-          <!-- Card 4 -->
-          <label class="template-card">
-            <div class="card-top-left">
-              <input name="template" type="radio"/>
-              <span class="card-title">Resultados Disponibles</span>
+              <div class="msg-toolbar">
+                <button class="var-pill">{{Nombre_Paciente}}</button>
+                <button class="var-pill">{{Fecha_Cita}}</button>
+                <button class="var-pill">{{Hora_Cita}}</button>
+                <button class="var-pill">{{Nombre_Doctor}}</button>
+                <div class="toolbar-divider"></div>
+                <button class="btn p-1 rounded" style="line-height:1">
+                  <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
+                </button>
+              </div>
+
+              <div class="msg-body">
+                <textarea rows="8">Hola {{Nombre_Paciente}}, te recordamos que tienes una cita programada para el día {{Fecha_Cita}} a las {{Hora_Cita}} con el {{Nombre_Doctor}}.
+
+Por favor, confirma tu asistencia respondiendo a este mensaje o cancela con al menos 24 horas de anticipación.
+
+¡Te esperamos!</textarea>
+              </div>
+              <p class="hint-text mt-2">Los campos entre llaves {{ }} se sustituirán automáticamente con la información del paciente.</p>
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <button class="btn-cancel">Cancelar</button>
+                <button class="btn-save">Guardar Cambios</button>
+              </div>
             </div>
-            <div class="template-preview">
-              <p>"Sus resultados de laboratorio ya están disponibles en nuestro portal del paciente. Puede acceder con su número de identificación."</p>
-            </div>
-          </label>
+          </div>
 
         </div>
 
-        <!-- Footer -->
-        <div class="modal-footer justify-content-between">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-success d-flex align-items-center gap-2">
-            <i class="bi bi-whatsapp"></i>
-            <span>Enviar mensaje</span>
-          </button>
+        <!-- PREVIEW -->
+        <div class="col-12 col-xl-5">
+          <div class="sticky-top" style="top:80px">
+            <p class="preview-label">Vista Previa en Tiempo Real</p>
+
+            <div class="phone-frame">
+              <div class="phone-notch">
+                <div class="phone-notch-inner"></div>
+              </div>
+
+              <!-- WA Header -->
+              <div class="wa-header">
+                <i class="bi bi-arrow-left"></i>
+                <div class="wa-avatar">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuQpStgmNfCI0BOxJiodKnhoCTNr0lbqNJ_deFyGPOkRLgd60AJ63K_7QnZuXcmlNFqzJpraFTAiLm1VJfBJpyO8sv-Pr4DoRUp1GNES7X5U5T_6mCtUm4h0M1xG8wZkTIExqGW6j0U_SqBddoKuZ5nPV0PwXFtob0vHDlOQbfh5Id_tExevPo6IIyF2aFxkDu8IcggiwsLyGKHtd0uxEY4RSz5zHqtVNiieqqsqis1CSVM-c7sl1lTnNNvq0SUb2lWgbue5FyyLYw" alt="Clínica Dental Médica"/>
+                </div>
+                <div class="wa-info">
+                  <p class="wa-name">Clínica Dental Médica</p>
+                  <p class="wa-status">en línea</p>
+                </div>
+                <div class="wa-actions">
+                  <i class="bi bi-camera-video"></i>
+                  <i class="bi bi-telephone"></i>
+                </div>
+              </div>
+
+              <!-- WA Chat wrapper -->
+              <div class="wa-chat-wrapper">
+              <!-- WA Chat -->
+              <div class="wa-body">
+                <div class="wa-date">HOY</div>
+
+                <div class="wa-bubble">
+                  Hola <strong>Juan Pérez</strong>, te recordamos que tienes una cita programada para el día <strong>15 de Octubre</strong> a las <strong>10:30 AM</strong> con el <strong>Dr. Alejandro M.</strong>.
+                  <br/><br/>
+                  Por favor, confirma tu asistencia respondiendo a este mensaje o cancela con al menos 24 horas de anticipación.
+                  <br/><br/>
+                  ¡Te esperamos!
+                  <div class="wa-bubble-meta">
+                    <span>11:05 AM</span>
+                    <i class="bi bi-check2-all"></i>
+                  </div>
+                </div>
+
+
+              </div><!-- /wa-body -->
+
+              <!-- Input fijo abajo -->
+              <div class="wa-input">
+                <div class="wa-input-box">
+                  <i class="bi bi-emoji-smile"></i>
+                  <span>Mensaje</span>
+                  <i class="bi bi-paperclip"></i>
+                  <i class="bi bi-camera"></i>
+                </div>
+                <div class="wa-mic">
+                  <i class="bi bi-mic"></i>
+                </div>
+              </div>
+              </div><!-- /wa-chat-wrapper -->
+            </div>
+          </div>
         </div>
 
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script>
-    $(function () {
+</div>
 
-      // Selección de tarjeta: delegación en document para funcionar con clones
-      $(document).on('change', '.whatsappModal input[type="radio"]', function () {
-        var $modal = $(this).closest('.whatsappModal');
-        $modal.find('.template-card').removeClass('selected');
-        $(this).closest('.template-card').addClass('selected');
-      });
-
-      // Cerrar modal al hacer clic en botones con data-bs-dismiss (clones no tienen ID)
-      $(document).on('click', '.whatsappModal [data-bs-dismiss="modal"]', function () {
-        var $modal = $(this).closest('.whatsappModal');
-        var bsModal = bootstrap.Modal.getInstance($modal[0]);
-        if (bsModal) bsModal.hide();
-      });
-
-    });
-  </script>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
