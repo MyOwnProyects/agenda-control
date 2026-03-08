@@ -28,8 +28,10 @@ class PlantillasmensajesController extends BaseController
         $route  = $this->url_api.$this->rutas['plantillas_mensajes']['show'];
         $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
-        $this->view->variables  = $result['variables'];
-        $this->view->plantillas = $result['plantillas'];
+        //$result['plantillas']   = [];
+        $this->view->variables          = $result['variables'];
+        $this->view->json_plantillas    = json_encode($result['plantillas']);
+        $this->view->plantillas         = $result['plantillas'];
     }
 
     public function createAction(){

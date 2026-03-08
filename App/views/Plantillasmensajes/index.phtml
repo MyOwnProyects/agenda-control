@@ -410,157 +410,264 @@ use App\Library\FuncionesGlobales;
         color: var(--text-muted);
         font-style: italic;
     }
+
+    #count_letras {
+        font-size: inherit;
+    }
 </style>
 
 <div class="app-shell container mt-4">
 
-  <!-- ═══ TEMPLATE LIST ═══ -->
-  <div class="template-list">
-    <div class="template-list-header">
-      <div class="d-flex align-items-center justify-content-between">
-        <h2>Plantillas</h2>
-        <button class="btn p-1 rounded-circle" style="color:var(--primary)">
-          <i class="bi bi-plus-circle"></i>
-        </button>
-      </div>
+    <!-- ═══ TEMPLATE LIST ═══ -->
+    <div class="template-list">
+        <div class="template-list-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Plantillas</h2>
+            </div>
+        </div>
+
+        <div id="div_header_row_plantillas" class="template-items">
+            <div class="template-item active" id="plantilla_0" data-id="0">
+                <p class="t-id clave_plantilla">nueva_plantilla</p>
+                <h3 class="nombre_plantilla">Nueva plantilla</h3>
+                <p class="mensaje">...</p>
+            </div>
+            <?php foreach($plantillas as $plantilla): ?>
+            <!-- active -->
+            <div class="template-item" id="plantilla_<?php echo $plantilla['id'] ?>" data-id="<?php echo $plantilla['id'] ?>">
+                <p class="t-id clave_plantilla"><?php echo $plantilla['clave']; ?></p>
+                <h3 class="nombre_plantilla"><?php echo $plantilla['nombre']; ?></h3>
+                <p class="mensaje"><?php echo strlen($plantilla['mensaje']) > 30 ? substr($plantilla['mensaje'], 0, 30) . '...' : $plantilla['mensaje']; ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 
-    <div class="template-items">
-        <?php $first_row = true; foreach($plantillas as $plantilla): ?>
-        <!-- active -->
-        <div class="template-item <?php echo $first_row ? 'active' : ''; ?>">
-            <p class="t-id"><?php echo $plantilla['clave']; ?></p>
-            <h3><?php echo $plantilla['nombre']; ?></h3>
-            <p><?php echo strlen($plantilla['mensaje']) > 30 ? substr($plantilla['mensaje'], 0, 30) . '...' : $plantilla['mensaje']; ?></p>
+    <!-- ═══ EDITOR ═══ -->
+
+    <div class="editor-section">
+
+        <div class="container-fluid px-4">
+            <div class="row g-4">
+
+                <!-- FORM -->
+                <div class="col-12 col-xl-7">
+                    <h2 class="h3 fw-bold mb-1">Edición de plantilla</h2>
+                    <p class="text-muted mb-3">Crea o edita las plantillas de mensajes</p>
+                    <div class="form-card">
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label-custom">Clave de Plantilla</label>
+                                <input id="input_clave" type="text" class="form-control-custom" placeholder="NUEVA_PLANTILLA" value=""/>
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label-custom">Tipo de Mensaje</label>
+                                <select id="select_tipo_mensaje" class="form-control-custom" requred>
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="-1">Todo tipo de citas</option>
+                                    <option value="1">Cita nueva</option>
+                                    <option value="2">Cita reagendada</option>
+                                    <option value="3">Cita pendiente por reagendar</option>
+                                    <option value="0">Cita cancelada</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-custom">Nombre Descriptivo</label>
+                            <input id="input_nombre" type="text" class="form-control-custom" placeholder="Nueva plantilla" value=""/>
+                        </div>
+
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label-custom mb-0">Variables / Cuerpo del Mensaje</label>
+                                <span class="char-count"><span id="count_letras">0</span> / 1024 caracteres</span>
+                            </div>
+
+                            <div class="msg-toolbar">
+                                <?php foreach($variables as $variable): ?>
+                                <button class="var-pill" data-valor="<?php echo $variable['valor']; ?>">
+                                    <?php echo $variable['label']; ?>
+                                </button>
+                                <?php endforeach; ?>
+
+                                <div class="toolbar-divider"></div>
+
+                                <button class="btn p-1 rounded" style="line-height:1">
+                                    <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
+                                </button>
+                            </div>
+
+                            <div class="msg-body">
+                                <textarea id="textarea_mensaje" rows="8" placeholder="..."></textarea>
+                            </div>
+
+                            <p class="hint-text mt-2">
+                                Los campos entre llaves {{ }} se sustituirán automáticamente con la información del paciente.
+                            </p>
+
+                            <div class="d-flex justify-content-end gap-2 mt-3">
+                                <button class="btn-cancel">Cancelar</button>
+                                <button class="btn-save">Guardar Cambios</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PREVIEW -->
+                <div class="col-12 col-xl-5">
+
+                    <p class="preview-label">Vista Previa en Tiempo Real</p>
+
+                    <div class="phone-frame">
+
+                        <div class="phone-notch">
+                            <div class="phone-notch-inner"></div>
+                        </div>
+
+                        <!-- WA Header -->
+                        <div class="wa-header">
+                            <i class="bi bi-arrow-left"></i>
+
+                            <div class="wa-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Clínica Dental Médica"/>
+                            </div>
+
+                            <div class="wa-info">
+                                <p class="wa-name">Paciente Ismael Perez</p>
+                                <p class="wa-status">en línea</p>
+                            </div>
+
+                            <div class="wa-actions">
+                                <i class="bi bi-camera-video"></i>
+                                <i class="bi bi-telephone"></i>
+                            </div>
+                        </div>
+
+                        <!-- WA Chat wrapper -->
+                        <div class="wa-chat-wrapper">
+
+                            <div class="wa-body">
+                                <div class="wa-date">HOY</div>
+
+                                <div id="preview_message_wp" class="wa-bubble">
+                                    ...
+
+                                    <div class="wa-bubble-meta">
+                                        <span>11:05 AM</span>
+                                        <i class="bi bi-check2-all"></i>
+                                    </div>
+                                </div>
+
+                            </div><!-- /wa-body -->
+
+                            <!-- Input fijo abajo -->
+                            <div class="wa-input">
+                                <div class="wa-input-box">
+                                    <i class="bi bi-emoji-smile"></i>
+                                    <span>Mensaje</span>
+                                    <i class="bi bi-paperclip"></i>
+                                    <i class="bi bi-camera"></i>
+                                </div>
+
+                                <div class="wa-mic">
+                                    <i class="bi bi-mic"></i>
+                                </div>
+                            </div>
+
+                        </div><!-- /wa-chat-wrapper -->
+
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <?php $first_row = false; ?>
-        <?php endforeach; ?>
     </div>
-  </div>
-
-  <!-- ═══ EDITOR ═══ -->
-
-  <div class="editor-section">
-    <div class="mb-4 px-4">
-            <h2 class="h3 fw-bold mb-1">Edición de plantilla</h2>
-            <p class="text-muted mb-0">Crea o edita las plantillas de mensajes</p>
-        </div>
-    <div class="container-fluid px-4">
-      <div class="row g-4">
-        <!-- FORM -->
-        <div class="col-12 col-xl-7">
-          <div class="form-card">
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <label class="form-label-custom">Clave de Plantilla</label>
-                <input type="text" class="form-control-custom" value=""/>
-              </div>
-              <div class="col-6">
-                <label class="form-label-custom">Tipo de Mensaje</label>
-                <select class="form-control-custom">
-                  <option value="">Todo tipo de citas</option>
-                  <option value="1">Cita nueva</option>
-                  <option value="2">Cita reagendada</option>
-                  <option value="3">Cita pendiente por reagendar</option>
-                  <option value="0">Cita cancelada</option>
-                  <option value="">Cita cancelada</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label-custom">Nombre Descriptivo</label>
-              <input type="text" class="form-control-custom" value=""/>
-            </div>
-
-            <div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <label class="form-label-custom mb-0">Variables / Cuerpo del Mensaje</label>
-                <span class="char-count">142 / 1024 caracteres</span>
-              </div>
-
-              <div class="msg-toolbar">
-                <?php foreach($variables as $variable): ?>
-                <button class="var-pill" data-valor="<?php echo $variable['valor']; ?>"><?php echo $variable['label']; ?></button>
-                <?php endforeach; ?>
-                <div class="toolbar-divider"></div>
-                <button class="btn p-1 rounded" style="line-height:1">
-                  <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
-                </button>
-              </div>
-
-              <div class="msg-body">
-                <textarea rows="8"></textarea>
-              </div>
-              <p class="hint-text mt-2">Los campos entre llaves {{ }} se sustituirán automáticamente con la información del paciente.</p>
-              <div class="d-flex justify-content-end gap-2 mt-3">
-                <button class="btn-cancel">Cancelar</button>
-                <button class="btn-save">Guardar Cambios</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PREVIEW -->
-        <div class="col-12 col-xl-5">
-          <p class="preview-label">Vista Previa en Tiempo Real</p>
-
-          <div class="phone-frame">
-            <div class="phone-notch">
-              <div class="phone-notch-inner"></div>
-            </div>
-
-            <!-- WA Header -->
-            <div class="wa-header">
-              <i class="bi bi-arrow-left"></i>
-              <div class="wa-avatar">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuQpStgmNfCI0BOxJiodKnhoCTNr0lbqNJ_deFyGPOkRLgd60AJ63K_7QnZuXcmlNFqzJpraFTAiLm1VJfBJpyO8sv-Pr4DoRUp1GNES7X5U5T_6mCtUm4h0M1xG8wZkTIExqGW6j0U_SqBddoKuZ5nPV0PwXFtob0vHDlOQbfh5Id_tExevPo6IIyF2aFxkDu8IcggiwsLyGKHtd0uxEY4RSz5zHqtVNiieqqsqis1CSVM-c7sl1lTnNNvq0SUb2lWgbue5FyyLYw" alt="Clínica Dental Médica"/>
-              </div>
-              <div class="wa-info">
-                <p class="wa-name">Clínica Dental Médica</p>
-                <p class="wa-status">en línea</p>
-              </div>
-              <div class="wa-actions">
-                <i class="bi bi-camera-video"></i>
-                <i class="bi bi-telephone"></i>
-              </div>
-            </div>
-
-            <!-- WA Chat wrapper -->
-            <div class="wa-chat-wrapper">
-              <div class="wa-body">
-                <div class="wa-date">HOY</div>
-                <div class="wa-bubble">
-                  Hola <strong>Juan Pérez</strong>, te recordamos que tienes una cita programada para el día <strong>15 de Octubre</strong> a las <strong>10:30 AM</strong> con el <strong>Dr. Alejandro M.</strong>.
-                  <br/><br/>
-                  Por favor, confirma tu asistencia respondiendo a este mensaje o cancela con al menos 24 horas de anticipación.
-                  <br/><br/>
-                  ¡Te esperamos!
-                  <div class="wa-bubble-meta">
-                    <span>11:05 AM</span>
-                    <i class="bi bi-check2-all"></i>
-                  </div>
-                </div>
-              </div><!-- /wa-body -->
-
-              <!-- Input fijo abajo -->
-              <div class="wa-input">
-                <div class="wa-input-box">
-                  <i class="bi bi-emoji-smile"></i>
-                  <span>Mensaje</span>
-                  <i class="bi bi-paperclip"></i>
-                  <i class="bi bi-camera"></i>
-                </div>
-                <div class="wa-mic">
-                  <i class="bi bi-mic"></i>
-                </div>
-              </div>
-            </div><!-- /wa-chat-wrapper -->
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
 
 </div>
+
+<div id="template_row_plantilla" class="template-item " style="display:none;">
+    <p class="t-id"><?php echo $plantilla['clave']; ?></p>
+    <h3><?php echo $plantilla['nombre']; ?></h3>
+    <p><?php echo strlen($plantilla['mensaje']) > 30 ? substr($plantilla['mensaje'], 0, 30) . '...' : $plantilla['mensaje']; ?></p>
+</div>
+
+<script>
+    var modulo_plantillas_mensaje = (function(){
+        let count_plantillas    = '<?php echo count($plantillas); ?>';
+        let tmp_obj_plantillas  = '<?php echo $json_plantillas; ?>';
+        tmp_obj_plantillas      = JSON.parse(tmp_obj_plantillas);
+
+        let obj_plantillas  = {
+            0   : {
+                activa  : 1,
+                clave   : '',
+                id      : null,
+                mensaje : '',
+                nombre  : '',
+                tipo_mensaje    : ''
+            }
+        };
+
+        tmp_obj_plantillas.forEach(function(plantilla) {
+            obj_plantillas[plantilla.id]    = plantilla;
+        });
+
+        let count_id_plantilla  = 0;
+        let mensaje_visto_html  = `
+                                    <div class="wa-bubble-meta">
+                                        <span>14:20 PM</span>
+                                        <i class="bi bi-check2-all"></i>
+                                    </div>
+                                `;
+        const limite_caracteres = 1024;
+
+        $(document).ready(function(){
+
+            $(".template-list").on('click','.template-item',function(){
+                $(".template-list").find('.active').removeClass('active');
+
+                $(this).addClass('active');
+
+                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+
+                $("#input_clave").val(obj_plantillas[id_plantilla_activa]['clave']);
+                $("#input_nombre").val(obj_plantillas[id_plantilla_activa]['nombre']);
+                $("#select_tipo_mensaje").val(obj_plantillas[id_plantilla_activa]['tipo_mensaje'] === null ? '-1' : obj_plantillas[id_plantilla_activa]['tipo_mensaje']);
+                let mensaje = obj_plantillas[id_plantilla_activa]['mensaje'];
+                mensaje     = mensaje = mensaje.replace(/%0A/g, '\n');
+                $("#textarea_mensaje").val(mensaje).trigger('keyup');
+            });
+
+            //  EVENTO PARA LIMITAR LOS CARACTERES Y MOSTRAR EL PREVIEW
+            $("#textarea_mensaje").on('keydown', function(e) {
+                let mensaje = $(this).val().trim();
+                
+                // Si ya llegó al límite, solo permite teclas de control
+                if (mensaje.length >= limite_caracteres) {
+                    let teclasPermitidas = [
+                        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 
+                        'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
+                    ];
+                    if (!teclasPermitidas.includes(e.key) && !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                    }
+                }
+            }).on('keyup', function() {
+                let mensaje = $(this).val();
+                
+                $("#count_letras").text(mensaje.trim().length);
+                mensaje = mensaje.trim().length == 0 ? '...' : mensaje.trim();
+                mensaje = mensaje.replace(/\n/g, '<br>');
+                $("#preview_message_wp").html(mensaje + mensaje_visto_html);
+
+                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                console.log('id_plantilla_activa',id_plantilla_activa);
+                console.log(obj_plantillas[id_plantilla_activa]);
+            });
+        });// FIN DOCUMENT READY
+    })();
+</script>
