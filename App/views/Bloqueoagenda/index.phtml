@@ -107,13 +107,18 @@ use App\Library\FuncionesGlobales;
                 </div>    
                 <div class="col-md-6"></div>            
                 <!-- Campo Clave -->
-                <div class="col-md-5">
-                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_date']; ?></label>
+                <div class="col-md-6">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
                     <input type="date" id="input_fecha_inicio" name="input_fecha_inicio" class="form-control" maxLength="10" required />
                     <div class="invalid-feedback"><?php echo $translations['html_error_date']; ?></div>
                 </div>
+                <div class="col-md-6">
+                    <label for="input_fecha_termino" class="col-form-label"><?php echo $translations['html_ending_date']; ?></label>
+                    <input type="date" id="input_fecha_termino" name="input_fecha_termino" class="form-control" maxLength="10" required />
+                    <div class="invalid-feedback"><?php echo $translations['html_error_date']; ?></div>
+                </div>
                 <!-- Campo Nombre -->
-                <div class="col-md-7">
+                <div class="col-md-12">
                     <label for="input_label_bloqueo" class="col-form-label"><?php echo $translations['html_description']; ?></label>
                     <input type="text" class="form-control" id="input_label_bloqueo" required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_description']; ?></div>
@@ -552,7 +557,7 @@ use App\Library\FuncionesGlobales;
                 let obj_info    = {
                     id_locacion     : $(modal_clone).find('#select_locaciones').val() == "-1" ? null : $(modal_clone).find('#select_locaciones').val(),
                     fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
-                    fecha_termino   : $(modal_clone).find('#input_fecha_inicio').val(),
+                    fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
                     label_bloqueo   : $(modal_clone).find('#input_label_bloqueo').val(),
                     tipo_bloqueo    : '1',
                     tipo_movimiento : $(modal_clone).find('.tipo_movimiento:checked').val()
@@ -561,10 +566,6 @@ use App\Library\FuncionesGlobales;
                 if (data_actual != null){
                     obj_info['id']      = data_actual['id'];
                 }
-
-                console.log('obj_info');
-                console.log(obj_info);
-                //return false;
 
                 //  SE VERIFICAN LA CANTIDAD DE CITAS ACTIVAS, ESTO PARA QUE EL USUARIO ESTE CONCIENTE
                 //  SEL NUMERO DE CITAS AFECTADAS AL CREAR EL REGISTRO
@@ -606,8 +607,8 @@ use App\Library\FuncionesGlobales;
                                 }
                             })
                         } else {
-
-                            const respuesta = await window.modalConfirm('Se marcarán en total <b>'+num_citas_afectadas+' cita(s)</b> como PENDIENTES POR AGENDAR.<br>¿Deseas continuar?',true);
+                            let tipo_mensaje    = $(modal_clone).find('.tipo_movimiento:checked').val() == 'cancelar' ? 'CANCELADAS' : 'PENDIENTES POR AGENDAR';
+                            const respuesta = await window.modalConfirm('Se marcarán en total <b>'+num_citas_afectadas+' cita(s)</b> como '+tipo_mensaje+'.<br>¿Deseas continuar?',true);
 
                             if (respuesta) {
                                 $.ajax({
@@ -710,8 +711,6 @@ use App\Library\FuncionesGlobales;
                 const fecha_inicio  = moment($(modal_clone).find('#input_fecha_inicio').val());
                 const fecha_termino = moment($(modal_clone).find('#input_fecha_termino').val());
 
-                console.log('fechas ',fecha_inicio,fecha_termino,fecha_termino.isAfter(fecha_inicio));
-
                 if (fecha_inicio.isAfter(fecha_termino)) {
                     $(modal_clone).find('#alert_error').find('#msg_error').html(error_list['error_range_date']);
                     $(modal_clone).find('#alert_error').addClass('d-flex').show();
@@ -738,10 +737,6 @@ use App\Library\FuncionesGlobales;
                 if (data_actual != null){
                     obj_info['id']      = data_actual['id'];
                 }
-
-                console.log('obj_info');
-                console.log(obj_info);
-                // return false;
 
                 //  SE VERIFICAN LA CANTIDAD DE CITAS ACTIVAS, ESTO PARA QUE EL USUARIO ESTE CONCIENTE
                 //  SEL NUMERO DE CITAS AFECTADAS AL CREAR EL REGISTRO
@@ -783,8 +778,8 @@ use App\Library\FuncionesGlobales;
                                 }
                             })
                         } else {
-
-                            const respuesta = await window.modalConfirm('Se marcarán en total <b>'+num_citas_afectadas+' cita(s)</b> como PENDIENTES POR AGENDAR.<br>¿Deseas continuar?',true);
+                            let tipo_mensaje    = $(modal_clone).find('.tipo_movimiento:checked').val() == 'cancelar' ? 'CANCELADAS' : 'PENDIENTES POR AGENDAR';
+                            const respuesta = await window.modalConfirm('Se marcarán en total <b>'+num_citas_afectadas+' cita(s)</b> como '+tipo_mensaje+'.<br>¿Deseas continuar?',true);
 
                             if (respuesta) {
                                 //  AJAX SAVE
