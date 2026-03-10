@@ -414,6 +414,25 @@ use App\Library\FuncionesGlobales;
     #count_letras {
         font-size: inherit;
     }
+
+    .var-pill.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+
+    .var-pill .icon-remove {
+        display: none;
+        font-size: 11px;
+    }
+
+    .var-pill.active .icon-remove {
+        display: inline;
+    }
+
+    .var-pill.active .icon-add {
+        display: none;
+    }
 </style>
 
 <div class="app-shell container mt-4">
@@ -437,7 +456,7 @@ use App\Library\FuncionesGlobales;
             <div class="template-item" id="plantilla_<?php echo $plantilla['id'] ?>" data-id="<?php echo $plantilla['id'] ?>">
                 <p class="t-id clave_plantilla"><?php echo $plantilla['clave']; ?></p>
                 <h3 class="nombre_plantilla"><?php echo $plantilla['nombre']; ?></h3>
-                <p class="mensaje"><?php echo strlen($plantilla['mensaje']) > 30 ? substr($plantilla['mensaje'], 0, 30) . '...' : $plantilla['mensaje']; ?></p>
+                <p class="mensaje"><?php echo strlen($plantilla['mensaje']) > 30 ? substr(str_replace('%0A',' ',$plantilla['mensaje']), 0, 30) . '...' : $plantilla['mensaje']; ?></p>
             </div>
             <?php endforeach; ?>
         </div>
@@ -488,9 +507,11 @@ use App\Library\FuncionesGlobales;
 
                             <div class="msg-toolbar">
                                 <?php foreach($variables as $variable): ?>
-                                <button class="var-pill" data-valor="<?php echo $variable['valor']; ?>">
-                                    <?php echo $variable['label']; ?>
-                                </button>
+                                    <button class="btn_add_variable var-pill" data-valor="<?php echo $variable['valor']; ?>">
+                                        <i class="bi bi-plus-lg icon-add"></i>
+                                        <i class="bi bi-arrow-counterclockwise icon-remove"></i>
+                                        <?php echo $variable['label']; ?>
+                                    </button>
                                 <?php endforeach; ?>
 
                                 <div class="toolbar-divider"></div>
@@ -600,6 +621,7 @@ use App\Library\FuncionesGlobales;
         let count_plantillas    = '<?php echo count($plantillas); ?>';
         let tmp_obj_plantillas  = '<?php echo $json_plantillas; ?>';
         tmp_obj_plantillas      = JSON.parse(tmp_obj_plantillas);
+        let historial           = [];
 
         let obj_plantillas  = {
             0   : {
@@ -645,28 +667,75 @@ use App\Library\FuncionesGlobales;
             //  EVENTO PARA LIMITAR LOS CARACTERES Y MOSTRAR EL PREVIEW
             $("#textarea_mensaje").on('keydown', function(e) {
                 let mensaje = $(this).val().trim();
-                
+
                 // Si ya llegó al límite, solo permite teclas de control
                 if (mensaje.length >= limite_caracteres) {
                     let teclasPermitidas = [
-                        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 
+                        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
                         'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
                     ];
                     if (!teclasPermitidas.includes(e.key) && !e.ctrlKey && !e.metaKey) {
                         e.preventDefault();
                     }
                 }
+
             }).on('keyup', function() {
                 let mensaje = $(this).val();
-                
-                $("#count_letras").text(mensaje.trim().length);
-                mensaje = mensaje.trim().length == 0 ? '...' : mensaje.trim();
+                let texto   = mensaje.trim();
+
+                // Contador
+                $("#count_letras").text(texto.length);
+
+                // Preview
+                mensaje = texto.length == 0 ? '...' : texto;
                 mensaje = mensaje.replace(/\n/g, '<br>');
                 $("#preview_message_wp").html(mensaje + mensaje_visto_html);
 
+                // Sincroniza botones de variables
+                $('.btn_add_variable').each(function() {
+                    let variable = $(this).data('valor');
+                    $(this).toggleClass('active', texto.includes(variable));
+                });
+
                 let id_plantilla_activa = $(".template-list").find('.active').data('id');
-                console.log('id_plantilla_activa',id_plantilla_activa);
+                console.log('id_plantilla_activa', id_plantilla_activa);
                 console.log(obj_plantillas[id_plantilla_activa]);
+            });
+
+            $('.editor-section').on('click', '.btn_add_variable', function() {
+                let variable  = $(this).data('valor');
+                let $textarea = $("#textarea_mensaje");
+                let $btn      = $(this);
+
+                // Guarda estado antes de modificar
+                historial.push({
+                    texto  : $textarea.val(),
+                    cursor : $textarea[0].selectionStart
+                });
+
+                if ($textarea.val().includes(variable)) {
+                    // Si ya existe → la elimina del texto
+                    $textarea.val($textarea.val().replace(variable, ''));
+                    $btn.removeClass('active');
+                } else {
+                    // Si no existe → la inserta donde está el cursor
+                    let textarea   = $textarea[0];
+                    let inicio     = textarea.selectionStart;
+                    let fin        = textarea.selectionEnd;
+                    let texto      = $textarea.val();
+                    let nuevoTexto = texto.substring(0, inicio) + variable + texto.substring(fin);
+
+                    $textarea.val(nuevoTexto);
+
+                    let nuevaPosicion = inicio + variable.length;
+                    textarea.selectionStart = nuevaPosicion;
+                    textarea.selectionEnd   = nuevaPosicion;
+
+                    $btn.addClass('active');
+                }
+
+                $textarea.focus();
+                $textarea.trigger('keyup');
             });
         });// FIN DOCUMENT READY
     })();
