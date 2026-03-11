@@ -478,7 +478,7 @@ use App\Library\FuncionesGlobales;
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="form-label-custom">Clave de Plantilla</label>
-                                <input id="input_clave" type="text" class="form-control-custom" placeholder="NUEVA_PLANTILLA" value=""/>
+                                <input id="input_clave" type="text" class="input_change form-control-custom" placeholder="NUEVA_PLANTILLA" value=""/>
                             </div>
 
                             <div class="col-6">
@@ -496,7 +496,7 @@ use App\Library\FuncionesGlobales;
 
                         <div class="mb-3">
                             <label class="form-label-custom">Nombre Descriptivo</label>
-                            <input id="input_nombre" type="text" class="form-control-custom" placeholder="Nueva plantilla" value=""/>
+                            <input id="input_nombre" type="text" class="input_change form-control-custom" placeholder="Nueva plantilla" value=""/>
                         </div>
 
                         <div>
@@ -633,7 +633,7 @@ use App\Library\FuncionesGlobales;
 
 
 
-        let obj_plantillas_original = {
+        let obj_plantillas_originales   = {
             0   : {
                 activa  : 1,
                 clave   : '',
@@ -658,7 +658,7 @@ use App\Library\FuncionesGlobales;
         //  SE CREAN LOS OBJETOS PARA TENER UNO CON LA INFORMACION ORIGINAL 
         //  Y UN SEGUNDO CON LA INFORMACION EDITADA PARA GUARDAR
         tmp_obj_plantillas.forEach(function(plantilla) {
-            obj_plantillas_original[plantilla.id]   = JSON.parse(JSON.stringify(plantilla));
+            obj_plantillas_originales[plantilla.id] = JSON.parse(JSON.stringify(plantilla));
             obj_plantillas_finales[plantilla.id]    = JSON.parse(JSON.stringify(plantilla));
         });
 
@@ -707,8 +707,6 @@ use App\Library\FuncionesGlobales;
                     if (!teclasPermitidas.includes(e.key) && !e.ctrlKey && !e.metaKey) {
                         e.preventDefault();
                     }
-                } else {
-                    guardar_cambios_plantila($(".template-list").find('.active').data('id'));
                 }
 
             }).on('keyup', function() {
@@ -732,6 +730,25 @@ use App\Library\FuncionesGlobales;
                 guardar_cambios_plantila($(".template-list").find('.active').data('id'));
             });
 
+            //  CUADO CAMBIAN NOMBRE O CLAVE
+            $(".input_change").on('keyup',function(){
+                guardar_cambios_plantila($(".template-list").find('.active').data('id'));
+            });
+
+            //  EVENTO PARA DESHACER LOS CAMBIOS DE LA PLANTILLA MOSTRADA
+            $("#btnDeshacer").on('click',async function(){
+                const respuesta = await window.modalConfirm('¿Deseas deshacer TODOS los cambios?');
+
+                // if (respuesta){
+                //     let id_plantilla_activa = $(".template-list").find('.active').data('id');
+
+                //     obj_plantillas_finales[id_plantilla_activa] = JSON.parse(JSON.stringify(obj_plantillas_originales[id_plantilla_activa]));
+
+                //     $("#textarea_mensaje").trigger('keyup');
+                // }
+            });
+
+            //  CLIC PARA INSERTAR VARIABLE
             $('.editor-section').on('click', '.btn_add_variable', function() {
                 let variable  = $(this).data('valor');
                 let $textarea = $("#textarea_mensaje");
@@ -832,14 +849,21 @@ use App\Library\FuncionesGlobales;
         //  FUNCION PARA GUARDAR EN EL OBJETO FINAL LA INFORMACION ACTUAL
         //  ESTO PARA QUE AL CAMBIAR ENTRE PLANTILLAS EL AVANCE NO SE PIERDA
         function guardar_cambios_plantila(id_plantilla_activa){
-            console.log('id_plantilla_activa', id_plantilla_activa);
-            console.log(obj_plantillas_finales[id_plantilla_activa]);
             let mensaje = $("#textarea_mensaje").val().trim();
 
             obj_plantillas_finales[id_plantilla_activa]['clave']    = $("#input_clave").val().trim();
             obj_plantillas_finales[id_plantilla_activa]['nombre']   = $("#input_nombre").val().trim();
             obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] = $("#select_tipo_mensaje").val();
             obj_plantillas_finales[id_plantilla_activa]['mensaje']      = mensaje.replace(/\n/g, '%0A');
+
+            //  ACTUALIZA EL MENU DE LA IZQUIERDA
+            $(".template-list").find('.active').find('.clave_plantilla').text($("#input_clave").val().trim());
+            $(".template-list").find('.active').find('.nombre_plantilla').text($("#input_nombre").val().trim());
+            
+            let mensajeCorto = mensaje.replace(/\n/g, ' ');
+            mensajeCorto     = mensajeCorto.length > 30 ? mensajeCorto.substring(0, 30) + '...' : mensajeCorto;
+
+            $(".template-list").find('.active').find('.mensaje').text(mensajeCorto);
         }
     })();
 </script>
