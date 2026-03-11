@@ -516,7 +516,10 @@ use App\Library\FuncionesGlobales;
 
                                 <div class="toolbar-divider"></div>
 
-                                <button class="btn p-1 rounded" style="line-height:1">
+                                <div id="emoji_picker_container" style="display:none; position:absolute; z-index:999;">
+                                    <emoji-picker></emoji-picker>
+                                </div>
+                                <button id="btn_emoji" class="btn p-1 rounded" style="line-height:1">
                                     <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
                                 </button>
                             </div>
@@ -736,6 +739,46 @@ use App\Library\FuncionesGlobales;
 
                 $textarea.focus();
                 $textarea.trigger('keyup');
+            });
+
+            //  EMOJIS
+            $("#btn_emoji").on('click', function(e) {
+                e.stopPropagation();
+                $('#emoji_picker_container').toggle();
+            });
+
+            $(document).on('emoji-click', 'emoji-picker', function(e) {
+                let emoji     = e.originalEvent.detail.unicode;
+                let $textarea = $("#textarea_mensaje");
+                let textarea  = $textarea[0];
+
+                // Guarda en historial
+                historial.push({
+                    texto  : $textarea.val(),
+                    cursor : textarea.selectionStart
+                });
+
+                let inicio     = textarea.selectionStart;
+                let fin        = textarea.selectionEnd;
+                let texto      = $textarea.val();
+                let nuevoTexto = texto.substring(0, inicio) + emoji + texto.substring(fin);
+
+                $textarea.val(nuevoTexto);
+
+                let nuevaPosicion = inicio + emoji.length;
+                textarea.selectionStart = nuevaPosicion;
+                textarea.selectionEnd   = nuevaPosicion;
+
+                $textarea.focus();
+                $textarea.trigger('keyup');
+
+                $('#emoji_picker_container').hide();
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#emoji_picker_container, #btn_emoji').length) {
+                    $('#emoji_picker_container').hide();
+                }
             });
         });// FIN DOCUMENT READY
     })();
