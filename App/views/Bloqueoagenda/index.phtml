@@ -534,6 +534,7 @@ use App\Library\FuncionesGlobales;
                 data_actual['id_locacion'] = data_actual['id_locacion'] == null ? "-1" : data_actual['id_locacion'];
                 $(modal_clone).find('#select_locaciones').val(data_actual['id_locacion']).trigger('change');
                 $(modal_clone).find('#input_fecha_inicio').val(data_actual['fecha_inicio']);
+                $(modal_clone).find('#input_fecha_termino').val(data_actual['fecha_termino']);
                 $(modal_clone).find('#input_label_bloqueo').val(data_actual['label_bloqueo']);
             }
 

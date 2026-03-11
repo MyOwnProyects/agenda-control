@@ -533,11 +533,10 @@ use App\Library\FuncionesGlobales;
                             </p>
 
                             <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button class="btn-cancel">Cancelar</button>
-                                <button class="btn-save">Guardar Cambios</button>
+                                <button id="btnDeshacer" class="btn-cancel">Deshacer cambios</button>
+                                <button id="btnSave" class="btn-save">Guardar Cambios</button>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -621,12 +620,20 @@ use App\Library\FuncionesGlobales;
 
 <script>
     var modulo_plantillas_mensaje = (function(){
-        let count_plantillas    = '<?php echo count($plantillas); ?>';
+
+        //  INFORMACION DE LA LOCACION PARA MOSTRAR EN VISTA PREVIA
+        let nombre_locacion     = '<?php echo $nombre_locacion; ?>';
+        let latitud_locacion    = '<?php echo $latitud_locacion; ?>';
+        let longitud_locacion   = '<?php echo $longitud_locacion; ?>';
+
+        //  INFORMACION DE LA PLANTILLA
         let tmp_obj_plantillas  = '<?php echo $json_plantillas; ?>';
         tmp_obj_plantillas      = JSON.parse(tmp_obj_plantillas);
-        let historial           = [];
 
-        let obj_plantillas  = {
+
+
+
+        let obj_plantillas_original = {
             0   : {
                 activa  : 1,
                 clave   : '',
@@ -637,8 +644,22 @@ use App\Library\FuncionesGlobales;
             }
         };
 
+        let obj_plantillas_finales  = {
+            0   : {
+                activa  : 1,
+                clave   : '',
+                id      : null,
+                mensaje : '',
+                nombre  : '',
+                tipo_mensaje    : ''
+            }
+        };
+
+        //  SE CREAN LOS OBJETOS PARA TENER UNO CON LA INFORMACION ORIGINAL 
+        //  Y UN SEGUNDO CON LA INFORMACION EDITADA PARA GUARDAR
         tmp_obj_plantillas.forEach(function(plantilla) {
-            obj_plantillas[plantilla.id]    = plantilla;
+            obj_plantillas_original[plantilla.id]   = JSON.parse(JSON.stringify(plantilla));
+            obj_plantillas_finales[plantilla.id]    = JSON.parse(JSON.stringify(plantilla));
         });
 
         let count_id_plantilla  = 0;
@@ -653,18 +674,24 @@ use App\Library\FuncionesGlobales;
         $(document).ready(function(){
 
             $(".template-list").on('click','.template-item',function(){
-                $(".template-list").find('.active').removeClass('active');
+                guardar_cambios_plantila($(".template-list").find('.active').data('id'));
+                let btn = $(this);
 
-                $(this).addClass('active');
+                //  SLEEP PARA GARANTIZAR QUE EL OBJETO GUARDARA LA INFORMACION ACTUAL
+                setTimeout(function() {
 
-                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                    $(".template-list").find('.active').removeClass('active');
+                    $(btn).addClass('active');
 
-                $("#input_clave").val(obj_plantillas[id_plantilla_activa]['clave']);
-                $("#input_nombre").val(obj_plantillas[id_plantilla_activa]['nombre']);
-                $("#select_tipo_mensaje").val(obj_plantillas[id_plantilla_activa]['tipo_mensaje'] === null ? '-1' : obj_plantillas[id_plantilla_activa]['tipo_mensaje']);
-                let mensaje = obj_plantillas[id_plantilla_activa]['mensaje'];
-                mensaje     = mensaje = mensaje.replace(/%0A/g, '\n');
-                $("#textarea_mensaje").val(mensaje).trigger('keyup');
+                    let id_plantilla_activa = $(".template-list").find('.active').data('id');
+
+                    $("#input_clave").val(obj_plantillas_finales[id_plantilla_activa]['clave']);
+                    $("#input_nombre").val(obj_plantillas_finales[id_plantilla_activa]['nombre']);
+                    $("#select_tipo_mensaje").val(obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] === null ? '-1' : obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje']);
+                    let mensaje = obj_plantillas_finales[id_plantilla_activa]['mensaje'];
+                    mensaje     = mensaje = mensaje.replace(/%0A/g, '\n');
+                    $("#textarea_mensaje").val(mensaje).trigger('keyup');
+                }, 150);
             });
 
             //  EVENTO PARA LIMITAR LOS CARACTERES Y MOSTRAR EL PREVIEW
@@ -680,6 +707,8 @@ use App\Library\FuncionesGlobales;
                     if (!teclasPermitidas.includes(e.key) && !e.ctrlKey && !e.metaKey) {
                         e.preventDefault();
                     }
+                } else {
+                    guardar_cambios_plantila($(".template-list").find('.active').data('id'));
                 }
 
             }).on('keyup', function() {
@@ -692,7 +721,7 @@ use App\Library\FuncionesGlobales;
                 // Preview
                 mensaje = texto.length == 0 ? '...' : texto;
                 mensaje = mensaje.replace(/\n/g, '<br>');
-                $("#preview_message_wp").html(mensaje + mensaje_visto_html);
+                $("#preview_message_wp").html(reemplazar_variables(mensaje) + mensaje_visto_html);
 
                 // Sincroniza botones de variables
                 $('.btn_add_variable').each(function() {
@@ -700,21 +729,13 @@ use App\Library\FuncionesGlobales;
                     $(this).toggleClass('active', texto.includes(variable));
                 });
 
-                let id_plantilla_activa = $(".template-list").find('.active').data('id');
-                console.log('id_plantilla_activa', id_plantilla_activa);
-                console.log(obj_plantillas[id_plantilla_activa]);
+                guardar_cambios_plantila($(".template-list").find('.active').data('id'));
             });
 
             $('.editor-section').on('click', '.btn_add_variable', function() {
                 let variable  = $(this).data('valor');
                 let $textarea = $("#textarea_mensaje");
                 let $btn      = $(this);
-
-                // Guarda estado antes de modificar
-                historial.push({
-                    texto  : $textarea.val(),
-                    cursor : $textarea[0].selectionStart
-                });
 
                 if ($textarea.val().includes(variable)) {
                     // Si ya existe → la elimina del texto
@@ -752,12 +773,6 @@ use App\Library\FuncionesGlobales;
                 let $textarea = $("#textarea_mensaje");
                 let textarea  = $textarea[0];
 
-                // Guarda en historial
-                historial.push({
-                    texto  : $textarea.val(),
-                    cursor : textarea.selectionStart
-                });
-
                 let inicio     = textarea.selectionStart;
                 let fin        = textarea.selectionEnd;
                 let texto      = $textarea.val();
@@ -781,5 +796,50 @@ use App\Library\FuncionesGlobales;
                 }
             });
         });// FIN DOCUMENT READY
+
+        //  FUNCIONES
+        //  FUNCION PARA MOSTRAR PREVIEW CON INFORMACION
+        function reemplazar_variables(mensaje) {
+
+            let dias_semana = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            let meses       = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+            let hoy         = new Date();
+            let manana      = new Date();
+            let ayer        = new Date();
+
+            manana.setDate(hoy.getDate() + 1);
+            ayer.setDate(hoy.getDate() - 1);
+
+            let reemplazos_preview = {
+                '{{PACIENTE}}'       : 'Ismael Pérez',
+                '{{PROFESIONAL}}'    : 'Dr. Juan García',
+                '{{FECHA_CITA}}'     : `${manana.getDate()} de ${meses[manana.getMonth()]} ${manana.getFullYear()}`,
+                '{{HORA}}'           : '14:20',
+                '{{FECHA_ANTERIOR}}' : `${ayer.getDate()} de ${meses[ayer.getMonth()]} ${ayer.getFullYear()}`,
+                '{{LOCACION}}'       : nombre_locacion,
+                '{{MAPS_URL}}'       : 'https://maps.google.com/?q='+latitud_locacion+','+longitud_locacion,
+                '{{DIA_CITA}}'       : dias_semana[manana.getDay()],
+                '{{DIA_ANTERIOR}}'   : dias_semana[ayer.getDay()]
+            };
+
+            $.each(reemplazos_preview, function(variable, valor) {
+                mensaje = mensaje.split(variable).join(valor);
+            });
+            return mensaje;
+        }
+
+        //  FUNCION PARA GUARDAR EN EL OBJETO FINAL LA INFORMACION ACTUAL
+        //  ESTO PARA QUE AL CAMBIAR ENTRE PLANTILLAS EL AVANCE NO SE PIERDA
+        function guardar_cambios_plantila(id_plantilla_activa){
+            console.log('id_plantilla_activa', id_plantilla_activa);
+            console.log(obj_plantillas_finales[id_plantilla_activa]);
+            let mensaje = $("#textarea_mensaje").val().trim();
+
+            obj_plantillas_finales[id_plantilla_activa]['clave']    = $("#input_clave").val().trim();
+            obj_plantillas_finales[id_plantilla_activa]['nombre']   = $("#input_nombre").val().trim();
+            obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] = $("#select_tipo_mensaje").val();
+            obj_plantillas_finales[id_plantilla_activa]['mensaje']      = mensaje.replace(/\n/g, '%0A');
+        }
     })();
 </script>

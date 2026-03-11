@@ -24,6 +24,8 @@ class PlantillasmensajesController extends BaseController
 
     public function IndexAction(){
         
+        $route      = $this->url_api.$this->rutas['ctlocaciones']['show'];
+        $locacion   = FuncionesGlobales::RequestApi('GET',$route,array('onlyallowed' => true));
 
         $route  = $this->url_api.$this->rutas['plantillas_mensajes']['show'];
         $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
@@ -32,6 +34,9 @@ class PlantillasmensajesController extends BaseController
         $this->view->variables          = $result['variables'];
         $this->view->json_plantillas    = json_encode($result['plantillas']);
         $this->view->plantillas         = $result['plantillas'];
+        $this->view->nombre_locacion    = $locacion[0]['nombre'];
+        $this->view->latitud_locacion   = $locacion[0]['latitud'];
+        $this->view->longitud_locacion  = $locacion[0]['longitud'];
     }
 
     public function createAction(){
