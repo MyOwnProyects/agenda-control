@@ -1227,6 +1227,10 @@ use App\Library\FuncionesGlobales;
         <!-- Footer -->
         <div class="modal-footer justify-content-end">
             <button class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
+            <button class="btn btn-outline-success btn_enviar_sin_plantilla d-flex align-items-center gap-2">
+                <i class="bi bi-whatsapp"></i>
+                <span>Mensaje sin plantilla</span>
+            </button>
             <button class="btn btn-success btn_enviar_whatsapp d-flex align-items-center gap-2">
                 <i class="bi bi-whatsapp"></i>
                 <span>Enviar mensaje</span>
@@ -4070,6 +4074,11 @@ use App\Library\FuncionesGlobales;
                 var $modal = $(this).closest('.whatsappModal');
                 $modal.find('.template-card').removeClass('selected');
                 $(this).closest('.template-card').addClass('selected');
+            });
+
+            $(modal_clone).on('click','.btn_enviar_sin_plantilla',function(){
+                let link    = info_plantillas['link_sin_plantilla'];
+                window.open(link, '_blank');
             });
 
             $(modal_clone).on('click','.btn_enviar_whatsapp',function(){
