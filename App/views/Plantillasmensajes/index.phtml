@@ -30,6 +30,11 @@ use App\Library\FuncionesGlobales;
         overflow: hidden;
     }
 
+    .template-list {
+        overflow-y: auto;
+        height: 100vh; /* o la altura que necesites */
+    }
+
     .template-list-header {
         padding: 20px 16px 12px;
     }
@@ -121,38 +126,6 @@ use App\Library\FuncionesGlobales;
         text-transform: uppercase;
         letter-spacing: .04em;
         margin-left: 10px;
-    }
-
-    .btn-cancel {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: #64748b;
-        border-radius: 8px;
-        padding: 7px 18px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background .15s;
-    }
-
-    .btn-cancel:hover { background: var(--body-bg); }
-
-    .btn-save {
-        background: var(--primary);
-        border: none;
-        color: #fff;
-        border-radius: 8px;
-        padding: 8px 22px;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 4px 14px rgba(19,91,236,.25);
-        transition: background .15s, box-shadow .15s;
-    }
-
-    .btn-save:hover {
-        background: var(--primary-dark);
-        box-shadow: 0 4px 18px rgba(19,91,236,.35);
     }
 
     /* ── Form card ── */
@@ -518,8 +491,9 @@ use App\Library\FuncionesGlobales;
 
                                 <div class="d-flex justify-content-end gap-2 mt-3">
                                     <?php if ($save): ?>
-                                    <button type="button" id="btnDeshacer" class="btn-cancel">Deshacer cambios</button>
-                                    <button type="button" id="btnSave" class="btn-save">Guardar Cambios</button>
+                                    <button type="button" id="btnDelete" class="btn btn-danger" style="display:none;">Borrar plantilla</button>
+                                    <button type="button" id="btnDeshacer" class="btn btn-outline-dark">Deshacer cambios</button>
+                                    <button type="button" id="btnSave" class="btn btn-success">Guardar Cambios</button>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -627,6 +601,7 @@ use App\Library\FuncionesGlobales;
         const controller    = '/Plantillasmensajes';
         const url_index     = controller+"/index";
         const url_save      = controller+"/save";
+        const url_delete    = controller+"/delete";
 
 
         let obj_plantillas_originales   = {
@@ -678,6 +653,12 @@ use App\Library\FuncionesGlobales;
 
                     $(".template-list").find('.active').removeClass('active');
                     $(btn).addClass('active');
+
+                    if ($(".template-list").find('.active').attr('id') != 'plantilla_0'){
+                        $("#btnDelete").show();
+                    } else {
+                        $("#btnDelete").hide();
+                    }
 
                     show_info_plantilla();
                 }, 150);
@@ -750,7 +731,8 @@ use App\Library\FuncionesGlobales;
 
                 if ($textarea.val().includes(variable)) {
                     // Si ya existe → la elimina del texto
-                    $textarea.val($textarea.val().replace(variable, ''));
+                    let regex = new RegExp(variable.replace(/[{}]/g, '\\$&'), 'g');
+                    $textarea.val($textarea.val().replace(regex, ''));
                     $btn.removeClass('active');
                 } else {
                     // Si no existe → la inserta donde está el cursor
@@ -847,7 +829,35 @@ use App\Library\FuncionesGlobales;
                         error       : function(error){
                             actionJsonError(error,btn);
                         }
-                    })
+                    });
+                }
+            });
+
+            $("#btnDelete").on('click', async function(){
+                let btn                 = $(this);
+                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                const respuesta         = await window.modalConfirm('¿Deseas continuar con el borrado de esta plantilla?');
+
+                console.log('id_plantilla_activa',id_plantilla_activa);
+                if (respuesta){
+                    $.ajax({
+                        url         : url_delete,
+                        method      : 'post',
+                        dataType    : 'json',
+                        data        : {
+                            id_plantilla    : id_plantilla_activa,
+                            clave           : obj_plantillas_originales[id_plantilla_activa]['clave']
+                        },
+                        success     : function(data){
+                            showAlert('success','Borrado exitoso!');
+
+                            show_plantillas_after_save(data);
+                            $(btn).prop('disable',false);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
                 }
             });
         });// FIN DOCUMENT READY
@@ -963,7 +973,7 @@ use App\Library\FuncionesGlobales;
                 obj_plantillas_originales[plantilla.id] = JSON.parse(JSON.stringify(plantilla));
                 obj_plantillas_finales[plantilla.id]    = JSON.parse(JSON.stringify(plantilla));
 
-                let mensajeCorto = plantilla['mensaje'].replace(/\n/g, ' ');
+                let mensajeCorto = plantilla['mensaje'].replace(/%0A/g, ' ');
                 mensajeCorto     = mensajeCorto.length > 30 ? mensajeCorto.substring(0, 30) + '...' : mensajeCorto;
 
                 mensajeCorto    = mensajeCorto == '' ? '...' : mensajeCorto;

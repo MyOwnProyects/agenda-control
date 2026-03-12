@@ -148,7 +148,8 @@ return [
         'plantilla_por_cita'    => '/plantillas_mensajes/plantilla_por_cita',
         'plantilla_enviada'     => '/plantillas_mensajes/plantilla_enviada',
         'show'                  => '/plantillas_mensajes/show',
-        'save_plantilla'        => '/plantillas_mensajes/save_plantilla'
+        'save_plantilla'        => '/plantillas_mensajes/save_plantilla',
+        'delete_plantilla'      => '/plantillas_mensajes/delete_plantilla'
     )
 
 ];

@@ -69,7 +69,7 @@ class PlantillasmensajesController extends BaseController
 
     public function deleteAction(){
         if ($this->request->isAjax()){
-            $route  = $this->url_api.$this->rutas['cttipo_usuarios']['change_estatus'];
+            $route  = $this->url_api.$this->rutas['plantillas_mensajes']['delete_plantilla'];
             $result = FuncionesGlobales::RequestApi('DELETE',$route,$_POST);
             $response = new Response();
 
@@ -79,9 +79,12 @@ class PlantillasmensajesController extends BaseController
                 return $response;
             }
 
-            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se mando '.$_POST['accion_bitacora'].' el tipo usuario: '.$_POST['clave'],$_POST);
+            FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se mando borrar la plantilla con clave: '.$_POST['clave'],$_POST);
 
-            $response->setJsonContent('Captura exitosa');
+            $route  = $this->url_api.$this->rutas['plantillas_mensajes']['show'];
+            $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+            $response->setJsonContent($result['plantillas']);
             $response->setStatusCode(200, 'OK');
             return $response;
         }
