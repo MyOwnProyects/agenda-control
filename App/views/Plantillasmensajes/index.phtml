@@ -101,12 +101,15 @@ use App\Library\FuncionesGlobales;
         EDITOR SECTION
     ══════════════════════════════ */
     .editor-section {
-        flex: 1;
         overflow-y: auto;
     }
 
     .editor-section::-webkit-scrollbar { width: 4px; }
     .editor-section::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    .col-preview {
+        transition: transform 0.3s ease;
+    }
 
     .badge-active {
         background: var(--green-light);
@@ -168,28 +171,6 @@ use App\Library\FuncionesGlobales;
         color: var(--text-muted);
         margin-bottom: 6px;
         display: block;
-    }
-
-    .form-control-custom {
-        width: 100%;
-        padding: 9px 14px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        font-size: 13px;
-        outline: none;
-        transition: border-color .2s, box-shadow .2s;
-        background: #fff;
-    }
-
-    .form-control-custom:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(19,91,236,.12);
-    }
-
-    .form-control-custom[readonly] {
-        background: var(--body-bg);
-        color: var(--text-muted);
-        cursor: not-allowed;
     }
 
     /* Message editor toolbar */
@@ -474,74 +455,80 @@ use App\Library\FuncionesGlobales;
                     <h2 class="h3 fw-bold mb-1">Edición de plantilla</h2>
                     <p class="text-muted mb-3">Crea o edita las plantillas de mensajes</p>
                     <div class="form-card">
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label class="form-label-custom">Clave de Plantilla</label>
-                                <input id="input_clave" type="text" class="input_change form-control-custom" placeholder="NUEVA_PLANTILLA" value=""/>
-                            </div>
-
-                            <div class="col-6">
-                                <label class="form-label-custom">Tipo de Mensaje</label>
-                                <select id="select_tipo_mensaje" class="form-control-custom" requred>
-                                    <option value="">Seleccione una opción</option>
-                                    <option value="-1">Todo tipo de citas</option>
-                                    <option value="1">Cita nueva</option>
-                                    <option value="2">Cita reagendada</option>
-                                    <option value="3">Cita pendiente por reagendar</option>
-                                    <option value="0">Cita cancelada</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label-custom">Nombre Descriptivo</label>
-                            <input id="input_nombre" type="text" class="input_change form-control-custom" placeholder="Nueva plantilla" value=""/>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label-custom mb-0">Variables / Cuerpo del Mensaje</label>
-                                <span class="char-count"><span id="count_letras">0</span> / 1024 caracteres</span>
-                            </div>
-
-                            <div class="msg-toolbar">
-                                <?php foreach($variables as $variable): ?>
-                                    <button class="btn_add_variable var-pill" data-valor="<?php echo $variable['valor']; ?>">
-                                        <i class="bi bi-plus-lg icon-add"></i>
-                                        <i class="bi bi-arrow-counterclockwise icon-remove"></i>
-                                        <?php echo $variable['label']; ?>
-                                    </button>
-                                <?php endforeach; ?>
-
-                                <div class="toolbar-divider"></div>
-
-                                <div id="emoji_picker_container" style="display:none; position:absolute; z-index:999;">
-                                    <emoji-picker></emoji-picker>
+                        <form id="form_modal_data" class="needs-validation" novalidate>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label-custom">Clave de Plantilla</label>
+                                    <input id="input_clave" type="text" class="input_change form-control" placeholder="NUEVA_PLANTILLA" value="" <?php echo $save ? '' : 'disabled'; ?> required/>
                                 </div>
-                                <button id="btn_emoji" class="btn p-1 rounded" style="line-height:1">
-                                    <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
-                                </button>
+
+                                <div class="col-6">
+                                    <label class="form-label-custom">Tipo de Mensaje</label>
+                                    <select id="select_tipo_mensaje" class="form-select" <?php echo $save ? '' : 'disabled'; ?> required>
+                                        <option value="">Seleccione una opción</option>
+                                        <option value="-1">Todo tipo de citas</option>
+                                        <option value="1">Cita nueva</option>
+                                        <option value="2">Cita reagendada</option>
+                                        <option value="3">Cita pendiente por reagendar</option>
+                                        <option value="0">Cita cancelada</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div class="msg-body">
-                                <textarea id="textarea_mensaje" rows="8" placeholder="..."></textarea>
+                            <div class="mb-3">
+                                <label class="form-label-custom">Nombre Descriptivo</label>
+                                <input id="input_nombre" type="text" class="input_change form-control" placeholder="Nueva plantilla" value="" <?php echo $save ? '' : 'disabled'; ?> required/>
                             </div>
 
-                            <p class="hint-text mt-2">
-                                Los campos entre llaves {{ }} se sustituirán automáticamente con la información del paciente.
-                            </p>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label-custom mb-0">Variables / Cuerpo del Mensaje</label>
+                                    <span class="char-count"><span id="count_letras">0</span> / 1024 caracteres</span>
+                                </div>
 
-                            <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button id="btnDeshacer" class="btn-cancel">Deshacer cambios</button>
-                                <button id="btnSave" class="btn-save">Guardar Cambios</button>
+                                <div class="msg-toolbar">
+                                    <?php if ($save): ?>
+                                    <?php foreach($variables as $variable): ?>
+                                        <button type="button" class="btn_add_variable var-pill" data-valor="<?php echo $variable['valor']; ?>">
+                                            <i class="bi bi-plus-lg icon-add"></i>
+                                            <i class="bi bi-arrow-counterclockwise icon-remove"></i>
+                                            <?php echo $variable['label']; ?>
+                                        </button>
+                                    <?php endforeach; ?>
+                                    
+
+                                    <div class="toolbar-divider"></div>
+
+                                    <div id="emoji_picker_container" style="display:none; position:absolute; z-index:999;">
+                                        <emoji-picker></emoji-picker>
+                                    </div>
+                                    <button type="button" id="btn_emoji" class="btn p-1 rounded" style="line-height:1">
+                                        <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="msg-body">
+                                    <textarea id="textarea_mensaje" class="form-control" rows="8" placeholder="..." <?php echo $save ? '' : 'disabled'; ?> required></textarea>
+                                </div>
+
+                                <p class="hint-text mt-2">
+                                    Los campos entre llaves {{ }} se sustituirán automáticamente con la información del paciente.
+                                </p>
+
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <?php if ($save): ?>
+                                    <button type="button" id="btnDeshacer" class="btn-cancel">Deshacer cambios</button>
+                                    <button type="button" id="btnSave" class="btn-save">Guardar Cambios</button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
 
                 <!-- PREVIEW -->
-                <div class="col-12 col-xl-5">
+                <div class="col-12 col-xl-5 col-preview" style="align-self: flex-start;">
 
                     <p class="preview-label">Vista Previa en Tiempo Real</p>
 
@@ -618,6 +605,12 @@ use App\Library\FuncionesGlobales;
     <p><?php echo strlen($plantilla['mensaje']) > 30 ? substr($plantilla['mensaje'], 0, 30) . '...' : $plantilla['mensaje']; ?></p>
 </div>
 
+<div class="template-item" id="template_plantilla_menu" style="display:none;">
+    <p class="t-id clave_plantilla"></p>
+    <h3 class="nombre_plantilla"></h3>
+    <p class="mensaje"></p>
+</div>
+
 <script>
     var modulo_plantillas_mensaje = (function(){
 
@@ -630,7 +623,10 @@ use App\Library\FuncionesGlobales;
         let tmp_obj_plantillas  = '<?php echo $json_plantillas; ?>';
         tmp_obj_plantillas      = JSON.parse(tmp_obj_plantillas);
 
-
+        //  URL
+        const controller    = '/Plantillasmensajes';
+        const url_index     = controller+"/index";
+        const url_save      = controller+"/save";
 
 
         let obj_plantillas_originales   = {
@@ -683,14 +679,7 @@ use App\Library\FuncionesGlobales;
                     $(".template-list").find('.active').removeClass('active');
                     $(btn).addClass('active');
 
-                    let id_plantilla_activa = $(".template-list").find('.active').data('id');
-
-                    $("#input_clave").val(obj_plantillas_finales[id_plantilla_activa]['clave']);
-                    $("#input_nombre").val(obj_plantillas_finales[id_plantilla_activa]['nombre']);
-                    $("#select_tipo_mensaje").val(obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] === null ? '-1' : obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje']);
-                    let mensaje = obj_plantillas_finales[id_plantilla_activa]['mensaje'];
-                    mensaje     = mensaje = mensaje.replace(/%0A/g, '\n');
-                    $("#textarea_mensaje").val(mensaje).trigger('keyup');
+                    show_info_plantilla();
                 }, 150);
             });
 
@@ -739,13 +728,18 @@ use App\Library\FuncionesGlobales;
             $("#btnDeshacer").on('click',async function(){
                 const respuesta = await window.modalConfirm('¿Deseas deshacer TODOS los cambios?');
 
-                // if (respuesta){
-                //     let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                if (respuesta){
+                    let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                    obj_plantillas_finales[id_plantilla_activa] = JSON.parse(JSON.stringify(obj_plantillas_originales[id_plantilla_activa]));
 
-                //     obj_plantillas_finales[id_plantilla_activa] = JSON.parse(JSON.stringify(obj_plantillas_originales[id_plantilla_activa]));
+                    show_info_plantilla();
+                    
+                }
+            });
 
-                //     $("#textarea_mensaje").trigger('keyup');
-                // }
+            $('.main_content').on('scroll', function() {
+                let scrollTop = $(this).scrollTop();
+                $('.col-preview').css('transform', `translateY(${scrollTop}px)`);
             });
 
             //  CLIC PARA INSERTAR VARIABLE
@@ -812,6 +806,50 @@ use App\Library\FuncionesGlobales;
                     $('#emoji_picker_container').hide();
                 }
             });
+
+            //  EVENTO PARA GUARDAR
+            $("#btnSave").on('click',async function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $('#form_modal_data')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    $(btn).prop('disable',false);
+                    return false;
+                }
+
+                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                const respuesta         = await window.modalConfirm('¿Deseas continuar con la captura de datos?');
+
+                if (respuesta){
+                    $.ajax({
+                        url         : url_save,
+                        method      : 'post',
+                        dataType    : 'json',
+                        data        : {
+                            accion          : 'save_plantilla',
+                            info_plantilla  : obj_plantillas_finales[id_plantilla_activa]
+                        },
+                        success     : function(data){
+                            showAlert('success','Captura exitosa!');
+
+                            show_plantillas_after_save(data);
+                            $(btn).prop('disable',false);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    })
+                }
+            });
         });// FIN DOCUMENT READY
 
         //  FUNCIONES
@@ -857,13 +895,89 @@ use App\Library\FuncionesGlobales;
             obj_plantillas_finales[id_plantilla_activa]['mensaje']      = mensaje.replace(/\n/g, '%0A');
 
             //  ACTUALIZA EL MENU DE LA IZQUIERDA
-            $(".template-list").find('.active').find('.clave_plantilla').text($("#input_clave").val().trim());
-            $(".template-list").find('.active').find('.nombre_plantilla').text($("#input_nombre").val().trim());
+            $(".template-list").find('.active').find('.clave_plantilla').text($("#input_clave").val().trim() == '' ? 'NUEVA_PLANTILLA' : $("#input_clave").val().trim());
+            $(".template-list").find('.active').find('.nombre_plantilla').text($("#input_nombre").val().trim() == '' ? 'Nueva plantilla' : $("#input_nombre").val().trim());
             
             let mensajeCorto = mensaje.replace(/\n/g, ' ');
             mensajeCorto     = mensajeCorto.length > 30 ? mensajeCorto.substring(0, 30) + '...' : mensajeCorto;
 
+            mensajeCorto    = mensajeCorto == '' ? '...' : mensajeCorto;
             $(".template-list").find('.active').find('.mensaje').text(mensajeCorto);
+        }
+
+        //  LLENA LA INFORMACION DE LA PLANTILLA EN LOS INPUT Y EN EL PREVIEW
+        function show_info_plantilla(){
+            let id_plantilla_activa = $(".template-list").find('.active').data('id');
+
+            $("#input_clave").val(obj_plantillas_finales[id_plantilla_activa]['clave']);
+            $("#input_nombre").val(obj_plantillas_finales[id_plantilla_activa]['nombre']);
+            $("#select_tipo_mensaje").val(obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] === null ? '-1' : obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje']);
+            let mensaje = obj_plantillas_finales[id_plantilla_activa]['mensaje'];
+            mensaje     = mensaje = mensaje.replace(/%0A/g, '\n');
+            $("#textarea_mensaje").val(mensaje).trigger('keyup');
+        }
+
+        // SE DESTRUYE TODO Y SE RECREA CON LA INFORMACION OBTENIDA DE LA PLANTILLA
+        function show_plantillas_after_save(info_plantilla){
+            //  SE BLANQUEAN TODOS LOS REGISTROS
+            $("#input_clave").val('');
+            $("#input_nombre").val('');
+            $("#select_tipo_mensaje").val('');
+            $("#textarea_mensaje").val('');
+
+            //  SE BORRAN TODOS LAS PLANTILLAS DEL MENU
+            $("#div_header_row_plantillas").find('.active').removeClass('active');
+            $("#div_header_row_plantillas").find('.template-item').each(function(){
+                if ($(this).attr('id') == 'plantilla_0'){
+                    return true;
+                }
+
+                $(this).remove();
+            });
+
+            obj_plantillas_originales   = {
+                0   : {
+                    activa  : 1,
+                    clave   : '',
+                    id      : null,
+                    mensaje : '',
+                    nombre  : '',
+                    tipo_mensaje    : ''
+                }
+            };
+
+            obj_plantillas_finales  = {
+                0   : {
+                    activa  : 1,
+                    clave   : '',
+                    id      : null,
+                    mensaje : '',
+                    nombre  : '',
+                    tipo_mensaje    : ''
+                }
+            };
+
+            //  SE CREAN LOS OBJETOS PARA TENER UNO CON LA INFORMACION ORIGINAL 
+            //  Y UN SEGUNDO CON LA INFORMACION EDITADA PARA GUARDAR
+            Object.values(info_plantilla).forEach(function(plantilla) {
+                obj_plantillas_originales[plantilla.id] = JSON.parse(JSON.stringify(plantilla));
+                obj_plantillas_finales[plantilla.id]    = JSON.parse(JSON.stringify(plantilla));
+
+                let mensajeCorto = plantilla['mensaje'].replace(/\n/g, ' ');
+                mensajeCorto     = mensajeCorto.length > 30 ? mensajeCorto.substring(0, 30) + '...' : mensajeCorto;
+
+                mensajeCorto    = mensajeCorto == '' ? '...' : mensajeCorto;
+                let row_plantilla   = $("#template_plantilla_menu").clone().removeAttr('id').attr('id','plantilla_'+plantilla.id).data('id',plantilla.id).show();
+                $(row_plantilla).find('.clave_plantilla').text(plantilla.clave);
+                $(row_plantilla).find('.nombre_plantilla').text(plantilla.nombre);
+                $(row_plantilla).find('.mensaje').text(mensajeCorto);
+                
+                $("#div_header_row_plantillas").append(row_plantilla);
+            });
+
+            setTimeout(() => {
+                $("#plantilla_0").addClass('active').trigger('click');
+            }, 150);
         }
     })();
 </script>
