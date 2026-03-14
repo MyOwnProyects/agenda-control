@@ -134,6 +134,7 @@ return [
     'reportes'  => array(
         'general_citas'     => '/reportes/general_citas',
         'general_ingresos'  => '/reportes/general_ingresos',
+        'mensajes_enviados' => '/reportes/mensajes_enviados'
     ),
     'motivos_citas_fuera_horario'   => array(
         'show'  => '/motivos_citas_fuera_horario/show'
@@ -142,6 +143,13 @@ return [
         'login'     => '/autenticacion/login',
         'refresh'   => '/autenticacion/refresh',
         'logout'    => '/autenticacion/logout',
+    ),
+    'plantillas_mensajes'   => array(
+        'plantilla_por_cita'    => '/plantillas_mensajes/plantilla_por_cita',
+        'plantilla_enviada'     => '/plantillas_mensajes/plantilla_enviada',
+        'show'                  => '/plantillas_mensajes/show',
+        'save_plantilla'        => '/plantillas_mensajes/save_plantilla',
+        'delete_plantilla'      => '/plantillas_mensajes/delete_plantilla'
     )
 
 ];

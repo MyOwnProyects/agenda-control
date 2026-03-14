@@ -60,6 +60,28 @@ function data_reportes(reporte){
                     descripcion : 'Suma de todos los ingresos registrados en ese día'
                 }
             }
+        },
+        mensajes_enviados   : {
+            titulo      : 'Reporte de mensajes enviados por Whatsapp',
+            descripcion : 'Reporte donde se muestra el mensaje que generó el sistema utilizando las plantillas de Whatssapp con la información de la cita',
+            datos_tabla : {
+                0   : {
+                    columna     : 'Nombre de plantilla',
+                    descripcion : 'Nombre de la plantilla utilizada para generar el mensaje'
+                },
+                1   : {
+                    columna     : 'Usuario',
+                    descripcion : 'Usuario que realizó el envio de mensaje'
+                },
+                2   : {
+                    columna     : 'Fecha de envio',
+                    descripcion : 'Fecha en la que el usuario dio clic para enviar el mensaje'
+                },
+                3   : {
+                    columna     : 'Mensaje',
+                    descripcion : 'Mensaje generado ya con los datos de la cita del paciente'
+                }
+            }
         }
     };
 

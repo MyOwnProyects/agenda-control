@@ -1,0 +1,994 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+    :root {
+        --primary:       #135bec;
+        --primary-light: #e8effd;
+        --primary-dark:  #0d44c0;
+        --body-bg:       #f0f2f8;
+        --card-bg:       #ffffff;
+        --border:        #e4e7ef;
+        --text-muted:    #8891a5;
+        --text-dark:     #1a2035;
+        --green:         #16a34a;
+        --green-light:   #dcfce7;
+        --wa-header:     #075e54;
+        --wa-bg:         #e5ddd5;
+    }
+
+    /* ══════════════════════════════
+        TEMPLATE LIST PANEL
+    ══════════════════════════════ */
+    .template-list {
+        width: 280px;
+        flex-shrink: 0;
+        background: var(--card-bg);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .template-list {
+        border-radius: 12px;
+        overflow-y: auto;
+        height: 100vh; /* o la altura que necesites */
+    }
+
+    .template-list-header {
+        padding: 20px 16px 12px;
+    }
+
+    .template-list-header h2 {
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .template-items {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .template-items::-webkit-scrollbar { width: 4px; }
+    .template-items::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    .template-item {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+    .template-item:hover { background: var(--body-bg); }
+
+    .template-item.active {
+        background: var(--primary-light);
+        border-left: 3px solid var(--primary);
+    }
+
+    .template-item .t-id {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-bottom: 4px;
+    }
+
+    .template-item.active .t-id { color: var(--primary); }
+    .template-item:not(.active) .t-id { color: var(--text-muted); }
+
+    .template-item h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+        color: var(--text-dark);
+    }
+
+    .template-item p {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ══════════════════════════════
+        APP SHELL
+    ══════════════════════════════ */
+    .app-shell {
+        display: flex;
+        overflow: hidden;
+    }
+
+    /* ══════════════════════════════
+        EDITOR SECTION
+    ══════════════════════════════ */
+    .editor-section {
+        overflow-y: auto;
+    }
+
+    .editor-section::-webkit-scrollbar { width: 4px; }
+    .editor-section::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    .col-preview {
+        transition: transform 0.3s ease;
+    }
+
+    .badge-active {
+        background: var(--green-light);
+        color: var(--green);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-left: 10px;
+    }
+
+    /* ── Form card ── */
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+    }
+
+    .form-label-custom {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    /* Message editor toolbar */
+    .msg-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        padding: 10px 14px;
+        background: var(--body-bg);
+        border-bottom: 1px solid var(--border);
+        border-radius: 10px 10px 0 0;
+    }
+
+    .var-pill {
+        padding: 3px 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid rgba(19,91,236,.2);
+        border-radius: 5px;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+    .var-pill:hover { background: rgba(19,91,236,.2); }
+
+    .toolbar-divider {
+        width: 1px; height: 20px;
+        background: var(--border);
+        margin: 0 2px;
+    }
+
+    .msg-body {
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        overflow: hidden;
+    }
+
+    .msg-body textarea {
+        width: 100%;
+        border: none;
+        resize: none;
+        padding: 14px;
+        font-size: 13px;
+        line-height: 1.7;
+        outline: none;
+        background: #fff;
+    }
+
+    .char-count {
+        font-size: 10px;
+        color: var(--text-muted);
+    }
+
+    /* ══════════════════════════════
+        PHONE PREVIEW
+    ══════════════════════════════ */
+    .preview-label {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+    }
+
+    .phone-frame {
+        margin: 0 auto;
+        width: 300px;
+        border: 8px solid #1a2035;
+        border-radius: 44px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.1);
+        background: #fff;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    .phone-notch {
+        background: #1a2035;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        padding-bottom: 3px;
+    }
+
+    .phone-notch-inner {
+        width: 72px; height: 14px;
+        background: #111;
+        border-radius: 10px;
+    }
+
+    .wa-header {
+        background: var(--wa-header);
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+    }
+
+    .wa-header .bi { font-size: 18px; }
+
+    .wa-avatar {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .wa-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .wa-info { flex: 1; }
+    .wa-info .wa-name { font-size: 12px; font-weight: 700; margin: 0; }
+    .wa-info .wa-status { font-size: 9px; opacity: .8; margin: 0; }
+
+    .wa-actions { display: flex; gap: 10px; }
+    .wa-actions .bi { font-size: 16px; }
+
+    .wa-chat-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 400px;
+    }
+
+    .wa-body {
+        background: var(--wa-bg);
+        padding: 10px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .wa-body::-webkit-scrollbar { width: 3px; }
+    .wa-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 10px; }
+    .wa-body::-webkit-scrollbar-track { background: transparent; }
+
+    .wa-input {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+        background: var(--wa-bg);
+        border-top: 1px solid rgba(0,0,0,.08);
+        flex-shrink: 0;
+    }
+
+    .wa-date {
+        text-align: center;
+        font-size: 9px;
+        color: #5c6b6e;
+        background: rgba(255,255,255,.7);
+        padding: 2px 8px;
+        border-radius: 6px;
+        display: block;
+        width: fit-content;
+        margin: 0 auto 10px;
+    }
+
+    .wa-bubble {
+        background: #fff;
+        border-radius: 0 12px 12px 12px;
+        padding: 10px 12px;
+        max-width: 92%;
+        box-shadow: 0 1px 2px rgba(0,0,0,.12);
+        font-size: 11px;
+        line-height: 1.65;
+        color: #1a1a1a;
+    }
+
+    .wa-bubble-meta {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 3px;
+        margin-top: 4px;
+    }
+
+    .wa-bubble-meta span { font-size: 9px; color: #aaa; text-transform: uppercase; }
+    .wa-bubble-meta .bi { font-size: 12px; color: #4fc3f7; }
+
+    .wa-input-box {
+        flex: 1;
+        background: #fff;
+        border-radius: 20px;
+        padding: 7px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+
+    .wa-input-box span {
+        font-size: 10px;
+        color: #aaa;
+        flex: 1;
+    }
+
+    .wa-input-box .bi { font-size: 16px; color: #aaa; }
+
+    .wa-mic {
+        width: 36px; height: 36px;
+        background: #128c7e;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .wa-mic .bi { font-size: 16px; color: #fff; }
+
+    .hint-text {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    #count_letras {
+        font-size: inherit;
+    }
+
+    .var-pill.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+    }
+
+    .var-pill .icon-remove {
+        display: none;
+        font-size: 11px;
+    }
+
+    .var-pill.active .icon-remove {
+        display: inline;
+    }
+
+    .var-pill.active .icon-add {
+        display: none;
+    }
+</style>
+
+<div class="app-shell container mt-4">
+
+    <!-- ═══ TEMPLATE LIST ═══ -->
+    <div class="template-list">
+        <div class="template-list-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Plantillas</h2>
+            </div>
+        </div>
+
+        <div id="div_header_row_plantillas" class="template-items">
+            <div class="template-item active" id="plantilla_0" data-id="0">
+                <p class="t-id clave_plantilla">nueva_plantilla</p>
+                <h3 class="nombre_plantilla">Nueva plantilla</h3>
+                <p class="mensaje">...</p>
+            </div>
+            <?php foreach($plantillas as $plantilla): ?>
+            <!-- active -->
+            <div class="template-item" id="plantilla_<?php echo $plantilla['id'] ?>" data-id="<?php echo $plantilla['id'] ?>">
+                <p class="t-id clave_plantilla"><?php echo $plantilla['clave']; ?></p>
+                <h3 class="nombre_plantilla"><?php echo $plantilla['nombre']; ?></h3>
+                <p class="mensaje"><?php echo strlen($plantilla['mensaje']) > 30 ? substr(str_replace('%0A',' ',$plantilla['mensaje']), 0, 30) . '...' : $plantilla['mensaje']; ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- ═══ EDITOR ═══ -->
+
+    <div class="editor-section">
+
+        <div class="container-fluid px-4">
+            <div class="row g-4">
+
+                <!-- FORM -->
+                <div class="col-12 col-xl-7">
+                    <h2 class="h3 fw-bold mb-1">Edición de plantilla</h2>
+                    <p class="text-muted mb-3">Crea o edita las plantillas de mensajes</p>
+                    <div class="form-card">
+                        <form id="form_modal_data" class="needs-validation" novalidate>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label-custom">Clave de Plantilla</label>
+                                    <input id="input_clave" type="text" class="input_change form-control" placeholder="NUEVA_PLANTILLA" value="" <?php echo $save ? '' : 'disabled'; ?> required/>
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label-custom">Tipo de Mensaje</label>
+                                    <select id="select_tipo_mensaje" class="form-select" <?php echo $save ? '' : 'disabled'; ?> required>
+                                        <option value="">Seleccione una opción</option>
+                                        <option value="-1">Todo tipo de citas</option>
+                                        <option value="1">Cita nueva</option>
+                                        <option value="2">Cita reagendada</option>
+                                        <option value="3">Cita pendiente por reagendar</option>
+                                        <option value="0">Cita cancelada</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label-custom">Nombre Descriptivo</label>
+                                <input id="input_nombre" type="text" class="input_change form-control" placeholder="Nueva plantilla" value="" <?php echo $save ? '' : 'disabled'; ?> required/>
+                            </div>
+
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label-custom mb-0">Variables / Cuerpo del Mensaje</label>
+                                    <span class="char-count"><span id="count_letras">0</span> / 1024 caracteres</span>
+                                </div>
+
+                                <div class="msg-toolbar">
+                                    <?php if ($save): ?>
+                                    <?php foreach($variables as $variable): ?>
+                                        <button type="button" class="btn_add_variable var-pill" data-valor="<?php echo $variable['valor']; ?>">
+                                            <i class="bi bi-plus-lg icon-add"></i>
+                                            <i class="bi bi-arrow-counterclockwise icon-remove"></i>
+                                            <?php echo $variable['label']; ?>
+                                        </button>
+                                    <?php endforeach; ?>
+                                    
+
+                                    <div class="toolbar-divider"></div>
+
+                                    <div id="emoji_picker_container" style="display:none; position:absolute; z-index:999;">
+                                        <emoji-picker></emoji-picker>
+                                    </div>
+                                    <button type="button" id="btn_emoji" class="btn p-1 rounded" style="line-height:1">
+                                        <i class="bi bi-emoji-smile" style="font-size:18px;color:var(--text-muted)"></i>
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="msg-body">
+                                    <textarea id="textarea_mensaje" class="form-control" rows="8" placeholder="..." <?php echo $save ? '' : 'disabled'; ?> required></textarea>
+                                </div>
+
+                                <p class="hint-text mt-2">
+                                    Los campos entre llaves {{ }} se sustituirán automáticamente con la información del paciente.
+                                </p>
+
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <?php if ($save): ?>
+                                    <button type="button" id="btnDelete" class="btn btn-danger" style="display:none;">Borrar plantilla</button>
+                                    <button type="button" id="btnDeshacer" class="btn btn-outline-dark">Deshacer cambios</button>
+                                    <button type="button" id="btnSave" class="btn btn-success">Guardar Cambios</button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- PREVIEW -->
+                <div class="col-12 col-xl-5 col-preview" style="align-self: flex-start;">
+
+                    <p class="preview-label">Vista Previa en Tiempo Real</p>
+
+                    <div class="phone-frame">
+
+                        <div class="phone-notch">
+                            <div class="phone-notch-inner"></div>
+                        </div>
+
+                        <!-- WA Header -->
+                        <div class="wa-header">
+                            <i class="bi bi-arrow-left"></i>
+
+                            <div class="wa-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Clínica Dental Médica"/>
+                            </div>
+
+                            <div class="wa-info">
+                                <p class="wa-name">Paciente Ismael Perez</p>
+                                <p class="wa-status">en línea</p>
+                            </div>
+
+                            <div class="wa-actions">
+                                <i class="bi bi-camera-video"></i>
+                                <i class="bi bi-telephone"></i>
+                            </div>
+                        </div>
+
+                        <!-- WA Chat wrapper -->
+                        <div class="wa-chat-wrapper">
+
+                            <div class="wa-body">
+                                <div class="wa-date">HOY</div>
+
+                                <div id="preview_message_wp" class="wa-bubble">
+                                    ...
+
+                                    <div class="wa-bubble-meta">
+                                        <span>11:05 AM</span>
+                                        <i class="bi bi-check2-all"></i>
+                                    </div>
+                                </div>
+
+                            </div><!-- /wa-body -->
+
+                            <!-- Input fijo abajo -->
+                            <div class="wa-input">
+                                <div class="wa-input-box">
+                                    <i class="bi bi-emoji-smile"></i>
+                                    <span>Mensaje</span>
+                                    <i class="bi bi-paperclip"></i>
+                                    <i class="bi bi-camera"></i>
+                                </div>
+
+                                <div class="wa-mic">
+                                    <i class="bi bi-mic"></i>
+                                </div>
+                            </div>
+
+                        </div><!-- /wa-chat-wrapper -->
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="template_row_plantilla" class="template-item " style="display:none;">
+    <p class="t-id"><?php echo $plantilla['clave']; ?></p>
+    <h3><?php echo $plantilla['nombre']; ?></h3>
+    <p><?php echo strlen($plantilla['mensaje']) > 30 ? substr($plantilla['mensaje'], 0, 30) . '...' : $plantilla['mensaje']; ?></p>
+</div>
+
+<div class="template-item" id="template_plantilla_menu" style="display:none;">
+    <p class="t-id clave_plantilla"></p>
+    <h3 class="nombre_plantilla"></h3>
+    <p class="mensaje"></p>
+</div>
+
+<script>
+    var modulo_plantillas_mensaje = (function(){
+
+        //  INFORMACION DE LA LOCACION PARA MOSTRAR EN VISTA PREVIA
+        let nombre_locacion     = '<?php echo $nombre_locacion; ?>';
+        let latitud_locacion    = '<?php echo $latitud_locacion; ?>';
+        let longitud_locacion   = '<?php echo $longitud_locacion; ?>';
+
+        //  INFORMACION DE LA PLANTILLA
+        let tmp_obj_plantillas  = '<?php echo $json_plantillas; ?>';
+        tmp_obj_plantillas      = JSON.parse(tmp_obj_plantillas);
+
+        //  URL
+        const controller    = '/Plantillasmensajes';
+        const url_index     = controller+"/index";
+        const url_save      = controller+"/save";
+        const url_delete    = controller+"/delete";
+
+
+        let obj_plantillas_originales   = {
+            0   : {
+                activa  : 1,
+                clave   : '',
+                id      : null,
+                mensaje : '',
+                nombre  : '',
+                tipo_mensaje    : ''
+            }
+        };
+
+        let obj_plantillas_finales  = {
+            0   : {
+                activa  : 1,
+                clave   : '',
+                id      : null,
+                mensaje : '',
+                nombre  : '',
+                tipo_mensaje    : ''
+            }
+        };
+
+        //  SE CREAN LOS OBJETOS PARA TENER UNO CON LA INFORMACION ORIGINAL 
+        //  Y UN SEGUNDO CON LA INFORMACION EDITADA PARA GUARDAR
+        tmp_obj_plantillas.forEach(function(plantilla) {
+            obj_plantillas_originales[plantilla.id] = JSON.parse(JSON.stringify(plantilla));
+            obj_plantillas_finales[plantilla.id]    = JSON.parse(JSON.stringify(plantilla));
+        });
+
+        let count_id_plantilla  = 0;
+        let mensaje_visto_html  = `
+                                    <div class="wa-bubble-meta">
+                                        <span>14:20 PM</span>
+                                        <i class="bi bi-check2-all"></i>
+                                    </div>
+                                `;
+        const limite_caracteres = 1024;
+
+        $(document).ready(function(){
+
+            $(".template-list").on('click','.template-item',function(){
+                guardar_cambios_plantila($(".template-list").find('.active').data('id'));
+                let btn = $(this);
+
+                //  SLEEP PARA GARANTIZAR QUE EL OBJETO GUARDARA LA INFORMACION ACTUAL
+                setTimeout(function() {
+
+                    $(".template-list").find('.active').removeClass('active');
+                    $(btn).addClass('active');
+
+                    if ($(".template-list").find('.active').attr('id') != 'plantilla_0'){
+                        $("#btnDelete").show();
+                    } else {
+                        $("#btnDelete").hide();
+                    }
+
+                    show_info_plantilla();
+                }, 150);
+            });
+
+            //  EVENTO PARA LIMITAR LOS CARACTERES Y MOSTRAR EL PREVIEW
+            $("#textarea_mensaje").on('keydown', function(e) {
+                let mensaje = $(this).val().trim();
+
+                // Si ya llegó al límite, solo permite teclas de control
+                if (mensaje.length >= limite_caracteres) {
+                    let teclasPermitidas = [
+                        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                        'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
+                    ];
+                    if (!teclasPermitidas.includes(e.key) && !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                    }
+                }
+
+            }).on('keyup', function() {
+                let mensaje = $(this).val();
+                let texto   = mensaje.trim();
+
+                // Contador
+                $("#count_letras").text(texto.length);
+
+                // Preview
+                mensaje = texto.length == 0 ? '...' : texto;
+                mensaje = mensaje.replace(/\n/g, '<br>');
+                $("#preview_message_wp").html(reemplazar_variables(mensaje) + mensaje_visto_html);
+
+                // Sincroniza botones de variables
+                $('.btn_add_variable').each(function() {
+                    let variable = $(this).data('valor');
+                    $(this).toggleClass('active', texto.includes(variable));
+                });
+
+                guardar_cambios_plantila($(".template-list").find('.active').data('id'));
+            });
+
+            //  CUADO CAMBIAN NOMBRE O CLAVE
+            $(".input_change").on('keyup',function(){
+                guardar_cambios_plantila($(".template-list").find('.active').data('id'));
+            });
+
+            //  EVENTO PARA DESHACER LOS CAMBIOS DE LA PLANTILLA MOSTRADA
+            $("#btnDeshacer").on('click',async function(){
+                const respuesta = await window.modalConfirm('¿Deseas deshacer TODOS los cambios?');
+
+                if (respuesta){
+                    let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                    obj_plantillas_finales[id_plantilla_activa] = JSON.parse(JSON.stringify(obj_plantillas_originales[id_plantilla_activa]));
+
+                    show_info_plantilla();
+                    
+                }
+            });
+
+            $('.main_content').on('scroll', function() {
+                let scrollTop = $(this).scrollTop();
+                $('.col-preview').css('transform', `translateY(${scrollTop}px)`);
+            });
+
+            //  CLIC PARA INSERTAR VARIABLE
+            $('.editor-section').on('click', '.btn_add_variable', function() {
+                let variable  = $(this).data('valor');
+                let $textarea = $("#textarea_mensaje");
+                let $btn      = $(this);
+
+                if ($textarea.val().includes(variable)) {
+                    // Si ya existe → la elimina del texto
+                    let regex = new RegExp(variable.replace(/[{}]/g, '\\$&'), 'g');
+                    $textarea.val($textarea.val().replace(regex, ''));
+                    $btn.removeClass('active');
+                } else {
+                    // Si no existe → la inserta donde está el cursor
+                    let textarea   = $textarea[0];
+                    let inicio     = textarea.selectionStart;
+                    let fin        = textarea.selectionEnd;
+                    let texto      = $textarea.val();
+                    let nuevoTexto = texto.substring(0, inicio) + variable + texto.substring(fin);
+
+                    $textarea.val(nuevoTexto);
+
+                    let nuevaPosicion = inicio + variable.length;
+                    textarea.selectionStart = nuevaPosicion;
+                    textarea.selectionEnd   = nuevaPosicion;
+
+                    $btn.addClass('active');
+                }
+
+                $textarea.focus();
+                $textarea.trigger('keyup');
+            });
+
+            //  EMOJIS
+            $("#btn_emoji").on('click', function(e) {
+                e.stopPropagation();
+                $('#emoji_picker_container').toggle();
+            });
+
+            $(document).on('emoji-click', 'emoji-picker', function(e) {
+                let emoji     = e.originalEvent.detail.unicode;
+                let $textarea = $("#textarea_mensaje");
+                let textarea  = $textarea[0];
+
+                let inicio     = textarea.selectionStart;
+                let fin        = textarea.selectionEnd;
+                let texto      = $textarea.val();
+                let nuevoTexto = texto.substring(0, inicio) + emoji + texto.substring(fin);
+
+                $textarea.val(nuevoTexto);
+
+                let nuevaPosicion = inicio + emoji.length;
+                textarea.selectionStart = nuevaPosicion;
+                textarea.selectionEnd   = nuevaPosicion;
+
+                $textarea.focus();
+                $textarea.trigger('keyup');
+
+                $('#emoji_picker_container').hide();
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#emoji_picker_container, #btn_emoji').length) {
+                    $('#emoji_picker_container').hide();
+                }
+            });
+
+            //  EVENTO PARA GUARDAR
+            $("#btnSave").on('click',async function(){
+                let btn =  $(this);
+                $(btn).prop('disable',true);
+
+                const form = $('#form_modal_data')[0]; // Obtén el elemento DOM
+                let flag_error  = false;
+                if (form.checkValidity() === false) {
+                    $(form).addClass('was-validated');
+                    flag_error  = true;
+                } else {
+                    $(form).removeClass('was-validated');
+                }
+
+                if (flag_error){
+                    $(btn).prop('disable',false);
+                    return false;
+                }
+
+                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                const respuesta         = await window.modalConfirm('¿Deseas continuar con la captura de datos?');
+
+                if (respuesta){
+                    $.ajax({
+                        url         : url_save,
+                        method      : 'post',
+                        dataType    : 'json',
+                        data        : {
+                            accion          : 'save_plantilla',
+                            info_plantilla  : obj_plantillas_finales[id_plantilla_activa]
+                        },
+                        success     : function(data){
+                            showAlert('success','Captura exitosa!');
+
+                            show_plantillas_after_save(data);
+                            $(btn).prop('disable',false);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                }
+            });
+
+            $("#btnDelete").on('click', async function(){
+                let btn                 = $(this);
+                let id_plantilla_activa = $(".template-list").find('.active').data('id');
+                const respuesta         = await window.modalConfirm('¿Deseas continuar con el borrado de esta plantilla?');
+
+                console.log('id_plantilla_activa',id_plantilla_activa);
+                if (respuesta){
+                    $.ajax({
+                        url         : url_delete,
+                        method      : 'post',
+                        dataType    : 'json',
+                        data        : {
+                            id_plantilla    : id_plantilla_activa,
+                            clave           : obj_plantillas_originales[id_plantilla_activa]['clave']
+                        },
+                        success     : function(data){
+                            showAlert('success','Borrado exitoso!');
+
+                            show_plantillas_after_save(data);
+                            $(btn).prop('disable',false);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                }
+            });
+        });// FIN DOCUMENT READY
+
+        //  FUNCIONES
+        //  FUNCION PARA MOSTRAR PREVIEW CON INFORMACION
+        function reemplazar_variables(mensaje) {
+
+            let dias_semana = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            let meses       = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+            let hoy         = new Date();
+            let manana      = new Date();
+            let ayer        = new Date();
+
+            manana.setDate(hoy.getDate() + 1);
+            ayer.setDate(hoy.getDate() - 1);
+
+            let reemplazos_preview = {
+                '{{PACIENTE}}'       : 'Ismael Pérez',
+                '{{PROFESIONAL}}'    : 'Dr. Juan García',
+                '{{FECHA_CITA}}'     : `${manana.getDate()} de ${meses[manana.getMonth()]} ${manana.getFullYear()}`,
+                '{{HORA}}'           : '14:20',
+                '{{FECHA_ANTERIOR}}' : `${ayer.getDate()} de ${meses[ayer.getMonth()]} ${ayer.getFullYear()}`,
+                '{{LOCACION}}'       : nombre_locacion,
+                '{{MAPS_URL}}'       : 'https://maps.google.com/?q='+latitud_locacion+','+longitud_locacion,
+                '{{DIA_CITA}}'       : dias_semana[manana.getDay()],
+                '{{DIA_ANTERIOR}}'   : dias_semana[ayer.getDay()]
+            };
+
+            $.each(reemplazos_preview, function(variable, valor) {
+                mensaje = mensaje.split(variable).join(valor);
+            });
+            return mensaje;
+        }
+
+        //  FUNCION PARA GUARDAR EN EL OBJETO FINAL LA INFORMACION ACTUAL
+        //  ESTO PARA QUE AL CAMBIAR ENTRE PLANTILLAS EL AVANCE NO SE PIERDA
+        function guardar_cambios_plantila(id_plantilla_activa){
+            let mensaje = $("#textarea_mensaje").val().trim();
+
+            obj_plantillas_finales[id_plantilla_activa]['clave']    = $("#input_clave").val().trim();
+            obj_plantillas_finales[id_plantilla_activa]['nombre']   = $("#input_nombre").val().trim();
+            obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] = $("#select_tipo_mensaje").val();
+            obj_plantillas_finales[id_plantilla_activa]['mensaje']      = mensaje.replace(/\n/g, '%0A');
+
+            //  ACTUALIZA EL MENU DE LA IZQUIERDA
+            $(".template-list").find('.active').find('.clave_plantilla').text($("#input_clave").val().trim() == '' ? 'NUEVA_PLANTILLA' : $("#input_clave").val().trim());
+            $(".template-list").find('.active').find('.nombre_plantilla').text($("#input_nombre").val().trim() == '' ? 'Nueva plantilla' : $("#input_nombre").val().trim());
+            
+            let mensajeCorto = mensaje.replace(/\n/g, ' ');
+            mensajeCorto     = mensajeCorto.length > 30 ? mensajeCorto.substring(0, 30) + '...' : mensajeCorto;
+
+            mensajeCorto    = mensajeCorto == '' ? '...' : mensajeCorto;
+            $(".template-list").find('.active').find('.mensaje').text(mensajeCorto);
+        }
+
+        //  LLENA LA INFORMACION DE LA PLANTILLA EN LOS INPUT Y EN EL PREVIEW
+        function show_info_plantilla(){
+            let id_plantilla_activa = $(".template-list").find('.active').data('id');
+
+            $("#input_clave").val(obj_plantillas_finales[id_plantilla_activa]['clave']);
+            $("#input_nombre").val(obj_plantillas_finales[id_plantilla_activa]['nombre']);
+            $("#select_tipo_mensaje").val(obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje'] === null ? '-1' : obj_plantillas_finales[id_plantilla_activa]['tipo_mensaje']);
+            let mensaje = obj_plantillas_finales[id_plantilla_activa]['mensaje'];
+            mensaje     = mensaje = mensaje.replace(/%0A/g, '\n');
+            $("#textarea_mensaje").val(mensaje).trigger('keyup');
+        }
+
+        // SE DESTRUYE TODO Y SE RECREA CON LA INFORMACION OBTENIDA DE LA PLANTILLA
+        function show_plantillas_after_save(info_plantilla){
+            //  SE BLANQUEAN TODOS LOS REGISTROS
+            $("#input_clave").val('');
+            $("#input_nombre").val('');
+            $("#select_tipo_mensaje").val('');
+            $("#textarea_mensaje").val('');
+
+            //  SE BORRAN TODOS LAS PLANTILLAS DEL MENU
+            $("#div_header_row_plantillas").find('.active').removeClass('active');
+            $("#div_header_row_plantillas").find('.template-item').each(function(){
+                if ($(this).attr('id') == 'plantilla_0'){
+                    return true;
+                }
+
+                $(this).remove();
+            });
+
+            obj_plantillas_originales   = {
+                0   : {
+                    activa  : 1,
+                    clave   : '',
+                    id      : null,
+                    mensaje : '',
+                    nombre  : '',
+                    tipo_mensaje    : ''
+                }
+            };
+
+            obj_plantillas_finales  = {
+                0   : {
+                    activa  : 1,
+                    clave   : '',
+                    id      : null,
+                    mensaje : '',
+                    nombre  : '',
+                    tipo_mensaje    : ''
+                }
+            };
+
+            //  SE CREAN LOS OBJETOS PARA TENER UNO CON LA INFORMACION ORIGINAL 
+            //  Y UN SEGUNDO CON LA INFORMACION EDITADA PARA GUARDAR
+            Object.values(info_plantilla).forEach(function(plantilla) {
+                obj_plantillas_originales[plantilla.id] = JSON.parse(JSON.stringify(plantilla));
+                obj_plantillas_finales[plantilla.id]    = JSON.parse(JSON.stringify(plantilla));
+
+                let mensajeCorto = plantilla['mensaje'].replace(/%0A/g, ' ');
+                mensajeCorto     = mensajeCorto.length > 30 ? mensajeCorto.substring(0, 30) + '...' : mensajeCorto;
+
+                mensajeCorto    = mensajeCorto == '' ? '...' : mensajeCorto;
+                let row_plantilla   = $("#template_plantilla_menu").clone().removeAttr('id').attr('id','plantilla_'+plantilla.id).data('id',plantilla.id).show();
+                $(row_plantilla).find('.clave_plantilla').text(plantilla.clave);
+                $(row_plantilla).find('.nombre_plantilla').text(plantilla.nombre);
+                $(row_plantilla).find('.mensaje').text(mensajeCorto);
+                
+                $("#div_header_row_plantillas").append(row_plantilla);
+            });
+
+            setTimeout(() => {
+                $("#plantilla_0").addClass('active').trigger('click');
+            }, 150);
+        }
+    })();
+</script>
