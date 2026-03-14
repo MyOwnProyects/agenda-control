@@ -15,12 +15,14 @@ class ReporteadorController extends BaseController
 {
     protected $rutas;
     protected $url_api;
+    protected $bitacora;
 
     public function initialize(){
         $config         = $this->getDI();
         $this->rutas    = $config->get('rutas');
         $config         = $config->get('config');
         $this->url_api  = $config['BASEAPI'];
+        $this->bitacora = 'Reporteador';
     }
 
     public function IndexAction(){
@@ -59,7 +61,18 @@ class ReporteadorController extends BaseController
                     case 'general_ingresos':
                         $route_file = $this->reporte_general_ingresos();
                         break;
+                    case 'mensajes_enviados':
+                        $route_file = $this->reporte_mensajes_enviados();
                 }
+
+                //  BITACORA
+                $arr_mensaje_bitacora   = array(
+                    'general_citas'     => 'GENERAL_CITAS',
+                    'general_ingresos'  => 'GENERAL_INGRESOS',
+                    'mensajes_enviados' => 'MENSAJES_ENVIADOS'
+                );
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'REPORTE_'.$arr_mensaje_bitacora[$tipo_reporte],'Reporte generado con el rango de fechas: '.$_POST['rango_fechas']['fecha_inicio'].' - '.$_POST['rango_fechas']['fecha_termino'],$_POST);
 
                 if ($route_file['status_code'] > 399){
                     $response = new Response();
@@ -566,9 +579,178 @@ class ReporteadorController extends BaseController
         }
     }
 
+    //  REPORTE GENERAL DE CITAS
+    public function reporte_mensajes_enviados(){
+        try{
+
+            $route      = $this->url_api.$this->rutas['reportes']['mensajes_enviados'];
+            $arr_rows   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+            if (isset($arr_rows['status_code']) && $arr_rows['status_code'] > 399){
+                throw new Exception($arr_rows['error'],$arr_rows['status_code']);
+            }
+
+            $info_usuario   = $this->session->get('nombre').' '.$this->session->get('primer_apellido');
+
+            // 1. Crear nueva hoja de cálculo
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Resumen de mensajes enviados');
+
+            $sheet->mergeCells('A1:D1');
+            $sheet->setCellValue('A1', 'REPORTE GENERAL DE CITAS');
+
+            $sheet->mergeCells('A2:D2');
+            $sheet->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet->setCellValue('B4', date('d/m/Y'));
+
+            $sheet->setCellValue('A5', 'Hora de impresión: ');
+            $sheet->setCellValue('B5', date('H:i:s'));
+
+            $sheet->setCellValue('A6', 'Rango de fechas: ');
+            $sheet->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet->setCellValue('A7', 'Generado por:');
+            $sheet->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+
+            $sheet->setCellValue('A9', 'PACIENTE');
+            $sheet->setCellValue('B9', 'NOMBRE PLANTILLA');
+            $sheet->setCellValue('C9', 'USUARIO');
+            $sheet->setCellValue('D9', 'FECHA DE ENVIO');
+            $sheet->setCellValue('E9', 'CELULAR');
+            $sheet->setCellValue('F9', 'MENSAJE');
+
+            $sheet->getStyle('A9:F9')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF000000'],
+                ],
+            ]);
+
+            $sheet->getStyle('J11:J'.(count($arr_rows) + 11))
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
+            // 4. Llenar datos
+            $columna    = 10;
+            foreach ($arr_rows as $row) {
+                $sheet->setCellValue('A'.$columna, $row['nombre_paciente']);
+                $sheet->setCellValue('B'.$columna, $row['nombre_plantilla']);
+                $sheet->setCellValue('C'.$columna, $row['nombre_usuario']);
+                $sheet->setCellValue('D'.$columna, $row['fecha_envio']);
+                $sheet->setCellValue('E'.$columna, $row['celular']);
+                $sheet->setCellValue('F'.$columna, $this->mensaje_preview_excel($row['mensaje_generado']));
+
+                $columna++;
+            }
+
+            // // 3. Estilos básicos (Negrita en la cabecera)
+            // $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+            // // 4. Ajustar ancho de columna automáticamente
+            foreach (range('A', 'F') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $path_file = FuncionesGlobales::get_path_file('reportes');
+
+            // 5. Guardar archivo
+            $writer     = new Xlsx($spreadsheet);
+            $fecha_archivo  = $this->cadena_fecha();
+            $file_name      = 'reporte_general_citas_'.$fecha_archivo.'.xlsx';
+            $writer->save($path_file.$file_name);
+
+            return [
+                'path_file'     => FuncionesGlobales::get_url_download('reportes',$file_name),
+                'error_msg'     => '',
+                'status_code'   => 200
+            ];
+
+        } catch(\Exception $e){
+            return [
+                'path_file'     => '',
+                'error_msg'     => $e->getMessage(),
+                'status_code'   => $e->getCode()
+            ];
+        }
+    }
+
     //  FUNCION PARA GENERAR NOMBRE DE ARCHIVO
     public function cadena_fecha(){
         return date('dmy_His');
+    }
+
+    //  FUNCION PARA DEJAR LEGIBLE EL MENSAJE ENVIADO POR WP
+    function mensaje_preview_excel(?string $mensaje): string {
+        if (empty($mensaje)) {
+            return '';
+        }
+
+        $mensaje    = str_replace('%0A%',' ',$mensaje);
+        $mensaje    = str_replace('0A',' ',$mensaje);
+
+        // 1. Decodifica %0A, emojis, caracteres URL
+        $texto = urldecode($mensaje);
+
+        // 2. Normaliza saltos de línea
+        // (Excel interpreta \n como salto de línea dentro de la celda)
+        $texto = str_replace(["\r\n", "\r"], "\n", $texto);
+
+        // 3. Asegura UTF-8 (importante para emojis)
+        if (!mb_check_encoding($texto, 'UTF-8')) {
+            $texto = mb_convert_encoding($texto, 'UTF-8');
+        }
+
+        return $texto;
     }
 
 }

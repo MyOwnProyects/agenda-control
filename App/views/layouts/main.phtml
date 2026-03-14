@@ -47,6 +47,9 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!--  EMOGIS  -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
+
 </head>
   <?php 
     require_once APP_PATH . "/Library/FuncionesGlobales.php";
@@ -61,9 +64,10 @@
     $bitacora       = \App\Library\FuncionesGlobales::HasAccess('Bitacora', 'index');
     $bloqueo_agenda = \App\Library\FuncionesGlobales::HasAccess('Bloqueoagenda', 'index');
     $reporteador    = \App\Library\FuncionesGlobales::HasAccess('Reporteador', 'index');
-    $di             = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
-    $session        = $di->getShared('session');
-    $nombre_usuario = $session->has('nombre') ? $session->get('nombre') : '';
+    $plantillas_mensajes    = \App\Library\FuncionesGlobales::HasAccess('Plantillasmensajes', 'index');
+    $di                     = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
+    $session                = $di->getShared('session');
+    $nombre_usuario         = $session->has('nombre') ? $session->get('nombre') : '';
   ?>
   <?php
       // Obtén el despachador desde el contenedor de dependencias
@@ -187,7 +191,7 @@
               <!-- ─────────────── -->
               <!-- ADMINISTRACIÓN -->
               <!-- ─────────────── -->
-               <?php if ($profesionales || $locaciones || $servicios || $bloqueo_agenda || $reporteador): ?>
+               <?php if ($profesionales || $locaciones || $servicios || $bloqueo_agenda || $reporteador || $plantillas_mensajes): ?>
                 <li class="menu-divider"></li>
                 <li class="menu-section-title">Administración</li>
 
@@ -209,6 +213,17 @@
                         <i class="bi bi-building me-2"></i>
                         <span><?php echo $translations['html_locations']; ?></span>
                         <div class="nav-item-text"><?php echo $translations['html_locations']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- Locaciones -->
+                <?php if($plantillas_mensajes): ?>
+                <li class="nav-item" title="<?php echo $translations['html_message_templates']; ?>">
+                    <a href="/Plantillasmensajes/" class="nav-link text-white <?php echo $currentController == 'Plantillasmensajes' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-chat-left-text-fill me-2"></i>
+                        <span><?php echo $translations['html_message_templates']; ?></span>
+                        <div class="nav-item-text"><?php echo $translations['html_message_templates']; ?></div>
                     </a>
                 </li>
                 <?php endif; ?>
