@@ -319,6 +319,42 @@ class ControlcitasController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'get_plantillas_whatsapp'){
+                $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_por_cita'];
+                $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'save_envio_whatsapp'){
+                $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_enviada'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'ENVIOMENSAJE','Plantilla: '.$_POST['nombre_plantilla'].' enviada al número: '.$_POST['celular'].' Para el paciente: '.$_POST['nombre_completo'],$_POST);
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             $response = new Response();
             $response->setJsonContent($result);
             $response->setStatusCode(200, 'OK');
