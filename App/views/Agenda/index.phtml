@@ -1593,6 +1593,13 @@ use App\Library\FuncionesGlobales;
 
         <!-- Body (scrollable) -->
         <div class="modal-body div_header_plantillas">
+            <div class="div_sin_plantillas text-center py-4">
+                <i class="bi bi-journal-x" style="font-size:2.5rem; color:var(--text-muted);"></i>
+                <p class="mt-3 mb-0 fw-bold">No hay plantillas disponibles</p>
+                <p class="text-muted" style="font-size:13px;">
+                    Puedes enviar un mensaje personalizado directamente dando clic en  "Mensaje sin plantilla".
+                </p>
+            </div>
 
             <!-- Card 1 (Seleccionada)
             <label class="template-card selected">
@@ -1610,9 +1617,9 @@ use App\Library\FuncionesGlobales;
                 en nuestro centro médico. Por favor, llegue 10 minutos antes."
                 </p>
             </div>
-            </label> -->
+            </label>
 
-            <!-- Card 2 -->
+            Card 2 -->
             
 
         </div>
@@ -1635,9 +1642,12 @@ use App\Library\FuncionesGlobales;
 </div>
 
 <label id="template_info_plantilla" class="template-card hide">
-    <div class="card-top-left">
-        <input name="template" type="radio"/>
-        <span class="card-title tipo_mensaje"></span>
+    <div class="card-top">
+        <div class="card-top-left">
+            <input name="template" type="radio"/>
+            <span class="card-title tipo_mensaje"></span>
+        </div>
+        <span class="span_mensaje_utilizado badge-recommended" style="display:none;">Plantilla utilizada</span>
     </div>
     <div class="template-preview texto_mensaje">
         <p></p>
@@ -5558,9 +5568,18 @@ use App\Library\FuncionesGlobales;
 
         $(modal_clone).find("#celular").text(info_plantillas['celular']);
 
+        if (Object.keys(info_plantillas.plantillas).length > 0){
+            $(modal_clone).find('.div_sin_plantillas').remove();
+        } else {
+            $(modal_clone).find('.btn_enviar_whatsapp').remove();
+        }
+
         for (let plantilla of info_plantillas.plantillas){
-            console.log(plantilla);
             let row = $("#template_info_plantilla").clone().removeAttr('id').show();
+
+            if (plantilla['plantilla_usada'] == 1){
+                $(row).find('.span_mensaje_utilizado').show();
+            }
 
             $(row).find('.tipo_mensaje').text(plantilla['nombre_plantilla']);
             $(row).find('.texto_mensaje').html(mensaje_preview_Html(plantilla['mensaje']));

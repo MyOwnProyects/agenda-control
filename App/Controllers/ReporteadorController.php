@@ -662,9 +662,10 @@ class ReporteadorController extends BaseController
             $sheet->setCellValue('B9', 'NOMBRE PLANTILLA');
             $sheet->setCellValue('C9', 'USUARIO');
             $sheet->setCellValue('D9', 'FECHA DE ENVIO');
-            $sheet->setCellValue('E9', 'MENSAJE');
+            $sheet->setCellValue('E9', 'CELULAR');
+            $sheet->setCellValue('F9', 'MENSAJE');
 
-            $sheet->getStyle('A9:E9')->applyFromArray([
+            $sheet->getStyle('A9:F9')->applyFromArray([
                 'font' => [
                     'bold'  => true,
                     'color' => ['argb' => 'FFFFFFFF'],
@@ -686,7 +687,8 @@ class ReporteadorController extends BaseController
                 $sheet->setCellValue('B'.$columna, $row['nombre_plantilla']);
                 $sheet->setCellValue('C'.$columna, $row['nombre_usuario']);
                 $sheet->setCellValue('D'.$columna, $row['fecha_envio']);
-                $sheet->setCellValue('E'.$columna, $this->mensaje_preview_excel($row['mensaje_generado']));
+                $sheet->setCellValue('E'.$columna, $row['celular']);
+                $sheet->setCellValue('F'.$columna, $this->mensaje_preview_excel($row['mensaje_generado']));
 
                 $columna++;
             }
@@ -695,7 +697,7 @@ class ReporteadorController extends BaseController
             // $sheet->getStyle('A1:C1')->getFont()->setBold(true);
 
             // // 4. Ajustar ancho de columna automáticamente
-            foreach (range('A', 'E') as $col) {
+            foreach (range('A', 'F') as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 
@@ -732,6 +734,9 @@ class ReporteadorController extends BaseController
         if (empty($mensaje)) {
             return '';
         }
+
+        $mensaje    = str_replace('%0A%',' ',$mensaje);
+        $mensaje    = str_replace('0A',' ',$mensaje);
 
         // 1. Decodifica %0A, emojis, caracteres URL
         $texto = urldecode($mensaje);
