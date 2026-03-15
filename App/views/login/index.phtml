@@ -82,7 +82,8 @@
                     username: username,
                     password: password,
                     action  : 'authenticate',
-                    bfp     : bfp
+                    bfp     : bfp,
+                    vista_movil : $(window).width() < 768
                 },
                 success: function(response) {
                     // Procesar respuesta del servidor

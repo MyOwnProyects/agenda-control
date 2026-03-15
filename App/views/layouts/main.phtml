@@ -382,7 +382,7 @@
 
     <!-- Script para manejar la alerta -->
     <script>
-
+        let vista_movil = $(window).width() < 768;
         function check_window() {
             function cw_size() {
                 if ($(window).width() < 768) {
@@ -431,6 +431,12 @@
             });
 
             check_window();
+            if (vista_movil){
+                $(document).find('.nav-pills').find('.nav-item-text').each(function(){
+                    let texto   = $(this).text();
+                    $(this).text(texto.substring(0,3));
+                })
+            }
         });
 
     </script>
