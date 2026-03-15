@@ -222,6 +222,16 @@ class AgendamovilController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'get_profesionales'){
+                $route      = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
             if ($accion == 'get_plantillas_whatsapp'){
                 $route      = $this->url_api.$this->rutas['plantillas_mensajes']['plantilla_por_cita'];
                 $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
@@ -356,6 +366,7 @@ class AgendamovilController extends BaseController
 
         //  ID PROFESIONAL DE SESION
         $this->view->id_profesional = $this->session->get('id_profesional');
+        $this->view->tipo_usuario   = $this->session->get('clave_tipo_usuario');
 
         //  PERMISO PARA VER EXPEDIENTE DIGITAL
         $this->view->digitalRecord  = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");
@@ -378,7 +389,7 @@ class AgendamovilController extends BaseController
         $horario_atencion   = array();
 
         if ($arr_return == null){
-            $id_profesional = $this->session->get('id_profesional');
+            $id_profesional = $_POST['id_profesional'];
             $arr_return = array(
                 'horario_atencion'  => array()
             );
