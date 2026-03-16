@@ -33,6 +33,7 @@ class LoginController extends Controller
             $username   = $this->request->getPost('username', 'string');
             $password   = $this->request->getPost('password', 'string');
             $bfp        = $this->request->getPost('bfp', 'string');
+            $vista_movil    = $this->request->getPost('vista_movil', 'boolean');
 
             // Validación de los datos (ejemplo simple)
             if (empty($username) || empty($password)) {
@@ -88,6 +89,7 @@ class LoginController extends Controller
                 $this->session->set("language", 'es');
                 $this->session->set("bfp", $bfp);
                 $this->session->set("navegador", $navegador);
+                $this->session->set("vista_movil", $vista_movil);
                 
                 // 4. GUARDAR TIMESTAMP DEL LOGIN (útil para calcular expiración)
                 $this->session->set("token_created_at", time());
