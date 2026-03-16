@@ -410,6 +410,7 @@ class AgendamovilController extends BaseController
 
             //  SE BUSCA LA ULTIMA FECHA DISPONIBLE ANTES DEL CIERRE DE AGENDA
             $route      = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
+            $_POST['agenda_movil']          = true;
             $arr_return['cierre_agenda']    = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
             //  INFORMACION DE LOS SERVICIOS

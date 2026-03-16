@@ -753,6 +753,7 @@ use App\Library\FuncionesGlobales;
     .whatsappModal .modal-footer{
         padding: 1.25rem 1.5rem;
     }
+
     
 </style>
 <div class="container div_principal_filter div_header_filters col-10">
@@ -1112,18 +1113,18 @@ use App\Library\FuncionesGlobales;
                     <input type="checkbox" class="input_modify_day" name="input_modify_day" />
                 </div>
                 <div class="row div_cambiar_dia col-md-12 div_header_filters" style="display:none;">
-                    <div class="navigation" style="width:50%">
+                    <div class="navigation justify-content-center col-md-6">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< Sem.</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" >< D&iacute;a</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< S</button>
+                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" >< D</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">D&iacute;a ></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">Sem. ></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">D ></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">S ></button>
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
-                    <div class="navigation" style="width:50%">
+                    <div class="navigation" style="width:50%;display:none!important;">
                         <div class="col-md-12">
                             <label for="select_profesionales_modal" class="col-form-label"><?php echo $translations['html_title_professionals']; ?></label>
                             <select id="select_profesionales_modal" class="select_profesionales_modal">
@@ -2460,7 +2461,7 @@ use App\Library\FuncionesGlobales;
     }
 
     //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
-    function get_all_appointments(element,modal_clone = null,refresh_filtros = null){
+    function get_all_appointments(element,modal_clone = null,refresh_filtros = null, refresh_servicios = false){
 
         let id_locacion = $("#select_locaciones").val();
         if (modal_clone != null){
@@ -2486,8 +2487,36 @@ use App\Library\FuncionesGlobales;
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;
 
+                    //  INSERT SERVICIOS
+                    if (refresh_servicios){
+                        //  SE LLENAN LOS SELECTS
+                        $(".div_append_label_servicios").html('');
+                        let template_label  = $("#template_label_servicios").clone().removeAttr('id').show();
+                        $(template_label).find('.legend-color').css({
+                            'background': 'white',
+                            'border': '1px solid red'  // Borde rojo de 1px
+                        });
+                        $(template_label).find('.texto_servicio').text('Pago no registrado');
+                        $(".div_append_label_servicios").append(template_label);
+                        let options     = '<option></option>';
+                        for(let i in data['all_services']){
+                            let row = data['all_services'][i];
+                            options += '<option value="'+row["id"]+'">'+row["nombre"]+'</option>';
+
+                            template_label  = $("#template_label_servicios").clone().removeAttr('id').show();
+                            $(template_label).find('.legend-color').css('background',row["codigo_color"]);
+                            $(template_label).find('.texto_servicio').text(row["nombre"]);
+                            $(".div_append_label_servicios").append(template_label);
+                        }
+
+                        $(".color-legend").show();
+                        
+                        $("#select_servicios").find('option').remove();
+                        $("#select_servicios").append(options);
+                    }
+
                     if (refresh_filtros != null){
-                         //  SE LLENAN LOS SELECTS
+                        //  SE LLENAN LOS SELECTS
                         $(".div_append_label_servicios").html('');
                         let template_label  = $("#template_label_servicios").clone().removeAttr('id').show();
                         $(template_label).find('.legend-color').css({
@@ -2512,30 +2541,30 @@ use App\Library\FuncionesGlobales;
                         $("#select_servicios").find('option').remove();
                         $("#select_servicios").append(options);
 
-                        options = '<option></option>';
-                        for(let i in data['all_professionals']){
-                            let row                 = data['all_professionals'][i];
-                            let tmp_obj_servicio    = [];
+                        // options = '<option></option>';
+                        // for(let i in data['all_professionals']){
+                        //     let row                 = data['all_professionals'][i];
+                        //     let tmp_obj_servicio    = [];
 
-                            for(let i in row["servicios"]){
-                                tmp_obj_servicio.push({
-                                    id  : row["servicios"][i]['id_servicio'],
-                                    nombre  : row["servicios"][i]['nombre'],
-                                    duracion  : row["servicios"][i]['duracion'],
-                                    duracion_minutos  : row["servicios"][i]['duracion_minutos'],
-                                    costo  : row["servicios"][i]['costo'],
-                                    activo : row["servicios"][i]['activo']
-                                });
-                            }
+                        //     for(let i in row["servicios"]){
+                        //         tmp_obj_servicio.push({
+                        //             id  : row["servicios"][i]['id_servicio'],
+                        //             nombre  : row["servicios"][i]['nombre'],
+                        //             duracion  : row["servicios"][i]['duracion'],
+                        //             duracion_minutos  : row["servicios"][i]['duracion_minutos'],
+                        //             costo  : row["servicios"][i]['costo'],
+                        //             activo : row["servicios"][i]['activo']
+                        //         });
+                        //     }
 
-                            options += '<option value="' + row["id"] + 
-                                        '" data-servicios=\'' + JSON.stringify(tmp_obj_servicio) + '\'>' +
-                                        row["nombre_completo"] +
-                                        '</option>';
+                        //     options += '<option value="' + row["id"] + 
+                        //                 '" data-servicios=\'' + JSON.stringify(tmp_obj_servicio) + '\'>' +
+                        //                 row["nombre_completo"] +
+                        //                 '</option>';
 
-                        }
-                        $("#select_profesionales").find('option').remove();
-                        $("#select_profesionales").append(options);
+                        // }
+                        // $("#select_profesionales").find('option').remove();
+                        // $("#select_profesionales").append(options);
                         
                         //  PARA EL MODAL DE CITAS FUERA DE HORARIO
                         $("#modal_create_cita_fuera_horario").find("#select_profesional_modal_cfh").find('option').remove();
@@ -3796,7 +3825,7 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).find('.hide_container').removeClass('hide_container');
 
         $(modal_clone).on('shown.bs.modal', function () {
-            calcular_ancho_modal($(this));
+            calcular_ancho($(this));
         }).modal('show');
         //$(modal_clone).modal('show');
 
@@ -3971,7 +4000,7 @@ use App\Library\FuncionesGlobales;
         });
 
         $(window).on('resize', function () {
-            calcular_ancho_modal($(document).find('.modal_save_class:visible'));
+            calcular_ancho($(document).find('.modal_save_class:visible'));
         });
 
         //  CONVERTIR LOS COMBOS EN SELECT2
@@ -3981,7 +4010,7 @@ use App\Library\FuncionesGlobales;
         //selectToSelect2($(".div_header_filters"),"select_pacientes");
 
         $("#select_profesionales").on('select2:select',function(){
-            get_all_appointments();
+            get_all_appointments(null,null,null,true);
             $(".div_principal_filter").find('.show_after_proffesional').show();
         });
 
@@ -4034,7 +4063,6 @@ use App\Library\FuncionesGlobales;
                         $("#select_profesionales").append(options);
 
                         if ($("#select_profesionales").val() != null && $("#select_profesionales").val() != ''){
-                            console.log('aqui');
                             $("#select_profesionales").trigger('select2:select');
                         }
 
@@ -4248,7 +4276,7 @@ use App\Library\FuncionesGlobales;
             $infoBox.css("display", "none"); // Ocultar el modal
         });
 
-        calcular_ancho_modal(null);
+        calcular_ancho(null);
     }); // FIN DOCUMENT READY
 
     /* 
@@ -4435,7 +4463,7 @@ use App\Library\FuncionesGlobales;
             let cadena_enviada  = '';
             $(modal_clone).find('#select_paciente_modal_cfh').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone).find('.div_select_paciente'),
+                dropdownParent: $(modal_clone).find('#form_modal_create'),
                 width: '50px',
                 minimumInputLength: 3,
                 ajax: {
@@ -4941,6 +4969,10 @@ use App\Library\FuncionesGlobales;
             });
         });
 
+        $(modal_clone).on('shown.bs.modal', function () {
+            calcular_ancho($(this));
+        }).modal('show');
+
         $(modal_clone).modal('show');
 
     }
@@ -5163,11 +5195,22 @@ use App\Library\FuncionesGlobales;
             }
         });
 
+        $(modal_clone).on('show.bs.modal', function() {
+            if (cita_fuera_horario) {
+                // Calcula el ancho real del scrollbar del navegador
+                let scrollbar_width = window.innerWidth - document.documentElement.clientWidth;
+                $(this).css('padding-right', scrollbar_width + 'px');
+                
+                $(this).on('shown.bs.modal', function() {
+                    $(this).css('padding-right', scrollbar_width + 'px');
+                });
+            }
+        });
 
         $(modal_clone).modal('show');
     }
 
-    function calcular_ancho_modal(modal_visible) {
+    function calcular_ancho(modal_visible) {
         let windowWidth     = $(window).width();
         let windowHeight    = $(window).height();
 
