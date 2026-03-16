@@ -167,8 +167,8 @@
                     </a>
                     <?php endif; ?>
                     <?php if ($agenda_movil): ?>
-                    <a href="/Agendamovil" class="btn btn-primary d-flex align-items-center">
-                      <i class="bi bi-phone me-1"></i>Mi agenda
+                    <a href="/Agendamovil" class="btn btn-primary d-flex align-items-center div_agenda_movil hide">
+                      <i class="bi bi-phone me-1"></i>Agenda Movil
                     </a>
                     <?php endif; ?>
                     <button id="actualizar_registros" class="btn btn-primary d-flex align-items-center">
@@ -669,9 +669,11 @@
             if (windowWidth > ancho_resize){
                 $(".div_header_indicador").removeClass('col-6').addClass('col-3');
                 $(".div_header_indicador").removeClass('col-6').addClass('col-3');
+                $(".div_agenda_movil").addClass('hide');
             } else {
                 $(".div_header_indicador").removeClass('col-3').addClass('col-6');
                 $(".div_header_indicador").removeClass('col-3').addClass('col-6');
+                $(".div_agenda_movil").removeClass('hide');
             }
         }
         

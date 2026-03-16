@@ -60,6 +60,7 @@
     $locaciones     = \App\Library\FuncionesGlobales::HasAccess('Locaciones', 'index');
     $pacientes      = \App\Library\FuncionesGlobales::HasAccess('Pacientes', 'index');
     $agenda         = \App\Library\FuncionesGlobales::HasAccess('Agenda', 'index');
+    $agenda_movil   = \App\Library\FuncionesGlobales::HasAccess('Agendamovil', 'index');
     $control_citas  = \App\Library\FuncionesGlobales::HasAccess('Controlcitas', 'index');
     $bitacora       = \App\Library\FuncionesGlobales::HasAccess('Bitacora', 'index');
     $bloqueo_agenda = \App\Library\FuncionesGlobales::HasAccess('Bloqueoagenda', 'index');
@@ -150,7 +151,7 @@
                   </a>
               </li>
               <li class="menu-divider"></li>
-              <?php if ($agenda || $control_citas || $pacientes): ?>
+              <?php if ($agenda || $control_citas || $pacientes || $agenda_movil): ?>
                 <li class="menu-section-title">Operación diaria</li>
 
                 <!-- Agenda -->
@@ -160,6 +161,15 @@
                         <i class="bi bi-calendar me-2"></i>
                         <span><?php echo $translations['html_agenda']; ?></span>
                         <div class="nav-item-text" data-texto="<?php echo $translations['html_agenda']; ?>"><?php echo $translations['html_agenda']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+                <?php if($agenda_movil): ?>
+                <li class="nav-item agenda_movil" title="<?php echo $translations['html_movil_agenda']; ?>">
+                    <a href="/Agendamovil/" class="nav-link text-white <?php echo $currentController == 'Agendamovil' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-phone me-2"></i>
+                        <span><?php echo $translations['html_movil_agenda']; ?></span>
+                        <div class="nav-item-text" data-texto="<?php echo $translations['html_movil_agenda']; ?>"><?php echo $translations['html_movil_agenda']; ?></div>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -386,27 +396,48 @@
         function check_window() {
             function cw_size() {
                 if ($(window).width() < 768) {
-                    //console.log("Menor a 768px");
                     if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
                         $('body').find('#toggle-aside').click();
                     } else {}
                 } else {
-                    //console.log("Mayor a 768px");
                 }
             }
 
             cw_size();
 
             $(window).on('resize', cw_size);
+
+            $(document).find('.nav-pills').find('.nav-item-text').each(function(){
+                let texto   = $(this).data('texto');
+                if ($(window).width() < 768){
+                    $(this).text(abreviar_nombre_menu(texto));
+
+                    if ($(this).closest('li').hasClass('agenda_movil')){
+                        $(this).closest('li').css('display','block');
+                    }
+                } else {
+                    $(this).text(texto);
+                    if ($(this).closest('li').hasClass('agenda_movil')){
+                        $(this).closest('li').css('display','none');
+                    }
+                }
+            });
         }
 
         $(window).on('resize', function () {
             $(document).find('.nav-pills').find('.nav-item-text').each(function(){
                 let texto   = $(this).data('texto');
                 if ($(window).width() < 768){
-                    $(this).text(texto.substring(0,3));
+                    $(this).text(abreviar_nombre_menu(texto));
+
+                    if ($(this).closest('li').hasClass('agenda_movil')){
+                        $(this).closest('li').css('display','block');
+                    }
                 } else {
                     $(this).text(texto);
+                    if ($(this).closest('li').hasClass('agenda_movil')){
+                        $(this).closest('li').css('display','none');
+                    }
                 }
             });
         });
@@ -445,10 +476,19 @@
             if (vista_movil){
                 $(document).find('.nav-pills').find('.nav-item-text').each(function(){
                     let texto   = $(this).text();
-                    $(this).text(texto.substring(0,3));
+                    $(this).text(abreviar_nombre_menu(texto));
                 });
             }
         });
+
+        function abreviar_nombre_menu(str) {
+            const palabras = str.trim().split(/\s+/);
+            if (palabras.length === 1) {
+                return palabras[0].substring(0, 3);
+            } else {
+                return palabras.map(p => p.charAt(0).toUpperCase()).join('');
+            }
+        }
 
     </script>
 </body>

@@ -754,10 +754,26 @@ use App\Library\FuncionesGlobales;
         padding: 1.25rem 1.5rem;
     }
 
-    
+    @media (max-width: 768px) {
+        .div_principal_filter .navigation {
+            margin: 10px 0;
+            width: 100%;
+            justify-content: center;
+            overflow-x: clip; /* recorta solo horizontalmente sin afectar el scroll interno */
+            overflow-y: visible;
+        }
+
+        .div_principal_filter .navigation .left-section {
+            width: 100%;
+            justify-content: flex-start; /* empieza desde la izquierda para que el scroll funcione */
+            overflow-x: auto;
+            max-width: 100%;
+            scroll-snap-type: none; /* evita que el scroll se regrese solo */
+        }
+    }
 </style>
 <div class="container div_principal_filter div_header_filters col-10">
-    <h1 class="text-center my-4">Tu Agenda</h1>
+    <h1 class="text-center my-4">Agenda Movil</h1>
 
     <!-- Filtros de Servicios y Pacientes -->
     <div class="row filters col-12">
