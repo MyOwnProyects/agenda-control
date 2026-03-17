@@ -202,6 +202,7 @@ return [
     'html_info_simultaneous_appointment'        => 'Información de las citas simultaneas',
     'html_title_reporter'                       => 'Reporteador',
     'html_message_templates'                    => 'Plantillas de mensajes',
+    'html_movil_agenda'                         => 'Agenda movil',
     
 
 

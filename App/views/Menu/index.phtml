@@ -102,6 +102,7 @@
     /* Altura fija para las tarjetas de estadísticas */
     .fixed-height-card {
         height: 100px;
+        overflow: hidden;
     }
 
     /* El contenedor de próximas citas puede crecer libremente */
@@ -140,6 +141,11 @@
       border-radius: 3px;
     }
 
+    #saludo.vista_movil {
+        font-size: 1.2rem; /* reduce el tamaño del saludo */
+        padding-right: 80px; /* espacio para el dropdown */
+    }
+
 </style>
 
 <div class="d-flex">
@@ -147,7 +153,7 @@
     <main class="flex-grow-1 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold" id="saludo"></h2>
+                <h2 class="fw-bold <?php echo $vista_movil ? 'vista_movil' : ''; ?>" id="saludo"></h2>
                 <p class="text-muted">Aquí tienes un resumen del día.</p>
             </div>
             <div class="text-end">
@@ -165,9 +171,9 @@
                         <i class="bi bi-search"></i>Ver Pacientes
                     </a>
                     <?php endif; ?>
-                    <?php if ($agenda): ?>
-                    <a href="/Agenda" class="btn btn-primary d-flex align-items-center">
-                      <i class="bi bi-plus-lg me-1"></i>Programar Cita
+                    <?php if ($agenda_movil): ?>
+                    <a href="/Agendamovil" class="btn btn-primary d-flex align-items-center div_agenda_movil hide">
+                      <i class="bi bi-phone me-1"></i>Agenda Movil
                     </a>
                     <?php endif; ?>
                     <button id="actualizar_registros" class="btn btn-primary d-flex align-items-center">
@@ -184,37 +190,37 @@
             <div class="col-md-8">
                 <!-- Stats -->
                 <div class="row g-3 mb-3">
-                    <div class="col-md-3">
+                    <div class="div_header_indicador col-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
-                                <p class="text-muted mb-1">Pendientes Hoy</p>
+                                <p class="text-muted mb-1 text-nowrap">Pendientes Hoy</p>
                                 <h3 id="citas_pendientes" class="fw-bold mb-1">12</h3>
                                 <small id="pendientes_porcentaje" class="text-success">+5% desde ayer</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="div_header_indicador col-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
-                                <p class="text-muted mb-1">Completadas Hoy</p>
+                                <p class="text-muted mb-1 text-nowrap">Completadas Hoy</p>
                                 <h3 id="citas_completadas" class="fw-bold mb-1">8</h3>
                                 <small id="completadas_porcentaje" class="text-success">-2% desde ayer</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="div_header_indicador col-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
-                                <p class="text-muted mb-1">Canceladas Hoy</p>
+                                <p class="text-muted mb-1 text-nowrap">Canceladas Hoy</p>
                                 <h3 id="citas_canceladas" class="fw-bold mb-1">2</h3>
                                 <small id="canceladas_porcentaje" class="text-danger">+1% desde ayer</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="div_header_indicador col-3">
                         <div class="card shadow-sm stats-card fixed-height-card">
                             <div class="card-body">
-                                <p class="text-muted mb-1">En curso</p>
+                                <p class="text-muted mb-1 text-nowrap">En curso</p>
                                 <h3 id="citas_en_curso" class="fw-bold mb-1">0</h3>
                                 <small id="texto_citas_en_curso" class="text-success">En proceso...</small>
                             </div>
@@ -326,6 +332,9 @@
         //  CHART JS
         let chart_js  = null;
 
+        //  ANCHO MOVIL
+        const vista_movil   = '<?php echo $vista_movil; ?>';
+
         //  OBJ DE DIAS PARA PINTAR GRAFICA
         let obj_data_dias = {
             'Lun' : 0,
@@ -381,6 +390,10 @@
         }
 
         $(document).ready(function(){
+
+            $(window).on('resize', function () {
+                calcular_ancho();
+            });
             
             //  SE INICIA LA HORA
             let hora = moment(hora_actual, 'HH:mm:ss');
@@ -430,7 +443,8 @@
             });
 
             show_chart();
-        });
+            calcular_ancho();
+        }); //  FIN DOCUMENT READ
 
         function show_chart(){
             let citas_canceladas    = 0;
@@ -652,6 +666,19 @@
                     }
                 }
             });
+        }
+
+        function calcular_ancho(){
+
+            if (!vista_movil){
+                $(".div_header_indicador").removeClass('col-6').addClass('col-3');
+                $(".div_header_indicador").removeClass('col-6').addClass('col-3');
+                $(".div_agenda_movil").addClass('hide');
+            } else {
+                $(".div_header_indicador").removeClass('col-3').addClass('col-6');
+                $(".div_header_indicador").removeClass('col-3').addClass('col-6');
+                $(".div_agenda_movil").removeClass('hide');
+            }
         }
         
     })();
