@@ -69,6 +69,7 @@
     $di                     = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
     $session                = $di->getShared('session');
     $nombre_usuario         = $session->has('nombre') ? $session->get('nombre') : '';
+    $vista_movil            = $session->get('vista_movil') == true;
   ?>
   <?php
       // Obtén el despachador desde el contenedor de dependencias
@@ -90,6 +91,13 @@
     // Mostrar el label solo si no estás en la ruta excluida
     if ($currentController !== $excludedController || $currentAction !== $excludedAction): 
 ?>
+<style>
+    .main_content.vista_movil {
+        padding-left: 0px !important;
+        padding-right: 4px !important;
+        margin-left: 0px !important;
+    }
+</style>
 <header class="p-3 bg-dark text-white" style="display:none !important;">
   <div class="">
     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
@@ -320,7 +328,7 @@
         </main>-->
     </aside>
             <!-- Contenido principal -->
-    <main class="main_content">
+    <main class="main_content <?php echo $vista_movil ? 'vista_movil' : ''; ?>">
 
       <div class="mc_user_dropdown">
          <div class="dropdown">
@@ -392,14 +400,13 @@
 
     <!-- Script para manejar la alerta -->
     <script>
-        let vista_movil = $(window).width() < 768;
+        let vista_movil = '<?php echo $vista_movil; ?>';
         function check_window() {
             function cw_size() {
-                if ($(window).width() < 768) {
+                if (vista_movil) {
                     if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
                         $('body').find('#toggle-aside').click();
                     } else {}
-                } else {
                 }
             }
 
@@ -409,7 +416,7 @@
 
             $(document).find('.nav-pills').find('.nav-item-text').each(function(){
                 let texto   = $(this).data('texto');
-                if ($(window).width() < 768){
+                if (vista_movil){
                     $(this).text(abreviar_nombre_menu(texto));
 
                     if ($(this).closest('li').hasClass('agenda_movil')){
@@ -427,7 +434,7 @@
         $(window).on('resize', function () {
             $(document).find('.nav-pills').find('.nav-item-text').each(function(){
                 let texto   = $(this).data('texto');
-                if ($(window).width() < 768){
+                if (vista_movil){
                     $(this).text(abreviar_nombre_menu(texto));
 
                     if ($(this).closest('li').hasClass('agenda_movil')){
@@ -467,7 +474,7 @@
 
             $('aside.aside_menu').on('click','a.nav-link', function() {
                 // MODIFICACIÓN: Solo colapsar automáticamente en dispositivos móviles
-                if($(window).width() < 768 && $('aside.aside_menu').hasClass('aside-collapsed') !== true) {
+                if(vista_movil && $('aside.aside_menu').hasClass('aside-collapsed') !== true) {
                     $('body').find('#toggle-aside').click();
                 }
             });

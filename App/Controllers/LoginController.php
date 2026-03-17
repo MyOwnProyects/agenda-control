@@ -89,7 +89,7 @@ class LoginController extends Controller
                 $this->session->set("language", 'es');
                 $this->session->set("bfp", $bfp);
                 $this->session->set("navegador", $navegador);
-                $this->session->set("vista_movil", $vista_movil);
+                $this->session->set("vista_movil", strpos(strtolower($navegador), 'mobile') !== false);
                 
                 // 4. GUARDAR TIMESTAMP DEL LOGIN (útil para calcular expiración)
                 $this->session->set("token_created_at", time());

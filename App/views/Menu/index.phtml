@@ -141,6 +141,11 @@
       border-radius: 3px;
     }
 
+    #saludo.vista_movil {
+        font-size: 1.2rem; /* reduce el tamaño del saludo */
+        padding-right: 80px; /* espacio para el dropdown */
+    }
+
 </style>
 
 <div class="d-flex">
@@ -148,7 +153,7 @@
     <main class="flex-grow-1 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold" id="saludo"></h2>
+                <h2 class="fw-bold <?php echo $vista_movil ? 'vista_movil' : ''; ?>" id="saludo"></h2>
                 <p class="text-muted">Aquí tienes un resumen del día.</p>
             </div>
             <div class="text-end">
@@ -328,7 +333,7 @@
         let chart_js  = null;
 
         //  ANCHO MOVIL
-        const ancho_resize  = 768;
+        const vista_movil   = '<?php echo $vista_movil; ?>';
 
         //  OBJ DE DIAS PARA PINTAR GRAFICA
         let obj_data_dias = {
@@ -664,9 +669,8 @@
         }
 
         function calcular_ancho(){
-            let windowWidth     = $(window).width();
 
-            if (windowWidth > ancho_resize){
+            if (!vista_movil){
                 $(".div_header_indicador").removeClass('col-6').addClass('col-3');
                 $(".div_header_indicador").removeClass('col-6').addClass('col-3');
                 $(".div_agenda_movil").addClass('hide');

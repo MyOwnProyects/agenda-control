@@ -99,17 +99,3 @@ body.modal-open .r_container > main.main_content {overflow: hidden;}
   #table_results_wrapper > .dt-info {flex: 1}
   #table_results_wrapper > .dt-paging {}
 }
-
-@media (max-width: 768px) {
-
-    .main_content {
-        padding-left: 0px !important;
-        padding-right: 4px !important;
-        margin-left: 0px !important;
-    }
-
-    #saludo {
-        font-size: 1.2rem; /* reduce el tamaño del saludo */
-        padding-right: 80px; /* espacio para el dropdown */
-    }
-}

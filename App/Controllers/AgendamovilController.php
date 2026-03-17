@@ -367,6 +367,7 @@ class AgendamovilController extends BaseController
         //  ID PROFESIONAL DE SESION
         $this->view->id_profesional = $this->session->get('id_profesional');
         $this->view->tipo_usuario   = $this->session->get('clave_tipo_usuario');
+        $this->view->vista_movil    = $this->session->get('vista_movil');
 
         //  PERMISO PARA VER EXPEDIENTE DIGITAL
         $this->view->digitalRecord  = FuncionesGlobales::HasAccess("Pacientes","digitalRecord");

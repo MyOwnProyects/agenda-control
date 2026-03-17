@@ -70,6 +70,7 @@ class MenuController extends BaseController
         $this->view->expediente_clinico     = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
         $this->view->agenda                 = FuncionesGlobales::HasAccess("Agenda","index");
         $this->view->agenda_movil           = FuncionesGlobales::HasAccess("Agendamovil","index");
+        $this->view->vista_movil            = $this->session->get('vista_movil');
     }
 
     public function route404Action(){
