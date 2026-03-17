@@ -4926,7 +4926,7 @@ use App\Library\FuncionesGlobales;
             let cadena_enviada  = '';
             $(modal_clone).find('#select_paciente_modal_cfh').select2({
                 placeholder: 'Seleccione una opción',
-                dropdownParent: $(modal_clone).find('.div_select_paciente'),
+                dropdownParent: $(modal_clone).find('#form_modal_create'),
                 width: '50px',
                 minimumInputLength: 3,
                 ajax: {
