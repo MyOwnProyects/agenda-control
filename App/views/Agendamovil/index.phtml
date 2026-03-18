@@ -763,6 +763,11 @@ use App\Library\FuncionesGlobales;
         scroll-snap-type: none; /* evita que el scroll se regrese solo */
     }
 
+    .div_principal_filter {
+        padding-left: 0px !important;
+        padding-right: 4px !important;
+    }
+
 </style>
 <div class="container div_principal_filter div_header_filters col-10">
     <h1 class="text-center my-4">Agenda Movil</h1>
@@ -770,7 +775,7 @@ use App\Library\FuncionesGlobales;
     <!-- Filtros de Servicios y Pacientes -->
     <div class="row filters col-12">
 
-        <div class="col-12">
+        <div class="col-12 mb-3">
             <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_locations']; ?></label>
             <?php $count_locaciones = count($arr_locaciones); ?>
             <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
@@ -5233,10 +5238,10 @@ use App\Library\FuncionesGlobales;
             }
 
             if (!vista_movil){
-                $("#select_profesionales").closest('div').removeClass('col-12').addClass('col-6').removeClass('p-3');
+                $("#select_profesionales").closest('div').removeClass('col-12').addClass('col-6');
                 $("#select_locaciones").closest('div').removeClass('col-12').addClass('col-6');
             } else {
-                $("#select_profesionales").closest('div').removeClass('col-6').addClass('p-3').addClass('col-12');
+                $("#select_profesionales").closest('div').removeClass('col-6').addClass('col-12');
                 $("#select_locaciones").closest('div').removeClass('col-6').addClass('col-12');
             }
             
