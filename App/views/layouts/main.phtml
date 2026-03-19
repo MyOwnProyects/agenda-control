@@ -92,11 +92,7 @@
     if ($currentController !== $excludedController || $currentAction !== $excludedAction): 
 ?>
 <style>
-    .main_content.vista_movil {
-        padding-left: 0px !important;
-        padding-right: 4px !important;
-        margin-left: 0px !important;
-    }
+    
 </style>
 <header class="p-3 bg-dark text-white" style="display:none !important;">
   <div class="">
@@ -107,19 +103,6 @@
           AGENDA CONTROL
         </a>
       </div>
-      
-
-      <!-- <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">About</a></li>
-      </ul> -->
-
-      <!-- <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-        <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
-      </form> -->
     </div>
   </div>
 </header>
@@ -129,15 +112,15 @@
   // Mostrar el label solo si no estás en la ruta excluida  
   if ($currentController !== $excludedController || $currentAction !== $excludedAction): 
 ?>
-  <div class="row r_container">
+  <div class="row r_container <?php echo $vista_movil ? 'vista_movil' : ''; ?>">
     <!-- Menú en la parte izquierda -->
-    <aside class="aside_menu bg-primary p-3 aside <?php echo $currentController == 'Menu' ? '' : 'aside-collapsed'; ?>">
+    <aside class="aside_menu bg-primary p-3 aside <?php echo $currentController == 'Menu' || $vista_movil ? '' : 'aside-collapsed'; ?>">
         <!--<main>
           <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">-->
           <div class="rc_brand">
             <label><small>Control de</small>Agenda</label>
             <!--<li class="nav-item <?php echo $currentController == 'Menu' ? 'text-center' : 'text-left'; ?>">-->
-              <a id="toggle-aside">
+              <a id="toggle-aside" style="opacity:0!important">
                 <i class="bi <?php echo $currentController == 'Menu' ? 'bi-arrow-left-short' : 'bi-arrow-right-short'; ?>"></i>
               </a>
             <!--</li>-->
@@ -330,21 +313,32 @@
             <!-- Contenido principal -->
     <main class="main_content <?php echo $vista_movil ? 'vista_movil' : ''; ?>">
 
-      <div class="mc_user_dropdown">
-         <div class="dropdown">
+    <div class="app-header">
+
+        <button id="btn_menu_movil" class="btn btn-light border d-flex align-items-center justify-content-center" 
+                style="width: 36px; height: 36px; padding: 0;">
+        <i class="bi bi-list fs-5"></i>
+        </button>
+
+        <div class="mc_user_dropdown">
+        <div class="dropdown">
             <label id="show_nombre_usuario"><?php echo $nombre_usuario; ?></label>
             <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <span class="material-icons-round">manage_accounts</span>
+            <span class="material-icons-round">manage_accounts</span>
             </button>
             <ul class="dropdown-menu">
-              <label><?php echo $translations['html_title_my_account']; ?></label>
-              <li><a href="/login/logout" class="rounded">Cerrar sesi&oacute;n</a></li>
+            <label><?php echo $translations['html_title_my_account']; ?></label>
+            <li><a href="/login/logout" class="rounded">Cerrar sesión</a></li>
             </ul>
-          </div>
-      </div>
-      <div class="row">
+        </div>
+        </div>
+
+    </div>
+
+    <div class="row">
         <?= $this->getContent() ?>
-      </div>
+    </div>
+
     </main>
     <?php else: ?>
     <main class="login_content animate__animated animate__fadeIn">
@@ -379,7 +373,6 @@
         </div>
     </div>
 
-    <!--    DIV DE ESPERA PARA CARGAR   -->
     <!-- DIV DE ESPERA PARA CARGAR -->
     <div id="div_cargando" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9900;">
         <div class="modal-backdrop fade show"></div>
@@ -400,7 +393,37 @@
 
     <!-- Script para manejar la alerta -->
     <script>
-        let vista_movil = '<?php echo $vista_movil; ?>';
+        let vista_movil = <?php echo $vista_movil ? 'true' : 'false'; ?>;
+
+        //  EVENTOS PARA VISTA MOVIL
+        if (vista_movil){
+            $(window).on('scroll', function() {
+                const scrolled = $(this).scrollTop() > 10;
+                $('#appHeader').css({
+                    opacity: scrolled ? '0' : '1',
+                    pointerEvents: scrolled ? 'none' : 'auto'
+                });
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.aside_menu, #btn_menu_movil').length) {
+                    $('.aside_menu').removeClass('menu_open');
+                    $('#menu_overlay').removeClass('active');
+                }
+            });
+        }
+
+        //  EVENTO BOTÓN MENU
+        // EVENTO BOTÓN MENÚ
+        $("#btn_menu_movil").on('click', function(){
+            if (vista_movil){
+                $('.aside_menu').toggleClass('menu_open');
+                $('#menu_overlay').toggleClass('active');
+            } else {
+                $(".aside").toggleClass("aside-collapsed");
+            }
+        });
+
         function check_window() {
             function cw_size() {
                 if (vista_movil) {
@@ -410,7 +433,7 @@
                 }
             }
 
-            cw_size();
+            //cw_size();
 
             $(window).on('resize', cw_size);
 
@@ -458,24 +481,27 @@
                 }, 3000);
             });
 
-            $("#toggle-aside").click(function() {
-                $(".aside").toggleClass("aside-collapsed");
+            // $("#toggle-aside").click(function() {
+            //     $(".aside").toggleClass("aside-collapsed");
 
-                // MODIFICACIÓN: Cambiar el ícono de la flecha
-                if ($(".aside").hasClass('aside-collapsed')){
-                    $(this).find('i').removeClass('bi-arrow-left-short').addClass('bi-arrow-right-short');
-                } else {
-                    $(this).find('i').removeClass('bi-arrow-right-short').addClass('bi-arrow-left-short');
-                }
+            //     // MODIFICACIÓN: Cambiar el ícono de la flecha
+            //     if ($(".aside").hasClass('aside-collapsed')){
+            //         $(this).find('i').removeClass('bi-arrow-left-short').addClass('bi-arrow-right-short');
+            //     } else {
+            //         $(this).find('i').removeClass('bi-arrow-right-short').addClass('bi-arrow-left-short');
+            //     }
 
-                // ELIMINADO: Ya no necesitamos cambiar las clases de texto del li
-                // porque ahora el texto se muestra debajo del ícono
-            });
+                
+            // });
 
             $('aside.aside_menu').on('click','a.nav-link', function() {
                 // MODIFICACIÓN: Solo colapsar automáticamente en dispositivos móviles
-                if(vista_movil && $('aside.aside_menu').hasClass('aside-collapsed') !== true) {
-                    $('body').find('#toggle-aside').click();
+                if (vista_movil){
+                    $("#btn_menu_movil").trigger('click');
+                } else {
+                    if($('aside.aside_menu').hasClass('aside-collapsed') !== true) {
+                        $('body').find('#toggle-aside').click();
+                    }
                 }
             });
 
@@ -498,5 +524,6 @@
         }
 
     </script>
+    <div class="menu_overlay" id="menu_overlay"></div>
 </body>
 </html>

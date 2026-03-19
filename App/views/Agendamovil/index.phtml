@@ -763,14 +763,28 @@ use App\Library\FuncionesGlobales;
         scroll-snap-type: none; /* evita que el scroll se regrese solo */
     }
 
+    .div_principal_filter {
+        padding-left: 0px !important;
+        padding-right: 4px !important;
+    }
+
+    .select2-container--open ~ body,
+    body.select2-open {
+        padding-right: 0 !important;
+    }
+
+    .div_principal_filter #fecha-actual {
+        cursor: pointer;
+    }
+
 </style>
 <div class="container div_principal_filter div_header_filters col-10">
     <h1 class="text-center my-4">Agenda Movil</h1>
 
     <!-- Filtros de Servicios y Pacientes -->
-    <div class="row filters col-12">
+    <div class="row filters">
 
-        <div class="col-12">
+        <div class="col-12 mb-3">
             <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_locations']; ?></label>
             <?php $count_locaciones = count($arr_locaciones); ?>
             <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
@@ -789,7 +803,7 @@ use App\Library\FuncionesGlobales;
         </div>
         <?php endif; ?>
     </div>
-    <div class="color-legend mt-3 show_after_proffesional" style="display:none;">
+    <div class="color-legend mt-3 mb-3 show_after_proffesional" style="display:none;">
         <h6 id="div_indicadores" data-bs-toggle="collapse" data-bs-target="#label-servicios" style="cursor:pointer;">
             Indicadores <span class="ms-1">▾</span>
         </h6>
@@ -801,11 +815,12 @@ use App\Library\FuncionesGlobales;
         <!-- Sección de navegación -->
     <div class="navigation <?php echo $vista_movil ? 'vista_movil' : ''; ?> justify-content-center show_after_proffesional" style="display:none;">
         <div class="left-section <?php echo $vista_movil ? 'vista_movil' : ''; ?>">
-            <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< S</button>
+            <!-- <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< S</button> -->
             <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">< D</button>
             <h3 id="fecha-actual"></h3>
+            <input type="date" id="input_fecha_calendario" class="input_fecha_calendario" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
             <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">D ></button>
-            <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">S ></button>
+            <!-- <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">S ></button> -->
             <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
         </div>
     </div>
@@ -1124,11 +1139,12 @@ use App\Library\FuncionesGlobales;
                     <div class="navigation justify-content-center col-md-6">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< S</button>
+                            <!-- <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< S</button> -->
                             <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" >< D</button>
                             <h3 id="fecha-actual"></h3>
+                            <input type="date" id="input_fecha_calendario" class="input_fecha_calendario" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
                             <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">D ></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">S ></button>
+                            <!-- <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">S ></button> -->
                             <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
@@ -2472,7 +2488,7 @@ use App\Library\FuncionesGlobales;
 
         //  FUNCION PARA OBTENER LAS CITAS DEL RANGO DE FECHAS
         function get_all_appointments(element,modal_clone = null,refresh_filtros = null, refresh_servicios = false){
-
+            
             let id_locacion = $("#select_locaciones").val();
             if (modal_clone != null){
                 $(modal_clone).find('.evento-flotante').remove();
@@ -3233,6 +3249,31 @@ use App\Library\FuncionesGlobales;
             // max_hora_inicio         = info_profesional['info_ajax']['max_hora_inicio'];
             horario_no_disponible   = {};
 
+            //  EVENTO PARA LAS FECHAS
+            //  EVENTO PARA MOSTRAR INPUT DATE EN EL FILTRO
+            $(modal_clone).on('click', '#fecha-actual', function() {
+                const textoFecha = $(this).text().split(', ')[1];
+                const partes = textoFecha.split('/');
+                const fechaFormateada = `${partes[2]}-${partes[1]}-${partes[0]}`;
+
+                // Busca el input dentro del modal clonado
+                const input = $(modal_clone).find('.input_fecha_calendario')[0];
+
+                console.log('input',input);
+                
+                input.value = fechaFormateada;
+                input.showPicker();
+
+                input.addEventListener('change', function() {
+                    if (this.value === '') {
+                        $(modal_clone).find('#btn-hoy').trigger('click');
+                        return;
+                    }
+                    const fecha = moment(this.value).add(1, 'days').format('YYYY-MM-DD');
+                    cambiarDia(null, fecha,$(modal_clone));
+                }, { once: true });
+            });
+
             $(modal_clone).on('click','.btn_add_service',function(){
                 let div_clone   = $("#template_servicio").clone().removeAttr('id').addClass('header_servicio').show();
 
@@ -3357,6 +3398,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#select_profesionales_modal').select2({
                     placeholder: 'Seleccione una opción',
                     dropdownParent: $(modal_clone),
+                    allowClear : false,
                     width: '50px'
                 }).on('select2:select',function(){
                     //  SE OBTIENE LA INFORMACION DEL PROFESIONAL
@@ -4013,6 +4055,28 @@ use App\Library\FuncionesGlobales;
                 calcular_ancho($(document).find('.modal_save_class:visible'));
             });
 
+            //  EVENTO PARA MOSTRAR INPUT DATE EN EL FILTRO
+            $('#fecha-actual').on('click', function() {
+                // Convierte "Jueves, 19/03/2026" a "2026-03-19"
+                const textoFecha = $(this).text().split(', ')[1]; // "19/03/2026"
+                const partes = textoFecha.split('/');             // ["19", "03", "2026"]
+                const fechaFormateada = `${partes[2]}-${partes[1]}-${partes[0]}`; // "2026-03-19"
+
+                const input = document.getElementById('input_fecha_calendario');
+                input.value = fechaFormateada; // ← asigna la fecha actual al input
+                input.showPicker();
+
+                input.addEventListener('change', function() {
+                    if (this.value === '') {
+                        // El usuario limpió la fecha, dispara el botón "Hoy"
+                        $('#btn-hoy').trigger('click');
+                        return;
+                    }
+                    const fecha = moment(this.value).add(1, 'days').format('YYYY-MM-DD');
+                    cambiarDia(null, fecha, $("#div_header_agenda"));
+                }, { once: true });
+            });
+
             //  CONVERTIR LOS COMBOS EN SELECT2
             //selectToSelect2($(".div_header_filters"),"select_locaciones");
             selectToSelect2($(".div_principal_filter"),"select_servicios");
@@ -4022,6 +4086,12 @@ use App\Library\FuncionesGlobales;
             $("#select_profesionales").on('select2:select',function(){
                 get_all_appointments(null,null,null,true);
                 $(".div_principal_filter").find('.show_after_proffesional').show();
+            });
+
+            $('#select_profesionales, #select_locaciones').on('select2:open', function() {
+                $('body').css('padding-right', '0px');
+            }).on('select2:close', function() {
+                $('body').css('padding-right', '0px');
             });
 
             //  EVENTOS PARA FILTRAR CITAS
@@ -5233,10 +5303,10 @@ use App\Library\FuncionesGlobales;
             }
 
             if (!vista_movil){
-                $("#select_profesionales").closest('div').removeClass('col-12').addClass('col-6').removeClass('p-3');
+                $("#select_profesionales").closest('div').removeClass('col-12').addClass('col-6');
                 $("#select_locaciones").closest('div').removeClass('col-12').addClass('col-6');
             } else {
-                $("#select_profesionales").closest('div').removeClass('col-6').addClass('p-3').addClass('col-12');
+                $("#select_profesionales").closest('div').removeClass('col-6').addClass('col-12');
                 $("#select_locaciones").closest('div').removeClass('col-6').addClass('col-12');
             }
             
