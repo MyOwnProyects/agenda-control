@@ -99,3 +99,72 @@ body.modal-open .r_container > main.main_content {overflow: hidden;}
   #table_results_wrapper > .dt-info {flex: 1}
   #table_results_wrapper > .dt-paging {}
 }
+
+/* ESTILO MENU PARA BOTON HAMBURGUESA */
+/* .main_content.vista_movil {
+    padding-left: 0px !important;
+    padding-right: 4px !important;
+    margin-left: 0px !important;
+} */
+
+.hide_main {
+    display: none !important;
+}
+
+
+/* ESTILO DE MENU MOVOL */
+.app-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* menú a la izquierda, usuario a la derecha */
+    padding: 0 1em;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+/* Quitar el posicionamiento absoluto propio ya que ahora lo maneja app-header */
+.mc_user_dropdown {
+    position: static; /* ← antes era absolute */
+    top: unset;
+    right: unset;
+    display: flex;
+    align-items: center;
+}
+
+/* Solo aplica cuando es vista móvil */
+.vista_movil .aside_menu {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1050;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+/* Clase que activa el menú deslizándose */
+.vista_movil .aside_menu.menu_open {
+    transform: translateX(0);
+}
+
+/* Overlay oscuro */
+.menu_overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1049; /* justo debajo del aside que tiene 1050 */
+    transition: opacity 0.3s ease;
+}
+
+.menu_overlay.active {
+    display: block;
+}
