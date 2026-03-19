@@ -3,288 +3,571 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Agenda Móvil - Bootstrap 5</title>
+
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet"/>
-  <title>Seleccionar Plantilla de WhatsApp</title>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
   <style>
-    .whatsappModal {
-      --primary: #7f13ec;
-      --primary-rgb: 127, 19, 236;
-      --whatsapp: #25D366;
-      --whatsapp-hover: #20ba5a;
-    }
-
-    /* ── Todos los estilos del modal apuntan a .whatsappModal ── */
-
-    .whatsappModal .modal-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
-      align-items: flex-start;
-    }
-
-    .whatsappModal .modal-header h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.025em;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #f8fafc;
       color: #0f172a;
-      margin: 0;
+      padding-bottom: 100px;
     }
 
-    .whatsappModal .modal-header p {
-      font-size: 0.875rem;
+    /* Header */
+    .main-header {
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    .avatar-btn {
+      width: 40px;
+      height: 40px;
+      background-color: #4f46e5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(79,70,229,.4);
+    }
+
+    /* Selects */
+    .custom-select-wrapper {
+      position: relative;
+    }
+    .custom-select-wrapper select {
+      appearance: none;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      padding: 10px 40px 10px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .custom-select-wrapper select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+    }
+    .custom-select-wrapper .select-arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #94a3b8;
+    }
+    .select-prefix {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f1f5f9;
       color: #64748b;
-      margin: 0.25rem 0 0;
+      padding: 2px 5px;
+      border-radius: 4px;
+      line-height: 1.4;
+    }
+    .has-prefix select {
+      padding-left: 40px;
     }
 
-    .whatsappModal .btn-close-custom {
+    /* Date Navigator */
+    .date-navigator {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .day-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+      transition: background .2s;
+    }
+    .day-btn:hover { background: #e2e8f0; }
+    .today-btn {
+      padding: 6px 12px;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      transition: background .2s;
+    }
+    .today-btn:hover { background: #e2e8f0; }
+
+    .date-display-btn {
       background: none;
       border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .date-display-btn p { margin: 0; }
+    .date-day-name {
+      font-size: 11px;
+      font-weight: 500;
       color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .date-value {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .date-picker-overlay {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
       cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      transition: color 0.15s;
+      width: 100%;
+      height: 100%;
     }
 
-    .whatsappModal .btn-close-custom:hover {
-      color: var(--primary);
+    /* Badge / shift pill */
+    .shift-badge {
+      padding: 4px 12px;
+      background: #eef2ff;
+      color: #4338ca;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 999px;
+      border: 1px solid #e0e7ff;
     }
-
-    .whatsappModal .modal-body {
-      padding: 1.5rem;
+    .indicators-toggle-label {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+      cursor: pointer;
       display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      overflow-y: auto;
-      max-height: 55vh;
+      align-items: center;
+      gap: 4px;
+      transition: color .15s;
+    }
+    .indicators-toggle-label:hover { color: #475569; }
+    .indicators-toggle-label .chevron {
+      transition: transform .2s;
+    }
+    #indicators-toggle:checked ~ .indicators-toggle-label .chevron {
+      transform: rotate(180deg);
+    }
+    #indicators-content {
+      display: none;
+    }
+    #indicators-toggle:checked ~ #indicators-content {
+      display: grid;
     }
 
-    .whatsappModal .template-card {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid #e2e8f0;
+    /* Agenda divider */
+    .section-divider {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: #94a3b8;
+    }
+
+    /* Slot Cards */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .slot-card {
       background: #fff;
-      cursor: pointer;
-      transition: border-color 0.15s;
-      margin: 0;
-    }
-
-    .whatsappModal .template-card:hover {
-      border-color: rgba(var(--primary-rgb), 0.5);
-    }
-
-    .whatsappModal .template-card.selected {
-      border: 2px solid var(--primary);
-      background-color: rgba(var(--primary-rgb), 0.04);
-    }
-
-    .whatsappModal .card-top {
+      border-radius: 16px;
+      border-left: 4px solid #f87171;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: box-shadow .2s;
+      animation: fadeIn .3s ease-out forwards;
     }
+    .slot-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
 
-    .whatsappModal .card-top-left {
+    .slot-card-available {
+      background: rgba(255,255,255,.5);
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      justify-content: space-between;
+      transition: border-color .2s, background .2s;
+      animation: fadeIn .3s ease-out forwards;
+    }
+    .slot-card-available:hover {
+      border-color: #a5b4fc;
+      background: #fff;
     }
 
-    .whatsappModal .template-card input[type="radio"] {
-      width: 1.25rem;
-      height: 1.25rem;
-      accent-color: var(--primary);
-      flex-shrink: 0;
-    }
-
-    .whatsappModal .card-title {
+    .slot-time-start {
+      font-size: 13px;
       font-weight: 700;
-      color: #0f172a;
-      font-size: 0.95rem;
-    }
-
-    .whatsappModal .badge-recommended {
-      font-size: 0.625rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 0.2rem 0.5rem;
-      border-radius: 9999px;
-      background-color: var(--primary);
-      color: #fff;
-    }
-
-    .whatsappModal .template-preview {
-      background-color: #f1f5f9;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      border: 1px solid #e2e8f0;
-    }
-
-    .whatsappModal .template-preview p {
-      font-size: 0.875rem;
-      color: #64748b;
-      font-style: italic;
-      line-height: 1.625;
+      color: #1e293b;
       margin: 0;
     }
-
-    .whatsappModal .var-highlight {
-      color: var(--primary);
-      font-weight: 600;
-      font-style: normal;
+    .slot-time-end {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 500;
+      margin: 0;
     }
-
-    .whatsappModal .info-hint {
-      padding: 0.75rem 1.5rem;
-      background-color: rgba(var(--primary-rgb), 0.05);
-      border-top: 1px solid rgba(var(--primary-rgb), 0.1);
+    .slot-divider {
+      width: 1px;
+      height: 40px;
+      background: #f1f5f9;
+      flex-shrink: 0;
+    }
+    .slot-patient {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+    .slot-patient .sub {
+      font-size: 11px;
+      font-weight: 400;
+      color: #94a3b8;
+    }
+    .slot-status {
+      font-size: 11px;
+      color: #ef4444;
+      font-weight: 500;
       display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-
-    .whatsappModal .info-hint .material-symbols-outlined {
-      color: var(--primary);
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-
-    .whatsappModal .info-hint p {
-      font-size: 0.75rem;
-      color: #475569;
+      align-items: center;
+      gap: 4px;
       margin: 0;
     }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .slot-available-label {
+      font-size: 13px;
+      font-style: italic;
+      color: #94a3b8;
+      font-weight: 500;
+      margin: 0;
+    }
+    .slot-available-time {
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .slot-actions-btn {
+      background: none;
+      border: none;
+      padding: 6px;
+      color: #cbd5e1;
+      transition: color .2s, opacity .2s;
+      opacity: 0;
+    }
+    .slot-card:hover .slot-actions-btn { opacity: 1; }
+    .slot-actions-btn:hover { color: #6366f1; }
+
+    .schedule-btn {
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    .schedule-btn:hover { background: #e0e7ff; }
+
+    /* Indicator legend */
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .legend-text {
+      font-size: 11px;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    /* Footer */
+    .bottom-actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid #e2e8f0;
+      padding: 12px 16px 24px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.05);
+      z-index: 1050;
+    }
+    .btn-view {
+      background-color: #06b6d4;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 16px;
+      padding: 12px 16px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(6,182,212,.3);
+      transition: background .2s, transform .1s;
+    }
+    .btn-view:hover { background-color: #0891b2; color: #fff; }
+    .btn-view:active { transform: scale(.97); }
+
+    .btn-schedule {
+      background-color: #4f46e5;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 16px;
+      padding: 12px 16px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(79,70,229,.3);
+      transition: background .2s, transform .1s;
+    }
+    .btn-schedule:hover { background-color: #4338ca; color: #fff; }
+    .btn-schedule:active { transform: scale(.97); }
   </style>
 </head>
 <body>
 
-  <!-- Page content (background mock) -->
-  <div class="p-4" style="max-width:72rem; margin:0 auto;">
-    <div class="bg-secondary rounded-3 mb-4" style="height:3rem; width:16rem; opacity:.3;"></div>
-    <div class="row g-3 mb-4">
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-      <div class="col-3"><div class="bg-white rounded-3" style="height:8rem; opacity:.3;"></div></div>
-    </div>
-    <div class="bg-white rounded-3 mb-4" style="height:10rem; opacity:.3;"></div>
-
-    <!-- Botón disparador del modal -->
-    <div class="d-flex justify-content-center mt-5">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#whatsappModal">
-        <span class="material-symbols-outlined" style="font-size:1.2rem;">send</span>
-        Enviar plantilla de WhatsApp
+<!-- ===== HEADER ===== -->
+<header class="main-header px-3 py-2">
+  <div class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-light btn-sm rounded-2 p-2" aria-label="Menu">
+        <i class="bi bi-list fs-5 text-secondary"></i>
       </button>
+      <h1 class="fs-5 fw-bold text-dark mb-0" style="letter-spacing:-.02em;">Agenda Móvil</h1>
     </div>
-  </div>
-
-  <!-- ===================== MODAL BOOTSTRAP 5 ===================== -->
-  <div class="modal fade whatsappModal" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:640px;">
-      <div class="modal-content">
-
-        <!-- Header -->
-        <div class="modal-header">
-          <div>
-            <h2 id="whatsappModalLabel">Seleccionar Plantilla de WhatsApp</h2>
-            <p>Elija una plantilla pre-definida para enviar al paciente</p>
-          </div>
-        </div>
-
-        <!-- Body (scrollable) -->
-        <div class="modal-body">
-
-          <!-- Card 1 (Seleccionada) -->
-          <label class="template-card selected">
-            <div class="card-top">
-              <div class="card-top-left">
-                <input checked name="template" type="radio"/>
-                <span class="card-title">Confirmación de Cita</span>
-              </div>
-              <span class="badge-recommended">Recomendado</span>
-            </div>
-            <div class="template-preview">
-              <p>
-                "Hola <span class="var-highlight">[Nombre]</span>, confirmamos su cita para el día
-                <span class="var-highlight">[Fecha]</span> a las <span class="var-highlight">[Hora]</span>
-                en nuestro centro médico. Por favor, llegue 10 minutos antes."
-              </p>
-            </div>
-          </label>
-
-          <!-- Card 2 -->
-          <label class="template-card">
-            <div class="card-top-left">
-              <input name="template" type="radio"/>
-              <span class="card-title">Recordatorio de Cita</span>
-            </div>
-            <div class="template-preview">
-              <p>"Le recordamos su próxima cita médica programada para mañana. Si necesita reprogramar, por favor responda a este mensaje."</p>
-            </div>
-          </label>
-
-          <!-- Card 3 -->
-          <label class="template-card">
-            <div class="card-top-left">
-              <input name="template" type="radio"/>
-              <span class="card-title">Aviso de Retraso</span>
-            </div>
-            <div class="template-preview">
-              <p>"Estimado paciente, el doctor presenta un breve retraso en las consultas de hoy. Le atenderemos lo más pronto posible. Agradecemos su comprensión."</p>
-            </div>
-          </label>
-
-          <!-- Card 4 -->
-          <label class="template-card">
-            <div class="card-top-left">
-              <input name="template" type="radio"/>
-              <span class="card-title">Resultados Disponibles</span>
-            </div>
-            <div class="template-preview">
-              <p>"Sus resultados de laboratorio ya están disponibles en nuestro portal del paciente. Puede acceder con su número de identificación."</p>
-            </div>
-          </label>
-
-        </div>
-
-        <!-- Footer -->
-        <div class="modal-footer justify-content-between">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-success d-flex align-items-center gap-2">
-            <i class="bi bi-whatsapp"></i>
-            <span>Enviar mensaje</span>
-          </button>
-        </div>
-
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-secondary fw-bold" style="font-size:11px;">TEST</span>
+      <div class="avatar-btn">
+        <i class="bi bi-person-fill fs-5"></i>
       </div>
     </div>
   </div>
+</header>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script>
-    $(function () {
+<!-- ===== MAIN ===== -->
+<main class="container" style="max-width:480px;">
+  <div class="py-3 d-flex flex-column gap-4">
 
-      // Selección de tarjeta: delegación en document para funcionar con clones
-      $(document).on('change', '.whatsappModal input[type="radio"]', function () {
-        var $modal = $(this).closest('.whatsappModal');
-        $modal.find('.template-card').removeClass('selected');
-        $(this).closest('.template-card').addClass('selected');
-      });
+    <!-- ===== FILTERS ===== -->
+    <section>
+      <!-- Locaciones -->
+      <div class="mb-3">
+        <label class="d-block mb-1 text-uppercase fw-bold text-secondary ms-1" style="font-size:10px;letter-spacing:.08em;" for="location-select">Locaciones</label>
+        <div class="custom-select-wrapper">
+          <select class="form-select" id="location-select">
+            <option>Axolotl</option>
+            <option>Centro Médico Norte</option>
+            <option>Clínica Central</option>
+          </select>
+          <i class="bi bi-chevron-down select-arrow"></i>
+        </div>
+      </div>
+      <!-- Profesionales -->
+      <div>
+        <label class="d-block mb-1 text-uppercase fw-bold text-secondary ms-1" style="font-size:10px;letter-spacing:.08em;" for="professional-select">Profesionales</label>
+        <div class="custom-select-wrapper has-prefix">
+          <span class="select-prefix">×</span>
+          <select class="form-select" id="professional-select">
+            <option>Martinez Lenguaje</option>
+            <option>Gomez Fisioterapia</option>
+            <option>Lopez Psicología</option>
+          </select>
+          <i class="bi bi-chevron-down select-arrow"></i>
+        </div>
+      </div>
+    </section>
 
-      // Cerrar modal al hacer clic en botones con data-bs-dismiss (clones no tienen ID)
-      $(document).on('click', '.whatsappModal [data-bs-dismiss="modal"]', function () {
-        var $modal = $(this).closest('.whatsappModal');
-        var bsModal = bootstrap.Modal.getInstance($modal[0]);
-        if (bsModal) bsModal.hide();
-      });
+    <!-- ===== DATE NAVIGATOR ===== -->
+    <section class="date-navigator p-3">
+      <!-- Top row -->
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <!-- Left: Prev + Hoy -->
+        <div class="d-flex align-items-center gap-1">
+          <button class="day-btn" aria-label="Previous Day">
+            <i class="bi bi-chevron-left" style="font-size:14px;"></i>
+          </button>
+          <button class="today-btn">Hoy</button>
+        </div>
+        <!-- Center: Date -->
+        <div class="text-center position-relative">
+          <button class="date-display-btn">
+            <p class="date-day-name">Martes</p>
+            <div class="d-flex align-items-center gap-1">
+              <p class="date-value">17 / 03 / 2026</p>
+              <i class="bi bi-chevron-down text-secondary" style="font-size:13px;"></i>
+            </div>
+          </button>
+          <input class="date-picker-overlay" id="date-picker-trigger" type="date" value="2026-03-17"/>
+        </div>
+        <!-- Right: Next -->
+        <button class="day-btn" aria-label="Next Day">
+          <i class="bi bi-chevron-right" style="font-size:14px;"></i>
+        </button>
+      </div>
 
-    });
-  </script>
+      <!-- Bottom row: shift + indicators -->
+      <div class="d-flex flex-column align-items-center gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <span class="shift-badge">Matutino</span>
+          <div>
+            <input class="d-none" id="indicators-toggle" type="checkbox"/>
+            <label class="indicators-toggle-label" for="indicators-toggle">
+              Indicadores
+              <i class="bi bi-chevron-down chevron" style="font-size:12px;"></i>
+            </label>
+            <!-- Legend content (toggled via CSS) -->
+            <div id="indicators-content" style="grid-template-columns:1fr 1fr; gap:8px 20px; width:100%; padding-top:10px; margin-top:6px; border-top:1px solid #f8fafc;">
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-swatch" style="background:#fff1f2;border:2px solid #f87171;"></span>
+                <span class="legend-text">Pago no registrado</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-swatch" style="background:#fca5a5;"></span>
+                <span class="legend-text">Lenguaje</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-swatch" style="background:#bae6fd;"></span>
+                <span class="legend-text">Psicologia</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-swatch" style="background:#a7f3d0;"></span>
+                <span class="legend-text">Valoracion</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== AGENDA LIST ===== -->
+    <section class="d-flex flex-column gap-3">
+      <h2 class="section-divider px-1 mb-0">Próximos Turnos</h2>
+
+      <!-- Slot 1 (Ocupado) -->
+      <div class="slot-card" style="animation-delay:0s;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-center" style="min-width:64px;">
+            <p class="slot-time-start">09:00</p>
+            <p class="slot-time-end">09:45</p>
+          </div>
+          <div class="slot-divider"></div>
+          <div>
+            <p class="slot-patient">Campos Bruno <span class="sub">(12.02)</span></p>
+            <p class="slot-status"><span class="status-dot"></span> Ocupado</p>
+          </div>
+        </div>
+        <button class="slot-actions-btn" aria-label="Opciones">
+          <i class="bi bi-three-dots-vertical fs-5"></i>
+        </button>
+      </div>
+
+      <!-- Slot 2 (Ocupado) -->
+      <div class="slot-card" style="animation-delay:.1s;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-center" style="min-width:64px;">
+            <p class="slot-time-start">09:45</p>
+            <p class="slot-time-end">10:30</p>
+          </div>
+          <div class="slot-divider"></div>
+          <div>
+            <p class="slot-patient">Campos Bruno <span class="sub">(12.02)</span></p>
+            <p class="slot-status"><span class="status-dot"></span> Ocupado</p>
+          </div>
+        </div>
+        <button class="slot-actions-btn" aria-label="Opciones">
+          <i class="bi bi-three-dots-vertical fs-5"></i>
+        </button>
+      </div>
+
+      <!-- Slot 3 (Disponible) -->
+      <div class="slot-card-available" style="animation-delay:.2s;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-center" style="min-width:64px;">
+            <p class="slot-time-start" style="color:#94a3b8;">10:30</p>
+            <p class="slot-time-end" style="color:#cbd5e1;">11:15</p>
+          </div>
+          <div class="slot-divider"></div>
+          <div>
+            <p class="slot-available-label">Espacio disponible</p>
+          </div>
+        </div>
+        <button class="schedule-btn">AGENDAR</button>
+      </div>
+
+      <!-- Slot 4 (Ocupado) -->
+      <div class="slot-card" style="animation-delay:.3s;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="text-center" style="min-width:64px;">
+            <p class="slot-time-start">11:15</p>
+            <p class="slot-time-end">12:00</p>
+          </div>
+          <div class="slot-divider"></div>
+          <div>
+            <p class="slot-patient">Campos Bruno <span class="sub">(12.02)</span></p>
+            <p class="slot-status"><span class="status-dot"></span> Ocupado</p>
+          </div>
+        </div>
+        <button class="slot-actions-btn" aria-label="Opciones">
+          <i class="bi bi-three-dots-vertical fs-5"></i>
+        </button>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="bottom-actions">
+  <div class="d-flex gap-3" style="max-width:480px; margin:0 auto;">
+    <button class="btn btn-view flex-fill d-flex align-items-center justify-content-center gap-2">
+      <i class="bi bi-eye-fill fs-6"></i>
+      Ver CFH (1)
+    </button>
+    <button class="btn btn-schedule flex-fill d-flex align-items-center justify-content-center gap-2">
+      <i class="bi bi-plus-lg fs-6"></i>
+      Agendar CFH
+    </button>
+  </div>
+</footer>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
