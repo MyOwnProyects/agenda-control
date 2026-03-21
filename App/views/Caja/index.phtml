@@ -1,0 +1,471 @@
+<?php 
+use App\Library\FuncionesGlobales;
+?>
+<style>
+
+
+/* ── Status badges ── */
+.badge-active  { background-color: #dcfce7; color: #166534; }
+.badge-pending { background-color: #fef9c3; color: #854d0e; }
+
+/* ── Payment method buttons ── */
+.pay-method-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #4b5563;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.pay-method-btn:hover  { border-color: #a5b4fc; }
+.pay-method-btn.active { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
+.pay-method-btn.dashed { border-style: dashed; }
+.pay-method-btn i      { font-size: 1.25rem; margin-bottom: 4px; }
+
+/* ── Partial payment box ── */
+.payment-entry-box {
+    background-color: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+.payment-entry-box .input-prefix {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6366f1;
+    font-weight: 700;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+.payment-entry-box input {
+    padding-left: 1.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #4338ca;
+    border: 2px solid #a5b4fc;
+    border-radius: 0.5rem;
+}
+.payment-entry-box input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99,102,241,.25);
+    outline: none;
+}
+
+/* ── Process button ── */
+.btn-process {
+    background-color: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    width: 100%;
+    box-shadow: 0 10px 15px -3px rgba(99,102,241,.25);
+    transition: background-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.btn-process:hover { background-color: #4338ca; color: #fff; }
+
+/* ── Modal ── */
+.modal-footer-summary { background-color: #f8fafc; }
+.focus-ring-indigo:focus { border-color: #6366f1; box-shadow: 0 0 0 0.2rem rgba(99,102,241,.25); }
+
+/* ── Misc ── */
+.text-indigo { color: #4f46e5; }
+.btn-indigo  { background-color: #4f46e5; color: #fff; border: none; }
+.btn-indigo:hover { background-color: #4338ca; color: #fff; }
+</style>
+
+<!-- Body -->
+<div class="container mt-4">
+
+    <!-- Section 1: Search Filters -->
+    <div>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_payment_module']); ?></h2>
+    </div>
+    <div id="header_filters" class="card mb-4">
+        <div class="card-header">
+            <h5><?php echo $translations['html_header_search']; ?></h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" class="row g-3">
+                <div class="col-md-10">
+                    <label for="nameFilter" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+                    <select id="select_pacientes" class="select_pacientes">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-outline-dark" id="btnBuscar">
+                        <i class="bi bi-search"></i> 
+                        <?php echo $translations['html_btn_search']; ?>
+                    </button>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Grid: Table + Summary -->
+    <div class="row g-4 pb-4">
+
+    <!-- Appointments Table -->
+    <div class="col-12 col-xl-8">
+        <section class="bg-white rounded-3 shadow-sm h-100">
+        <div class="p-3 border-bottom">
+            <h2 class="h6 fw-semibold mb-0">Citas Pendientes de Pago</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="appointments-table">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col" style="width:2.5rem;">
+                        <input class="form-check-input" type="checkbox"/>
+                    </th>
+                    <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Paciente</th>
+                    <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Profesional</th>
+                    <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Servicio / Costo</th>
+                    <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Fecha y Hora</th>
+                    <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em; width: 7rem;">Estatus de asistencia</th>
+                </tr>
+            </thead>
+            <tbody id="body_table">
+                <!-- Row: Sin resultados -->
+                <tr id="row-sin-registros">
+                <td colspan="6" class="text-center py-4 text-secondary small">
+                    <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                    Búsqueda sin registros
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        </section>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="col-12 col-xl-4">
+        <section class="bg-white rounded-3 shadow-sm p-4">
+
+        <h2 class="h6 fw-semibold mb-4 pb-2 border-bottom">Resumen de Pago</h2>
+
+        <!-- Line items -->
+        <div class="d-flex flex-column gap-3 mb-4">
+            <div class="d-flex justify-content-between  small">
+            <span>Subtotal (2 citas)</span>
+            <span class="fw-medium">$600.00</span>
+            </div>
+            <div class="d-flex justify-content-between  small">
+            <span>Impuestos (0%)</span>
+            <span class="fw-medium">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between  small">
+            <span>Descuentos</span>
+            <span class="fw-medium text-success">-$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between pt-3 border-top align-items-center">
+            <span class="h6 fw-bold text-dark mb-0">Total a Pagar</span>
+            <span class="h5 fw-bold mb-0 text-indigo" id="total-amount">$600.00</span>
+            </div>
+        </div>
+
+        <!-- Partial Payment Input -->
+        <div class="payment-entry-box mb-4">
+            <label for="amount-to-pay" class="form-label fw-bold text-uppercase small mb-2"
+                    style="color:#1e1b4b;letter-spacing:.05em;">
+            Cantidad a Pagar / Recibir
+            </label>
+            <div class="position-relative">
+            <span class="input-prefix">$</span>
+            <input type="number"
+                    id="amount-to-pay"
+                    class="form-control"
+                    placeholder="0.00"
+                    value="600.00"/>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2 small">
+            <span class="">Saldo Restante:</span>
+            <span class="fw-bold text-danger" id="remaining-balance">$0.00</span>
+            </div>
+        </div>
+
+        <!-- Payment method selector -->
+        <div class="mb-4">
+            <label class="form-label small fw-medium text-dark">Método de Pago</label>
+
+            <div class="row g-2 mb-2">
+            <div class="col-6">
+                <button class="pay-method-btn active">
+                <i class="bi bi-wallet2"></i>
+                Efectivo
+                </button>
+            </div>
+            <div class="col-6">
+                <button class="pay-method-btn">
+                <i class="bi bi-credit-card"></i>
+                Tarjeta
+                </button>
+            </div>
+            </div>
+
+            <div class="row g-2">
+            <div class="col-6">
+                <button class="pay-method-btn">
+                <i class="bi bi-arrow-left-right"></i>
+                Transfer.
+                </button>
+            </div>
+            <div class="col-6">
+                <button class="pay-method-btn dashed"
+                        data-bs-toggle="modal" data-bs-target="#modalDividirPago">
+                <i class="bi bi-sliders"></i>
+                Dividir Pago
+                </button>
+            </div>
+            </div>
+        </div>
+
+        <!-- Process button -->
+        <button class="btn-process">
+            <i class="bi bi-check-circle fs-5"></i>
+            Procesar Pago
+        </button>
+
+        <p class="text-center text-muted small fst-italic mt-3 mb-0">
+            Se enviará el comprobante de pago al correo registrado del paciente.
+        </p>
+
+        </section>
+    </div>
+
+    </div><!-- /row -->
+</div><!-- /main-content -->
+
+<!-- ══════════════════════════════════════════
+    MODAL — Dividir Pago (Bootstrap nativo)
+══════════════════════════════════════════ -->
+<div class="modal fade" id="modalDividirPago" tabindex="-1" aria-labelledby="modalDividirPagoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:520px;">
+        <div class="modal-content rounded-3 shadow-lg">
+
+        <!-- Modal Header -->
+        <div class="modal-header border-bottom px-4 py-3">
+            <h5 class="modal-title fw-bold text-dark" id="modalDividirPagoLabel">Dividir Pago</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body p-4">
+
+            <!-- Payment methods list -->
+            <div class="d-flex flex-column gap-3">
+
+            <!-- Method 1 -->
+            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                <div class="flex-grow-1">
+                <label class="form-label fw-bold  text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Método</label>
+                <div class="fw-semibold text-dark">Efectivo</div>
+                </div>
+                <div style="width:8rem;">
+                <label class="form-label fw-bold  text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Monto</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text ">$</span>
+                    <input type="text" class="form-control fw-medium focus-ring-indigo" value="300.00"/>
+                </div>
+                </div>
+                <button class="btn btn-sm btn-light border-0 mt-4 p-1 " style="transition:color .15s" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color=''">
+                <i class="bi bi-trash3 fs-5"></i>
+                </button>
+            </div>
+
+            <!-- Method 2 -->
+            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                <div class="flex-grow-1">
+                <label class="form-label fw-bold  text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Método</label>
+                <div class="fw-semibold text-dark">Tarjeta de Crédito</div>
+                </div>
+                <div style="width:8rem;">
+                <label class="form-label fw-bold  text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Monto</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text ">$</span>
+                    <input type="text" class="form-control fw-medium focus-ring-indigo" value="300.00"/>
+                </div>
+                </div>
+                <button class="btn btn-sm btn-light border-0 mt-4 p-1 " onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color=''">
+                <i class="bi bi-trash3 fs-5"></i>
+                </button>
+            </div>
+
+            </div><!-- /payment-methods-list -->
+
+            <!-- Add method button -->
+            <button class="btn btn-sm btn-link text-indigo fw-semibold ps-0 mt-3 text-decoration-none d-flex align-items-center gap-1">
+            <i class="bi bi-plus-circle fs-5"></i>
+            Añadir otro método de pago
+            </button>
+
+        </div><!-- /Modal Body -->
+
+        <!-- Modal Footer / Summary -->
+        <div class="modal-footer flex-column align-items-stretch px-4 py-4 border-top modal-footer-summary">
+
+            <!-- Totals -->
+            <div class="d-flex flex-column gap-2 mb-3 w-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="small ">Monto total ingresado:</span>
+                <span class="fw-bold text-dark">$600.00</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center p-2 rounded border" style="background:#f0fdf4;border-color:#bbf7d0!important;">
+                <span class="small fw-medium" style="color:#15803d;">Monto faltante:</span>
+                <span class="fw-bold" style="color:#15803d;">$0.00</span>
+            </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-end gap-2 w-100">
+            <button type="button" class="btn btn-outline-secondary fw-semibold px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-indigo fw-semibold px-4">Confirmar Métodos</button>
+            </div>
+
+        </div><!-- /Modal Footer -->
+
+        </div><!-- /modal-content -->
+    </div><!-- /modal-dialog -->
+</div><!-- /modal -->
+
+<script>
+    let modulo_caja = (function(){
+
+        //  Rutas
+        const controller    = '/Caja';
+        const url_index     = controller+"/index";
+
+        //  language
+        const translations  = {
+            emptyTable: "<?= $translations['table_no_data'] ?>",
+            info: "<?= $translations['showing_info'] ?>",
+            infoEmpty: "<?= $translations['no_records'] ?>",
+            search: "<?= $translations['search'] ?>",
+            paginate: {
+                first: "<?= $translations['paginate_first'] ?>",
+                last: "<?= $translations['paginate_last'] ?>",
+                next: "<?= $translations['paginate_next'] ?>",
+                previous: "<?= $translations['paginate_previous'] ?>"
+            },
+            title_update    : "<?= $translations['html_edit_record'] ?>",
+            title_delete    : "<?= $translations['html_delete_record'] ?>",
+            title_preview   : "<?= $translations['html_preview_record'] ?>",
+            title_change    : "<?= $translations['html_active_deactivate'] ?>",
+            confirm_delete  : "<?= $translations['html_confirm_delete']?>",
+            confirm_update  : "<?= $translations['html_confirm_update']?>",
+            schedule_availability   : "<?= $translations['html_schedule_availability']?>",
+            error_selected_location : "<?= $translations['error_selected_location']?>",
+            error_professional      : "<?= $translations['html_error_professional']?>",
+            error_selected_patient  : "<?= $translations['html_error_selected_patient']?>",
+            error_starting_date     : "<?= $translations['html_error_starting_date']?>",
+            appoinment_edit         : "<?= $translations['html_appoinment_edit']?>",
+            cancel_appointment      : "<?= $translations['html_cancel_appointment']?>",
+            register_payment        : "<?= $translations['html_register_payment']?>",
+            pay                     : "<?= $translations['html_pay']?>",
+            cancel_payment          : "<?= $translations['html_cancel_payment']?>",
+            selected_option         : "<?= $translations['html_selected_option']?>",
+            info_simultaneous_appointment   : "<?= $translations['html_info_simultaneous_appointment']?>",
+        };
+
+
+        $(document).ready(function(){
+
+            $('#select_pacientes').select2({
+                placeholder: translations['error_selected_patient'],
+                width: '50px',
+                minimumInputLength: 3,
+                allowClear : true,
+                ajax: {
+                    url: url_index,
+                    method: 'post',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        cadena_enviada  = params.term;
+                        return {
+                            accion: 'fill_pacientes',
+                            cadena: params.term,
+                            form_select2_pacientes  : true
+                        };
+                    },
+                    processResults: function (data) {
+                        // Aquí adaptamos la respuesta al formato que select2 necesita
+                        return {
+                            results: data.map(function (item) {
+                                if (item.id == -1) return true;
+                                return {
+                                    id: item.id,
+                                    text: item.celular + ' - ' + item.nombre_completo,
+                                    nombre: item.nombre,
+                                    primer_apellido: item.primer_apellido,
+                                    segundo_apellido: item.segundo_apellido,
+                                    celular: item.celular
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            //  BUSQUEDA DE CITAS
+            $("#btnBuscar").on('click',function(){
+                if ($("#select_pacientes").val() == '' || $("#select_pacientes").val() == null){
+                    showAlert('danger','Selecciona un paciente');
+                    return false;
+                }
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json' ,
+                    data        : {
+                        accion      : 'get_citas_adeudos',
+                        id_paciente : $("#select_pacientes").val()
+                    },
+                    success     : function(data){
+                        console.log('data');
+                        console.log(data);
+
+                        show_table_citas(data);
+                    },
+                    error       : function(error){
+                        console.log('data');
+                        console.log(data);
+                    }
+                })
+            });
+        });
+
+        function show_table_citas(info_citas){
+            for(let cita of info_citas){
+                let row = '<tr class="table-active">'+
+                    '<td><input class="form-check-input" type="checkbox" checked/></td>'+
+                    '<td class="fw-medium small">Acosta Carrillo Iker (16.01)</td>'+
+                    '<td class="small">Martinez Lenguaje</td>'+
+                    '<td class="small">PSI / $300</td>'+
+                    '<td class="small">09/03/2026 09:00 a 09:40</td>'+
+                    '<td><span class="badge rounded-pill badge-active px-2 py-1 small fw-semibold">ACTIVA</span></td>'+
+                '</tr>';
+            }
+        }
+    })();
+</script>

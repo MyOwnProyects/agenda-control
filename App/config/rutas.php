@@ -150,6 +150,9 @@ return [
         'show'                  => '/plantillas_mensajes/show',
         'save_plantilla'        => '/plantillas_mensajes/save_plantilla',
         'delete_plantilla'      => '/plantillas_mensajes/delete_plantilla'
+    ),
+    'caja'  => array(
+        'get_citas_adeudos' => '/caja/get_citas_adeudos',
     )
 
 ];

@@ -203,6 +203,7 @@ return [
     'html_title_reporter'                       => 'Reporteador',
     'html_message_templates'                    => 'Plantillas de mensajes',
     'html_movil_agenda'                         => 'Agenda movil',
+    'html_payment_module'                       => 'Caja',
     
 
 
