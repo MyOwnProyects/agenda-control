@@ -146,6 +146,38 @@ use App\Library\FuncionesGlobales;
     #box_monto_recibido.excedido  #span_monto_recibido { color: #c2410c; }
     #box_monto_recibido.incompleto { background: #fef2f2 !important; border-color: #fecaca !important; }
     #box_monto_recibido.incompleto #span_monto_recibido { color: #dc2626; }
+
+    /* ── Ticket shape ── */
+    .ticket-shape {
+        position: relative;
+        background: white;
+        filter: drop-shadow(0 20px 25px rgb(0 0 0 / 0.15));
+    }
+
+    /* ── Dashed divider ── */
+    .custom-dashed {
+        background-image: linear-gradient(to right, #c7c4d7 50%, rgba(255,255,255,0) 0%);
+        background-position: bottom;
+        background-size: 12px 1px;
+        background-repeat: repeat-x;
+        height: 1px;
+        width: 100%;
+    }
+
+    /* ── Ticket jagged bottom edge ── */
+    .ticket-teeth {
+        display: flex;
+        overflow: hidden;
+        height: 1rem;
+        width: 100%;
+    }
+    .ticket-teeth span {
+        flex-shrink: 0;
+        width: 1rem;
+        height: 1rem;
+        background: white;
+        transform: rotate(45deg) translateY(-50%);
+    }
 </style>
 
 <!-- Body -->
@@ -190,6 +222,7 @@ use App\Library\FuncionesGlobales;
                     <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">#</th>
                     <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Profesional</th>
                     <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Servicio / Costo</th>
+                    <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Total / Pendiente</th>
                     <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Fecha y Hora</th>
                     <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em; width: 7rem;">Estatus de asistencia</th>
                 </tr>
@@ -197,7 +230,7 @@ use App\Library\FuncionesGlobales;
             <tbody id="body_table">
                 <!-- Row: Sin resultados -->
                 <tr id="row_sin_registros">
-                    <td colspan="6" class="text-center py-4 text-secondary small">
+                    <td colspan="7" class="text-center py-4 text-secondary small">
                         <i class="bi bi-inbox fs-4 d-block mb-2"></i>
                         Búsqueda sin registros
                     </td>
@@ -284,8 +317,14 @@ use App\Library\FuncionesGlobales;
         <div class="d-flex justify-content-between align-items-center p-3 rounded-3 mb-4"
             id="box_monto_recibido"
             style="background:#f1f5f9; border: 1px solid #e2e8f0;">
-            <span class="small fw-bold text-uppercase" style="letter-spacing:.05em;">Monto Recibido</span>
-            <span class="h6 fw-bold mb-0" id="span_monto_recibido">$0.00</span>
+            <div>
+                <div class="small fw-bold text-uppercase" style="letter-spacing:.05em;">Monto Recibido</div>
+                <div class="small text-secondary">Faltante</div>
+            </div>
+            <div class="text-end">
+                <div class="h6 fw-bold mb-0" id="span_monto_recibido">$0.00</div>
+                <div class="small fw-bold text-secondary" id="span_monto_faltante">$0.00</div>
+            </div>
         </div>
 
         <!-- Excedente: acción (visible solo cuando hay excedente) -->
@@ -296,14 +335,14 @@ use App\Library\FuncionesGlobales;
                     <i class="bi bi-info-circle me-1"></i>
                     Monto excedente: <span id="span_excedente">$0.00</span>
                 </p>
-                <p class="text-muted small mb-3">¿Qué deseas hacer con la diferencia?</p>
+                <p class="text-muted small mb-3 p_pregunta_diferencia">¿Qué deseas hacer con la diferencia?</p>
 
                 <div class="d-flex gap-2">
-                    <button class="pay-method-btn" id="btn_devolver_cambio">
+                    <button class="pay-method-btn" id="btn_devolver_cambio" data-excedente="devolver_cambio">
                         <i class="bi bi-cash-coin"></i>
                         Devolver Cambio
                     </button>
-                    <button class="pay-method-btn" id="btn_saldo_favor">
+                    <button class="pay-method-btn" id="btn_saldo_favor" data-excedente="saldo_favor">
                         <i class="bi bi-piggy-bank"></i>
                         Saldo a Favor
                     </button>
@@ -313,9 +352,9 @@ use App\Library\FuncionesGlobales;
         </div>
 
         <!-- Process button -->
-        <button class="btn-process">
+        <button id="btnProcesarPago" class="btn-process d-none">
             <i class="bi bi-check-circle fs-5"></i>
-            Procesar Pago
+            Procesar pago
         </button>
 
     </section>
@@ -323,6 +362,157 @@ use App\Library\FuncionesGlobales;
 
     </div><!-- /row -->
 </div><!-- /main-content -->
+
+<!-- ══════════════════════════════════════════
+    MODAL — Confirmación de Pago (Ticket)
+══════════════════════════════════════════ -->
+<div class="modal fade" id="modalConfirmarPago" tabindex="-1" 
+     aria-labelledby="modalConfirmarPagoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" 
+         style="max-width:440px;">
+        <div class="modal-content border-0 bg-transparent shadow-none overflow-visible">
+            <div class="ticket-shape rounded-3 overflow-visible">
+
+                <!-- Ticket Header -->
+                <div class="px-4 pt-4 pb-3 text-center bg-white rounded-top-3">
+
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                         style="width:4rem;height:4rem;background:#eef2ff;">
+                        <i class="bi bi-check2-square text-indigo" style="font-size:2rem;"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-1 text-dark" id="modalConfirmarPagoLabel"
+                        style="font-size:1.3rem;">¡Ya casi terminas!</h5>
+                    <p class="small text-secondary mb-3">
+                        Verifica los datos antes de procesar el cobro.
+                    </p>
+
+                    <!-- Folio y fecha -->
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 rounded-3"
+                         style="background:#f1f5f9;border:1px solid #e2e8f0;">
+                        <div class="text-start">
+                            <p class="text-uppercase fw-bold mb-0"
+                               style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Folio</p>
+                            <p class="small fw-bold text-dark mb-0" id="ticket_folio">—</p>
+                        </div>
+                        <div class="text-end">
+                            <p class="text-uppercase fw-bold mb-0"
+                               style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Fecha y Hora</p>
+                            <p class="small fw-bold text-dark mb-0" id="ticket_fecha">—</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Divider -->
+                <div class="py-2 bg-white"><div class="custom-dashed"></div></div>
+
+                <!-- Paciente y servicios -->
+                <div class="px-4 py-3 bg-white">
+
+                    <!-- Paciente -->
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                             style="width:2.5rem;height:2.5rem;background:#eef2ff;">
+                            <i class="bi bi-person text-indigo fs-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-uppercase fw-bold mb-0"
+                               style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Paciente</p>
+                            <p class="fw-bold mb-0 text-dark" id="ticket_paciente">—</p>
+                        </div>
+                    </div>
+
+                    <!-- Servicios -->
+                    <p class="text-uppercase fw-bold mb-2"
+                       style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Servicios</p>
+                    <div id="ticket_servicios" class="d-flex flex-column gap-2">
+                        <!-- Se llena desde JS -->
+                    </div>
+
+                </div>
+
+                <!-- Divider -->
+                <div class="py-2 bg-white"><div class="custom-dashed"></div></div>
+
+                <!-- Resumen financiero -->
+                <div class="px-4 py-3 bg-white">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-none d-flex justify-content-between small div_efectivo">
+                            <span class="text-secondary">Efectivo</span>
+                            <span class="fw-medium" id="ticket_efectivo">$0.00</span>
+                        </div>
+                        <div class="d-none d-flex justify-content-between small div_tarjeta">
+                            <span class="text-secondary">Tarjeta</span>
+                            <span class="fw-medium" id="ticket_tarjeta">$0.00</span>
+                        </div>
+                        <div class="d-none d-flex justify-content-between small div_transferencia">
+                            <span class="text-secondary">Transferencia</span>
+                            <span class="fw-medium" id="ticket_transferencia">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small pt-2 border-top">
+                            <span class="text-secondary" id="ticket_num_citas">Subtotal (0 citas)</span>
+                            <span class="fw-medium" id="ticket_subtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-secondary">Saldo a favor aplicado</span>
+                            <span class="fw-medium text-success" id="ticket_saldo_favor">-$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fw-bold text-dark">Total a Pagar</span>
+                            <span class="fw-bold text-indigo h6 mb-0" id="ticket_total">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small pt-1">
+                            <span class="text-secondary">Monto Recibido</span>
+                            <span class="fw-medium text-dark" id="ticket_monto_recibido">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Excedente (visible solo si aplica) -->
+                <div id="ticket_box_excedente" class="d-none px-4 py-3"
+                     style="background:#eef2ff;border-top:1px solid #c7d2fe;border-bottom:1px solid #c7d2fe;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-wallet2 text-indigo"></i>
+                            <span class="small fw-bold text-indigo">Excedente Detectado</span>
+                        </div>
+                        <span class="fw-bold text-indigo h6 mb-0" id="ticket_excedente_monto">$0.00</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 p-2 rounded-3"
+                         style="background:rgba(255,255,255,.6);border:1px solid #c7d2fe;">
+                        <i class="bi fs-5 text-indigo" id="ticket_excedente_icon"></i>
+                        <div>
+                            <p class="text-uppercase fw-bold mb-0 text-indigo"
+                               style="font-size:.6rem;letter-spacing:.05em;">Resolución Elegida</p>
+                            <p class="small fw-bold text-dark mb-0" id="ticket_excedente_label">—</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="px-4 py-4 bg-white rounded-bottom-3 d-flex flex-column gap-2">
+                    <button type="button"
+                            class="btn-process d-flex align-items-center justify-content-center gap-2"
+                            id="btn_confirmar_pago">
+                        <i class="bi bi-check-circle fs-5"></i>
+                        Confirmar y Procesar Cobro
+                    </button>
+                    <button type="button"
+                            class="btn btn-link text-indigo fw-bold text-decoration-none w-100"
+                            data-bs-dismiss="modal">
+                        Regresar a Editar
+                    </button>
+                </div>
+
+                <!-- Borde dentado inferior -->
+                <div class="ticket-teeth" id="ticket_teeth_bottom"></div>
+
+            </div><!-- /ticket-shape -->
+        </div>
+    </div>
+</div>
+
 <script>
     let modulo_caja = (function(){
 
@@ -366,6 +556,21 @@ use App\Library\FuncionesGlobales;
         let saldo_favor         = 0;
         let sub_total_calculado = 0;
         let total_calculado     = 0;
+
+        //  OBJETO CON TODOS LOS CALCULOS ALMACENADOS PARA EVITAR RECALCULO
+        let obj_totales_calculados  = {
+            num_citas           : 0,
+            servicios           : [],
+            subtotal_calculado  : 0,
+            saldo_favor         : 0,
+            total_pagar         : 0,
+            pago_efectivo       : 0,
+            pago_transferencia  : 0,
+            pago_tarjeta        : 0,
+            monto_recibido      : 0,
+            excedente           : 0,
+            accion_excedente    : null
+        };
 
         $(document).ready(function(){
 
@@ -415,9 +620,6 @@ use App\Library\FuncionesGlobales;
                         id_paciente : $("#select_pacientes").val()
                     },
                     success     : function(data){
-                        console.log('data');
-                        console.log(data);
-
                         show_table_citas(data);
                     },
                     error       : function(error){
@@ -474,8 +676,6 @@ use App\Library\FuncionesGlobales;
 
                     //  SE DSELECCIONAN Y SE BLOQUEAN TODOS LOS ROWS SIGUIENTES A ESTE
                     $("#body_table").find('.row_cita').each(function(){
-                        console.log("$(this).data('idrow')",$(this).data('idrow'));
-                        console.log($(this).data('idrow') > id_row);
                         if ($(this).data('idrow') > id_row){
                             $(this).removeClass('table-active');
                             $(this).find('.check_cita').prop('disabled',true).prop('checked',false);
@@ -489,10 +689,77 @@ use App\Library\FuncionesGlobales;
 
             $('.input_monto_pagar').on('input', function() {
                 $(this).val($(this).val().replace(/[^0-9.]/g, ''));
+
+                const totalAPagar   = total_calculado;
+                const efectivo      = parseFloat($('#monto_efectivo').val())      || 0;
+                const tarjeta       = parseFloat($('#monto_tarjeta').val())       || 0;
+                const transferencia = parseFloat($('#monto_transferencia').val()) || 0;
+
+                // Bloquear otros métodos solo si UN método ya supera el total individualmente
+                if (efectivo >= totalAPagar) {
+                    $('#monto_tarjeta, #monto_transferencia').val('').prop('disabled', true);
+                } else if (tarjeta >= totalAPagar) {
+                    $('#monto_efectivo, #monto_transferencia').val('').prop('disabled', true);
+                } else if (transferencia >= totalAPagar) {
+                    $('#monto_efectivo, #monto_tarjeta').val('').prop('disabled', true);
+                } else {
+                    // Ninguno supera el total solo, habilitar todos
+                    $('#monto_efectivo, #monto_tarjeta, #monto_transferencia').prop('disabled', false);
+                }
                 mostrar_monto_pagar();
+            });
+
+            //  EVENTO PARA DECIDIR QUE HACER CON EL EXCEDENTE
+            $(".pay-method-btn").on('click',function(){
+                $(".pay-method-btn").removeClass('active');
+                $(this).addClass('active');
+            });
+
+            //  MODAL PARA MOSTRAR UN TICKET CON EL PAGO
+            $("#btnProcesarPago").on('click',function(){
+                //  VALIDACIONES
+                if ($('#body_table input[type=checkbox]:checked').length == 0){
+                    showAlert('danger','Seleccione al menos una cita');
+                    return false;
+                }
+
+                //  VERIFICA QUE EXISTA UN MONTO AGREGADO
+                if (($("#monto_efectivo").val() == '' || $("#monto_efectivo").val() == null) &&
+                    ($("#monto_transferencia").val() == '' || $("#monto_transferencia").val() == null)) {
+                        showAlert('danger','Ingrese el monto a pagar');
+                        return false;
+                    }
+
+                console.log('$(".pay-method-btn.active").length',$(".pay-method-btn.active").length,$(".pay-method-btn.active").data('excedente'));
+                if (obj_totales_calculados['excedente'] > 0 && $(".pay-method-btn.active").length == 0){
+                    showAlert('danger','Seleccione la acción sobre el monto excedente');
+                    return false;
+                }
+
+                obj_totales_calculados['accion_excedente']  = $(".pay-method-btn.active").data('excedente');
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion  : 'get_fecha_hora'
+                    },
+                    success     : function(data){
+
+                        show_modalconfirmar_pago(data['fecha_hora']);
+
+                    },
+                    error       : function(error){
+
+                        show_modalconfirmar_pago(moment().format('DD/MM/YYYY HH:mm'));
+                    }
+                })
+                
             });
         });
 
+        //  
         function show_table_citas(info_paciente){
 
             let info_citas  = info_paciente['citas'];
@@ -512,11 +779,12 @@ use App\Library\FuncionesGlobales;
                     let disabled    = num_citas == 1 ? '' : 'disabled';
 
                     let row = 
-                    '<tr class="row_cita row_'+num_citas+'" data-idrow="'+num_citas+'" data-total="'+cita.total+'" data-idagendacita="'+cita.id_agenda_cita+'">'+
+                    '<tr class="row_cita row_'+num_citas+'" data-idrow="'+num_citas+'" data-total="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'">'+
                         '<td><input class="check_cita" type="checkbox" '+disabled+' /></td>'+
                         '<td class="small">'+num_citas+'</td>'+
                         '<td class="small">'+cita.nombre_profesional+'</td>'+
-                        '<td class="small">'+cita.num_servicios_costo+'</td>'+
+                        '<td class="small td_servicio">'+cita.num_servicios_costo+'</td>'+
+                        '<td class="small">$'+formatoDinero(cita.saldo_cita)+'</td>'+
                         '<td class="small">'+cita.fecha_completa+'</td>'+
                         '<td><span class="badge rounded-pill badge-'+cita.asistencia+' px-2 py-1 small fw-semibold">'+cita.label_asistencia+'</span></td>'+
                     '</tr>';
@@ -533,10 +801,25 @@ use App\Library\FuncionesGlobales;
             total_calculado     = 0;
             
             //  RECORRIDO DE TODAS LAS CITAS SELECCIONADAS
+            obj_totales_calculados['servicios'] = [];
             let citas_seleccionadas = 0;
             $("#body_table").find('.table-active').each(function(){
                 citas_seleccionadas ++;
                 let total_cita  = $(this).data('total');
+
+                let nombre_servicio = $(this).find('.td_servicio').text();
+
+                // Si ya existe el servicio, sumar el total
+                let servicio_existente = obj_totales_calculados['servicios'].find(s => s.servicio === nombre_servicio);
+
+                if (servicio_existente) {
+                    servicio_existente.total = ((servicio_existente.total * 100) + (total_cita * 100)) / 100;
+                } else {
+                    obj_totales_calculados['servicios'].push({
+                        servicio : nombre_servicio,
+                        total    : total_cita
+                    });
+                }
 
                 sub_total_calculado = ((sub_total_calculado * 100) + (total_cita * 100)) / 100;
             });
@@ -561,7 +844,17 @@ use App\Library\FuncionesGlobales;
 
             if (citas_seleccionadas == 0){
                $(".input_monto_pagar").val('');
+               $("#btnProcesarPago").addClass('d-none');
+            } else {
+                $("#btnProcesarPago").removeClass('d-none');
             }
+
+            //  SE GUARDA EL OBJETO
+            obj_totales_calculados['num_citas'] = citas_seleccionadas;
+            obj_totales_calculados['subtotal_calculado']    = sub_total_calculado;
+            obj_totales_calculados['saldo_favor']   = saldo_favor;
+            obj_totales_calculados['total_pagar']   = total_calculado;
+
 
             mostrar_monto_pagar();
         }
@@ -569,53 +862,139 @@ use App\Library\FuncionesGlobales;
         //  SUMA LAS CANTIDADES ENTRE METODOS DE PAGO PARA SABER CUANDO QUIERE PAGAR EL USUARIO
         function mostrar_monto_pagar(){
             let monto_recibido  = 0;
-
             $(".input_monto_pagar").each(function(){
-                let valor   = $(this).val();
-
+                let valor = $(this).val();
                 if (valor == '' || valor == null){
                     return true;
                 }
-
-                monto_recibido  = ((monto_recibido * 100) + (valor * 100)) / 100;
+                monto_recibido = ((monto_recibido * 100) + (valor * 100)) / 100;
             });
 
-            $("#span_monto_recibido").text("$"+formatoDinero(monto_recibido));
+            // MUESTRA EL MONTO FALTANTE
+            let monto_faltante = ((total_calculado * 100) - (monto_recibido * 100)) / 100;
+            monto_faltante     = monto_faltante > 0 ? monto_faltante : 0;
+            $("#span_monto_faltante").text("$" + formatoDinero(monto_faltante));
+            $("#span_monto_recibido").text("$" + formatoDinero(monto_recibido));
 
-            //  CITAS DISPONIBLES PARA SELECCIONAR
+            // CITAS DISPONIBLES PARA SELECCIONAR
             const citas_disponibles = $('#body_table input[type=checkbox]:not(:checked)').length > 0;
+            const excedente         = (((monto_recibido * 100) - (total_calculado * 100)) / 100);
 
-            //  CAMBIA EL COLOR DEPENDIENDO DEL MONTO
+            // HAY EFECTIVO?
+            const tiene_efectivo = parseFloat($("#monto_efectivo").val()) > 0;
+
+            // CAMBIA EL COLOR DEPENDIENDO DEL MONTO
             $('#box_monto_recibido').removeClass('completo excedido incompleto');
+
             switch (true) {
                 case monto_recibido === 0:
                     $('#box_excedente').addClass('d-none');
                     break;
+
                 case monto_recibido === total_calculado:
                     $('#box_monto_recibido').addClass('completo');
                     $('#box_excedente').addClass('d-none');
                     break;
-                case monto_recibido > total_calculado:
+
+                case excedente > 0:
                     $('#box_monto_recibido').addClass('excedido');
-                    const excedente = (((monto_recibido * 100) - (total_calculado * 100)) / 100);
                     $('#span_excedente').text('$' + formatoDinero(excedente));
                     $('#box_excedente').removeClass('d-none');
+                    $(".pay-method-btn").removeClass('active');
 
-                     // Mostrar u ocultar botón saldo a favor según citas restantes
-                    if (citas_disponibles) {
+                    // "Devolver Cambio" solo si hay efectivo
+                    if (tiene_efectivo) {
+                        $('#btn_devolver_cambio').removeClass('d-none');
+                        $('#btn_devolver_cambio').addClass('active'); // accion por defecto
+                    } else {
+                        $('#btn_devolver_cambio').addClass('d-none');
+                    }
+
+                    // "Saldo a Favor" solo si no hay citas pendientes
+/*                     if (citas_disponibles) {
                         $('#btn_saldo_favor').addClass('d-none');
-                        $("#btn_devolver_cambio").addClass('active');
                     } else {
                         $('#btn_saldo_favor').removeClass('d-none');
-                        $(".pay-method-btn").removeClass('active');
+                    } */
+
+                    // Si no hay efectivo, saldo a favor es la accion por defecto
+                    if (!tiene_efectivo) {
+                        $('#btn_saldo_favor').addClass('active');
                     }
+
                     break;
+
                 default:
                     $('#box_monto_recibido').addClass('incompleto');
                     $('#box_excedente').addClass('d-none');
                     break;
             }
 
+            // GUARDAR EN OBJETO
+            obj_totales_calculados['pago_efectivo']      = $("#monto_efectivo").val();
+            obj_totales_calculados['pago_transferencia'] = $("#monto_transferencia").val();
+            obj_totales_calculados['pago_tarjeta']       = $("#monto_tarjeta").val();
+            obj_totales_calculados['monto_recibido']     = monto_recibido;
+            obj_totales_calculados['excedente']          = excedente > 0 ? excedente : 0;
+            obj_totales_calculados['accion_excedente']   = $('#btn_saldo_favor').hasClass('active') 
+                                                            ? 'saldo_favor' 
+                                                            : 'devolver_cambio';
+        }
+
+        //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
+        function show_modalconfirmar_pago(fecha_hora){
+            obj_totales_calculados['fecha_hora']    = fecha_hora;
+
+            console.log('obj_totales_calculados');
+            console.log(obj_totales_calculados);
+            let nombre_paciente = $("#select_pacientes").find('option:selected').text();
+            nombre_paciente     = nombre_paciente.split('-')[1].trim();
+
+            let modal_clone = $("#modalConfirmarPago").clone().removeAttr('id');
+
+            $(modal_clone).find('#ticket_fecha').text(fecha_hora);
+            $(modal_clone).find('#ticket_paciente').text(nombre_paciente);
+
+            for(let servicio of obj_totales_calculados['servicios']){
+                $(modal_clone).find('#ticket_servicios').append(`
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width:.5rem;height:.5rem;border-radius:50%;
+                                        background:#4f46e5;flex-shrink:0;display:inline-block;"></span>
+                            <span class="fw-medium">${servicio.servicio} 
+                            </span>
+                        </div>
+                        <span class="text-secondary">${'$'+formatoDinero(servicio.total)}</span>
+                    </div>
+                `);
+            }
+
+            let mensaje = obj_totales_calculados['num_citas'] == 1 ? 'cita' : 'citas';
+
+            if (obj_totales_calculados['pago_efectivo'] > 0){
+                $(modal_clone).find('.div_efectivo').removeClass('d-none').find('#ticket_efectivo').text('$'+formatoDinero(obj_totales_calculados['pago_efectivo']));
+            }
+
+            if (obj_totales_calculados['pago_tarjeta'] > 0){
+                $(modal_clone).find('.div_tarjeta').removeClass('d-none').find('#ticket_tarjeta').text('$'+formatoDinero(obj_totales_calculados['pago_tarjeta']));
+            }
+
+            if (obj_totales_calculados['pago_transferencia'] > 0){
+                $(modal_clone).find('.div_transferencia').removeClass('d-none').find('#ticket_transferencia').text('$'+formatoDinero(obj_totales_calculados['pago_transferencia']));
+            }
+
+            $(modal_clone).find("#ticket_num_citas").text('Subtotal ('+obj_totales_calculados['num_citas']+' '+mensaje+')');
+            $(modal_clone).find('#ticket_subtotal').text('$'+formatoDinero(obj_totales_calculados['subtotal_calculado']));
+            $(modal_clone).find('#ticket_saldo_favor').text('$'+formatoDinero(obj_totales_calculados['saldo_favor']));
+            $(modal_clone).find('#ticket_total').text('$'+formatoDinero(obj_totales_calculados['total_pagar']));
+            $(modal_clone).find('#ticket_monto_recibido').text('$'+formatoDinero(obj_totales_calculados['monto_recibido']));
+
+            if (obj_totales_calculados['excedente'] > 0){
+                $(modal_clone).find('#ticket_box_excedente').removeClass('d-none').find('#ticket_excedente_monto').text('$'+formatoDinero(obj_totales_calculados['excedente']));
+                $(modal_clone).find('#ticket_excedente_label').text(obj_totales_calculados['accion_excedente'] == 'saldo_favor' ? 'Saldo a favor' : 'Devolver cambio');
+            }
+
+            $(modal_clone).modal('show');
         }
     })();
 </script>

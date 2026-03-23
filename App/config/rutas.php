@@ -153,6 +153,7 @@ return [
     ),
     'caja'  => array(
         'get_citas_adeudos' => '/caja/get_citas_adeudos',
+        'get_fecha_hora'    => '/caja/get_fecha_hora'
     )
 
 ];

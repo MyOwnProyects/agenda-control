@@ -47,6 +47,16 @@ class CajaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'get_fecha_hora'){
+                $route      = $this->url_api.$this->rutas['caja']['get_fecha_hora'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
 
         
