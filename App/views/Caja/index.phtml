@@ -572,6 +572,9 @@ use App\Library\FuncionesGlobales;
             accion_excedente    : null
         };
 
+        //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
+        let obj_citas_saldos    = [];
+
         $(document).ready(function(){
 
             $('#select_pacientes').select2({
@@ -945,8 +948,20 @@ use App\Library\FuncionesGlobales;
         function show_modalconfirmar_pago(fecha_hora){
             obj_totales_calculados['fecha_hora']    = fecha_hora;
 
+            //  SE RECORRE TODAS LAS CITAS A PAGAR Y SE OBTIENE EL SALDO ACTUAL
+            $("#body_table").find('.table-active').each(function(){
+                let id_agenda_cita  = $(this).data('idagendacita');
+                let total           = $(this).data('total');
+                obj_citas_saldos.push({
+                    id_agenda_cita  : id_agenda_cita,
+                    total           : total
+                });
+            });
+
             console.log('obj_totales_calculados');
             console.log(obj_totales_calculados);
+            console.log('obj_citas_saldos');
+            console.log(obj_citas_saldos);
             let nombre_paciente = $("#select_pacientes").find('option:selected').text();
             nombre_paciente     = nombre_paciente.split('-')[1].trim();
 
@@ -993,6 +1008,46 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#ticket_box_excedente').removeClass('d-none').find('#ticket_excedente_monto').text('$'+formatoDinero(obj_totales_calculados['excedente']));
                 $(modal_clone).find('#ticket_excedente_label').text(obj_totales_calculados['accion_excedente'] == 'saldo_favor' ? 'Saldo a favor' : 'Devolver cambio');
             }
+
+            $(modal_clone).on('click','#btn_confirmar_pago',function(){
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+
+                let obj_info_pago = {
+                    pago_efectivo       : parseFloat(obj_totales_calculados['pago_efectivo'])      || 0,
+                    pago_transferencia  : parseFloat(obj_totales_calculados['pago_transferencia']) || 0,
+                    pago_tarjeta        : parseFloat(obj_totales_calculados['pago_tarjeta'])       || 0,
+                    excedente           : parseFloat(obj_totales_calculados['excedente'])          || 0,
+                    accion_excedente    : obj_totales_calculados['accion_excedente']               || ''
+                };
+
+                // Aplicar resta si es devolver cambio
+                if (obj_info_pago['accion_excedente'] === 'devolver_cambio') {
+                    obj_info_pago['pago_efectivo']  = ((obj_info_pago['pago_efectivo'] * 100) - (obj_info_pago['excedente']    * 100)) / 100;
+                    obj_info_pago['excedente']      = 0;
+                }
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion              : 'save_pago',
+                        obj_citas_saldos    : obj_citas_saldos,
+                        obj_info_pago       : obj_info_pago,
+                        info_ticket         : obj_totales_calculados,
+                        id_paciente         : $("#select_pacientes").val(),
+                        nombre_paciente     : nombre_paciente
+                    },
+                    success     : function(data){
+                        console.log('data');
+                        console.log(data);
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
+                    }
+                })
+            });
 
             $(modal_clone).modal('show');
         }

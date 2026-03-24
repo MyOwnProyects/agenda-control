@@ -57,6 +57,25 @@ class CajaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'save_pago'){
+                $route      = $this->url_api.$this->rutas['caja']['save_pago'];
+                $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CAPTURA_PAGO','Se realizó la captura de un pago del paciente: : '.$__POST['nombre_paciente'],$_POST);
+
+                $response->setJsonContent('Apertura de agenda exitosa!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
 
         
