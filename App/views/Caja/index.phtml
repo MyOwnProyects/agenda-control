@@ -436,7 +436,10 @@ use App\Library\FuncionesGlobales;
                 <div class="py-2 bg-white"><div class="custom-dashed"></div></div>
 
                 <!-- Resumen financiero -->
-                <div class="px-4 py-3 bg-white">
+                <div class="px-4 bg-white">
+                <p class="fw-bold mb-2"
+                       style="letter-spacing:.08em;">Método de pago</p></div>
+                <div class="px-4 py-1 bg-white">
                     <div class="d-flex flex-column gap-2">
                         <div class="d-none d-flex justify-content-between small div_efectivo">
                             <span class="text-secondary">Efectivo</span>
@@ -475,7 +478,7 @@ use App\Library\FuncionesGlobales;
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-wallet2 text-indigo"></i>
-                            <span class="small fw-bold text-indigo">Excedente Detectado</span>
+                            <span class="small fw-bold text-indigo">Excedente</span>
                         </div>
                         <span class="fw-bold text-indigo h6 mb-0" id="ticket_excedente_monto">$0.00</span>
                     </div>
@@ -690,7 +693,7 @@ use App\Library\FuncionesGlobales;
                 calcula_total();
             });
 
-            $('.input_monto_pagar').on('input', function() {
+            $('.input_monto_pagar').on('input', function(e, origen) {
                 $(this).val($(this).val().replace(/[^0-9.]/g, ''));
 
                 const totalAPagar   = total_calculado;
@@ -709,6 +712,7 @@ use App\Library\FuncionesGlobales;
                     // Ninguno supera el total solo, habilitar todos
                     $('#monto_efectivo, #monto_tarjeta, #monto_transferencia').prop('disabled', false);
                 }
+                
                 mostrar_monto_pagar();
             });
 
@@ -729,17 +733,39 @@ use App\Library\FuncionesGlobales;
                 //  VERIFICA QUE EXISTA UN MONTO AGREGADO
                 if (($("#monto_efectivo").val() == '' || $("#monto_efectivo").val() == null) &&
                     ($("#monto_transferencia").val() == '' || $("#monto_transferencia").val() == null)) {
-                        showAlert('danger','Ingrese el monto a pagar');
+                        showAlert('danger','Seleccione un metodo de pago y la cantidad a liquidar');
                         return false;
                     }
 
-                console.log('$(".pay-method-btn.active").length',$(".pay-method-btn.active").length,$(".pay-method-btn.active").data('excedente'));
                 if (obj_totales_calculados['excedente'] > 0 && $(".pay-method-btn.active").length == 0){
                     showAlert('danger','Seleccione la acción sobre el monto excedente');
                     return false;
                 }
 
-                obj_totales_calculados['accion_excedente']  = $(".pay-method-btn.active").data('excedente');
+                if (obj_totales_calculados['excedente'] > 0){
+                    obj_totales_calculados['accion_excedente']  = $(".pay-method-btn.active").data('excedente');
+                } else {
+                    obj_totales_calculados['accion_excedente']  = null;
+                }
+
+                //  VERIFICAR SI TODOS LOS INPUT DE FORMA DE PAGO GENERAR SALDO A FAVOR
+                let input_con_valor         = 0;
+                let input_con_saldo_favor   = 0;
+                $(".input_monto_pagar").each(function(){
+                    if ($(this).val() != null && $(this).val() != ''){
+                        input_con_valor ++;
+                        let valor       = parseFloat($(this).val());
+                        let total_pagar = parseFloat(obj_totales_calculados['total_pagar']);
+                        if (valor > total_pagar){
+                            input_con_saldo_favor    ++;
+                        }
+                    }
+                });
+
+                if (input_con_saldo_favor > 1){
+                    showAlert("danger","No puede haber mas de un metodo de pago que genere saldo a favor");
+                    return false;
+                }
 
                 $.ajax({
                     url         : url_index,
@@ -749,13 +775,11 @@ use App\Library\FuncionesGlobales;
                         accion  : 'get_fecha_hora'
                     },
                     success     : function(data){
-
-                        show_modalconfirmar_pago(data['fecha_hora']);
+                        show_modal_confirmar_pago(data['fecha_hora']);
 
                     },
                     error       : function(error){
-
-                        show_modalconfirmar_pago(moment().format('DD/MM/YYYY HH:mm'));
+                        show_modal_confirmar_pago(moment().format('DD/MM/YYYY HH:mm'));
                     }
                 })
                 
@@ -782,7 +806,7 @@ use App\Library\FuncionesGlobales;
                     let disabled    = num_citas == 1 ? '' : 'disabled';
 
                     let row = 
-                    '<tr class="row_cita row_'+num_citas+'" data-idrow="'+num_citas+'" data-total="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'">'+
+                    '<tr class="row_cita row_'+num_citas+'" data-idrow="'+num_citas+'" data-saldocita="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'">'+
                         '<td><input class="check_cita" type="checkbox" '+disabled+' /></td>'+
                         '<td class="small">'+num_citas+'</td>'+
                         '<td class="small">'+cita.nombre_profesional+'</td>'+
@@ -808,7 +832,7 @@ use App\Library\FuncionesGlobales;
             let citas_seleccionadas = 0;
             $("#body_table").find('.table-active').each(function(){
                 citas_seleccionadas ++;
-                let total_cita  = $(this).data('total');
+                let total_cita  = $(this).data('saldocita');
 
                 let nombre_servicio = $(this).find('.td_servicio').text();
 
@@ -816,11 +840,13 @@ use App\Library\FuncionesGlobales;
                 let servicio_existente = obj_totales_calculados['servicios'].find(s => s.servicio === nombre_servicio);
 
                 if (servicio_existente) {
-                    servicio_existente.total = ((servicio_existente.total * 100) + (total_cita * 100)) / 100;
+                    servicio_existente.total            = ((servicio_existente.total * 100) + (total_cita * 100)) / 100;
+                    servicio_existente.num_servicios    = parseInt(servicio_existente.num_servicios) + parseInt(1);
                 } else {
                     obj_totales_calculados['servicios'].push({
-                        servicio : nombre_servicio,
-                        total    : total_cita
+                        servicio        : nombre_servicio,
+                        total           : total_cita,
+                        num_servicios   : 1
                     });
                 }
 
@@ -914,11 +940,11 @@ use App\Library\FuncionesGlobales;
                     }
 
                     // "Saldo a Favor" solo si no hay citas pendientes
-/*                     if (citas_disponibles) {
+                    if (citas_disponibles && tiene_efectivo) {
                         $('#btn_saldo_favor').addClass('d-none');
                     } else {
                         $('#btn_saldo_favor').removeClass('d-none');
-                    } */
+                    }
 
                     // Si no hay efectivo, saldo a favor es la accion por defecto
                     if (!tiene_efectivo) {
@@ -945,16 +971,17 @@ use App\Library\FuncionesGlobales;
         }
 
         //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
-        function show_modalconfirmar_pago(fecha_hora){
+        function show_modal_confirmar_pago(fecha_hora){
             obj_totales_calculados['fecha_hora']    = fecha_hora;
 
             //  SE RECORRE TODAS LAS CITAS A PAGAR Y SE OBTIENE EL SALDO ACTUAL
+            obj_citas_saldos    = [];
             $("#body_table").find('.table-active').each(function(){
                 let id_agenda_cita  = $(this).data('idagendacita');
-                let total           = $(this).data('total');
+                let saldo_cita      = $(this).data('saldocita');
                 obj_citas_saldos.push({
                     id_agenda_cita  : id_agenda_cita,
-                    total           : total
+                    saldo_cita      : saldo_cita
                 });
             });
 
@@ -977,6 +1004,7 @@ use App\Library\FuncionesGlobales;
                             <span style="width:.5rem;height:.5rem;border-radius:50%;
                                         background:#4f46e5;flex-shrink:0;display:inline-block;"></span>
                             <span class="fw-medium">${servicio.servicio} 
+                            <span class="small text-secondary">X${servicio.num_servicios}</span>
                             </span>
                         </div>
                         <span class="text-secondary">${'$'+formatoDinero(servicio.total)}</span>
@@ -1014,11 +1042,12 @@ use App\Library\FuncionesGlobales;
                 $(btn).prop('disabled',true);
 
                 let obj_info_pago = {
-                    pago_efectivo       : parseFloat(obj_totales_calculados['pago_efectivo'])      || 0,
+                    pago_efectivo       : parseFloat(obj_totales_calculados['pago_efectivo']) || 0,
                     pago_transferencia  : parseFloat(obj_totales_calculados['pago_transferencia']) || 0,
-                    pago_tarjeta        : parseFloat(obj_totales_calculados['pago_tarjeta'])       || 0,
-                    excedente           : parseFloat(obj_totales_calculados['excedente'])          || 0,
-                    accion_excedente    : obj_totales_calculados['accion_excedente']               || ''
+                    pago_tarjeta        : parseFloat(obj_totales_calculados['pago_tarjeta']) || 0,
+                    excedente           : parseFloat(obj_totales_calculados['excedente']) || 0,
+                    accion_excedente    : obj_totales_calculados['accion_excedente'] || '',
+                    saldo_favor         : saldo_favor
                 };
 
                 // Aplicar resta si es devolver cambio
