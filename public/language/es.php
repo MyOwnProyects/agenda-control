@@ -204,6 +204,8 @@ return [
     'html_message_templates'                    => 'Plantillas de mensajes',
     'html_movil_agenda'                         => 'Agenda movil',
     'html_payment_module'                       => 'Caja',
+    'html_capture_date'                         => 'Fecha de captura',
+    'html_total_paid'                           => 'Total pagado',
     
 
 

@@ -28,6 +28,46 @@ class CajaController extends BaseController
 
             $accion = $this->request->getPost('accion');
 
+            $result = array();
+            if($accion == 'get_rows'){
+                $arr_return = array(
+                    "draw"              => $this->request->getPost('draw'),
+                    "recordsTotal"      => 0,
+                    "recordsFiltered"   => 10,
+                    "data"              => array()
+                );
+        
+                // SE REALIZA LA BUSQUEDA DEL COUNT
+
+                $route          = $this->url_api.$this->rutas['caja']['tickets_count'];
+                $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+        
+                if (!is_numeric($num_registros) || $num_registros == 0){
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => count($result),
+                        "recordsFiltered"   => 0,
+                        "data"              => $result
+                    );
+                } else {
+                    $route  = $this->url_api.$this->rutas['caja']['tickets_show'];
+                    $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+            
+                    $result = array(
+                        "draw"              => $this->request->getPost('draw'),
+                        "recordsTotal"      => $num_registros,
+                        "recordsFiltered"   => $num_registros,
+                        "data"              => $result
+                    );
+                }
+
+                $response = new Response();
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+        
+            }
+
             if ($accion == 'fill_pacientes'){
                 $route      = $this->url_api.$this->rutas['ctpacientes']['fill_combo'];
                 $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
@@ -70,7 +110,7 @@ class CajaController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CAPTURA_PAGO','Se realizó la captura de un pago del paciente: : '.$__POST['nombre_paciente'],$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CAPTURA_PAGO','Se realizó la captura de un pago del paciente: : '.$_POST['nombre_paciente'],$_POST);
 
                 $response->setJsonContent('Apertura de agenda exitosa!');
                 $response->setStatusCode(200, 'OK');

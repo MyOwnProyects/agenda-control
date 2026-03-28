@@ -154,7 +154,9 @@ return [
     'caja'  => array(
         'get_citas_adeudos' => '/caja/get_citas_adeudos',
         'get_fecha_hora'    => '/caja/get_fecha_hora',
-        'save_pago'         => '/caja/save_pago'
+        'save_pago'         => '/caja/save_pago',
+        'tickets_count'     => '/caja/tickets_count',
+        'tickets_show'      => '/caja/tickets_show',
     )
 
 ];
