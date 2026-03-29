@@ -116,6 +116,21 @@ class CajaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'download_ticket'){
+                
+                //  SE GENERA EL PDF DE LA RECETA MEDICA
+                $arr_return = FuncionesGlobales::create_pdf_ticket($_POST['folio']);
+
+                if ($arr_return['success']){
+                    FuncionesGlobales::saveBitacora($this->bitacora,'DESCARGAR_TICKET','Se descargo el ticket con folio: '.$_POST['folio'],array());
+                }
+                
+                $response = new Response();
+                $response->setJsonContent($arr_return);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
 
         

@@ -758,6 +758,9 @@ class FuncionesGlobales{
             case 'reportes':
                 $path_save = '/tmp/';
                 break;
+            case 'tickets':
+                $path_save = '/tmp/';
+                break;
             case 'otros':
                 $path_save = '/otros_documentos/';
                 break;
@@ -810,6 +813,34 @@ class FuncionesGlobales{
     */
     public static function clear_filename($nombre_original){
         return preg_replace('/[^a-zA-Z0-9._\- ]/', '', $nombre_original);
+    }
+
+        public static function formatearTelefono($telefono) {
+        $telefonoLimpio = preg_replace('/\D/', '', $telefono);
+        
+        if (strlen($telefonoLimpio) !== 10) {
+            return '';
+        }
+        
+        return sprintf("(%s) %s-%s", 
+            substr($telefonoLimpio, 0, 3),
+            substr($telefonoLimpio, 3, 3),
+            substr($telefonoLimpio, 6, 4)
+        );
+    }
+
+    public static function formatearFecha($fecha,$formato_retorno = null) {
+        if(empty($fecha)) return '';
+        $formato_retorno    = $formato_retorno != null ? $formato_retorno : "d/m/Y";
+        return date($formato_retorno, strtotime($fecha));
+    }
+
+    public static function formatoMonetario($numero, int $decimales = 2): string{
+        // Convertimos a número por seguridad
+        $numero = (float)$numero;
+
+        // Formato: miles con coma, decimales con punto
+        return number_format($numero, $decimales, '.', ',');
     }
 
     public static function create_pdf_prescription($id_receta){
@@ -1133,32 +1164,370 @@ class FuncionesGlobales{
         }
     }
 
-    public static function formatearTelefono($telefono) {
-        $telefonoLimpio = preg_replace('/\D/', '', $telefono);
-        
-        if (strlen($telefonoLimpio) !== 10) {
-            return '';
+    //  FUNCION PARA CREAR PDF DEL TICKET POR MEDIO DE UN FOLIO
+    public static function create_pdf_ticket($folio){
+        try{
+
+            //  IMAGENES BASE64
+            $base_64_icono_paciente = "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";
+            $base_64_icono_check    = "iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAh1BMVEX///8AAADv7+/u7u739/fz8/P7+/v4+Pj09PT8/Pzc3Nynp6fS0tIzMzPY2NjMzMzh4eHCwsIKCgoWFhZxcXGMjIxoaGhRUVElJSWTk5OwsLDIyMi9vb1/f39LS0sbGxs9PT2fn595eXlbW1suLi44ODiWlpZXV1dDQ0OFhYUeHh5ra2sQEBD06VhqAAAMVUlEQVR4nO2deWOkKgzAGVGQdjpX706P12tfu7vf//M9Z5RDSRAdD+wz+x/FDb9BTQghEiKF0SgXylVbJCVRTbHqJlSbakpVUyKvpJ0qiP0UMEMBAf4+E86EM+FMOBPOhG0IaXNC6hhAewUGoUtBiZBJ4YkUrtpS2ZSqplh1U01MNcX2lbrbKAqShFAp+ldMVZtqEqrJ/BUL0TcCV930r9hUgTHBLgXGBEvRd1BJAfAkpPYNIFxPgjkA+z6RTZExAPsZEsAt3JECiNA1gJlwJpwJZ8JeCQ+WJtL/s7I++koWFS2GJyGbEv3bKJOnu/VI6GeuSCx4tDnrRVYpge2h0+D620OuJJViNXHCttc3z7tFP7ImaRornTE+Du9uZpOeJdBtpNk/nq6vemLLZcloyS8tBuLnl1K3X2reh4hjzMjjba98GWH2EI62tkj5+rJnvnEJY/HdO9+4hNu7AQDHJNz29fYMhfB8EL4RCYcCHJCw7FVshwK07aHlUakmIMJAAYKSPZQ/RcWriwd6Bo+EmU6hxgH4pRqfq27mNIEEuRAsipGKQd6iBuHpnnfJLzVuYYgw+yGHsINSVt0QNlk9UbYeEHAMwoj076oZ0tFd2oSQPw4JOAZh2vdqoizD36V80KfwsAJuT5hZSF9Cw+YSbMF7cX/eg7zS9oTpxVcqnSDMWqhwUioKIQzE+/u0iQnX+gmTkQJ9w+iYCNCknTBR6ZYpNTZf5DiEDnWpJr35wg4jTS4Wi8+EVwlEalxpDFh5RqC/9rHMu2mnyhkLcjpV3L6yjdeWsuP74ktei3htxgCKmRXXEKC8KJgd0kzZcz62F1pVULO24DfALbr0GsCQhCl5l6P7XDYjjJ5twie/AQxImDJzIrZNCJMNsKrYBEdYfuFfrpsQntmAF0ZEPhDCX5Uhvp5GeK+7BUJ4b43x4STCcyPAGAKhgBzne6W0JooR1RF2aQ9VMgJkDwEFBSG8Mvil/ruSPYyrwiBCu9uIQvYg4GLxBg0T8CpAQtirKGZdNTmzTZDNr+K+AyYYUYDMYD5OQIH9JMCE9ttsnD1gSvCVz78ppGBqhA7AqxRUMC3CmKzQKOdfDiuYFiE5QyNIz8YqYsKEm38wwDsqkFyLSRFS9Ba92wjqHacJl5C+20Mr5CzT451t0pc9PDn7MvnC+C5XDDe4KrYhIyUpRMhUt7gUKakEVGIwUmLFWLgrFIMpiB0zuCK4AoXdtedtRrvKClplQdMkARbmhSyrCqa4tkjEG3qLnlsKJkiYEBQwWxj+AMIIn0HlbU+bEFjSS/lmgILpEeL7ta8kARRMjvABBXwSLbJNwiPEAd8yPQ0IpS7Q4usBqEEpQp1HYQRsVZulwEy3gAirCh7Q5cSNSOsVBO+1sS0K+F5R4H1mJiTPmzp2a989FQRN6JrB59RTQciElFN0Bi+Er4KACSO+/MQA75beCgIm5PQvCqg3w6ZMyC7wGYxPyTYJhTBBAT/WrEk+TWbPDjatzh4W/Sr28NhasYfHtpI9zBWUkkGKVpOwUCAJBb6k37KovG2DKTgSWsdR4J0Z16mVbs+75N1IgsYNF3vSRIHCDmt3LXXM4EO9Ane2SRCeN8PPIT14KAh+bZHwuhmcOiF7QgFfvRQEThgx15L+JxDyaiKJlhvipyBsQlfMIu3kzMzYhPhJlneedHJmZlB7qJoUIQ74xKNWZ2Z0Bm1RDQT22vTmi6suCVxdxOqGly8ha3SH8IKTGgUxqADYG/H2vJXLq5raHGnJ5eh5UzRTZrG4jdoqsJ+E0dYW1DGDX7S1gnAIqSPP4iNqryAcwnT5gQGqJf2kCdME4zMSeKdMmG7QPd6X1UkKuiGkpxISKLu8kEfdayTChPxZrE4kxPMsFivWdW2TpvsWqXiSd1L7fQvHijc+sbaJkvZeW75BuybeXlsVP2HAEQ8JWIJo47UZfy/uuaaed/Hz7zLEdp53fRqC6xnpfW0R6zNES9KKMHHcotdkfELjkNTxWEdzQscufQE4JiEvnwLT2yXehK5b9E1287PGag+4Q8LqMTd9AMybkL+igFeqG0woX41KlapO1B2hfX+dNSS0TvdoMYIyIGF6fndRkd9L3iVh9RbNZdmIMMZn8J1oAVenMVCa5CzpkDAiEODi5awYgBchfnTi3zipOWHpS2hEIIr9DYhQ6ACB3PNgf5CxrQ7/p9oaSSwFqYpAuAApN0McavPFiKEwiDAuKTiMo73Xhqaa/V0LP6+NbdE93o9i4694l6grS14bRFhSQE/LNllhozs8ix6OMRV4IskRsHZ55iA03wKtCR1Ro8u1qCWkbI8u6T/zlcrohI7zOYbpRwgp3/xGry6W9KMTJmLpgwgSUkZfsEt/b6WC0QmpC1FFHiBCyim+ia282/EJM834s6gcOIiQc3xJ/2gqGJ2QQp0r2gDCOMZXvEZQpiPC1vYwX2UTR+XIfBYBexjjM/hAPNM7/e2hlbUB+zRopohjFnerQ1oIqypIHeulV8K8M1YE6tPoKxlUobVxFGOFFz5bE1r1S2nE3XkW3pU//PzSTrJNcLt4txKW5w2uSHL5gygYaW1hDMDxulmKioLYdYsGSygcRmNfVuCoN/lHhEtIXW74xlTgSEMoAAMljMQS3frbLbUCB6A6ah4ooeuYvHTgmKsawi11KxidMIrECl3OFrPoWtJ/tKgT1YKwcCBaZpsI/Fnc5bOIv4/ujDF51/oCCSN73yKSooy/0y+NHDHZFe7A7bO30R79c7akV1nQUIVWw2uTLUN53pUBON1wPA1hQdvV3HP5pT0RkiW6rF084NUQDvakY8K+5tAZ2EDlaDCnQsjFCp9FWD7ymMVkCJ12EZQiKDMdQqcDB4g8iT0dwsz07xvcqCqreQDCznITm8yirnTXo7XQ6Z+yQGtNfml9AVWX6S/JL7vuSIMKrTChR4XWLnKEHabfkDc4TNW112YQFs9jF3neKzxkr+SbnFahdei1RZnQ41m8ItMmJEt0MZXLHzJxwsSxmDrIDZ88IXU6cP+oAUyX0Jl4/yzDU5MmjPBV/6d6hQ9M2J09lNs2sAP3pY+at6zQihMC9lCXMnWeA7a6ce5sOrbFsOlfkdorPRTEoE/DrCv7rm1iv25elidWaFUT3He2iWeufnUjfLfv7CudY62eKoSkEkddVwcwfcJyYtCjNYDpE1JzFrf2AH4AoWEXH4EB/ADCQwbbzgT8eYRZh2X+v4xC2LM9NLZtHpSP0rJCK2lnD3WkRH58Ga7XZhVQjXQBVeOzzTLYoyIlUd5Etk861qMKqJrfhbYVCLcCDvqlxytNBerXGbdC6zTXFjPhTDgTzoQz4amEIVoLqWvICq3GaemGCjKzjhJOq0Lr6V6bfZ+EUlVwUmuLmXAmnAlnwh9OOJw97Oq7a03tYU87M7yfbqUtF8+dGSVBVWjFFISTbfJ/WFvMhKcTgs9hW8LwviV7IAQqArQmDPB7wEkEVTT3I5zGN50TvrGHudv4EE7ku9wJAcopPxfd3NkmtO7b6l3aQ9XUOPsS/LbHTeHzIBVaZf0SsCrLR8JkgmvRzUxTlU1AAVVhKxB4hVZvBYwDg1xcE1sBkAUNF7rdbQmP6ABxGg8FEUeK8W6VAuMZAZ4EBl59+bRJMvdU3zra+9NtriYjecHvSqWAl7pl6JsnOM9a/YSRmxCtn3Zxfx6C3GMfvrjyJXR8gShsWfsSpunt2GNtJbe+33QmKccPe4YsuqRGLWFEPA9MBCWXxJ+Qsik+iXuEEDZXHK/WGKp8c6fBJZZThZfzCFPu/Cu0Fo7xFj+2G6JkLpd3dU/p+k/rfbolzQkdNTrCk3PShnBCiOekHeFUnsXdtkrgTUi2U3ij3m0tAn/CWIRvF78BAn/CKOF4NYsg5HLP6wh1AVVdRcyob5q564/hrjRuM2c7qSHwCTKka7z+2JhytT4ul9Rovb8HDH6cYXt98xzOm3X3fHMt3y8tvv4AEsaCR5uzUGRjZD11RHjchD6E+iL9EBs52upZlwnZxhvMyNFWP1eCd6tXcLj6tC94uLfZA9rHnwlnwh9D2EPQ/bSovn/2ZVUBYg/rfBpZY15KbHczCqgC3cZWoLBhv7Roo57be82zoBsqAKrj1HyjBI/T5H+X0pzQftS63uX2I6xbW8yEM+FMOBPOhA0JHV6FZ3Jkyy/LIQqI3a3Nl+WAXxH7mC32Kwbul45C6FLQCaGh4D/qTY3dF8oSZQAAAABJRU5ErkJggg==";
+
+            $mpdf = new \Mpdf\Mpdf([
+                'format'        => [105, 180], // [ancho, alto] en mm
+                'margin_left'   => 6,
+                'margin_right'  => 6,
+                'margin_top'    => 6,
+                'margin_bottom' => 6,
+                'default_font'  => 'dejavusans',
+                'tempDir' => MPDF_TEMP_DIR
+            ]);
+
+            // Datos del ticket (reemplaza con tus variables dinámicas)
+            //$folio        = 'F-10294';
+            $fecha        = '09/03/2026 10:15 AM';
+            $paciente     = 'Acosta Carrillo Iker';
+            $servicios    = 'PSI - Consulta x2';
+            $subtotal     = '$600.00';
+            $descuento    = '-$50.00';
+            $total        = '$550.00';
+            $monto_rec    = '$700.00';
+            $excedente    = '$150.00';
+            $resolucion   = 'Abonado a Saldo a Favor';
+
+            $html = <<<HTML
+            <style>
+                * {
+                    font-family: DejaVu Sans, sans-serif;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-size: 9pt;
+                    color: #1a1a2e;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                /* ── Encabezado ── */
+                .header {
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+
+                .header .icon {
+                    font-size: 18pt;
+                    color: #5c6bc0;
+                }
+
+                .header h1 {
+                    font-size: 13pt;
+                    font-weight: bold;
+                    margin: 4px 0 2px;
+                    color: #1a1a2e;
+                }
+
+                .header p {
+                    font-size: 8pt;
+                    color: #666;
+                    margin: 0;
+                }
+
+                /* ── Caja folio/fecha ── */
+                .folio-box {
+                    background-color: #f4f5fb;
+                    border-radius: 6px;
+                    padding: 7px 10px;
+                    margin-bottom: 10px;
+                }
+
+                .folio-box table {
+                    width: 100%;
+                }
+
+                .folio-box .label {
+                    font-size: 7pt;
+                    color: #888;
+                    text-transform: uppercase;
+                    letter-spacing: 0.4px;
+                }
+
+                .folio-box .value {
+                    font-size: 9pt;
+                    font-weight: bold;
+                    color: #1a1a2e;
+                }
+
+                /* ── Separador punteado ── */
+                .separator {
+                    border: none;
+                    height: 1px;
+                    background-image: linear-gradient(
+                        to right,
+                        #cfd3f7 50%,
+                        rgba(255,255,255,0) 0%
+                    );
+                    background-size: 6px 1px;
+                    background-repeat: repeat-x;
+                    margin: 10px 0;
+                }
+
+                /* ── Paciente ── */
+                .section-label {
+                    font-size: 7pt;
+                    color: #888;
+                    text-transform: uppercase;
+                    letter-spacing: 0.4px;
+                    margin-bottom: 2px;
+                }
+
+                .paciente-name {
+                    font-size: 10pt;
+                    font-weight: bold;
+                    color: #1a1a2e;
+                }
+
+                /* ── Servicios ── */
+                .dot {
+                    color: #5c6bc0;
+                    font-size: 10pt;
+                    margin-right: 4px;
+                }
+
+                /* ── Métodos de pago ── */
+                .metodo-row td {
+                    font-size: 9pt;
+                    padding: 2px 0;
+                    color: #333;
+                }
+
+                /* ── Totales ── */
+                .totals-table {
+                    width: 100%;
+                    margin-top: 4px;
+                }
+
+                .totals-table td {
+                    font-size: 9pt;
+                    padding: 2px 0;
+                    color: #333;
+                }
+
+                .totals-table .descuento {
+                    color: #e53935;
+                }
+
+                .totals-table .total-row td {
+                    font-size: 11pt;
+                    font-weight: bold;
+                    color: #1a1a2e;
+                    padding-top: 4px;
+                }
+
+                .totals-table .total-row .amount {
+                    color: #5c6bc0;
+                }
+
+                /* ── Excedente ── */
+                .excedente-box {
+                    border: 1.5px solid #c7d2fe;
+                    border-radius: 6px;
+                    padding: 7px 10px;
+                    margin-top: 8px;
+                    background-color: #ffffff;
+                }
+
+                .excedente-box table {
+                    width: 100%;
+                }
+
+                .excedente-header {
+                    font-size: 9pt;
+                    color: #4f46e5;
+                    font-weight: bold;
+                }
+
+                .excedente-amount {
+                    font-size: 10pt;
+                    font-weight: bold;
+                    color: #4f46e5;
+                    text-align: right;
+                }
+
+                .resolucion-box {
+                    border: 1.2px solid #c7d2fe;
+                    border-radius: 4px;
+                    padding: 5px 8px;
+                    margin-top: 5px;
+                    background-color: #eef2ff;
+                }
+
+                .resolucion-label {
+                    font-size: 7pt;
+                    color: #6366f1;
+                    text-transform: uppercase;
+                    letter-spacing: 0.4px;
+                    margin-bottom: 2px;
+                }
+
+                .resolucion-value {
+                    font-size: 8.5pt;
+                    font-weight: bold;
+                    color: #1a1a2e;
+                }
+
+                .icon-box {
+                    background-color: #eef2ff;
+                    border-radius: 8px;
+                    width: 28px;
+                    height: 28px;
+                    text-align: center;
+                    vertical-align: middle;
+                    border: 1px solid #e1e5ff;
+                }
+
+                .icon-box img {
+                    margin-top: 6px;
+                }
+
+                .paciente-container td {
+                    vertical-align: middle;
+                }
+
+                .section-label {
+                    font-size: 7pt;
+                    color: #9aa0b5;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 2px;
+                }
+            </style>
+
+            <!-- ENCABEZADO -->
+            <div class="header">
+                <div class="icon">&#9989;</div>
+                <h1>¡Ya casi terminas!</h1>
+                <p>Verifica los datos antes de procesar el cobro.</p>
+            </div>
+
+            <!-- FOLIO Y FECHA -->
+            <div class="folio-box">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="label">Folio</div>
+                            <div class="value">{$folio}</div>
+                        </td>
+                        <td align="right">
+                            <div class="label">Fecha y Hora</div>
+                            <div class="value">{$fecha}</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <hr class="separator">
+
+            <!-- PACIENTE -->
+            <table class="paciente-container" style="width:100%; margin-bottom:4px;">
+                <tr>
+                    <td style="width:30px;">
+                        <div class="icon-box">
+                            <img src="data:image/png;base64,{$base_64_icono_paciente}" 
+                                width="14" 
+                                height="14"/>
+                        </div>
+                    </td>
+                    <td style="padding-left:8px;">
+                        <div class="section-label">Paciente</div>
+                        <div class="paciente-name">{$paciente}</div>
+                    </td>
+                </tr>
+            </table>
+
+            <hr class="separator">
+
+            <!-- SERVICIOS -->
+            <div class="section-label">Servicios Liquidados</div>
+            <table style="width:100%; margin-top:3px;">
+                <tr>
+                    <td>
+                        <span class="dot">&#9679;</span> {$servicios}
+                    </td>
+                    <td align="right" style="font-weight:bold;">{$subtotal}</td>
+                </tr>
+            </table>
+
+            <hr class="separator">
+
+            <!-- MÉTODOS DE PAGO -->
+            <div class="section-label">Método de Pago</div>
+            <table style="width:100%; margin-top:4px;">
+                {$metodos_pago}
+            </table>
+
+            <hr class="separator">
+
+            <!-- TOTALES -->
+            <table class="totals-table">
+                <tr>
+                    <td>Subtotal ({$num_citas} citas)</td>
+                    <td align="right">{$subtotal}</td>
+                </tr>
+                <tr>
+                    <td>Saldo a favor aplicado</td>
+                    <td align="right" class="descuento">{$saldo_favor}</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total a Pagar</td>
+                    <td align="right" class="amount">{$total}</td>
+                </tr>
+                <tr>
+                    <td>Monto Recibido</td>
+                    <td align="right">{$monto_rec}</td>
+                </tr>
+            </table>
+
+            <!-- EXCEDENTE -->
+            <div class="excedente-box">
+                <table>
+                    <tr>
+                        <td class="excedente-header">&#9673; Excedente Detectado</td>
+                        <td class="excedente-amount">{$excedente}</td>
+                    </tr>
+                </table>
+                <div class="resolucion-box">
+                    <div class="resolucion-label">Resolución Elegida</div>
+                    <div class="resolucion-value">{$resolucion}</div>
+                </div>
+            </div>
+
+            HTML;
+
+             // HTML generado a partir de la base de datos
+            $fecha  = str_replace('/','_','2026/03/28');
+            $folio  = str_replace('-','_',$folio);
+
+            $mpdf->WriteHTML($html);
+
+            // Guardar temporalmente en storage/tmp
+            //$nombre_archivo = 'receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+            $nombre_archivo = 'ticket_'.$folio.'_'.$fecha.'.pdf';
+            //$archivoTemp = MPDF_TEMP_DIR . '/receta_' .$id_agenda_cita. '_'.$fecha.'.pdf';
+            $archivoTemp = MPDF_TEMP_DIR .'/'.$nombre_archivo;
+            $mpdf->Output($archivoTemp, \Mpdf\Output\Destination::FILE);
+
+            return array(
+                'url_ticket'    => SELF::get_url_download('tickets',$nombre_archivo),
+                'msg_error'     => '',
+                'success'       => true
+            );
+
+        } catch(\Exception $e){
+            return array(
+                'url_receta'    => '',
+                'msg_error'     => $e->getMessage()
+            );
         }
-        
-        return sprintf("(%s) %s-%s", 
-            substr($telefonoLimpio, 0, 3),
-            substr($telefonoLimpio, 3, 3),
-            substr($telefonoLimpio, 6, 4)
-        );
-    }
-
-    public static function formatearFecha($fecha,$formato_retorno = null) {
-        if(empty($fecha)) return '';
-        $formato_retorno    = $formato_retorno != null ? $formato_retorno : "d/m/Y";
-        return date($formato_retorno, strtotime($fecha));
-    }
-
-    public static function formatoMonetario($numero, int $decimales = 2): string{
-        // Convertimos a número por seguridad
-        $numero = (float)$numero;
-
-        // Formato: miles con coma, decimales con punto
-        return number_format($numero, $decimales, '.', ',');
     }
 
 }

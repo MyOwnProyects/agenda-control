@@ -436,7 +436,7 @@ use App\Library\FuncionesGlobales;
 
                     <h5 class="fw-bold mb-1 text-dark" id="modalConfirmarPagoLabel"
                         style="font-size:1.3rem;">¡Ya casi terminas!</h5>
-                    <p class="small text-secondary mb-3">
+                    <p id="label_verifica_datos" class="small text-secondary mb-3">
                         Verifica los datos antes de procesar el cobro.
                     </p>
 
@@ -554,7 +554,7 @@ use App\Library\FuncionesGlobales;
                         <i class="bi bi-check-circle fs-5"></i>
                         Confirmar y Procesar Cobro
                     </button>
-                    <button type="button"
+                    <button type="button" id="close_modal"
                             class="btn btn-link text-indigo fw-bold text-decoration-none w-100"
                             data-bs-dismiss="modal">
                         Regresar a Editar
@@ -659,25 +659,37 @@ use App\Library\FuncionesGlobales;
                             d.accion    = 'get_rows';
                             d.folio     = '';
                             d.id_paciente   = $("#select_pacientes").val();
+                        },
+                        dataSrc: function(json) {
+                            $("#badge_num_abonos").text(json['recordsTotal']);
+                            
+                            return json.data; // IMPORTANTE retornar data
                         }
                     },
                     columns: [
                         { data: 'folio' }, // Columna 1
                         { data: 'nombre_usuario' }, // Columna 1
                         { data: 'label_fecha' }, // Columna 1
-                        { data: 'total_pagar' }, // Columna 1
+                        { data: 'monto_recibido' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
                             orderable: false, // Desactiva el ordenamiento para esta columna
                             render: function (data, type, row) {
                                 draw    ++;
-                                return '';
+                                let btn_preview     = ' <button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                                        '   <i class="bi bi-search"></i>'+
+                                                    '   </button>';
+
+                                let btn_download    = ' <button class="btn btn-outline-dark btn-sm btn_download" data-id="'+data['id']+'" title="Descargar Ticket">' +
+                                                        '   <i class="bi bi-download"></i>'+
+                                                    '   </button>'; 
+                                return btn_preview + btn_download;
                             }
                         }
                     ],
                     createdRow: function (row, data, dataIndex) {
-                        
+                        $(row).data('rowData', data);
                     }
                 });
             } else {
@@ -725,23 +737,8 @@ use App\Library\FuncionesGlobales;
                     cache: true
                 }
             }).on('select2:select',function(){
-                $.ajax({
-                    url         : url_index,
-                    method      : 'post',
-                    dataType    : 'json' ,
-                    data        : {
-                        accion      : 'get_citas_adeudos',
-                        id_paciente : $("#select_pacientes").val()
-                    },
-                    success     : function(data){
-                        show_table_citas(data);
-                        cargarTabla();
-                    },
-                    error       : function(error){
-                        console.log('data');
-                        console.log(data);
-                    }
-                })
+                clear_view();
+                ajax_get_info_paciente();
             });
 
             //  EVENTOS DE TABS
@@ -914,7 +911,75 @@ use App\Library\FuncionesGlobales;
                 })
                 
             });
+
+            //  EVENTOS DATAtABLE
+            $("#table_results").on('click','.btn_preview',function(){
+                let row_data    = $(this).closest('tr').data('rowData');
+                let detalle     = row_data['detalle'];
+                detalle         = JSON.parse(detalle);
+                detalle['folio']    = row_data['folio'];
+
+                show_modal_ticket(detalle,row_data['nombre_completo']);
+                
+            });
+
+            //  EVENTOS DATAtABLE
+            $("#table_results").on('click','.btn_download',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                let row_data    = $(this).closest('tr').data('rowData');
+                let detalle     = row_data['detalle'];
+                detalle         = JSON.parse(detalle);
+                detalle['folio']    = row_data['folio'];
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion      : 'download_ticket',
+                        folio       : detalle['folio'],
+                        detalle     : detalle,
+                        info_data   : row_data
+                    },
+                    success     : function(data){
+                        console.log('data');
+                        console.log(data);
+                        window.open(data['url_ticket'], '_blank');
+                        $(btn).prop('disabled',false);
+                    },
+                    error       : function(error){
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                });
+                
+            });
         });
+
+        //  AJAX PARA OBTENER LA INFORAMCION DEL PACIENTE
+        function ajax_get_info_paciente(){
+            $.ajax({
+                url         : url_index,
+                method      : 'post',
+                dataType    : 'json' ,
+                data        : {
+                    accion      : 'get_citas_adeudos',
+                    id_paciente : $("#select_pacientes").val()
+                },
+                success     : function(data){
+                    show_table_citas(data);
+                    cargarTabla();
+                },
+                error       : function(error){
+                    console.log('error');
+                    console.log(error);
+                    actionJsonError(error,btn);
+                }
+            });
+        }
 
         //  
         function show_table_citas(info_paciente){
@@ -924,6 +989,9 @@ use App\Library\FuncionesGlobales;
 
             //  SE MUESTRA EL SALDO A FAVOR
             $("#span_saldo_favor").text('-$'+formatoDinero(saldo_favor));
+
+            //  NUMERO DE CITAS
+            $("#badge_num_citas").text(Object.keys(info_citas).length);
 
             if (Object.keys(info_citas).length == 0){
                 $("#row_sin_registros").show();
@@ -1116,10 +1184,6 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
-            console.log('obj_totales_calculados');
-            console.log(obj_totales_calculados);
-            console.log('obj_citas_saldos');
-            console.log(obj_citas_saldos);
             let nombre_paciente = $("#select_pacientes").find('option:selected').text();
             nombre_paciente     = nombre_paciente.split('-')[1].trim();
 
@@ -1200,8 +1264,10 @@ use App\Library\FuncionesGlobales;
                         nombre_paciente     : nombre_paciente
                     },
                     success     : function(data){
-                        console.log('data');
-                        console.log(data);
+                        showAlert("success",'Captura Exitosa!');
+                        $(modal_clone).modal('hide');
+                        clear_view();
+                        ajax_get_info_paciente();
                     },
                     error       : function(error){
                         actionJsonError(error,btn);
@@ -1210,6 +1276,100 @@ use App\Library\FuncionesGlobales;
             });
 
             $(modal_clone).modal('show');
+        }
+
+        //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
+        function show_modal_ticket(detalle,nombre_paciente){
+
+            let modal_clone = $("#modalConfirmarPago").clone().removeAttr('id');
+
+            $(modal_clone).find('#label_verifica_datos').text('');
+            $(modal_clone).find('#btn_confirmar_pago').remove();
+            $(modal_clone).find('#close_modal').text('Cerrar');
+
+            $(modal_clone).find('#modalConfirmarPagoLabel').text('¡Pago realizado!');
+
+            $(modal_clone).find("#ticket_folio").text(detalle['folio'])
+            $(modal_clone).find('#ticket_fecha').text(detalle['fecha_hora']);
+            $(modal_clone).find('#ticket_paciente').text(nombre_paciente);
+
+            for(let servicio of detalle['servicios']){
+                $(modal_clone).find('#ticket_servicios').append(`
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width:.5rem;height:.5rem;border-radius:50%;
+                                        background:#4f46e5;flex-shrink:0;display:inline-block;"></span>
+                            <span class="fw-medium">${servicio.servicio} 
+                            <span class="small text-secondary">X${servicio.num_servicios}</span>
+                            </span>
+                        </div>
+                        <span class="text-secondary">${'$'+formatoDinero(servicio.total)}</span>
+                    </div>
+                `);
+            }
+
+            let mensaje = detalle['num_citas'] == 1 ? 'cita' : 'citas';
+
+            if (detalle['pago_efectivo'] > 0){
+                $(modal_clone).find('.div_efectivo').removeClass('d-none').find('#ticket_efectivo').text('$'+formatoDinero(detalle['pago_efectivo']));
+            }
+
+            if (detalle['pago_tarjeta'] > 0){
+                $(modal_clone).find('.div_tarjeta').removeClass('d-none').find('#ticket_tarjeta').text('$'+formatoDinero(detalle['pago_tarjeta']));
+            }
+
+            if (detalle['pago_transferencia'] > 0){
+                $(modal_clone).find('.div_transferencia').removeClass('d-none').find('#ticket_transferencia').text('$'+formatoDinero(detalle['pago_transferencia']));
+            }
+
+            $(modal_clone).find("#ticket_num_citas").text('Subtotal ('+detalle['num_citas']+' '+mensaje+')');
+            $(modal_clone).find('#ticket_subtotal').text('$'+formatoDinero(detalle['subtotal_calculado']));
+            $(modal_clone).find('#ticket_saldo_favor').text('$'+formatoDinero(detalle['saldo_favor']));
+            $(modal_clone).find('#ticket_total').text('$'+formatoDinero(detalle['total_pagar']));
+            $(modal_clone).find('#ticket_monto_recibido').text('$'+formatoDinero(detalle['monto_recibido']));
+
+            if (detalle['excedente'] > 0){
+                $(modal_clone).find('#ticket_box_excedente').removeClass('d-none').find('#ticket_excedente_monto').text('$'+formatoDinero(detalle['excedente']));
+                $(modal_clone).find('#ticket_excedente_label').text(detalle['accion_excedente'] == 'saldo_favor' ? 'Saldo a favor' : 'Devolver cambio');
+            }
+
+            $(modal_clone).modal('show');
+        }
+
+        //  FUNCION PARA LIMPIAR TODO LO VISUAL
+        function clear_view(){
+            //  BORRAR TODO DESDE EL CHECKED
+            if ($("#check_todas_citas").prop('checked') == false){
+                $("#check_todas_citas").prop('checked',true).trigger('click');
+            } else {
+                $("#check_todas_citas").trigger('click');
+            }
+            
+            $("#body_table").find('.row_cita').remove();
+            $("#body_table").find('#row_sin_registros').show();
+
+            //  SALDO A FAVOR DEL PACIENTE
+            saldo_favor         = 0;
+            sub_total_calculado = 0;
+            total_calculado     = 0;
+
+            //  OBJETO CON TODOS LOS CALCULOS ALMACENADOS PARA EVITAR RECALCULO
+            obj_totales_calculados  = {
+                num_citas           : 0,
+                servicios           : [],
+                subtotal_calculado  : 0,
+                saldo_favor         : 0,
+                total_pagar         : 0,
+                pago_efectivo       : 0,
+                pago_transferencia  : 0,
+                pago_tarjeta        : 0,
+                monto_recibido      : 0,
+                excedente           : 0,
+                accion_excedente    : null
+            };
+
+            //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
+            obj_citas_saldos    = [];
         }
     })();
 </script>
