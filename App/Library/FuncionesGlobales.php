@@ -836,6 +836,9 @@ class FuncionesGlobales{
     }
 
     public static function formatoMonetario($numero, int $decimales = 2): string{
+        
+        if (!is_numeric($numero) || empty($numero)) return $numero;
+        
         // Convertimos a número por seguridad
         $numero = (float)$numero;
 
@@ -1168,199 +1171,279 @@ class FuncionesGlobales{
     public static function create_pdf_ticket($folio){
         try{
 
+            $di = Di::getDefault(); // Se usa en lugar de $this->getDI()
+
+            // OBTENER CONFIGURACIONES
+            $rutas      = $di->get('rutas');
+            $config     = $di->get('config');
+            $url_api    = $config['BASEAPI'];
+
+            //  SE BUSCA LA INFORMACION DE LA RECETA A IMPRIMIR
+            $result = SELF::RequestApi('GET',$url_api.$rutas['caja']['tickets_show'],array(
+                'folio' => $folio
+            ));
+
+            if ($result == null || !is_array($result) || count($result) == 0){
+                throw new Exception("Error al obtener la información de la receta");
+            }
+
+            $result     = $result[0];
+            $detalle    = json_decode($result['detalle'],true);
+
             //  IMAGENES BASE64
-            $base_64_icono_paciente = "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";
-            $base_64_icono_check    = "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";
+            $base_64_icono_paciente     = "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";
+            $base_64_icono_check        = "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";
+            $base_64_icono_excedente    = "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";
+            $logo_cliente = 'data:image/png;base64,' . base64_encode(
+                file_get_contents(IMAGES_DIR . '/imagen_cliente.png')
+            );
 
             $mpdf = new \Mpdf\Mpdf([
-                'format'        => [105, 180], // [ancho, alto] en mm
+                'format'        => [85, 180],
                 'margin_left'   => 6,
                 'margin_right'  => 6,
                 'margin_top'    => 6,
                 'margin_bottom' => 6,
                 'default_font'  => 'dejavusans',
-                'tempDir' => MPDF_TEMP_DIR
+                'tempDir'       => MPDF_TEMP_DIR
             ]);
+ 
 
-            // Datos del ticket (reemplaza con tus variables dinámicas)
-            //$folio        = 'F-10294';
-            $fecha        = '09/03/2026 10:15 AM';
-            $paciente     = 'Acosta Carrillo Iker';
-            $servicios    = 'PSI - Consulta x2';
-            $subtotal     = '$600.00';
-            $descuento    = '-$50.00';
-            $total        = '$550.00';
-            $monto_rec    = '$700.00';
-            $excedente    = '$150.00';
-            $resolucion   = 'Abonado a Saldo a Favor';
+            // ─────────────────────────────────────────────
+            // VARIABLES DINÁMICAS  (reemplaza con las tuyas)
+            // ─────────────────────────────────────────────
+            $fecha       = $result['label_fecha'];
+            $paciente    = $result['nombre_completo'];
+            $num_citas   = $detalle['num_citas'];
+            $subtotal    = '$'.SELF::formatoMonetario($detalle['subtotal_calculado']);
+            $saldo_favor = '$'.SELF::formatoMonetario($detalle['saldo_favor']);
+            $total       = '$'.SELF::formatoMonetario($detalle['total_pagar']);
+            $monto_rec   = '$'.SELF::formatoMonetario($detalle['monto_recibido']);
+            $excedente   = '$'.SELF::formatoMonetario($detalle['excedente']);
+            $resolucion  = '';
+            
+            // Servicios: array de ['nombre' => '...', 'precio' => '...']
+            $servicios = $detalle['servicios'];
+            
+            // Métodos de pago: array de ['metodo' => '...', 'monto' => '...']
+            $metodos_pago = array();
 
+            if (!empty($detalle['pago_efectivo']) && $detalle['pago_efectivo'] > 0){
+                $metodos_pago[] = array(
+                    'metodo'    => 'EFECTIVO',
+                    'monto'     => SELF::formatoMonetario($detalle['pago_efectivo']),
+                );
+            }
+
+            if (!empty($detalle['pago_transferencia']) && $detalle['pago_transferencia'] > 0){
+                $metodos_pago[] = array(
+                    'metodo'    => 'TRANSFERENCIA',
+                    'monto'     => SELF::formatoMonetario($detalle['pago_transferencia']),
+                );
+            }
+            
+            // ─────────────────────────────────────────────
+            // Íconos en base64 inline (SVG pequeños convertidos)
+            // Puedes reemplazar $icon_check e $icon_paciente con tus propios base64
+            // ─────────────────────────────────────────────
+            
+            // Ícono check (checkbox con paloma) — SVG inline como data URI
+            $icon_check = 'data:image/png;base64,'.$base_64_icono_check;
+            
+            // Ícono paciente — silueta simple
+            $icon_paciente = 'data:image/png;base64,'.$base_64_icono_paciente;
+            
+            // Ícono excedente — caja/clipboard
+            $icon_excedente = 'data:image/png;base64,' . $base_64_icono_excedente;
+            
+            // ─────────────────────────────────────────────
+            // Construir filas dinámicas
+            // ─────────────────────────────────────────────
+            $servicios_html = '';
+            foreach ($servicios as $s) {
+                $servicios_html .= '
+                    <tr>
+                        <td style="padding:3px 0; vertical-align:middle;">
+                            <span style="color:#5c6bc0; font-size:9pt; margin-right:5px;">&#9679;</span>
+                            <span style="font-size:9pt; color:#1a1a2e;">' . htmlspecialchars($s['servicio']) . '</span>
+                            <span style="font-size:7pt; color:#9aa0b5;"> X' . $s['num_servicios'] . '</span>
+                        </td>
+                        <td align="right" style="padding:3px 0; font-size:9pt; color:#1a1a2e;">$' . SELF::formatoMonetario($s['total']) . '</td>
+                    </tr>';
+            }
+            
+            $pagos_html = '';
+            foreach ($metodos_pago as $p) {
+                $pagos_html .= '
+                <tr>
+                    <td style="padding:3px 0; font-size:9pt; color:#333;">' . htmlspecialchars($p['metodo']) . '</td>
+                    <td align="right" style="padding:3px 0; font-size:9pt; color:#1a1a2e;">$' . htmlspecialchars($p['monto']) . '</td>
+                </tr>';
+            }
+
+            $excedente_html = "";
+
+            if (is_numeric($detalle['excedente']) && $detalle['excedente'] > 0){
+                if ($detalle['accion_excedente'] == 'saldo_favor'){
+                    $resolucion = 'Saldo a favor';
+                } else {
+                    $resolucion = 'Devolver cambio';
+                }
+
+                $excedente_html = '
+                    <div class="excedente-box">
+                        <table>
+                            <tr>
+                                <td class="excedente-header">
+                                    <img src="{'.$icon_excedente.'}" width="26" height="14" style="vertical-align:middle; margin-right:5px;" />
+                                    <span style="vertical-align:middle;">Excedente</span>
+                                </td>
+                                <td class="excedente-amount">'.$excedente.'</td>
+                            </tr>
+                        </table>
+                        <div class="resolucion-box">
+                            <div class="resolucion-label">Resolución elegida</div>
+                            <div class="resolucion-value">'.$resolucion.'</div>
+                        </div>
+                    </div>
+                ';
+            }
+            
+            // ─────────────────────────────────────────────
+            // HTML del ticket
+            // ─────────────────────────────────────────────
             $html = <<<HTML
             <style>
                 * {
                     font-family: DejaVu Sans, sans-serif;
                     box-sizing: border-box;
                 }
-
                 body {
                     font-size: 9pt;
                     color: #1a1a2e;
                     margin: 0;
-                    padding: 0;
+                    padding: 12px;
+                    background: #ffffff;
                 }
-
+            
                 /* ── Encabezado ── */
                 .header {
                     text-align: center;
-                    margin-bottom: 10px;
+                    margin-bottom: 12px;
+                    padding-top: 4px;
                 }
-
-                .header .icon {
-                    font-size: 18pt;
-                    color: #5c6bc0;
+                .header-icon-wrap {
+                    display: inline-block;
+                    width: 42px;
+                    height: 42px;
+                    border-radius: 50%;
+                    text-align: center;
+                    vertical-align: middle;
+                    margin-bottom: 6px;
                 }
-
                 .header h1 {
-                    font-size: 13pt;
+                    font-size: 12pt;
                     font-weight: bold;
-                    margin: 4px 0 2px;
+                    margin: 0 0 2px;
                     color: #1a1a2e;
                 }
-
-                .header p {
-                    font-size: 8pt;
-                    color: #666;
-                    margin: 0;
-                }
-
-                /* ── Caja folio/fecha ── */
+            
+                /* ── Folio/fecha ── */
                 .folio-box {
                     background-color: #f4f5fb;
                     border-radius: 6px;
                     padding: 7px 10px;
-                    margin-bottom: 10px;
+                    margin-bottom: 12px;
                 }
-
-                .folio-box table {
-                    width: 100%;
-                }
-
-                .folio-box .label {
+                .folio-box table { width: 100%; }
+                .folio-label {
                     font-size: 7pt;
-                    color: #888;
-                    text-transform: uppercase;
-                    letter-spacing: 0.4px;
-                }
-
-                .folio-box .value {
-                    font-size: 9pt;
-                    font-weight: bold;
-                    color: #1a1a2e;
-                }
-
-                /* ── Separador punteado ── */
-                .separator {
-                    border: none;
-                    height: 1px;
-                    background-image: linear-gradient(
-                        to right,
-                        #cfd3f7 50%,
-                        rgba(255,255,255,0) 0%
-                    );
-                    background-size: 6px 1px;
-                    background-repeat: repeat-x;
-                    margin: 10px 0;
-                }
-
-                /* ── Paciente ── */
-                .section-label {
-                    font-size: 7pt;
-                    color: #888;
+                    color: #9aa0b5;
                     text-transform: uppercase;
                     letter-spacing: 0.4px;
                     margin-bottom: 2px;
                 }
-
-                .paciente-name {
-                    font-size: 10pt;
+                .folio-value {
+                    font-size: 8pt;
                     font-weight: bold;
                     color: #1a1a2e;
                 }
-
-                /* ── Servicios ── */
-                .dot {
-                    color: #5c6bc0;
-                    font-size: 10pt;
-                    margin-right: 4px;
+            
+                /* ── Separador ── */
+                .separator {
+                    border: none;
+                    border-top: 1px dashed #c7cff5;
+                    margin: 10px 0;
                 }
-
-                /* ── Métodos de pago ── */
-                .metodo-row td {
-                    font-size: 9pt;
-                    padding: 2px 0;
-                    color: #333;
+            
+                /* ── Sección labels ── */
+                .section-label {
+                    font-size: 7pt;
+                    color: #9aa0b5;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 4px;
                 }
-
+            
+                /* ── Paciente ── */
+                .paciente-wrap { width: 100%; margin-bottom: 2px; }
+                .icon-box {
+                    
+                    border-radius: 6px;
+                    width: 28px;
+                    height: 28px;
+                    text-align: center;
+                    vertical-align: middle;
+                    
+                }
+                .paciente-name {
+                    font-size: 8pt;
+                    font-weight: bold;
+                    color: #1a1a2e;
+                }
+            
                 /* ── Totales ── */
-                .totals-table {
-                    width: 100%;
-                    margin-top: 4px;
-                }
-
-                .totals-table td {
-                    font-size: 9pt;
-                    padding: 2px 0;
-                    color: #333;
-                }
-
-                .totals-table .descuento {
-                    color: #e53935;
-                }
-
-                .totals-table .total-row td {
+                .totals-table { width: 100%; margin-top: 2px; }
+                .totals-table td { font-size: 9pt; padding: 3px 0; color: #333; }
+                .saldo-favor-amt { color: #e53935; }
+                .total-row td {
                     font-size: 11pt;
                     font-weight: bold;
                     color: #1a1a2e;
-                    padding-top: 4px;
+                    padding-top: 5px;
+                    border-top: 1px solid #eee;
                 }
-
-                .totals-table .total-row .amount {
-                    color: #5c6bc0;
-                }
-
+                .total-row .amount { color: #5c6bc0; }
+            
                 /* ── Excedente ── */
                 .excedente-box {
                     border: 1.5px solid #c7d2fe;
                     border-radius: 6px;
-                    padding: 7px 10px;
-                    margin-top: 8px;
-                    background-color: #ffffff;
+                    padding: 8px 10px;
+                    margin-top: 10px;
+                    background-color: #f4f5fb; /* asegúrate que sea blanco */
                 }
-
-                .excedente-box table {
-                    width: 100%;
-                }
-
+                .excedente-box table { width: 100%; }
                 .excedente-header {
                     font-size: 9pt;
                     color: #4f46e5;
                     font-weight: bold;
+                    vertical-align: middle;
                 }
-
                 .excedente-amount {
                     font-size: 10pt;
                     font-weight: bold;
                     color: #4f46e5;
                     text-align: right;
+                    vertical-align: middle;
                 }
-
                 .resolucion-box {
-                    border: 1.2px solid #c7d2fe;
+                    border: 1px solid #c7d2fe;
                     border-radius: 4px;
                     padding: 5px 8px;
-                    margin-top: 5px;
-                    background-color: #eef2ff;
+                    margin-top: 6px;
+                    background-color: #ffffff; /* cambia de #eef2ff a blanco */
                 }
-
                 .resolucion-label {
                     font-size: 7pt;
                     color: #6366f1;
@@ -1368,106 +1451,98 @@ class FuncionesGlobales{
                     letter-spacing: 0.4px;
                     margin-bottom: 2px;
                 }
-
                 .resolucion-value {
-                    font-size: 8.5pt;
+                    font-size: 9pt;
                     font-weight: bold;
                     color: #1a1a2e;
                 }
-
-                .icon-box {
-                    background-color: #eef2ff;
-                    border-radius: 8px;
-                    width: 28px;
-                    height: 28px;
-                    text-align: center;
-                    vertical-align: middle;
-                    border: 1px solid #e1e5ff;
-                }
-
-                .icon-box img {
-                    margin-top: 6px;
-                }
-
-                .paciente-container td {
-                    vertical-align: middle;
-                }
-
-                .section-label {
-                    font-size: 7pt;
-                    color: #9aa0b5;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    margin-bottom: 2px;
-                }
             </style>
-
-            <!-- ENCABEZADO -->
+            
+            <!-- ═══ ENCABEZADO ═══ -->
             <div class="header">
-                <div class="icon">&#9989;</div>
-                <h1>¡Ya casi terminas!</h1>
-                <p>Verifica los datos antes de procesar el cobro.</p>
-            </div>
 
-            <!-- FOLIO Y FECHA -->
+                <!-- Logo cliente arriba a la izquierda -->
+                <table style="width:100%; margin-bottom:6px;">
+                    <tr>
+                        <td style="width:60px; vertical-align:middle;">
+                            <img src="{$logo_cliente}" width="60" height="50" style="object-fit:contain;" />
+                        </td>
+                        <td align="center" style="vertical-align:middle;">
+                            <div class="header-icon-wrap">
+                                <img src="{$icon_check}" width="22" height="22" style="margin-top:10px;" />
+                            </div>
+                        </td>
+                        <td style="width:70px;"></td>
+                    </tr>
+                </table>
+
+                <h1>&#161;Pago realizado!</h1>
+            </div>
+            
+            <!-- ═══ FOLIO / FECHA ═══ -->
             <div class="folio-box">
                 <table>
                     <tr>
                         <td>
-                            <div class="label">Folio</div>
-                            <div class="value">{$folio}</div>
+                            <div class="folio-label">Folio</div>
+                            <div class="folio-value">{$folio}</div>
                         </td>
                         <td align="right">
-                            <div class="label">Fecha y Hora</div>
-                            <div class="value">{$fecha}</div>
+                            <div class="folio-label">Fecha y Hora</div>
+                            <div class="folio-value">{$fecha}</div>
                         </td>
                     </tr>
                 </table>
             </div>
-
+            
             <hr class="separator">
-
-            <!-- PACIENTE -->
-            <table class="paciente-container" style="width:100%; margin-bottom:4px;">
+            
+            <!-- ═══ PACIENTE ═══ -->
+            <table class="paciente-wrap">
                 <tr>
                     <td style="width:30px;">
                         <div class="icon-box">
-                            <img src="data:image/png;base64,{$base_64_icono_paciente}" 
-                                width="14" 
-                                height="14"/>
+                            <table style="width:100%; height:28px;">
+                                <tr>
+                                    <td align="center" style="vertical-align:middle;">
+                                        <img src="{$icon_paciente}" width="14" height="14" />
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </td>
-                    <td style="padding-left:8px;">
-                        <div class="section-label">Paciente</div>
-                        <div class="paciente-name">{$paciente}</div>
+                    <td style="padding-left:8px; vertical-align:middle;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                <td style="font-size:7pt; color:#9aa0b5; text-transform:uppercase; letter-spacing:0.5px; padding-bottom:4px;">Paciente</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:8pt; font-weight:bold; color:#1a1a2e;">{$paciente}</td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>
-
+            
             <hr class="separator">
-
-            <!-- SERVICIOS -->
-            <div class="section-label">Servicios Liquidados</div>
-            <table style="width:100%; margin-top:3px;">
-                <tr>
-                    <td>
-                        <span class="dot">&#9679;</span> {$servicios}
-                    </td>
-                    <td align="right" style="font-weight:bold;">{$subtotal}</td>
-                </tr>
+            
+            <!-- ═══ SERVICIOS ═══ -->
+            <div class="section-label">Servicios</div>
+            <table style="width:100%; margin-top:2px;">
+                {$servicios_html}
             </table>
-
+            
             <hr class="separator">
-
-            <!-- MÉTODOS DE PAGO -->
-            <div class="section-label">Método de Pago</div>
+            
+            <!-- ═══ MÉTODO DE PAGO ═══ -->
+            <div class="section-label">Método de pago</div>
             <table style="width:100%; margin-top:4px;">
-                {$metodos_pago}
+                {$pagos_html}
             </table>
-
+            
             <hr class="separator">
-
-            <!-- TOTALES -->
+            
+            <!-- ═══ TOTALES ═══ -->
             <table class="totals-table">
                 <tr>
                     <td>Subtotal ({$num_citas} citas)</td>
@@ -1475,32 +1550,21 @@ class FuncionesGlobales{
                 </tr>
                 <tr>
                     <td>Saldo a favor aplicado</td>
-                    <td align="right" class="descuento">{$saldo_favor}</td>
+                    <td align="right" class="saldo-favor-amt">{$saldo_favor}</td>
                 </tr>
                 <tr class="total-row">
-                    <td>Total a Pagar</td>
-                    <td align="right" class="amount">{$total}</td>
+                    <td><strong>Total a Pagar</strong></td>
+                    <td align="right" class="amount"><strong>{$total}</strong></td>
                 </tr>
                 <tr>
-                    <td>Monto Recibido</td>
-                    <td align="right">{$monto_rec}</td>
+                    <td style="padding-top:4px;">Monto Recibido</td>
+                    <td align="right" style="padding-top:4px;">{$monto_rec}</td>
                 </tr>
             </table>
-
-            <!-- EXCEDENTE -->
-            <div class="excedente-box">
-                <table>
-                    <tr>
-                        <td class="excedente-header">&#9673; Excedente Detectado</td>
-                        <td class="excedente-amount">{$excedente}</td>
-                    </tr>
-                </table>
-                <div class="resolucion-box">
-                    <div class="resolucion-label">Resolución Elegida</div>
-                    <div class="resolucion-value">{$resolucion}</div>
-                </div>
-            </div>
-
+            
+            <!-- ═══ EXCEDENTE ═══ -->
+            {$excedente_html}
+            
             HTML;
 
              // HTML generado a partir de la base de datos

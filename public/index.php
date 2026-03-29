@@ -11,6 +11,7 @@ ini_set('session.cookie_lifetime', 0);      // Cierra con navegador
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/App');
 define('MPDF_TEMP_DIR', BASE_PATH . '/storage/files/tmp');
+define('IMAGES_DIR', BASE_PATH . '/storage/imagenes');
 
 
 // INCLUIR AUTOLOAD
