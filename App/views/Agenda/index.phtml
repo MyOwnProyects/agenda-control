@@ -1777,6 +1777,10 @@ use App\Library\FuncionesGlobales;
     //  CITAS FUERA DE HORARIO
     let arr_citas_fuera_horario = [];
 
+    //  DIAS INHABILES, ESTOS SON LOS DIAS EN NUMERO 1..7
+    let dias_inhabiles      = [];
+    let tmp_dias_inhabiles  = [];
+
     //  RETORNA LA CLASE DEL COLOR BACKGROUND DEL DIV FLOTANTE
     function background_tipo_cita(info_cita){
         //  VALOR POR DEFECTO
@@ -1841,7 +1845,7 @@ use App\Library\FuncionesGlobales;
 
                         let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
 
-                        if (!diasPermitidos.includes(diaActual)) {
+                        if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                             continue;
                         }
 
@@ -1871,7 +1875,7 @@ use App\Library\FuncionesGlobales;
                     $(div_header).find('.div_header_days_container').each(function(){
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
-                        if (!diasPermitidos.includes(diaActual)) {
+                        if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                             $(this).addClass('hide');
                             return true;
                         } else {
@@ -2523,7 +2527,7 @@ use App\Library\FuncionesGlobales;
             $(template_days_container).find('.titulo').text(info_horario['titulo']);
             $(template_week_container).find('.shift-title').text(info_horario['titulo']);
 
-            if (diasPermitidos.includes(diaActual)) {
+            if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide').show();
             } else {
                $(template_days_container).addClass('hide');
@@ -2579,6 +2583,9 @@ use App\Library\FuncionesGlobales;
                 rango_fechas    : rango_semana_actual
             },
             success : function(data){
+                dias_inhabiles  = data['dias_inhabiles'];
+                data    = data['info_horario'];
+                console.log('dias_inhabiles data',dias_inhabiles);
                 if (modal_clone == null){
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;
@@ -2639,7 +2646,7 @@ use App\Library\FuncionesGlobales;
                         $("#modal_create_cita_fuera_horario").find("#select_profesional_modal_cfh").append(options);
                     }
                     // $(modal_clone).find('.floating-box').remove();
-                    setTimeout(show_calendar($("#div_header_agenda"),data,id_locacion),500);
+                    setTimeout(show_calendar($("#div_header_agenda"),data),500);
 
                     //  SE PINTA EL NUMERO DE CITAS FUERA DE HORARIO
                     if (typeof data['citas_fuera_horario'] != "undefined"){
@@ -2663,7 +2670,7 @@ use App\Library\FuncionesGlobales;
 
                         let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
 
-                        if (diasPermitidos.includes(diaActual)) {
+                        if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                             $(template_days_container).removeClass('hide');
                             $(template_days_container).css('display','show');
                         } else {
@@ -2706,7 +2713,7 @@ use App\Library\FuncionesGlobales;
                 
             },
             error   : function(error){
-                console.log('error');
+                console.log('error aqui');
                 console.log(error);
 
                 showAlert('danger',error.responseText);
@@ -2720,6 +2727,16 @@ use App\Library\FuncionesGlobales;
 
                 $(".div_principal_filter").find('#select_profesionales_modal').val(null).trigger('change');
                 $(".div_principal_filter").find('#select_profesionales_modal').prop('disabled',true).find('option').remove();
+
+                //  LIMPIAR DATA ACTUAL
+                citas_desglosadas       = {};
+                arr_citas_fuera_horario = [];
+                horario_atencion        = {};
+                //horario_no_disponible   = {};
+                console.log('horario_no_disponible',horario_no_disponible);
+
+                $(".watermark-message").show();
+                $("#div_header_agenda").find('.div_header_days_container').addClass('hide');
             }
         });
     }
@@ -3553,6 +3570,7 @@ use App\Library\FuncionesGlobales;
         let max_hora_inicio_modal   = '';
         let id_template_cita        = '';  
         tmp_fecha_actual            = fechaActual;
+        tmp_dias_inhabiles          = dias_inhabiles.map(x => x);
 
         citas_desglosadas       = {};
         //profesionales           = info_profesional['info_ajax']['all_professionals'];
@@ -3620,7 +3638,7 @@ use App\Library\FuncionesGlobales;
 
             $(template_days_container).find('.titulo').text(info_horario['titulo']);
 
-            if (diasPermitidos.includes(diaActual)) {
+            if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide');
                 $(template_days_container).css('display','show');
             } else {
@@ -3750,7 +3768,8 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_cambiar_dia').hide();
                 //  SE REHACE LA INFORMACION DEL DIV DE FECHA
                 // Tu código aquí
-                fechaActual = tmp_fecha_actual;
+                fechaActual     = tmp_fecha_actual;
+                dias_inhabiles  = tmp_dias_inhabiles.map(x => x);
 
                 //  SE SELECCIONA NUEVAMENTE EL PROFESIONAL
                 $(modal_clone).find("#select_profesionales_modal").val(id_profesional).trigger('change');
@@ -3772,7 +3791,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_header_days_container').each(function(){
                     let id_horario_atencion = $(this).data('idhorarioatencion');
                     let diasPermitidos      = $(this).data('dias');
-                    if (!diasPermitidos.includes(diaActual)) {
+                    if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                         $(this).addClass('hide');
                         return true;
                     } else {
@@ -3811,7 +3830,8 @@ use App\Library\FuncionesGlobales;
         $(modal_clone).find("#btn-hoy").on('click',function(){
             //  SE REHACE LA INFORMACION DEL DIV DE FECHA
             // Tu código aquí
-            fechaActual = tmp_fecha_actual;
+            fechaActual     = tmp_fecha_actual;
+            dias_inhabiles  = tmp_dias_inhabiles.map(x => x);
 
             //  CITAS POR DIA
             //citas_desglosadas   = tmp_citas_desglosadas.map(obj => ({ ...obj }));
@@ -3830,7 +3850,7 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('.div_header_days_container').each(function(){
                 let id_horario_atencion = $(this).data('idhorarioatencion');
                 let diasPermitidos      = $(this).data('dias');
-                if (!diasPermitidos.includes(diaActual)) {
+                if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                     $(this).addClass('hide');
                     return true;
                 } else {
@@ -4084,7 +4104,8 @@ use App\Library\FuncionesGlobales;
                 },
                 success : function(data){
                     // Tu código aquí
-                    fechaActual = tmp_fecha_actual;
+                    fechaActual     = tmp_fecha_actual;
+                    dias_inhabiles  = tmp_dias_inhabiles.map(x => x);
 
                     //  CITAS POR DIA
                     //citas_desglosadas       = tmp_citas_desglosadas.map(obj => ({ ...obj }));
@@ -4147,7 +4168,8 @@ use App\Library\FuncionesGlobales;
         })
 
         $(modal_clone).on('hidden.bs.modal', function (e) {
-            fechaActual = tmp_fecha_actual;
+            fechaActual     = tmp_fecha_actual;
+            dias_inhabiles  = tmp_dias_inhabiles.map(x => x);
             get_rango_semana(fechaActual);
 
             //  CITAS POR DIA
@@ -4280,7 +4302,7 @@ use App\Library\FuncionesGlobales;
 
             let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
 
-            if (!diasPermitidos.includes(diaActual)) {
+            if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                 continue;
             }
 
@@ -4911,6 +4933,7 @@ use App\Library\FuncionesGlobales;
     function show_modal_crear_cita_fuera_horario(info_cita = null){
         let modal_clone     = $("#modal_create_cita_fuera_horario").clone().show();
         tmp_fecha_actual    = fechaActual;
+        tmp_dias_inhabiles  = dias_inhabiles.map(x => x);
         let fecha_actual    = formatearFecha(fechaActual);
         let tr_citas_activas    = '';
         $(modal_clone).find("#fecha-actual").text(formatearFecha(fechaActual));
@@ -5250,7 +5273,8 @@ use App\Library\FuncionesGlobales;
                 success : function(data){
                     $(btn).prop('disabled',false);
                     // Tu código aquí
-                    fechaActual = tmp_fecha_actual;
+                    fechaActual     = tmp_fecha_actual;
+                    dias_inhabiles  = tmp_dias_inhabiles.map(x => x);
 
                     $(modal_clone).modal('hide');
                     showAlert('success',data);
@@ -5284,7 +5308,8 @@ use App\Library\FuncionesGlobales;
 
         $(modal_clone).on('hidden.bs.modal', function (e) {
             // Tu código aquí
-            fechaActual = tmp_fecha_actual;
+            fechaActual     = tmp_fecha_actual;
+            dias_inhabiles  = tmp_dias_inhabiles.map(x => x);
             get_rango_semana(fechaActual);
 
             //  CITAS POR DIA
@@ -5544,6 +5569,8 @@ use App\Library\FuncionesGlobales;
                     rango_fechas    : rango_semana_actual
                 },
                 success : function(data){
+                    dias_inhabiles  = data['dias_inhabiles'];
+                    data            = data['info_horario'];
                     let tmp_horario_atencion    = data['horario_atencion'];
                     citas_desglosadas           = {};
                     for(let i in tmp_horario_atencion){
