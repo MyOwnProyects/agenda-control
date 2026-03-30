@@ -56,6 +56,7 @@ return [
     'tbhorarios_atencion'   => array(
         'get_opening_hours'     => '/tbhorarios_atencion/get_opening_hours',
         'save_opening_hours'    => '/tbhorarios_atencion/save_opening_hours',
+        'get_dias_inhabiles'    => '/tbhorarios_atencion/get_dias_inhabiles'
     ),
     'ctpacientes'   => [
         'show'      => "/ctpacientes/show",

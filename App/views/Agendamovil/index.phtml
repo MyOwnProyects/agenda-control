@@ -1749,6 +1749,9 @@ use App\Library\FuncionesGlobales;
         //  CITAS FUERA DE HORARIO
         let arr_citas_fuera_horario = [];
 
+        //  DIAS INHABILES, ESTOS SON LOS DIAS EN NUMERO 1..7
+        let dias_inhabiles  = [];
+
         //  RETORNA LA CLASE DEL COLOR BACKGROUND DEL DIV FLOTANTE
         function background_tipo_cita(info_cita){
             //  VALOR POR DEFECTO
@@ -1813,7 +1816,7 @@ use App\Library\FuncionesGlobales;
 
                             let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
 
-                            if (!diasPermitidos.includes(diaActual)) {
+                            if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                                 continue;
                             }
 
@@ -1843,7 +1846,7 @@ use App\Library\FuncionesGlobales;
                         $(div_header).find('.div_header_days_container').each(function(){
                             let id_horario_atencion = $(this).data('idhorarioatencion');
                             let diasPermitidos      = $(this).data('dias');
-                            if (!diasPermitidos.includes(diaActual)) {
+                            if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                                 $(this).addClass('hide');
                                 return true;
                             } else {
@@ -2453,10 +2456,10 @@ use App\Library\FuncionesGlobales;
                 $(template_days_container).find('.titulo').text(info_horario['titulo']);
                 $(template_week_container).find('.shift-title').text(info_horario['titulo']);
 
-                if (diasPermitidos.includes(diaActual)) {
+                if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                     $(template_days_container).removeClass('hide').show();
                 } else {
-                $(template_days_container).addClass('hide');
+                    $(template_days_container).addClass('hide');
                 }
 
                 intervalo_citas = info_horario['intervalo_citas'];
@@ -2509,6 +2512,8 @@ use App\Library\FuncionesGlobales;
                     id_profesional  : modal_clone == null ? $("#select_profesionales").val() : null
                 },
                 success : function(data){
+                    dias_inhabiles  = data['dias_inhabiles'];
+                    data    = data['info_horario'];
                     if (modal_clone == null){
                         min_hora_inicio = data.min_hora_inicio;
                         max_hora_inicio = data.max_hora_inicio;
@@ -2621,7 +2626,7 @@ use App\Library\FuncionesGlobales;
 
                             let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
 
-                            if (diasPermitidos.includes(diaActual)) {
+                            if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                                 $(template_days_container).removeClass('hide');
                                 $(template_days_container).css('display','show');
                             } else {
@@ -3334,7 +3339,7 @@ use App\Library\FuncionesGlobales;
 
                 $(template_days_container).find('.titulo').text(info_horario['titulo']);
 
-                if (diasPermitidos.includes(diaActual)) {
+                if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                     $(template_days_container).removeClass('hide');
                     $(template_days_container).css('display','show');
                 } else {
@@ -3487,7 +3492,7 @@ use App\Library\FuncionesGlobales;
                     $(modal_clone).find('.div_header_days_container').each(function(){
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
-                        if (!diasPermitidos.includes(diaActual)) {
+                        if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                             $(this).addClass('hide');
                             return true;
                         } else {
@@ -3545,7 +3550,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_header_days_container').each(function(){
                     let id_horario_atencion = $(this).data('idhorarioatencion');
                     let diasPermitidos      = $(this).data('dias');
-                    if (!diasPermitidos.includes(diaActual)) {
+                    if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                         $(this).addClass('hide');
                         return true;
                     } else {
@@ -3998,7 +4003,7 @@ use App\Library\FuncionesGlobales;
 
                 let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
 
-                if (!diasPermitidos.includes(diaActual)) {
+                if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                     continue;
                 }
 
@@ -4080,7 +4085,7 @@ use App\Library\FuncionesGlobales;
             //  CONVERTIR LOS COMBOS EN SELECT2
             //selectToSelect2($(".div_header_filters"),"select_locaciones");
             selectToSelect2($(".div_principal_filter"),"select_servicios");
-            selectToSelect2($(".div_principal_filter"),"select_profesionales");
+            selectToSelect2($(".div_principal_filter"),"select_profesionales",false);
             //selectToSelect2($(".div_header_filters"),"select_pacientes");
 
             $("#select_profesionales").on('select2:select',function(){
@@ -5161,6 +5166,8 @@ use App\Library\FuncionesGlobales;
                         rango_fechas    : rango_semana_actual
                     },
                     success : function(data){
+                        dias_inhabiles  = data['dias_inhabiles'];
+                        data    = data['info_horario'];
                         let tmp_horario_atencion    = data['horario_atencion'];
                         citas_desglosadas           = {};
                         for(let i in tmp_horario_atencion){
