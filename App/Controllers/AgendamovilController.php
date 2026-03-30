@@ -113,8 +113,18 @@ class AgendamovilController extends BaseController
                 }
 
 
+                $route  = $this->url_api.$this->rutas['tbhorarios_atencion']['get_dias_inhabiles'];
+                $dias_inhabiles = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_locacion'           => $_POST['id_locacion'],
+                    'fecha_inicio'          => $_POST['rango_fechas']['fecha_inicio'],
+                    'fecha_termino'         => $_POST['rango_fechas']['fecha_termino'],
+                ));
+
                 $response = new Response();
-                $response->setJsonContent($arr_return);
+                $response->setJsonContent(array(
+                    'info_horario'      => $arr_return,
+                    'dias_inhabiles'    => $dias_inhabiles
+                ));
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }

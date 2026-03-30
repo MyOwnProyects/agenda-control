@@ -1349,6 +1349,10 @@ use App\Library\FuncionesGlobales;
         let citas_desglosadas       = {};
         let profesionales           = {};
         let tmp_citas_desglosadas   = {};
+
+        //  DIAS INHABILES, ESTOS SON LOS DIAS EN NUMERO 1..7
+        let dias_inhabiles  = [];
+
         //  RANGO DE HORARIO DE ATENCION
         let min_hora_inicio     = '';
         let max_hora_inicio     = '';
@@ -1919,7 +1923,7 @@ use App\Library\FuncionesGlobales;
 
                 let diasPermitidos = info_horario['dias'].map(d => d.dia); // Extrae solo los números
 
-                if (!diasPermitidos.includes(diaActual)) {
+                if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                     continue;
                 }
 
@@ -3060,6 +3064,8 @@ use App\Library\FuncionesGlobales;
                         rango_fechas    : rango_semana_actual
                     },
                     success : function(data){
+                        dias_inhabiles  = data['dias_inhabiles'];
+                        data    = data['info_horario'];
                         intervalo_citas = data['horario_atencion'][0]['intervalo_citas'];
                         ajax_previo_show_modal(row,data);
                     },
@@ -3752,7 +3758,7 @@ use App\Library\FuncionesGlobales;
                         $(div_header).find('.div_header_days_container').each(function(){
                             let id_horario_atencion = $(this).data('idhorarioatencion');
                             let diasPermitidos      = $(this).data('dias');
-                            if (!diasPermitidos.includes(diaActual)) {
+                            if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                                 $(this).addClass('hide');
                                 return true;
                             } else {
@@ -3933,6 +3939,8 @@ use App\Library\FuncionesGlobales;
                     omitir_dias_inhabiles   : true
                 },
                 success : function(data){
+                    dias_inhabiles  = data['dias_inhabiles'];
+                    data    = data['info_horario'];
                     let diaActual               = fechaActual.getDay();
                     diaActual                   = diaActual == 0 ? 7 : diaActual;
                     //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
@@ -3948,7 +3956,7 @@ use App\Library\FuncionesGlobales;
 
                         let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
 
-                        if (diasPermitidos.includes(diaActual)) {
+                        if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                             $(template_days_container).removeClass('hide');
                             $(template_days_container).css('display','show');
                         } else {
