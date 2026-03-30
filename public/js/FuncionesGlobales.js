@@ -293,3 +293,27 @@ function mensaje_preview_Html(mensaje) {
 
     return texto;
 }
+
+function validar_monto(monto) {
+    // Eliminar espacios
+    monto = monto.trim();
+
+    // Expresión regular:
+    // - Solo números
+    // - Opcional decimal con máximo 2 dígitos
+    const regex = /^\d+(\.\d{1,2})?$/;
+
+    if (!regex.test(monto)) {
+        return false;
+    }
+
+    // Convertir a número
+    monto = parseFloat(monto);
+
+    // Validar que sea mayor a 0
+    if (monto <= 0) {
+        return false;
+    }
+
+    return true;
+}

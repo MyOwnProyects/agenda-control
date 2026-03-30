@@ -821,7 +821,17 @@ use App\Library\FuncionesGlobales;
             });
 
             $('.input_monto_pagar').on('input', function(e, origen) {
-                $(this).val($(this).val().replace(/[^0-9.]/g, ''));
+                let val = $(this).val();
+
+                // Si empieza con 0 seguido de otro dígito, quita el 0
+                if (/^0\d/.test(val)) {
+                    $(this).val(val.substring(1));
+                }
+
+                //  SI EL MONTO NO ES VALIDO SUSTITUYE POR 0
+                if (!validar_monto($(this).val())) {
+                    $(this).val(0);
+                }
 
                 const totalAPagar   = total_calculado;
                 const efectivo      = parseFloat($('#monto_efectivo').val())      || 0;
@@ -878,9 +888,11 @@ use App\Library\FuncionesGlobales;
                 //  VERIFICAR SI TODOS LOS INPUT DE FORMA DE PAGO GENERAR SALDO A FAVOR
                 let input_con_valor         = 0;
                 let input_con_saldo_favor   = 0;
+                let input_monto_pagar       = 0;
                 $(".input_monto_pagar").each(function(){
                     if ($(this).val() != null && $(this).val() != ''){
                         input_con_valor ++;
+                        input_monto_pagar   = ((input_monto_pagar * 100) + ($(this).val() * 100)) / 100;
                         let valor       = parseFloat($(this).val());
                         let total_pagar = parseFloat(obj_totales_calculados['total_pagar']);
                         if (valor > total_pagar){
@@ -893,6 +905,13 @@ use App\Library\FuncionesGlobales;
                     showAlert("danger","No puede haber mas de un metodo de pago que genere saldo a favor");
                     return false;
                 }
+
+                //  VALIDA QUE LA SUMATORIA SEA MAYOR A 0
+                if (input_monto_pagar == 0 && saldo_favor == 0){
+                    showAlert("danger","El monto recibido debe ser mayor a 0");
+                    return false;
+                }
+
 
                 $.ajax({
                     url         : url_index,
