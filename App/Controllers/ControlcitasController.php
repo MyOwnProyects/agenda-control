@@ -379,7 +379,6 @@ class ControlcitasController extends BaseController
         
         //  PERMISOS     register_payment
         $this->view->apertura_agenda    = FuncionesGlobales::HasAccess("Controlcitas","agenda_opening");
-        $this->view->registrar_pago     = FuncionesGlobales::HasAccess("Controlcitas","register_payment");
 
         $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
         $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(
