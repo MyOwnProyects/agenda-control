@@ -701,6 +701,11 @@ use App\Library\FuncionesGlobales;
 
 /* Utilidad hide */
 .modal_cancelar_cita .hide { display: none !important; }
+
+.modal_cancelar_cita .mcc-invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
 </style>
 
 <div class="container mt-4">
@@ -956,11 +961,13 @@ use App\Library\FuncionesGlobales;
 
           <!-- 01 Tipo de Movimiento -->
           <div class="mcc-section-heading">
-            <span class="mcc-section-num">01</span>
+            <span class="mcc-section-num">
+                <i class="bi-arrow-left-right"></i>
+            </span>
             <span class="mcc-section-title">Tipo de Movimiento</span>
           </div>
 
-          <div class="row g-3">
+          <div class="div_header row g-3">
             <div class="col-6">
               <div class="mcc-radio-card" data-group="estado_cita" data-value="pendiente">
                 <div class="mcc-radio-card-body">
@@ -1003,9 +1010,11 @@ use App\Library\FuncionesGlobales;
           </div>
 
           <!-- 03 Gestión de Pagos -->
-          <div class="div_accion_pago">
+          <div class="div_header div_accion_pago">
             <div class="mcc-section-heading">
-              <span class="mcc-section-num">02</span>
+              <span class="mcc-section-num">
+                <i class="bi-cash-stack"></i>
+              </span>
               <span class="mcc-section-title">Acción sobre pagos aplicados</span>
             </div>
             <div class="row g-3">
@@ -1013,7 +1022,7 @@ use App\Library\FuncionesGlobales;
                 <div class="mcc-radio-pill" data-group="movto_pago" data-value="reasignar">
                   <div>
                     <span class="mcc-pill-title">Reasignar pagos</span>
-                    <span class="mcc-pill-desc">Transfiere el monto abonado a la cita deudora más antigua del paciente.</span>
+                    <span class="mcc-pill-desc">Transfiere el monto abonado a la cita deudora más antigua del paciente (Esto incluye pagos pendientes por aplicar de esta y otras citas).</span>
                   </div>
                   <input type="radio" class="mcc-radio-native tipo_movto" name="movto_pago" value="reasignar" required/>
                 </div>
@@ -1028,7 +1037,6 @@ use App\Library\FuncionesGlobales;
                 </div>
               </div>
             </div>
-            <div class="invalid-feedback" id="error_movto_pago"><?php echo $translations['html_error_movement_type']; ?></div>
           </div>
 
           <!-- Alertas gestión de pagos -->
@@ -1050,9 +1058,11 @@ use App\Library\FuncionesGlobales;
           </div>
 
           <!-- 02 Citas Simultáneas -->
-          <div class="div_citas_simultaneas hide">
+          <div class="div_header div_citas_simultaneas hide">
             <div class="mcc-section-heading">
-              <span class="mcc-section-num">03</span>
+              <span class="mcc-section-num">
+                <i class="bi-calendar2-week"></i>
+              </span>
               <span class="mcc-section-title">Citas Simultáneas</span>
             </div>
             <div class="row g-3">
@@ -1075,7 +1085,6 @@ use App\Library\FuncionesGlobales;
                 </div>
               </div>
             </div>
-            <div class="invalid-feedback" id="error_simultaneas"><?php echo $translations['html_error_movement_type']; ?></div>
           </div>
 
           <!-- Alerta error general -->
@@ -1825,9 +1834,11 @@ use App\Library\FuncionesGlobales;
             let id_agenda_cita = $(element).data('id');
             let row_data       = $(element).closest('tr').data('rowData');
 
-             modal_clone.on('click', '.mcc-radio-card, .mcc-radio-pill', function () {
+            modal_clone.on('click', '.mcc-radio-card, .mcc-radio-pill', function () {
                 $(this).find('.mcc-radio-native').prop('checked', true).trigger('change');
             });
+
+            $(modal_clone).find(".div_accion_pago").hide();
 
             // ── Tipo de Movimiento ──────────────────────────────────────
             modal_clone.on('change', '.tipo_movimiento', function () {
@@ -1835,6 +1846,18 @@ use App\Library\FuncionesGlobales;
                 modal_clone.find('.div_tipo_movimiento').show();
                 modal_clone.find('.div_tipo_movimiento').find('.warning_message').hide();
                 modal_clone.find('.div_tipo_movimiento').find('#warning_' + valor).show();
+
+                //  SI LA ACCION ES CANCELAR CITA SE MUESTRA ACCION SOBRE PAGOS
+                if (valor == 'cancelar'){
+                    $(modal_clone).find('.div_accion_pago').show();
+                } else {
+                    $(modal_clone).find('.tipo_movto').prop('checked',false);//div_tipo_movto
+                    $(modal_clone).find('.div_tipo_movto').hide();
+                    $(modal_clone).find('.div_accion_pago').hide();
+                }
+
+                // Al seleccionar, remover el error visual del grupo
+                $(this).closest('.div_header').find('.mcc-invalid').removeClass('mcc-invalid');
             });
 
             // ── Citas Simultáneas ───────────────────────────────────────
@@ -1846,6 +1869,9 @@ use App\Library\FuncionesGlobales;
                 } else {
                     modal_clone.find('#infoTodas').removeClass('d-none');
                 }
+
+                // Al seleccionar, remover el error visual del grupo
+                $(this).closest('.div_header').find('.mcc-invalid').removeClass('mcc-invalid');
             });
 
             // ── Gestión de Pagos ────────────────────────────────────────
@@ -1854,6 +1880,8 @@ use App\Library\FuncionesGlobales;
                 modal_clone.find('.div_tipo_movto').show();
                 modal_clone.find('.div_tipo_movto').find('#warning_reasignar, #warning_saldo_favor').hide();
                 modal_clone.find('.div_tipo_movto').find('#warning_' + valor).show();
+
+                $(this).closest('.div_header').find('.mcc-invalid').removeClass('mcc-invalid');
             });
 
             $(modal_clone).on('click','#btnSave',function(){
@@ -1872,6 +1900,20 @@ use App\Library\FuncionesGlobales;
 
                     invalidFields.forEach(field => {
                         console.log('Campo inválido:', field,field.name || field.id, field.validationMessage);
+
+                        if (field.type === 'radio') {
+                            const groupName = field.name;
+                            const isChecked = modal_clone.find(`input[name="${groupName}"]:checked`).length > 0;
+                            if (!isChecked) {
+                                // Marcar todas las cards/pills del grupo con borde rojo
+                                modal_clone.find(`input[name="${groupName}"]`).closest('.mcc-radio-card, .mcc-radio-pill')
+                                    .addClass('mcc-invalid');
+                                // Mostrar el invalid-feedback del grupo
+                                modal_clone.find(`input[name="${groupName}"]`).last()
+                                    .closest('.row').next('.invalid-feedback')
+                                    .addClass('d-block');
+                            }
+                        }
                     });
 
                     if (invalidFields.length > 0){
