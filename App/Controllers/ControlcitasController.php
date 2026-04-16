@@ -120,8 +120,13 @@ class ControlcitasController extends BaseController
                     $mensaje_inicial    = $_POST['tipo_movimiento'] == 'cancelar' ? 'Se realizó la cancelación masiva de '.count($_POST['arr_id_agenda_cita']).' citas' : 'Se marcaron como pendientes de reagendar de forma masiva : '.count($_POST['arr_id_agenda_cita']).' citas';
                     $accion             = $_POST['tipo_movimiento'] == 'cancelar' ? 'BORRARMASIVO' : 'EDITARMASIVO';
                 }
+
+                $mensaje_pago   = '';
+                if ($_POST['tipo_accion_pagos'] != null && $_POST['tipo_accion_pagos'] != ''){
+                    $mensaje_pago   = $_POST['tipo_accion_pagos'] == 'reasignar' ? ' Opción de pago: Reasignarsaldo a favor' : ' Opción de pago: Saldo a favor';
+                }
                 
-                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$mensaje_inicial.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'] ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$mensaje_inicial.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'].$mensaje_pago ,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
