@@ -16,14 +16,14 @@ use App\Library\FuncionesGlobales;
 
     /* ── Status badges ── */
     .badge-1    { background-color: #dcfce7; color: #166534; } /* ASISTENCIA - verde */
-    .badge-0    { background-color: #fef9c3; color: #854d0e; } /* FALTA - amarillo */
+    .badge-0    { background-color: #fee2e2; color: #dc2626; } /* FALTA - amarillo */
     .badge-2    { background-color: #ffedd5; color: #9a3412; } /* RETARDO - naranja */
     .badge-3    { background-color: #dbeafe; color: #1e40af; } /* ACTIVIDAD EN CASA - azul */
     .badge-null { background-color: #f1f5f9; color: #64748b; } /* Sin asignar - gris */
 
         /* ── Status badges ── */
     .badge-cita-1 { background-color: #dcfce7; color: #166534; } /* ACTIVA                  - success */
-    .badge-cita-0 { background-color: #fef9c3; color: #854d0e; } /* CANCELADA               - warning */
+    .badge-cita-0 { background-color: #fee2e2; color: #dc2626; } /* CANCELADA               - warning */
     .badge-cita-2 { background-color: #ffedd5; color: #9a3412; } /* PENDIENTE POR REAGENDAR - danger  */
 
     /* 0   => 'FALTA',
@@ -194,6 +194,142 @@ use App\Library\FuncionesGlobales;
     .tab-btn:hover {
         color: #4f46e5 !important;
     }
+
+    .info_movtos {
+        cursor: pointer;
+        background-color: #f0fbff !important;
+    }
+
+    .info_movtos:hover,
+    .table-hover > tbody > tr.info_movtos:hover > * {
+        transition: background-color 0.2s ease;
+    }
+
+    .info_movtos > td {
+        background-color: #f0fbff !important;
+    }
+
+    /* Footer con las 3 tarjetas */
+.modal-footer-resumen {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid #e5e7eb;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.resumen-card {
+    border-radius: 10px;
+    padding: 10px 16px;
+    min-width: 130px;
+}
+
+.resumen-card span {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.resumen-card strong {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* Total cita - gris claro */
+.resumen-card.total {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Suma movimientos - azul/morado */
+.resumen-card.suma {
+    background-color: #4f46e5;
+    color: #ffffff;
+}
+
+/* Pendiente - rojo claro */
+.resumen-card.pendiente {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.modal-footer-resumen {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    width: 100%;
+}
+
+.resumen-card {
+    flex: 1; /* 👈 esto las distribuye a todo el ancho */
+    border-radius: 10px;
+    padding: 10px 16px;
+}
+
+/* Encabezados */
+.modal_movtos .table thead th {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #6b7280;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 10px;
+    background-color: #f3f4f686;
+}
+
+/* Celdas */
+.modal_movtos .table tbody td {
+    font-size: 0.875rem;
+    color: #111827;
+    padding: 6px 8px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+/* Sin borde en último row */
+.modal_movtos .table tbody tr:last-child td {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+/* Sin background hover */
+.modal_movtos .table tbody tr:hover td {
+    background-color: transparent !important;
+}
+
+.modal_movtos .table thead th:first-child {
+    border-radius: 8px 0 0 0;
+}
+
+.modal_movtos .table thead th:last-child {
+    border-radius: 0 8px 0 0;
+}
+
+.modal_movtos .table {
+    border-collapse: separate;
+    border-spacing: 0 0;
+}
+
+.modal_movtos .table tbody tr td:first-child {
+    border-left: 1px solid #f3f4f6;
+}
+
+.modal_movtos .table tbody tr td:last-child {
+    border-right: 1px solid #f3f4f6;
+}
+
+.modal_movtos .table tbody tr:last-child td:first-child {
+    border-left: 1px solid #f3f4f6;
+    border-bottom-left-radius: 8px;
+}
+
+.modal_movtos .table tbody tr:last-child td:last-child {
+    border-right: 1px solid #f3f4f6;
+    border-bottom-right-radius: 8px;
+}
 </style>
 
 <!-- Body -->
@@ -214,6 +350,12 @@ use App\Library\FuncionesGlobales;
                     <select id="select_pacientes" class="select_pacientes">
                         <option value=""></option>
                     </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" id="btn_nueva_busqueda" class="btn btn-info">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Nueva búsqueda
+                    </button>
                 </div>
             </form>
         </div>
@@ -569,6 +711,54 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
+<div class="modal fade modal_movtos" id="modal_movtos" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title">Movimientos de la cita</h5>
+                    <!-- Info de contexto de la cita -->
+                    <small class="text-muted" id="small_profesional_fecha">
+                        Gastélum Valdez Mónica B. — Sáb 09/05/2026
+                    </small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Fecha captura</th>
+                            <th>Usuario captura</th>
+                            <th>Estatus</th>
+                            <th>Monto</th>
+                            <th>Fecha cancelación</th>
+                            <th>Usuario cancelación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody_movimientos">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer-resumen">
+                <div class="resumen-card total">
+                    <span>Total Cita</span>
+                    <strong id="strong_total">$280.00</strong>
+                </div>
+                <div class="resumen-card suma">
+                    <span>Suma Movimientos</span>
+                    <strong id="strong_movtos">$170.00</strong>
+                </div>
+                <div class="resumen-card pendiente">
+                    <span>Pendiente</span>
+                    <strong id="strong_pendiente">$110.00</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let modulo_caja = (function(){
         //  DIBUJO DE TABLA
@@ -635,6 +825,9 @@ use App\Library\FuncionesGlobales;
 
         //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
         let obj_citas_saldos    = [];
+
+        //  CITAS RESULTANTES DE LA BUSQUEDA
+        let obj_info_citas      = {};
 
         // Función para inicializar o recargar la tabla
         function cargarTabla() {
@@ -976,6 +1169,55 @@ use App\Library\FuncionesGlobales;
                 });
                 
             });
+
+            $(document).on('click', '.info_movtos', function (e) {
+                if ($(e.target).is('input[type="checkbox"]')) return;
+
+                let modal_clone = $("#modal_movtos").clone().removeAttr('id').show();
+
+                const id_agenda_cita    = $(this).data('idagendacita');
+
+                console.log(obj_info_citas,obj_info_citas[id_agenda_cita]);
+
+                // Subtítulo de contexto
+                $(modal_clone).find('#small_profesional_fecha').text(obj_info_citas[id_agenda_cita]['nombre_profesional'] + ' — ' + obj_info_citas[id_agenda_cita]['fecha_completa']);
+
+                let row = '';
+                for(let movto of obj_info_citas[id_agenda_cita]['movimientos']){
+                    console.log(movto);
+                    row += '<tr>'+
+                                '<td>'+movto.fecha_captura+'</td>'+
+                                '<td>'+movto.clave_usuario_captura+'</td>'+
+                                '<td><span class="badge rounded-pill badge-cita-'+movto.estatus+' px-2 py-1 small fw-semibold">'+movto.label_estatus+'</span></td>'+
+                                '<td>$'+movto.monto+'</td>'+
+                                '<td>'+movto.fecha_cancelacion+'</td>'+
+                                '<td>'+movto.clave_usuario_cancelacion+'</td>'+
+                            '</tr>';
+                }
+
+                let suma_movtos = ((obj_info_citas[id_agenda_cita]['total'] * 100) - (obj_info_citas[id_agenda_cita]['saldo_cita'] * 100)) / 100;
+
+                $(modal_clone).find("#strong_total").text("$"+formatoDinero(obj_info_citas[id_agenda_cita]['total']));
+                $(modal_clone).find("#strong_movtos").text("$"+formatoDinero(suma_movtos));
+                $(modal_clone).find("#strong_pendiente").text("$"+formatoDinero(obj_info_citas[id_agenda_cita]['saldo_cita']));
+                
+                $(modal_clone).find('#tbody_movimientos').html(row);
+                $(modal_clone).modal('show');
+            });
+
+            //  EL ENTER EJECUTA EL BUSCAR SOLO SI NO HAY UN MODAL VISIBLE
+            $(document).on('keydown', function(e) {
+                if ($(document).find('.modal:visible').length == 0 && e.key === 'Enter') {
+                    $("#btnProcesarPago").trigger('click');
+                }
+            });
+
+            //  BOTON PARA REALIZAR UNA NUEVA BUSQUEDA
+            $("#btn_nueva_busqueda").on('click',function(){
+                //  SE QUITA EL PACIENTE DEL COMBO
+                $("#select_pacientes").val(null).trigger('change');
+                clear_view();
+            });
         });
 
         //  AJAX PARA OBTENER LA INFORAMCION DEL PACIENTE
@@ -989,6 +1231,7 @@ use App\Library\FuncionesGlobales;
                     id_paciente : $("#select_pacientes").val()
                 },
                 success     : function(data){
+                    console.log(data);
                     show_table_citas(data);
                     cargarTabla();
                 },
@@ -1012,6 +1255,8 @@ use App\Library\FuncionesGlobales;
             //  NUMERO DE CITAS
             $("#badge_num_citas").text(Object.keys(info_citas).length);
 
+            obj_info_citas  = {};
+
             if (Object.keys(info_citas).length == 0){
                 $("#row_sin_registros").show();
             } else {
@@ -1020,10 +1265,21 @@ use App\Library\FuncionesGlobales;
                 for(let cita of info_citas){
                     num_citas   ++;
 
+                    //  SE GUARDA LA INFORMACION DE LA CITA DE FORMA GLOBAL
+                    obj_info_citas[cita.id_agenda_cita] = cita;
+
+                    //  VERIFICAR SI TIENE MOVTOS
+                    let has_movtos  = '';
+                    let title       = '';
+                    if (Object.keys(cita.movimientos).length > 0){
+                        has_movtos  = 'info_movtos';
+                        title       = 'title="Ver información de movimientos"';
+                    }
+
                     let disabled    = num_citas == 1 ? '' : 'disabled';
 
                     let row = 
-                    '<tr class="row_cita row_'+num_citas+'" data-idrow="'+num_citas+'" data-saldocita="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'">'+
+                    '<tr class="row_cita '+has_movtos+' row_'+num_citas+'" data-idrow="'+num_citas+'" data-saldocita="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'" '+title+'>'+
                         '<td><input class="check_cita" type="checkbox" '+disabled+' /></td>'+
                         '<td class="small">'+num_citas+'</td>'+
                         '<td class="small">'+cita.nombre_profesional+'</td>'+
@@ -1389,6 +1645,10 @@ use App\Library\FuncionesGlobales;
 
             //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
             obj_citas_saldos    = [];
+
+            //  LIMPIA DE COUNTS
+            $("#badge_num_citas").text(0);
+            $("#badge_num_abonos").text(0);
         }
     })();
 </script>
