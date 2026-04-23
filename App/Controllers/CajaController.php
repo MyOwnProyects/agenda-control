@@ -131,7 +131,27 @@ class CajaController extends BaseController
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }
+
+            if ($accion == 'get_abonos_ticket'){
+                $route      = $this->url_api.$this->rutas['caja']['abonos_show'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
         }
+
+        //  PERMISO PARA CANCELAR O DEVOLVER PAGOS
+        $this->view->cancelar_devolver_abono    = FuncionesGlobales::HasAccess("Caja","cancelar_devolver_abono");
 
         
     }

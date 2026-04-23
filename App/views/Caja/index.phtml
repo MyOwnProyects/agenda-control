@@ -385,7 +385,7 @@ use App\Library\FuncionesGlobales;
                     <h2 class="h6 fw-semibold mb-0">Citas Pendientes de Pago</h2>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="appointments-table">
+                    <table class="table table-hover align-middle mb-0" id="table_citas_deudoras">
                     <thead class="table-light">
                         <tr>
                             <th scope="col" style="width:2.5rem;">
@@ -759,6 +759,63 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
+<div class="modal fade modal_movtos" id="modal_cancelar_devolver_abono" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title">Abonos realizados al ticket:</h5>
+                    <!-- Info de contexto de la cita -->
+                    <small class="text-muted" id="small_folio">
+                        T-0001 — Sáb 09/05/2026
+                    </small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Usuario captura</th>
+                            <th>Activo</th>
+                            <th>Monto</th>
+                            <th>Fecha cancelación</th>
+                            <th>Usuario cancelación</th>
+                            <th>Obs. Cancelación</th>
+                            <th>Opción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody_abonos">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted small">Acción para los seleccionados:</span>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="tipo_accion" id="radio_cancelar" value="cancelar">
+                        <label class="form-check-label" for="radio_cancelar">Cancelar</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="tipo_accion" id="radio_devolucion" value="devolucion">
+                        <label class="form-check-label" for="radio_devolucion">Devolución</label>
+                    </div>
+                </div>
+                <div class="w-100">
+                    <input type="text" id="input_observaciones" class="form-control form-control-sm" 
+                        placeholder="Observaciones (opcional)...">
+                </div>
+                <div class="w-100 d-flex justify-content-end">
+                    <button type="button" id="btn_aplicar_accion" class="btn btn-danger btn-sm">
+                        <i class="bi bi-check2-circle"></i> Aplicar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let modulo_caja = (function(){
         //  DIBUJO DE TABLA
@@ -770,6 +827,9 @@ use App\Library\FuncionesGlobales;
         //  Rutas
         const controller    = '/Caja';
         const url_index     = controller+"/index";
+
+        //  PERMISO PARA CANCELAR Y DEVOLVER PAGOS
+        const cancelar_devolver_abono   = '<?php echo $cancelar_devolver_abono; ?>';
 
         //  language
         const translations  = {
@@ -874,10 +934,14 @@ use App\Library\FuncionesGlobales;
                                                         '   <i class="bi bi-search"></i>'+
                                                     '   </button>';
 
-                                let btn_download    = ' <button class="btn btn-outline-dark btn-sm btn_download" data-id="'+data['id']+'" title="Descargar Ticket">' +
+                                let btn_cancelar_devoler    = cancelar_devolver_abono ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" title="Cancelación o devolución de pago">' +
+                                                                                        '   <i class="bi-arrow-counterclockwise"></i>'+
+                                                                                    '   </button>' : '';
+
+                                let btn_download    = ' <button class="btn btn-outline-dark btn-sm btn_download" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
                                                         '   <i class="bi bi-download"></i>'+
                                                     '   </button>'; 
-                                return btn_preview + btn_download;
+                                return btn_preview + btn_download + btn_cancelar_devoler;
                             }
                         }
                     ],
@@ -1170,7 +1234,39 @@ use App\Library\FuncionesGlobales;
                 
             });
 
-            $(document).on('click', '.info_movtos', function (e) {
+            $("#table_results").on('click','.btn_cancelar_devolver_abono',function(){
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                let row_data    = $(this).closest('tr').data('rowData');
+
+                $.ajax({
+                    url         : url_index,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion      : 'get_abonos_ticket',
+                        folio       : row_data['folio']
+                    },
+                    success     : function(data){
+                        console.log('data');
+                        console.log(data);
+
+                        show_table_cancelar_devolver(data);
+
+                        $(btn).prop('disabled',false);
+                        
+                    },
+                    error       : function(error){
+                        console.log('error');
+                        console.log(error);
+                        actionJsonError(error,btn);
+                    }
+                });
+                
+            });
+
+            $("#table_citas_deudoras").on('click', '.info_movtos', function (e) {
                 if ($(e.target).is('input[type="checkbox"]')) return;
 
                 let modal_clone = $("#modal_movtos").clone().removeAttr('id').show();
@@ -1295,6 +1391,49 @@ use App\Library\FuncionesGlobales;
             }
             
         }
+
+        //  MUESTRA MODAL PARA CANCELAR ABONOS
+        function show_table_cancelar_devolver(info_abonos){
+            let modal_clone = $("#modal_cancelar_devolver_abono").clone().removeAttr('id');
+
+            //  DEL PRIMER ABONO SE OBTIENE EL FOLIO Y LA FECHA DE CAPTURA
+            let folio           = info_abonos[0]['ticket_folio'];
+            let fecha_captura   = info_abonos[0]['label_fecha_captura'];
+
+            $(modal_clone).find('#small_folio').text(folio + ' - ' + fecha_captura);
+
+            let row = '';
+            let flag_abono_activo   = false;
+            for(let abono of info_abonos){
+                let activo      = abono.estatus == 1 ? 'SI' : 'NO';
+                let checkbox    = abono.estatus == 1 ? '<input type="checkbox" class="input_select" />' : '';
+
+                if (abono.estatus == 1){
+                    flag_abono_activo   = true;
+                }
+
+                row += '<tr>'+
+                            '<td>'+abono.clave_usuario_captura+'</td>'+
+                            '<td><span class="badge rounded-pill badge-cita-'+abono.estatus+' px-2 py-1 small fw-semibold">'+activo+'</span></td>'+
+                            '<td>'+abono.monto+'</td>'+
+                            '<td>'+abono.label_fecha_cancelacion+'</td>'+
+                            '<td>'+abono.clave_usuario_cancelacion+'</td>'+
+                            '<td>'+abono.observaciones_cancelacion+'</td>'+
+                            '<td>'+checkbox+'</td>'+
+                        '</tr>';
+            }
+
+            if (!flag_abono_activo){
+                $(modal_clone).find("#btn_aplicar_accion").remove();
+            }
+
+            //  EVENTO PARA CAPTURAR CANCELACION
+
+            $(modal_clone).find("#tbody_abonos").append(row);
+
+            $(modal_clone).modal('show');
+        }
+
 
         //  CALCULA Y RECALCULA TODAL
         function calcula_total(){
