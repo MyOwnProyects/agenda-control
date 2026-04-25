@@ -151,12 +151,30 @@ class CajaController extends BaseController
         }
 
         //  PERMISO PARA CANCELAR O DEVOLVER PAGOS
-        $this->view->cancelar_devolver_abono    = FuncionesGlobales::HasAccess("Caja","cancelar_devolver_abono");
-
-        
+        $this->view->cancelar_devolver_abono    = FuncionesGlobales::HasAccess("Caja","cancelarDevolverAbono");
     }
 
-    
+    public function cancelarDevolverAbonoAction(){
+        if ($this->request->isAjax()){
+            $accion = $_POST['accion'];
 
+            if ($accion == 'save_accion'){
+                $route      = $this->url_api.$this->rutas['caja']['save_cancelacion_devolucion'];
+                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : $result);
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+                
+                $response->setJsonContent($arr_info);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+        }
+    }
     
 }

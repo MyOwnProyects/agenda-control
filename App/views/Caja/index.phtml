@@ -827,6 +827,7 @@ use App\Library\FuncionesGlobales;
         //  Rutas
         const controller    = '/Caja';
         const url_index     = controller+"/index";
+        const url_cancelacion_devolucion    = controller+"/cancelarDevolverAbono";
 
         //  PERMISO PARA CANCELAR Y DEVOLVER PAGOS
         const cancelar_devolver_abono   = '<?php echo $cancelar_devolver_abono; ?>';
@@ -1406,7 +1407,7 @@ use App\Library\FuncionesGlobales;
             let flag_abono_activo   = false;
             for(let abono of info_abonos){
                 let activo      = abono.estatus == 1 ? 'SI' : 'NO';
-                let checkbox    = abono.estatus == 1 ? '<input type="checkbox" class="input_select" />' : '';
+                let checkbox    = abono.estatus == 1 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" />' : '';
 
                 if (abono.estatus == 1){
                     flag_abono_activo   = true;
@@ -1428,6 +1429,61 @@ use App\Library\FuncionesGlobales;
             }
 
             //  EVENTO PARA CAPTURAR CANCELACION
+            $(modal_clone).on('click','#btn_aplicar_accion',async function(){
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+                //  VERIFICA SI HAY UN CLICK SELECCIONADO
+                let arr_id_abono    = [];
+
+                $(modal_clone).find("#tbody_abonos").find('.input_abono').each(function(){
+
+                    if ($(this).prop('checked')){
+                        arr_id_abono.push($(this).data('id'));
+                    }
+                })
+
+                if (arr_id_abono.length == 0){
+                    showAlert('danger','Seleccione al menos un abono');
+                    return false;
+                }
+
+                if ($(modal_clone).find('[name="tipo_accion"]:checked').length == 0){
+                    showAlert('danger','Seleccione la acción a tomar');
+                    return false;
+                }
+                if ($(modal_clone).find("#input_observaciones").val().trim() == ''){
+                    showAlert('danger','Ingrese una observación o motivo de esta acción');
+                    return false;
+                }
+
+                let obj_info    = {
+                    arr_id_abono    : arr_id_abono,
+                    accion          : $(modal_clone).find('[name="tipo_accion"]:checked').val(),
+                    observaciones_cancelacion   : $(modal_clone).find("#input_observaciones").val().trim()
+                }
+
+                const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?',true);
+
+                if (respuesta){
+                    $.ajax({
+                        url         : url_cancelacion_devolucion,
+                        method      : 'post',
+                        dataType    : 'json',
+                        data        : {
+                            obj_info    : obj_info,
+                            accion      : 'save_accion'
+                        },
+                        success     : function(data){
+                            console.log('data',data);
+                        },
+                        error       : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
 
             $(modal_clone).find("#tbody_abonos").append(row);
 

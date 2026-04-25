@@ -158,7 +158,8 @@ return [
         'save_pago'         => '/caja/save_pago',
         'tickets_count'     => '/caja/tickets_count',
         'tickets_show'      => '/caja/tickets_show',
-        'abonos_show'       => '/caja/abonos_show'
+        'abonos_show'       => '/caja/abonos_show',
+        'save_cancelacion_devolucion'   => '/caja/save_cancelacion_devolucion'
     )
 
 ];
