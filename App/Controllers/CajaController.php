@@ -132,8 +132,8 @@ class CajaController extends BaseController
                 return $response;
             }
 
-            if ($accion == 'get_abonos_ticket'){
-                $route      = $this->url_api.$this->rutas['caja']['abonos_show'];
+            if ($accion == 'ticket_movtos_show'){
+                $route      = $this->url_api.$this->rutas['caja']['ticket_movtos_show'];
                 $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
                 $response = new Response();
@@ -159,8 +159,8 @@ class CajaController extends BaseController
             $accion = $_POST['accion'];
 
             if ($accion == 'save_accion'){
-                $route      = $this->url_api.$this->rutas['caja']['save_cancelacion_devolucion'];
-                $arr_info   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+                $route  = $this->url_api.$this->rutas['caja']['save_cancelacion_devolucion'];
+                $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST['obj_info']);
 
                 $response = new Response();
 
@@ -169,6 +169,9 @@ class CajaController extends BaseController
                     $response->setStatusCode(404, 'Error');
                     return $response;
                 }
+
+                $accion = $_POST['obj_info']['tipo_cancelacion'] == 1 ? 'CANCELACION' : 'DEVOLUCION';
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,'Se realizó la '.$accion.' del paciente: '.$_POST['paciente'].' de '.count($_POST['obj_info']['arr_id_abono_movimiento']).' movimiento(s) de ticket con folio: '.$_POST['obj_info']['ticket_folio'].' sumando un total de: $'.FuncionesGlobales::formatoMonetario($_POST['obj_info']['total_movimiento']),$_POST['obj_info']);
                 
                 $response->setJsonContent($arr_info);
                 $response->setStatusCode(200, 'OK');

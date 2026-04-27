@@ -764,7 +764,7 @@ use App\Library\FuncionesGlobales;
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title">Abonos realizados al ticket:</h5>
+                    <h5 class="modal-title">Movimientos realizados al ticket:</h5>
                     <!-- Info de contexto de la cita -->
                     <small class="text-muted" id="small_folio">
                         T-0001 — Sáb 09/05/2026
@@ -776,7 +776,8 @@ use App\Library\FuncionesGlobales;
                 <table class="table table-sm">
                     <thead>
                         <tr>
-                            <th>Usuario captura</th>
+                            <th>Fecha cita</th>
+                            <th>Método de pago</th>
                             <th>Activo</th>
                             <th>Monto</th>
                             <th>Fecha cancelación</th>
@@ -791,21 +792,31 @@ use App\Library\FuncionesGlobales;
                 </table>
             </div>
             <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-muted small">Acción para los seleccionados:</span>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="tipo_accion" id="radio_cancelar" value="cancelar">
-                        <label class="form-check-label" for="radio_cancelar">Cancelar</label>
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <!-- Acción -->
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">Acción para los seleccionados:</span>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="tipo_accion" id="radio_cancelar" value="1">
+                            <label class="form-check-label" for="radio_cancelar">Cancelar</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="tipo_accion" id="radio_devolucion" value="2">
+                            <label class="form-check-label" for="radio_devolucion">Devolución</label>
+                        </div>
                     </div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="tipo_accion" id="radio_devolucion" value="devolucion">
-                        <label class="form-check-label" for="radio_devolucion">Devolución</label>
+                    <!-- Total seleccionado -->
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">Total seleccionado:</span>
+                        <span class="fw-bold text-danger" id="span_total_seleccionado">$0.00</span>
                     </div>
                 </div>
+                <!-- Observaciones -->
                 <div class="w-100">
                     <input type="text" id="input_observaciones" class="form-control form-control-sm" 
-                        placeholder="Observaciones (opcional)...">
+                    placeholder="Observaciones...">
                 </div>
+                <!-- Botón aplicar -->
                 <div class="w-100 d-flex justify-content-end">
                     <button type="button" id="btn_aplicar_accion" class="btn btn-danger btn-sm">
                         <i class="bi bi-check2-circle"></i> Aplicar
@@ -1246,7 +1257,7 @@ use App\Library\FuncionesGlobales;
                     method      : 'post',
                     dataType    : 'json',
                     data        : {
-                        accion      : 'get_abonos_ticket',
+                        accion      : 'ticket_movtos_show',
                         folio       : row_data['folio']
                     },
                     success     : function(data){
@@ -1407,14 +1418,19 @@ use App\Library\FuncionesGlobales;
             let flag_abono_activo   = false;
             for(let abono of info_abonos){
                 let activo      = abono.estatus == 1 ? 'SI' : 'NO';
-                let checkbox    = abono.estatus == 1 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" />' : '';
+                let total_movto = abono.monto.replaceAll("$", "");
+                let checkbox    = abono.estatus != 2 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" data-total="'+total_movto+'" />' : '';
 
                 if (abono.estatus == 1){
                     flag_abono_activo   = true;
                 }
 
-                row += '<tr>'+
-                            '<td>'+abono.clave_usuario_captura+'</td>'+
+                let fecha_cita  = abono.label_dia +'<br> '+abono.label_fecha_cita + ' - ' + abono.hora_inicio;
+                
+
+                row += '<tr class="tr_header">'+
+                            '<td>'+fecha_cita+'</td>'+
+                            '<td>'+abono.metodo_pago+'</td>'+
                             '<td><span class="badge rounded-pill badge-cita-'+abono.estatus+' px-2 py-1 small fw-semibold">'+activo+'</span></td>'+
                             '<td>'+abono.monto+'</td>'+
                             '<td>'+abono.label_fecha_cancelacion+'</td>'+
@@ -1428,41 +1444,64 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find("#btn_aplicar_accion").remove();
             }
 
+            $(modal_clone).on('click','.input_abono',function(){
+                let total   = 0;
+                $(modal_clone).find('.input_abono:checked').each(function(){
+                    let row_total   = $(this).data('total');
+                    total   = ((total * 100) + (row_total * 100)) / 100;
+                });
+
+                $(modal_clone).find("#span_total_seleccionado").text('$'+formatoDinero(total));
+            });
+
             //  EVENTO PARA CAPTURAR CANCELACION
             $(modal_clone).on('click','#btn_aplicar_accion',async function(){
                 let btn = $(this);
                 $(btn).prop('disabled',true);
                 //  VERIFICA SI HAY UN CLICK SELECCIONADO
-                let arr_id_abono    = [];
+                let arr_id_abono_movimiento = [];
 
                 $(modal_clone).find("#tbody_abonos").find('.input_abono').each(function(){
 
                     if ($(this).prop('checked')){
-                        arr_id_abono.push($(this).data('id'));
+                        arr_id_abono_movimiento.push($(this).data('id'));
                     }
                 })
 
-                if (arr_id_abono.length == 0){
+                if (arr_id_abono_movimiento.length == 0){
                     showAlert('danger','Seleccione al menos un abono');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
                 if ($(modal_clone).find('[name="tipo_accion"]:checked').length == 0){
                     showAlert('danger','Seleccione la acción a tomar');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
+
                 if ($(modal_clone).find("#input_observaciones").val().trim() == ''){
                     showAlert('danger','Ingrese una observación o motivo de esta acción');
+                    $(btn).prop('disabled',false);
                     return false;
                 }
 
+                let total   = 0;
+                $(modal_clone).find('.input_abono:checked').each(function(){
+                    let row_total   = $(this).data('total');
+                    total   = ((total * 100) + (row_total * 100)) / 100;
+                });
+
                 let obj_info    = {
-                    arr_id_abono    : arr_id_abono,
-                    accion          : $(modal_clone).find('[name="tipo_accion"]:checked').val(),
-                    observaciones_cancelacion   : $(modal_clone).find("#input_observaciones").val().trim()
+                    arr_id_abono_movimiento     : arr_id_abono_movimiento,
+                    tipo_cancelacion            : $(modal_clone).find('[name="tipo_accion"]:checked').val(),
+                    observaciones_cancelacion   : $(modal_clone).find("#input_observaciones").val().trim(),
+                    ticket_folio                : folio,
+                    total_movimiento            : total
                 }
 
-                const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?',true);
+                //const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?',true);
+                const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?');
 
                 if (respuesta){
                     $.ajax({
@@ -1471,10 +1510,16 @@ use App\Library\FuncionesGlobales;
                         dataType    : 'json',
                         data        : {
                             obj_info    : obj_info,
-                            accion      : 'save_accion'
+                            accion      : 'save_accion',
+                            paciente    : $("#select_pacientes").find('option:selected').text()
                         },
                         success     : function(data){
                             console.log('data',data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success','Movimiento capturado exitosamente!');
+                            $(modal_clone).modal('hide');
+                            clear_view();
+                            ajax_get_info_paciente();
                         },
                         error       : function(error){
                             actionJsonError(error,btn);
