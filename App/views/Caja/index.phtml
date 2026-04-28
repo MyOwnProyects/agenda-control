@@ -542,6 +542,27 @@ use App\Library\FuncionesGlobales;
                 <h5>Historial de abonos</h5>
             </div>
             <div class="card-body">
+                <!-- Filtros -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Folio</label>
+                        <input type="text" id="filtro_folio" class="form-control form-control-sm" placeholder="T-00001">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Fecha de cita</label>
+                        <input type="date" id="filtro_fecha_cita" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button id="btn_filtrar_tickets" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button id="btn_limpiar_filtros" class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="bi bi-x-circle"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
                 <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
@@ -653,12 +674,16 @@ use App\Library\FuncionesGlobales;
                             <span class="fw-medium" id="ticket_subtotal">$0.00</span>
                         </div>
                         <div class="d-flex justify-content-between small">
-                            <span class="text-secondary">Saldo a favor aplicado</span>
+                            <span class="text-secondary">Saldo a favor</span>
                             <span class="fw-medium text-success" id="ticket_saldo_favor">-$0.00</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                             <span class="fw-bold text-dark">Total a Pagar</span>
                             <span class="fw-bold text-indigo h6 mb-0" id="ticket_total">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fw-bold text-dark">Saldo a favor restante</span>
+                            <span class="fw-bold text-indigo h6 mb-0" id="ticket_saldo_favor_restante">$0.00</span>
                         </div>
                         <div class="d-flex justify-content-between small pt-1">
                             <span class="text-secondary">Monto Recibido</span>
@@ -778,7 +803,7 @@ use App\Library\FuncionesGlobales;
                         <tr>
                             <th>Fecha cita</th>
                             <th>Método de pago</th>
-                            <th>Activo</th>
+                            <th>Estatus</th>
                             <th>Monto</th>
                             <th>Fecha cancelación</th>
                             <th>Usuario cancelación</th>
@@ -887,12 +912,13 @@ use App\Library\FuncionesGlobales;
             subtotal_calculado  : 0,
             saldo_favor         : 0,
             total_pagar         : 0,
-            pago_efectivo       : 0,
-            pago_transferencia  : 0,
-            pago_tarjeta        : 0,
-            monto_recibido      : 0,
-            excedente           : 0,
-            accion_excedente    : null
+            saldo_favor_restante    : 0,
+            pago_efectivo           : 0,
+            pago_transferencia      : 0,
+            pago_tarjeta            : 0,
+            monto_recibido          : 0,
+            excedente               : 0,
+            accion_excedente        : null
         };
 
         //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
@@ -1207,7 +1233,7 @@ use App\Library\FuncionesGlobales;
                 detalle         = JSON.parse(detalle);
                 detalle['folio']    = row_data['folio'];
 
-                show_modal_ticket(detalle,row_data['nombre_completo']);
+                show_modal_preview_ticket(detalle,row_data['nombre_completo']);
                 
             });
 
@@ -1415,15 +1441,23 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('#small_folio').text(folio + ' - ' + fecha_captura);
 
             let row = '';
-            let flag_abono_activo   = false;
             for(let abono of info_abonos){
-                let activo      = abono.estatus == 1 ? 'SI' : 'NO';
-                let total_movto = abono.monto.replaceAll("$", "");
-                let checkbox    = abono.estatus != 2 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" data-total="'+total_movto+'" />' : '';
+                let estatus     = '';
 
                 if (abono.estatus == 1){
-                    flag_abono_activo   = true;
+                    estatus = 'ACTIVO';
                 }
+
+                if (abono.estatus == 0 && abono.tipo_cancelacion == 1){
+                    estatus = 'CANCELADO';
+                }
+
+                if (abono.estatus == 0 && abono.tipo_cancelacion == 2){
+                    estatus = 'DEVOLUCIÓN';
+                }
+
+                let total_movto = abono.monto.replaceAll("$", "");
+                let checkbox    = abono.estatus != 2 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" data-total="'+total_movto+'" />' : '';
 
                 let fecha_cita  = abono.label_dia +'<br> '+abono.label_fecha_cita + ' - ' + abono.hora_inicio;
                 
@@ -1431,17 +1465,13 @@ use App\Library\FuncionesGlobales;
                 row += '<tr class="tr_header">'+
                             '<td>'+fecha_cita+'</td>'+
                             '<td>'+abono.metodo_pago+'</td>'+
-                            '<td><span class="badge rounded-pill badge-cita-'+abono.estatus+' px-2 py-1 small fw-semibold">'+activo+'</span></td>'+
+                            '<td><span class="badge rounded-pill badge-cita-'+abono.estatus+' px-2 py-1 small fw-semibold">'+estatus+'</span></td>'+
                             '<td>'+abono.monto+'</td>'+
                             '<td>'+abono.label_fecha_cancelacion+'</td>'+
                             '<td>'+abono.clave_usuario_cancelacion+'</td>'+
                             '<td>'+abono.observaciones_cancelacion+'</td>'+
                             '<td>'+checkbox+'</td>'+
                         '</tr>';
-            }
-
-            if (!flag_abono_activo){
-                $(modal_clone).find("#btn_aplicar_accion").remove();
             }
 
             $(modal_clone).on('click','.input_abono',function(){
@@ -1592,11 +1622,19 @@ use App\Library\FuncionesGlobales;
                 $("#btnProcesarPago").removeClass('d-none');
             }
 
+            //  SE CALCULA EL SALDO A FAVOR RESTANTE
+            let saldo_favor_restante    = ((saldo_favor * 100) - (sub_total_calculado * 100)) / 100;
+
+            if (saldo_favor_restante < 0){
+                saldo_favor_restante    = 0;
+            }
+
             //  SE GUARDA EL OBJETO
             obj_totales_calculados['num_citas'] = citas_seleccionadas;
             obj_totales_calculados['subtotal_calculado']    = sub_total_calculado;
-            obj_totales_calculados['saldo_favor']   = saldo_favor;
-            obj_totales_calculados['total_pagar']   = total_calculado;
+            obj_totales_calculados['saldo_favor']           = saldo_favor;
+            obj_totales_calculados['saldo_favor_restante']  = saldo_favor_restante;
+            obj_totales_calculados['total_pagar']           = total_calculado;
 
 
             mostrar_monto_pagar();
@@ -1739,6 +1777,7 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find("#ticket_num_citas").text('Subtotal ('+obj_totales_calculados['num_citas']+' '+mensaje+')');
             $(modal_clone).find('#ticket_subtotal').text('$'+formatoDinero(obj_totales_calculados['subtotal_calculado']));
             $(modal_clone).find('#ticket_saldo_favor').text('$'+formatoDinero(obj_totales_calculados['saldo_favor']));
+            $(modal_clone).find('#ticket_saldo_favor_restante').text('$'+formatoDinero(obj_totales_calculados['saldo_favor_restante']));
             $(modal_clone).find('#ticket_total').text('$'+formatoDinero(obj_totales_calculados['total_pagar']));
             $(modal_clone).find('#ticket_monto_recibido').text('$'+formatoDinero(obj_totales_calculados['monto_recibido']));
 
@@ -1757,7 +1796,8 @@ use App\Library\FuncionesGlobales;
                     pago_tarjeta        : parseFloat(obj_totales_calculados['pago_tarjeta']) || 0,
                     excedente           : parseFloat(obj_totales_calculados['excedente']) || 0,
                     accion_excedente    : obj_totales_calculados['accion_excedente'] || '',
-                    saldo_favor         : saldo_favor
+                    saldo_favor         : saldo_favor,
+                    saldo_favor_restante    : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0
                 };
 
                 // Aplicar resta si es devolver cambio
@@ -1794,7 +1834,7 @@ use App\Library\FuncionesGlobales;
         }
 
         //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
-        function show_modal_ticket(detalle,nombre_paciente){
+        function show_modal_preview_ticket(detalle,nombre_paciente){
 
             let modal_clone = $("#modalConfirmarPago").clone().removeAttr('id');
 
@@ -1862,6 +1902,7 @@ use App\Library\FuncionesGlobales;
             
             $("#body_table").find('.row_cita').remove();
             $("#body_table").find('#row_sin_registros').show();
+            $("#span_saldo_favor").text('-$0.00')
 
             //  SALDO A FAVOR DEL PACIENTE
             saldo_favor         = 0;
@@ -1875,12 +1916,13 @@ use App\Library\FuncionesGlobales;
                 subtotal_calculado  : 0,
                 saldo_favor         : 0,
                 total_pagar         : 0,
-                pago_efectivo       : 0,
-                pago_transferencia  : 0,
-                pago_tarjeta        : 0,
-                monto_recibido      : 0,
-                excedente           : 0,
-                accion_excedente    : null
+                saldo_favor_restante    : 0,
+                pago_efectivo           : 0,
+                pago_transferencia      : 0,
+                pago_tarjeta            : 0,
+                monto_recibido          : 0,
+                excedente               : 0,
+                accion_excedente        : null
             };
 
             //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL

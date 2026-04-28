@@ -1217,10 +1217,11 @@ class FuncionesGlobales{
             $num_citas   = $detalle['num_citas'];
             $subtotal    = '$'.SELF::formatoMonetario($detalle['subtotal_calculado']);
             $saldo_favor = '$'.SELF::formatoMonetario($detalle['saldo_favor']);
-            $total       = '$'.SELF::formatoMonetario($detalle['total_pagar']);
-            $monto_rec   = '$'.SELF::formatoMonetario($detalle['monto_recibido']);
-            $excedente   = '$'.SELF::formatoMonetario($detalle['excedente']);
-            $resolucion  = '';
+            $saldo_favor_restante   = '$'.SELF::formatoMonetario($detalle['saldo_favor_restante']);
+            $total                  = '$'.SELF::formatoMonetario($detalle['total_pagar']);
+            $monto_rec              = '$'.SELF::formatoMonetario($detalle['monto_recibido']);
+            $excedente              = '$'.SELF::formatoMonetario($detalle['excedente']);
+            $resolucion             = '';
             
             // Servicios: array de ['nombre' => '...', 'precio' => '...']
             $servicios = $detalle['servicios'];
@@ -1549,12 +1550,16 @@ class FuncionesGlobales{
                     <td align="right">{$subtotal}</td>
                 </tr>
                 <tr>
-                    <td>Saldo a favor aplicado</td>
+                    <td>Saldo a favor</td>
                     <td align="right" class="saldo-favor-amt">{$saldo_favor}</td>
                 </tr>
                 <tr class="total-row">
                     <td><strong>Total a Pagar</strong></td>
                     <td align="right" class="amount"><strong>{$total}</strong></td>
+                </tr>
+                <tr>
+                    <td>Saldo a favor restante</td>
+                    <td align="right" class="saldo-favor-amt">{$saldo_favor_restante}</td>
                 </tr>
                 <tr>
                     <td style="padding-top:4px;">Monto Recibido</td>
