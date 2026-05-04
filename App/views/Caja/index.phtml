@@ -445,45 +445,67 @@ use App\Library\FuncionesGlobales;
                         </label>
 
                         <div class="d-flex flex-column gap-2">
+    <!-- Efectivo -->
+    <div class="payment-method-row">
+        <div class="method-icon">
+            <i class="bi bi-wallet2"></i>
+        </div>
+        <span class="small fw-semibold flex-grow-1 ms-2">Efectivo</span>
+        <div class="input-group input-group-sm" style="width:7rem;">
+            <span class="input-group-text">$</span>
+            <input type="number" id="monto_efectivo"
+                class="form-control input_monto_pagar text-end fw-bold"
+                placeholder="0.00" disabled/>
+        </div>
+    </div>
 
-                            <!-- Efectivo -->
-                            <div class="payment-method-row">
-                                <div class="method-icon">
-                                    <i class="bi bi-wallet2"></i>
-                                </div>
-                                <span class="small fw-semibold flex-grow-1 ms-2">Efectivo</span>
-                                <div class="input-group input-group-sm" style="width:7rem;">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" id="monto_efectivo" class="form-control input_monto_pagar text-end fw-bold" placeholder="0.00" disabled/>
-                                </div>
-                            </div>
+    <!-- Transferencia + Referencia agrupadas -->
+    <div class="d-flex flex-column" style="border:1px solid #bfdbfe;border-radius:8px;overflow:hidden;">
+        <div class="payment-method-row" style="border:none;">
+            <div class="method-icon">
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <span class="small fw-semibold flex-grow-1 ms-2">Transferencia</span>
+            <div class="input-group input-group-sm" style="width:7rem;">
+                <span class="input-group-text">$</span>
+                <input type="number" id="monto_transferencia"
+                    class="form-control input_monto_pagar text-end fw-bold"
+                    placeholder="0.00" disabled/>
+            </div>
+        </div>
 
-                            <!-- Transferencia -->
-                            <div class="payment-method-row">
-                                <div class="method-icon">
-                                    <i class="bi bi-arrow-left-right"></i>
-                                </div>
-                                <span class="small fw-semibold flex-grow-1 ms-2">Transferencia</span>
-                                <div class="input-group input-group-sm" style="width:7rem;">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" id="monto_transferencia" class="form-control input_monto_pagar text-end fw-bold" placeholder="0.00" disabled/>
-                                </div>
-                            </div>
+        <!-- Referencia (oculta por defecto) -->
+        <div id="div_referencia_transferencia" class="d-none p-2">
+            <div class="p-2 rounded" style="background:#e8f0fe;border:1px solid #93c5fd;">
+                <div class="d-flex align-items-center gap-1 mb-2">
+                    <i class="bi bi-info-circle text-primary" style="font-size:.8rem;"></i>
+                    <span class="small text-primary" style="font-size:.75rem;">Referencia de pago requerida</span>
+                </div>
+                <input type="text" id="input_referencia_transferencia"
+                    class="form-control form-control-sm"
+                    placeholder="Ej. 0001234567"
+                    maxlength="50"
+                    style="border-color:#93c5fd;background:#fff;"/>
 
-                            <!-- Tarjeta 
-                            <div class="payment-method-row">
-                                <div class="method-icon">
-                                    <i class="bi bi-credit-card"></i>
-                                </div>
-                                <span class="small fw-semibold flex-grow-1 ms-2">Tarjeta</span>
-                                <div class="input-group input-group-sm" style="width:7rem;">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" id="monto_tarjeta" class="form-control text-end fw-bold"
-                                        placeholder="0.00" value="0.00"/>
-                                </div>
-                            </div> -->
-
-                        </div>
+                <!-- Fecha y hora en la misma fila -->
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <label class="text-primary" style="font-size:.7rem;">Fecha de transferencia *</label>
+                        <input type="date" id="input_fecha_transferencia"
+                            class="form-control form-control-sm"
+                            style="border-color:#93c5fd;background:#fff;"/>
+                    </div>
+                    <div style="width:7.5rem;">
+                        <label class="text-primary" style="font-size:.7rem;">Hora (opcional)</label>
+                        <input type="time" id="input_hora_transferencia"
+                            class="form-control form-control-sm"
+                            style="border-color:#93c5fd;background:#fff;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                     </div>
 
                     <!-- Monto recibido -->
@@ -546,19 +568,19 @@ use App\Library\FuncionesGlobales;
                 <div class="row g-2 mb-3">
                     <div class="col-md-3">
                         <label class="form-label small text-muted">Folio</label>
-                        <input type="text" id="filtro_folio" class="form-control form-control-sm" placeholder="T-00001">
+                        <input type="text" id="filtro_folio" class="form-control form-control-sm filtros_ticket" placeholder="T-00001" disabled>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label small text-muted">Fecha de cita</label>
-                        <input type="date" id="filtro_fecha_cita" class="form-control form-control-sm">
+                        <input type="date" id="filtro_fecha_cita" class="form-control form-control-sm filtros_ticket" disabled>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button id="btn_filtrar_tickets" class="btn btn-primary btn-sm w-100">
+                        <button id="btn_filtrar_tickets" class="btn btn-primary btn-sm w-100 filtros_ticket" disabled>
                             <i class="bi bi-search"></i> Buscar
                         </button>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button id="btn_limpiar_filtros" class="btn btn-outline-secondary btn-sm w-100">
+                        <button id="btn_limpiar_filtros" class="btn btn-outline-secondary btn-sm w-100 filtros_ticket" disabled>
                             <i class="bi bi-x-circle"></i> Limpiar
                         </button>
                     </div>
@@ -668,6 +690,11 @@ use App\Library\FuncionesGlobales;
                         <div class="d-none d-flex justify-content-between small div_transferencia">
                             <span class="text-secondary">Transferencia</span>
                             <span class="fw-medium" id="ticket_transferencia">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between div_transferencia">
+                            <span class="text-muted" style="font-size:.75rem;padding-left:.75rem;">
+                                Ref: <span id="ticket_referencia" style="font-size:.75rem;padding-left:.75rem;"></span>
+                            </span>
                         </div>
                         <div class="d-flex justify-content-between small pt-2 border-top">
                             <span class="text-secondary" id="ticket_num_citas">Subtotal (0 citas)</span>
@@ -843,6 +870,9 @@ use App\Library\FuncionesGlobales;
                 </div>
                 <!-- Botón aplicar -->
                 <div class="w-100 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
                     <button type="button" id="btn_aplicar_accion" class="btn btn-danger btn-sm">
                         <i class="bi bi-check2-circle"></i> Aplicar
                     </button>
@@ -915,10 +945,13 @@ use App\Library\FuncionesGlobales;
             saldo_favor_restante    : 0,
             pago_efectivo           : 0,
             pago_transferencia      : 0,
-            pago_tarjeta            : 0,
-            monto_recibido          : 0,
-            excedente               : 0,
-            accion_excedente        : null
+            referencia_transferencia    : '',
+            fecha_transferencia         : '',
+            hora_transferencia          : 0,
+            pago_tarjeta                : 0,
+            monto_recibido              : 0,
+            excedente                   : 0,
+            accion_excedente            : null
         };
 
         //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
@@ -929,7 +962,6 @@ use App\Library\FuncionesGlobales;
 
         // Función para inicializar o recargar la tabla
         function cargarTabla() {
-            
             draw    ++;
             if (!table) {
                 table = new DataTable('#table_results', {
@@ -948,8 +980,10 @@ use App\Library\FuncionesGlobales;
                             d.offset    = d.start == null || d.start == '' ? 0 : d.start;
                             d.draw      = draw;
                             d.accion    = 'get_rows';
-                            d.folio     = '';
+                            d.folio     = $("#filtro_folio").val().trim();
+                            d.fecha_cita    = $("#filtro_fecha_cita").val().trim();
                             d.id_paciente   = $("#select_pacientes").val();
+                            d.from_caja     = true;
                         },
                         dataSrc: function(json) {
                             $("#badge_num_abonos").text(json['recordsTotal']);
@@ -1034,6 +1068,17 @@ use App\Library\FuncionesGlobales;
             }).on('select2:select',function(){
                 clear_view();
                 ajax_get_info_paciente();
+            });
+
+            //  FILTRO DE BUSQUEDA DE ABONOS
+            $("#btn_filtrar_tickets").on('click',function(){
+                cargarTabla();
+            });
+
+            $("#btn_limpiar_filtros").on('click',function(){
+                $("#filtro_folio").val('');
+                $("#filtro_fecha_cita").val('');
+                cargarTabla();
             });
 
             //  EVENTOS DE TABS
@@ -1144,6 +1189,13 @@ use App\Library\FuncionesGlobales;
                     // Ninguno supera el total solo, habilitar todos
                     $('#monto_efectivo, #monto_tarjeta, #monto_transferencia').prop('disabled', false);
                 }
+
+                if (transferencia > 0){
+                    $("#div_referencia_transferencia").removeClass('d-none');
+                } else {
+                    $("#div_referencia_transferencia").addClass('d-none');
+                    $("#input_referencia_transferencia").val('');
+                }
                 
                 mostrar_monto_pagar();
             });
@@ -1168,6 +1220,24 @@ use App\Library\FuncionesGlobales;
                         showAlert('danger','Seleccione un metodo de pago y la cantidad a liquidar');
                         return false;
                     }
+
+                //  VALIDACIONES EN CASO DE QUE INGRESEN TRANSFERENCIA COMO METODO DE PAGO
+                if ($("#monto_transferencia").val() != '' && $("#monto_transferencia").val() != null && $("#monto_transferencia").val() > 0){
+                    
+                    if ($("#input_referencia_transferencia").val() == null || $("#input_referencia_transferencia").val().trim() == ''){
+                        showAlert('danger','Ingrese la referencia de pago');
+                        return false;
+                    }
+                    
+                    if ($("#input_fecha_transferencia").val() == null || $("#input_fecha_transferencia").val().trim() == ''){
+                        showAlert('danger','Ingrese la fecha de la transferencia');
+                        return false;
+                    }
+                }
+
+                obj_totales_calculados['referencia_transferencia']  = $("#input_referencia_transferencia").val().trim();
+                obj_totales_calculados['fecha_transferencia']       = $("#input_fecha_transferencia").val().trim();
+                obj_totales_calculados['hora_transferencia']        = $("#input_hora_transferencia").val().trim();
 
                 if (obj_totales_calculados['excedente'] > 0 && $(".pay-method-btn.active").length == 0){
                     showAlert('danger','Seleccione la acción sobre el monto excedente');
@@ -1368,6 +1438,7 @@ use App\Library\FuncionesGlobales;
                     console.log(data);
                     show_table_citas(data);
                     cargarTabla();
+                    $(".filtros_ticket").prop('disabled',false);
                 },
                 error       : function(error){
                     console.log('error');
@@ -1772,6 +1843,9 @@ use App\Library\FuncionesGlobales;
 
             if (obj_totales_calculados['pago_transferencia'] > 0){
                 $(modal_clone).find('.div_transferencia').removeClass('d-none').find('#ticket_transferencia').text('$'+formatoDinero(obj_totales_calculados['pago_transferencia']));
+                $(modal_clone).find('.div_transferencia').find('#ticket_referencia').text(obj_totales_calculados['referencia_transferencia']);
+            } else {
+                $(modal_clone).find('.div_transferencia').addClass('d-none');
             }
 
             $(modal_clone).find("#ticket_num_citas").text('Subtotal ('+obj_totales_calculados['num_citas']+' '+mensaje+')');
@@ -1794,10 +1868,13 @@ use App\Library\FuncionesGlobales;
                     pago_efectivo       : parseFloat(obj_totales_calculados['pago_efectivo']) || 0,
                     pago_transferencia  : parseFloat(obj_totales_calculados['pago_transferencia']) || 0,
                     pago_tarjeta        : parseFloat(obj_totales_calculados['pago_tarjeta']) || 0,
-                    excedente           : parseFloat(obj_totales_calculados['excedente']) || 0,
-                    accion_excedente    : obj_totales_calculados['accion_excedente'] || '',
-                    saldo_favor         : saldo_favor,
-                    saldo_favor_restante    : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0
+                    referencia_transferencia    : obj_totales_calculados['referencia_transferencia'] || '',
+                    fecha_transferencia         : obj_totales_calculados['fecha_transferencia'] || '',
+                    hora_transferencia          : obj_totales_calculados['hora_transferencia'] || '',
+                    excedente                   : parseFloat(obj_totales_calculados['excedente']) || 0,
+                    accion_excedente            : obj_totales_calculados['accion_excedente'] || '',
+                    saldo_favor                 : saldo_favor,
+                    saldo_favor_restante        : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0
                 };
 
                 // Aplicar resta si es devolver cambio
@@ -1919,10 +1996,13 @@ use App\Library\FuncionesGlobales;
                 saldo_favor_restante    : 0,
                 pago_efectivo           : 0,
                 pago_transferencia      : 0,
-                pago_tarjeta            : 0,
-                monto_recibido          : 0,
-                excedente               : 0,
-                accion_excedente        : null
+                referencia_transferencia    : '',
+                fecha_transferencia         : '',
+                hora_transferencia          : 0,
+                pago_tarjeta                : 0,
+                monto_recibido              : 0,
+                excedente                   : 0,
+                accion_excedente            : null
             };
 
             //  SE GUARDAN TODAS LAS CITAS A PAGAR Y EL SALDO ACTUAL
@@ -1931,6 +2011,16 @@ use App\Library\FuncionesGlobales;
             //  LIMPIA DE COUNTS
             $("#badge_num_citas").text(0);
             $("#badge_num_abonos").text(0);
+
+            //  BLOQUEO DE FILTROS DE BUSQUEDA DE TICKETS
+            $(".filtros_ticket").prop('disabled',true);
+
+            if (table != undefined){
+                draw    ++;
+                table.ajax.reload();
+            }
+            
+            
         }
     })();
 </script>
