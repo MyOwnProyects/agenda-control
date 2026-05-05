@@ -1280,6 +1280,15 @@ class FuncionesGlobales{
                     <td style="padding:3px 0; font-size:9pt; color:#333;">' . htmlspecialchars($p['metodo']) . '</td>
                     <td align="right" style="padding:3px 0; font-size:9pt; color:#1a1a2e;">$' . htmlspecialchars($p['monto']) . '</td>
                 </tr>';
+
+                if (strtoupper($p['metodo']) != 'EFECTIVO' && !empty($detalle['referencia_transferencia'])) {
+                    $pagos_html .= '
+                    <tr>
+                        <td colspan="2" style="padding:0 0 4px 8px; font-size:7.5pt; color:#9aa0b5;">
+                            Ref: ' . htmlspecialchars($detalle['referencia_transferencia']) . '
+                        </td>
+                    </tr>';
+                }
             }
 
             $excedente_html = "";
