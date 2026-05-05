@@ -1227,6 +1227,11 @@ use App\Library\FuncionesGlobales;
                     if ($("#input_referencia_transferencia").val() == null || $("#input_referencia_transferencia").val().trim() == ''){
                         showAlert('danger','Ingrese la referencia de pago');
                         return false;
+                    } else {
+                        if ($("#input_referencia_transferencia").val().length > 50){
+                            showAlert('danger','La referencia bancaria puede tener hasta 50 caracteres');
+                            return false;
+                        }
                     }
                     
                     if ($("#input_fecha_transferencia").val() == null || $("#input_fecha_transferencia").val().trim() == ''){
