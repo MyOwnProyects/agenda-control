@@ -781,6 +781,7 @@ use App\Library\FuncionesGlobales;
                     <thead>
                         <tr>
                             <th>Fecha captura</th>
+                            <th>Fecha de pago</th>
                             <th>Usuario captura</th>
                             <th>Estatus</th>
                             <th>Monto</th>
@@ -1394,10 +1395,25 @@ use App\Library\FuncionesGlobales;
                 let row = '';
                 for(let movto of obj_info_citas[id_agenda_cita]['movimientos']){
                     console.log(movto);
+
+                    let estatus = '';
+
+                    if (movto.estatus == 1){
+                        estatus = 'ACTIVO';
+                    }
+
+                    if (movto.estatus == 0 && movto.tipo_cancelacion == 1){
+                        estatus = 'CANCELADO';
+                    }
+
+                    if (movto.estatus == 0 && movto.tipo_cancelacion == 2){
+                        estatus = 'DEVOLUCIÓN';
+                    }
                     row += '<tr>'+
                                 '<td>'+movto.fecha_captura+'</td>'+
+                                '<td>'+movto.fecha_hora_pago+'</td>'+
                                 '<td>'+movto.clave_usuario_captura+'</td>'+
-                                '<td><span class="badge rounded-pill badge-cita-'+movto.estatus+' px-2 py-1 small fw-semibold">'+movto.label_estatus+'</span></td>'+
+                                '<td><span class="badge rounded-pill badge-cita-'+movto.estatus+' px-2 py-1 small fw-semibold">'+estatus+'</span></td>'+
                                 '<td>$'+movto.monto+'</td>'+
                                 '<td>'+movto.fecha_cancelacion+'</td>'+
                                 '<td>'+movto.clave_usuario_cancelacion+'</td>'+
