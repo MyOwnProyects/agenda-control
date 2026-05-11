@@ -93,7 +93,9 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacute;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'].' Mensaje de ejecución: '.$result['MSG'],$obj_info);
+                $mensaje_aplicar_saldo_favor    = $obj_info['aplicar_saldo_favor'] == 1 ? " Aplicación de saldo a favor: SI " : ' Aplicación de saldo a favor: NO ';
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacute;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'].$mensaje_aplicar_saldo_favor.', Mensaje de ejecución: '.$result['MSG'],$obj_info);
                 FuncionesGlobales::deleteCacheByPattern('info_location_');
 
                 $response->setJsonContent($result['MSG']);

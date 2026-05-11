@@ -891,6 +891,15 @@ use App\Library\FuncionesGlobales;
                     <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
                 </div>
                 <div class="col-md-6">
+                    <label for="input_clave" class="col-form-label">Aplicar saldo a favor</label>
+                    <select id="select_saldo_favor" class="select_saldo_favor form-select" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="1">SI</option>
+                        <option value="0">NO</option>
+                    </select>
+                    <div class="invalid-feedback">Seleccione una opción</div>
+                </div>
+                <div class="col-md-6">
                     <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
                     <input type="date" class="form-control" id="input_fecha_inicio" disabled required>
                     <div class="invalid-feedback"><?php echo $translations['html_error_starting_date']; ?></div>
@@ -3143,6 +3152,8 @@ use App\Library\FuncionesGlobales;
                     })
                 });
 
+                
+
                 if ($(modal_clone).find('.select_locaciones_modal').val() != '' && $(modal_clone).find('.select_locaciones_modal') != null){
                     const id_locacion   = $(modal_clone).find('.select_locaciones_modal').val();
                     $.ajax({
@@ -3240,7 +3251,9 @@ use App\Library\FuncionesGlobales;
                         nombre_locacion : $(modal_clone).find('#select_locaciones_modal').find('option:selected').text(),
                         fecha_inicio    : $(modal_clone).find('#input_fecha_inicio').val(),
                         fecha_termino   : $(modal_clone).find('#input_fecha_termino').val(),
+                        aplicar_saldo_favor : $(modal_clone).find('#select_saldo_favor').val(),
                     };
+                    //console.log('obj_info',obj_info);
                     //return false;
 
                     //  AJAX SAVE
