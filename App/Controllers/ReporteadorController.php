@@ -542,7 +542,7 @@ class ReporteadorController extends BaseController
             // 4. Llenar datos
             $columna    = 10;
             foreach ($arr_rows['hoja_2'] as $row) {
-                $sheet2->setCellValue('A'.$columna, $row['fecha_pago']);
+                $sheet2->setCellValue('A'.$columna, $row['fecha_hora_pago']);
                 $sheet2->setCellValue('B'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_transferencia']));
                 $sheet2->setCellValue('C'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_efectivo']));
                 $sheet2->setCellValue('D'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_pagos']));
