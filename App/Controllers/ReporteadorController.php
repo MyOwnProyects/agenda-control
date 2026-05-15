@@ -554,6 +554,139 @@ class ReporteadorController extends BaseController
                 $sheet2->getColumnDimension($col)->setAutoSize(true);
             }
 
+            //  PAGINA 3
+            $sheet3 = $spreadsheet->createSheet();
+
+            $sheet3->setTitle('DETALLE DE INFORMACIÓN');
+
+            $sheet3->mergeCells('A1:E1');
+            $sheet3->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet3->mergeCells('A2:E2');
+            $sheet3->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet3->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet3->setCellValue('B4', date('d/m/Y'));
+
+            $sheet3->setCellValue('A5', 'Hora de impresión: ');
+            $sheet2->setCellValue('B5', date('H:i:s'));
+
+            $sheet3->setCellValue('A6', 'Rango de fechas: ');
+            $sheet3->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet3->setCellValue('A7', 'Generado por:');
+            $sheet3->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet3->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet3->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet3->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+        
+            foreach (range('A', 'E') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $sheet3->setTitle('CONCENTRADO DE ABONOS');
+
+            $sheet3->mergeCells('A1:E1');
+            $sheet3->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet3->mergeCells('A2:E2');
+            $sheet3->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet3->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet3->setCellValue('B4', date('d/m/Y'));
+
+            $sheet3->setCellValue('A5', 'Hora de impresión: ');
+            $sheet3->setCellValue('B5', date('H:i:s'));
+
+            $sheet3->setCellValue('A6', 'Rango de fechas: ');
+            $sheet3->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet3->setCellValue('A7', 'Generado por:');
+            $sheet3->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet3->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet3->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet3->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+
             $spreadsheet->setActiveSheetIndex(0);
 
             $path_file = FuncionesGlobales::get_path_file('reportes');
