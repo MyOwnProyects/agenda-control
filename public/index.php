@@ -2,16 +2,19 @@
 
 use Phalcon\Mvc\Application;
 
-//  TIEMPO DE SESION
-$session_timer  = 48 * 60 * 60; // 36 HORAS
-ini_set('session.gc_maxlifetime', $session_timer);  // 7 días
-ini_set('session.cookie_lifetime', 0);      // Cierra con navegador
-
 // Define some absolute path constants to aid in locating resources
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/App');
 define('MPDF_TEMP_DIR', BASE_PATH . '/storage/files/tmp');
-define('IMAGES_DIR', BASE_PATH . '/storage/imagenes');
+
+//  CONFIG PARA SABER PATHS DE IMAGENES
+$config = require APP_PATH . '/config/config.php';
+define('IMAGES_DIR', BASE_PATH . '/public/img/' . $config['SERVER']);
+
+//  TIEMPO DE SESION
+$session_timer  = $config['SESSION_TIMER']; // 36 HORAS
+ini_set('session.gc_maxlifetime', $session_timer);  // 7 días
+ini_set('session.cookie_lifetime', 0);      // Cierra con navegador
 
 
 // INCLUIR AUTOLOAD
