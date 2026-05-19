@@ -31,33 +31,49 @@ function data_reportes(reporte){
                 }
             }
         },
-        general_ingresos    : {
+        general_ingresos: {
             titulo      : 'Reporte de ingresos contable',
-            descripcion : 'Reporte que consolida todos los ingresos monetarios registrados en el sistema dentro de un rango de fechas de pago, mostrando el total ingresado y su distribución, independientemente de la fecha en que ocurrió la cita.' ,
+            descripcion : 'Reporte que consolida todos los ingresos monetarios registrados en el sistema dentro de un rango de fechas de pago, mostrando el total ingresado y su distribución, independientemente de la fecha en que ocurrió la cita.',
             datos_tabla : {
-                0   : {
-                    columna     : 'Indicador (Hoja 1)',
+                0: {
+                    columna     : 'Hoja 1 - Indicador',
                     descripcion : 'Totales por metodo de pago'
                 },
-                1   : {
-                    columna     : 'Valor (Hoja 1)',
+                1: {
+                    columna     : 'Hoja 1 - Valor',
                     descripcion : 'Cantidad monetaria por metodo de pago'
                 },
-                2   : {
-                    columna     : 'Fecha de pago (Hoja 2)',
+                2: {
+                    columna     : 'Hoja 2 - Fecha de pago',
                     descripcion : 'Día en que se registro el pago en el sistema'
                 },
-                3   : {
-                    columna     : 'Total por tranferencias (Hoja 2)',
+                3: {
+                    columna     : 'Hoja 2 - Total por transferencias',
                     descripcion : 'Suma de todas las citas pagadas por transferencia'
                 },
-                4   : {
-                    columna     : 'Total por efectivo (Hoja 2)',
+                4: {
+                    columna     : 'Hoja 2 - Total por efectivo',
                     descripcion : 'Suma de todas las citas pagadas en efectivo'
                 },
-                5   : {
-                    columna     : 'Total pagado (Hoja 2)',
+                5: {
+                    columna     : 'Hoja 2 - Total pagado',
                     descripcion : 'Suma de todos los ingresos registrados en ese día'
+                },
+                6: {
+                    columna     : 'Hoja 3 - Tipo',
+                    descripcion : 'Indica si el registro es un abono o un movimiento que se realizó al abono en cuestión.'
+                },
+                7: {
+                    columna     : 'Hoja 3 - Fecha',
+                    descripcion : 'Fecha en que el paciente realizó el pago.'
+                },
+                8: {
+                    columna     : 'Hoja 3 - Monto',
+                    descripcion : 'Cantidad monetaria que el paciente pagó.'
+                },
+                9: {
+                    columna     : 'Hoja 3 - Monto disponible',
+                    descripcion : 'Saldo restante del abono después de aplicar los movimientos registrados en el período.'
                 }
             }
         },
