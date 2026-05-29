@@ -575,9 +575,13 @@ use App\Library\FuncionesGlobales;
                         <label class="form-label small text-muted">Folio</label>
                         <input type="text" id="filtro_folio" class="form-control form-control-sm filtros_ticket" placeholder="T-00001" disabled>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label small text-muted">Fecha de cita</label>
                         <input type="date" id="filtro_fecha_cita" class="form-control form-control-sm filtros_ticket" disabled>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Fecha de pago</label>
+                        <input type="date" id="filtro_fecha_pago" class="form-control form-control-sm filtros_ticket" disabled>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button id="btn_filtrar_tickets" class="btn btn-primary btn-sm w-100 filtros_ticket" disabled>
@@ -988,6 +992,7 @@ use App\Library\FuncionesGlobales;
                             d.accion    = 'get_rows';
                             d.folio     = $("#filtro_folio").val().trim();
                             d.fecha_cita    = $("#filtro_fecha_cita").val().trim();
+                            d.fecha_pago    = $("#filtro_fecha_pago").val().trim();
                             d.id_paciente   = $("#select_pacientes").val();
                             d.from_caja     = true;
                         },
@@ -1016,7 +1021,7 @@ use App\Library\FuncionesGlobales;
                                                                                         '   <i class="bi-arrow-counterclockwise"></i>'+
                                                                                     '   </button>' : '';
 
-                                let btn_download    = ' <button class="btn btn-outline-dark btn-sm btn_download" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                let btn_download    = ' <button class="btn btn-outline-dark btn-sm btn_download" data-id="'+data['id']+'" title="Descargar ticket">' +
                                                         '   <i class="bi bi-download"></i>'+
                                                     '   </button>'; 
                                 return btn_preview + btn_download + btn_cancelar_devoler;
@@ -1084,6 +1089,7 @@ use App\Library\FuncionesGlobales;
             $("#btn_limpiar_filtros").on('click',function(){
                 $("#filtro_folio").val('');
                 $("#filtro_fecha_cita").val('');
+                $("#filtro_fecha_pago").val('');
                 cargarTabla();
             });
 
@@ -1244,6 +1250,26 @@ use App\Library\FuncionesGlobales;
                         showAlert('danger','Ingrese la fecha de la transferencia');
                         return false;
                     }
+                }
+
+                //  VERIFICA QUE NO SE SALTEE CITAS PARA PAGAR
+                let last_checked        = 0;
+                let error_check_pago    = false;
+                $('#table_citas_deudoras').find(".check_cita").each(function(){
+                    let num_row = $(this).data('numrow');
+                    if ($(this).prop('checked')){
+                        if ((parseInt(last_checked) + parseInt(1)) == num_row){
+                            last_checked    ++;
+                        } else {
+                            error_check_pago    = true;
+                            return false;
+                        }
+                    }
+                });
+
+                if (error_check_pago){
+                    showAlert('danger','Verifica la selección de citas. Debes seleccionar las citas pendientes en orden, comenzando por la más antigua.');
+                    return false;
                 }
 
                 obj_totales_calculados['referencia_transferencia']  = $("#input_referencia_transferencia").val().trim();
@@ -1511,7 +1537,7 @@ use App\Library\FuncionesGlobales;
 
                     let row = 
                     '<tr class="row_cita '+has_movtos+' row_'+num_citas+'" data-idrow="'+num_citas+'" data-saldocita="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'" '+title+'>'+
-                        '<td><input class="check_cita" type="checkbox" '+disabled+' /></td>'+
+                        '<td><input class="check_cita" type="checkbox" '+disabled+' data-numrow="'+num_citas+'" /></td>'+
                         '<td class="small">'+num_citas+'</td>'+
                         '<td class="small">'+cita.nombre_profesional+'</td>'+
                         '<td class="small td_servicio">'+cita.num_servicios_costo+'</td>'+
