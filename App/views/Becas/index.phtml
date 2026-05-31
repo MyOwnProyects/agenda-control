@@ -66,7 +66,7 @@ use App\Library\FuncionesGlobales;
 <div class="container mt-4">
     <!-- Section 1: Search Filters -->
     <div>
-        <h2><?php echo FuncionesGlobales::UpperString($translations['html_services']); ?></h2>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_schoolarship_title']); ?></h2>
     </div>
     <div id="header_filters" class="card mb-4">
         <div class="card-header">
@@ -107,9 +107,8 @@ use App\Library\FuncionesGlobales;
                     <tr>
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
-                        <th><?php echo $translations['html_price']; ?></th>
-                        <th><?php echo $translations['html_duration']; ?></th>
-                        <th><?php echo $translations['html_active']; ?></th>
+                        <th><?php echo $translations['html_type_scholarship']; ?></th>
+                        <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
                 </thead>
@@ -145,49 +144,6 @@ use App\Library\FuncionesGlobales;
                 <label for="textarea_descripcion" class="col-form-label"><?php echo $translations['html_description']; ?></label>
                 <textarea rows="2" class="form-control" id="textarea_descripcion"></textarea>
             </div>
-            <div class="row mb-3">
-                <!-- Campo Costo -->
-                <div class="col-md-6">
-                    <label for="input_price" class="col-form-label"><?php echo $translations['html_price']; ?></label>
-                    <input type="number" class="form-control" id="input_price" required>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_access_key']; ?></div>
-                </div>
-                <!-- Campo Duracion -->
-                <div class="col-md-6">
-                    <label for="input_duration" class="col-form-label"><?php echo $translations['html_duration']; ?></label>
-                    <input type="number" class="form-control" id="input_duration" required>
-                    <div class="invalid-feedback"><?php echo $translations['html_error_duration']; ?></div>
-                </div>
-            </div>
-                <div class="mt-3">
-                <label class="form-label"><?php echo $translations['html_select_color']; ?></label>
-                <div class="d-flex flex-wrap gap-2">
-                    <?php
-                    $colores = [
-                        '#FFB6C1', // Rosa Pastel
-                        '#AEC6CF', // Azul Pastel
-                        '#C1E1C1', // Verde Pastel
-                        '#E6E6FA', // Lavanda
-                        '#B2F2BB', // Menta
-                        '#FFDAB9', // Melocotón
-                        '#D8BFD8', // Lila
-                        '#FFFACD', // Amarillo Suave
-                        '#FFB3BA', // Coral Pastel
-                        '#AFEEEE'  // Celeste
-                    ];
-                    foreach ($colores as $index => $color) {
-                        echo "
-                        <label class='color-swatch-wrapper position-relative' title='$color'>
-                            <input class='visually-hidden-radio' type='radio' name='color_pastel' value='$color'>
-                            <span class='color-swatch' style='background-color: $color;'>
-                                <span class='checkmark'>&#10003;</span>
-                            </span>
-                        </label>";
-                    }
-                    ?>
-                </div>
-            </div>
-
             
             <div id="alert_error_permisos" class="alert alert-danger align-items-center" role="alert" style="display:none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
@@ -210,7 +166,7 @@ use App\Library\FuncionesGlobales;
     let module_servicios    = (function(){
         let draw            = 0;
         //  URL
-        const controller    = '/Servicios';
+        const controller    = '/Becas';
         const url_index     = controller+"/index";
         const url_create    = controller+"/create";
         const url_delete    = controller+"/delete";
@@ -278,9 +234,8 @@ use App\Library\FuncionesGlobales;
                     columns: [
                         { data: 'clave' }, // Columna 1
                         { data: 'nombre' }, // Columna 1
-                        { data: 'costo' }, // Columna 1
-                        { data: 'duracion_minutos' }, // Columna 1
-                        { data: 'label_activo' }, // Columna 1
+                        { data: 'label_tipo_beca' }, // Columna 1
+                        { data: 'label_estatus' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -310,11 +265,6 @@ use App\Library\FuncionesGlobales;
                     createdRow: function (row, data, dataIndex) {
                         // Guardar el objeto completo en la fila como data
                         $(row).data('rowData', data);
-
-                        if (data.codigo_color != null && data.codigo_color != '') {
-                            $(row).find('td:eq(0)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
-                            $(row).find('td:eq(1)').css('background-color', data.codigo_color); // La sexta columna tiene índice 5
-                        }
                     }
                 });
             } else {
@@ -339,7 +289,7 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_change_status',async function(){
                 let data        = $(this).closest('tr').data('rowData');
                 const id        = data['id'];
-                const estatus   = data['activo'];
+                const estatus   = data['estatus'];
                 let btn     = $(this);
                 
                 let msg = translations['confirm_update'];
@@ -355,7 +305,7 @@ use App\Library\FuncionesGlobales;
                             accion  : 'change_status',
                             status_actual   : estatus,
                             nuevo_status    : estatus == 1 ? 0 : 1,
-                            servicio        : data['clave'] + ' - ' +data['nombre'],
+                            beca            : data['clave'] + ' - ' +data['nombre'],
                             id      : id
                         },
                         success : function(data){
@@ -459,7 +409,7 @@ use App\Library\FuncionesGlobales;
                     if ($(this).val() == data['codigo_color']){
                         $(this).trigger('click');
                     }
-                });
+                })
 
                 $(modal_clone).find("#label_modal_create").text('EDITAR');
             }
@@ -478,23 +428,6 @@ use App\Library\FuncionesGlobales;
                     $(form).removeClass('was-validated');
                 }
 
-                //  VALIDA QUE LIGIERA UN COLOR
-                if ($(modal_clone).find('[name="color_pastel"]:checked').length == 0){
-                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['error_selected_color']);
-                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
-                }
-                //  VALIDAR REGISTROS
-                if ($(modal_clone).find("#input_price").val() != '' && !validarCantidadMonetaria($(modal_clone).find("#input_price").val())){
-                    $(modal_clone).find('#alert_error_permisos').find('#msg_error').html(error_list['price']);
-                    $(modal_clone).find('#alert_error_permisos').addClass('d-flex').show();
-                    return false;
-                } else {
-                    $(modal_clone).find('#alert_error_permisos').removeClass('d-flex').hide();
-                }
-
                 if(flag_error){
                     return false;
                 }
@@ -503,18 +436,16 @@ use App\Library\FuncionesGlobales;
                     clave   : $(modal_clone).find('#input_clave').val(),
                     nombre  : $(modal_clone).find('#input_nombre').val(),
                     descripcion : $(modal_clone).find('#textarea_descripcion').val(),
-                    costo       : $(modal_clone).find('#input_price').val(),
-                    duracion    : $(modal_clone).find('#input_duration').val(),
-                    codigo_color    : $(modal_clone).find('[name="color_pastel"]:checked').val() 
+                    tipo_beca   : 1,
+                    indefinida  : 0
                 };
 
                 if (data != null){
-                    obj_info['id']              = data['id'];
-                    obj_info['clave_old']       = data['clave'];
-                    obj_info['nombre_old']      = data['nombre'];
-                    obj_info['costo_old']       = data['costo'];
-                    obj_info['duracion_old']    = data['duracion_minutos'];
-                    obj_info['color_old']       = data['codigo_color'];
+                    obj_info['id']          = data['id'];
+                    obj_info['clave_old']   = data['clave'];
+                    obj_info['nombre_old']  = data['nombre'];
+                    obj_info['tipo_beca_old']   = data['tipo_beca'];
+                    obj_info['indefinida_old']  = data['indefinida'];
                 }
 
                 console.log('obj_info');

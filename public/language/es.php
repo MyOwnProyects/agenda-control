@@ -206,6 +206,8 @@ return [
     'html_payment_module'                       => 'Caja',
     'html_capture_date'                         => 'Fecha de captura',
     'html_total_paid'                           => 'Total pagado',
+    'html_type_scholarship'                     => 'Tipo de beca',
+    'html_schoolarship_title'                   => 'Becas'                   ,
     
 
 

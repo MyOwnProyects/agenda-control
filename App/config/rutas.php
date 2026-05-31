@@ -160,6 +160,13 @@ return [
         'tickets_show'      => '/caja/tickets_show',
         'ticket_movtos_show'            => '/caja/ticket_movtos_show',
         'save_cancelacion_devolucion'   => '/caja/save_cancelacion_devolucion'
+    ),
+    'becas' => array(
+        'show'      => "/becas/show",
+        'delete'    => "/becas/delete",
+        'save'      => "/becas/save",
+        'count'     => "/becas/count",
+        'change_status' => '/becas/change_status'
     )
 
 ];
