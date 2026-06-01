@@ -167,6 +167,10 @@ return [
         'save'      => "/becas/save",
         'count'     => "/becas/count",
         'change_status' => '/becas/change_status'
+    ),
+    'paciente_becas'    => array(
+        'count' => '/paciente_becas/count',
+        'show'  => '/paciente_becas/show',
     )
 
 ];

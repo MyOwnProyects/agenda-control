@@ -1,401 +1,826 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Módulo de Caja - Control de Citas</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de Becas</title>
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    /* ── Base ── */
-    body {
-      background-color: #f8fafc;
-      overflow: hidden;
-      height: 100vh;
-    }
+    <style>
+        :root {
+            --primary:              #461599;
+            --primary-container:    #5e35b1;
+            --primary-fixed:        #eaddff;
+            --primary-fixed-dim:    #d1bcff;
+            --on-primary:           #ffffff;
+            --secondary:            #0060a8;
+            --secondary-container:  #47a1ff;
+            --on-secondary:         #ffffff;
+            --on-secondary-container: #003663;
+            --surface:              #f4fafd;
+            --surface-container-low: #eef5f7;
+            --surface-container:    #e8eff1;
+            --surface-container-high: #e2e9ec;
+            --on-surface:           #161d1f;
+            --on-surface-variant:   #494453;
+            --outline-variant:      #cbc3d5;
+            --error:                #ba1a1a;
+            --error-container:      #ffdad6;
+            --on-error-container:   #93000a;
+            --secondary-fixed:      #d3e4ff;
+            --on-secondary-fixed:   #001c38;
 
-    /* ── Main layout ── */
-    .main-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+            --sidebar-width: 260px;
+            --topbar-height: 64px;
+        }
 
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
-      background-color: #f1f5f9;
-      padding: 2rem;
-    }
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: var(--surface);
+            color: var(--on-surface);
+        }
 
-    /* ── Status badges ── */
-    .badge-active  { background-color: #dcfce7; color: #166534; }
-    .badge-pending { background-color: #fef9c3; color: #854d0e; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
 
-    /* ── Payment method buttons ── */
-    .pay-method-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 0.5rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 0.5rem;
-      background: #fff;
-      color: #4b5563;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
-    }
-    .pay-method-btn:hover  { border-color: #a5b4fc; }
-    .pay-method-btn.active { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
-    .pay-method-btn.dashed { border-style: dashed; }
-    .pay-method-btn i      { font-size: 1.25rem; margin-bottom: 4px; }
+        /* ── Sidebar ── */
+        #sidebar {
+            width: var(--sidebar-width);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            background-color: var(--primary);
+            color: var(--primary-fixed);
+            display: flex;
+            flex-direction: column;
+            z-index: 1050;
+            border-right: 1px solid var(--outline-variant);
+        }
 
-    /* ── Partial payment box ── */
-    .payment-entry-box {
-      background-color: #eef2ff;
-      border: 1px solid #c7d2fe;
-      border-radius: 0.5rem;
-      padding: 1rem;
-    }
-    .payment-entry-box .input-prefix {
-      position: absolute;
-      left: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #6366f1;
-      font-weight: 700;
-      font-size: 1.1rem;
-      pointer-events: none;
-    }
-    .payment-entry-box input {
-      padding-left: 1.75rem;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #4338ca;
-      border: 2px solid #a5b4fc;
-      border-radius: 0.5rem;
-    }
-    .payment-entry-box input:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 0.2rem rgba(99,102,241,.25);
-      outline: none;
-    }
+        #sidebar .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--on-primary);
+            line-height: 1.4;
+        }
 
-    /* ── Process button ── */
-    .btn-process {
-      background-color: #4f46e5;
-      color: #fff;
-      border: none;
-      border-radius: 0.75rem;
-      padding: 1rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      width: 100%;
-      box-shadow: 0 10px 15px -3px rgba(99,102,241,.25);
-      transition: background-color 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .btn-process:hover { background-color: #4338ca; color: #fff; }
+        #sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1.5rem;
+            color: rgba(234, 221, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
 
-    /* ── Modal ── */
-    .modal-footer-summary { background-color: #f8fafc; }
-    .focus-ring-indigo:focus { border-color: #6366f1; box-shadow: 0 0 0 0.2rem rgba(99,102,241,.25); }
+        #sidebar nav a:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #fff;
+        }
 
-    /* ── Misc ── */
-    .text-indigo { color: #4f46e5; }
-    .btn-indigo  { background-color: #4f46e5; color: #fff; border: none; }
-    .btn-indigo:hover { background-color: #4338ca; color: #fff; }
-  </style>
+        #sidebar nav a.active {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+            font-weight: 700;
+            border-left: 4px solid var(--secondary-fixed);
+        }
+
+        #sidebar .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-container);
+            color: var(--on-secondary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        /* ── Topbar ── */
+        #topbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: calc(100% - var(--sidebar-width));
+            height: var(--topbar-height);
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            z-index: 1040;
+        }
+
+        #topbar .brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        #topbar .search-wrap {
+            position: relative;
+            width: 16rem;
+            margin-left: 2rem;
+        }
+
+        #topbar .search-wrap .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--on-surface-variant);
+            font-size: 1.1rem;
+        }
+
+        #topbar .search-wrap input {
+            width: 100%;
+            padding: 0.4rem 1rem 0.4rem 2.4rem;
+            background-color: var(--surface-container-low);
+            border: 1px solid var(--outline-variant);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            outline: none;
+            color: var(--on-surface);
+        }
+
+        #topbar .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary);
+            transition: background-color 0.2s;
+        }
+
+        #topbar .icon-btn:hover {
+            background-color: var(--surface-container-high);
+        }
+
+        #topbar .divider {
+            height: 2rem;
+            width: 1px;
+            background-color: var(--outline-variant);
+            margin: 0 0.5rem;
+        }
+
+        #topbar img.avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--primary);
+            object-fit: cover;
+        }
+
+        /* ── Main ── */
+        #main {
+            margin-left: var(--sidebar-width);
+            padding-top: var(--topbar-height);
+            min-height: 100vh;
+            background-color: var(--surface);
+            padding-bottom: 90px; /* leave room for sticky footer */
+        }
+
+        /* ── Cards ── */
+        .card-custom {
+            background: #fff;
+            border: 1px solid #E0E0E0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb-link {
+            color: var(--on-surface-variant);
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .breadcrumb-link:hover { color: var(--primary); }
+        .breadcrumb-current {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .breadcrumb-sep {
+            font-size: 0.875rem;
+            color: var(--on-surface-variant);
+        }
+
+        /* ── Buttons ── */
+        .btn-outline-primary-custom {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-outline-primary-custom:hover { background-color: rgba(70,21,153,0.05); }
+
+        .btn-primary-custom {
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            transition: background-color 0.2s;
+        }
+        .btn-primary-custom:hover { background-color: var(--primary-container); }
+
+        /* ── Form inputs ── */
+        .input-custom {
+            width: 100%;
+            border: 1px solid var(--outline-variant);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: var(--on-surface);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-custom:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(0,96,168,0.15);
+        }
+
+        .input-icon-wrap { position: relative; }
+        .input-icon-wrap .input-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--on-surface-variant);
+        }
+        .input-icon-wrap input { padding-left: 2.5rem; }
+
+        .amount-wrap { position: relative; }
+        .amount-wrap .currency-sign {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 700;
+            color: var(--on-surface-variant);
+        }
+        .amount-wrap input {
+            padding-left: 1.8rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .select-custom {
+            width: 100%;
+            border: 1px solid var(--outline-variant);
+            border-radius: 0.5rem;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: var(--on-surface);
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjN0I3NDg0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNyAxMGw1IDUgNS01eiIvPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: border-color 0.2s;
+        }
+        .select-custom:focus { border-color: var(--secondary); }
+
+        /* ── Label ── */
+        .label-bold {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ── Config detail box ── */
+        .detail-box {
+            background-color: var(--surface-container);
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        .detail-box .detail-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        .detail-row:last-child { margin-bottom: 0; }
+        .detail-row .detail-label { color: var(--on-surface-variant); }
+        .detail-row .detail-value { font-weight: 600; }
+        .badge-priority {
+            background-color: var(--secondary-fixed);
+            color: var(--on-secondary-fixed);
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 0.2rem;
+        }
+
+        /* ── Table ── */
+        .table-custom thead th {
+            background-color: #F8F9FA;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+            border-bottom: 1px solid var(--outline-variant);
+            padding: 1rem 1.5rem;
+        }
+        .table-custom tbody td {
+            font-size: 0.875rem;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--outline-variant);
+            vertical-align: middle;
+        }
+        .table-custom tbody tr { transition: background-color 0.15s; cursor: pointer; }
+        .table-custom tbody tr:hover { background-color: #F1F3F4; }
+        .text-error { color: var(--error); }
+
+        /* ── Table footer ── */
+        .table-footer {
+            background-color: var(--surface-container-low);
+            border-top: 1px solid var(--outline-variant);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-footer .note {
+            font-size: 0.75rem;
+            color: var(--on-surface-variant);
+            font-style: italic;
+        }
+        .table-footer .total-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+            display: block;
+            text-align: right;
+        }
+        .table-footer .total-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+
+        /* ── Badge pending ── */
+        .badge-pending {
+            background-color: var(--error-container);
+            color: var(--on-error-container);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+        }
+
+        /* ── Section header ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* ── Sticky Footer ── */
+        #sticky-footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: calc(100% - var(--sidebar-width));
+            background: #fff;
+            border-top: 1px solid var(--outline-variant);
+            padding: 1rem 2rem;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1030;
+        }
+
+        .footer-stat .stat-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+            display: block;
+        }
+        .footer-stat .stat-value-secondary {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .footer-stat .stat-value-primary {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .btn-cancel {
+            padding: 0.65rem 2rem;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-cancel:hover { background-color: rgba(70,21,153,0.05); }
+
+        .btn-confirm {
+            padding: 0.65rem 2.5rem;
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s, transform 0.15s;
+        }
+        .btn-confirm:hover {
+            background-color: var(--primary-container);
+            transform: translateY(-1px);
+        }
+
+        /* Spinner animation */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 1s linear infinite; display: inline-block; }
+
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body class="d-flex">
+<body>
 
-  <!-- ══════════════════════════════════════════
-       MODAL — Dividir Pago (Bootstrap nativo)
-  ══════════════════════════════════════════ -->
-  <div class="modal fade" id="modalDividirPago" tabindex="-1" aria-labelledby="modalDividirPagoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:520px;">
-      <div class="modal-content rounded-3 shadow-lg">
+<!-- ══════════════════════════════════════
+         SIDEBAR
+══════════════════════════════════════ -->
+<aside id="sidebar">
+    <div class="p-4">
+        <div class="brand-title">Admin Suite</div>
+        <div style="font-size:0.875rem;opacity:0.8;margin-top:2px;">Management Portal</div>
+    </div>
 
-        <!-- Modal Header -->
-        <div class="modal-header border-bottom px-4 py-3">
-          <h5 class="modal-title fw-bold text-dark" id="modalDividirPagoLabel">Dividir Pago</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    <nav class="flex-grow overflow-auto py-3">
+        <ul class="list-unstyled mb-0">
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">calendar_today</span>Agenda
+                </a>
+            </li>
+            <li>
+                <a href="#" class="active">
+                    <span class="material-symbols-outlined">payments</span>Caja
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">event_note</span>Control de citas
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">group</span>Pacientes
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">block</span>Bloqueo de agenda
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">location_on</span>Locaciones
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">chat_bubble</span>Plantillas de mensajes
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">medical_services</span>Profesionales
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined">analytics</span>Reporteador
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div style="padding:1.5rem;border-top:1px solid rgba(255,255,255,0.1);">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div class="user-avatar">JD</div>
+            <div>
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.05em;color:#fff;">John Doe</div>
+                <div style="font-size:0.625rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.6);">Administrator</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ══════════════════════════════════════
+         TOPBAR
+══════════════════════════════════════ -->
+<header id="topbar">
+    <div style="display:flex;align-items:center;">
+        <span class="brand">Medical &amp; Ed Management</span>
+        <div class="search-wrap">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input type="text" placeholder="Global search...">
+        </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button class="icon-btn">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="icon-btn">
+            <span class="material-symbols-outlined">settings</span>
+        </button>
+        <div class="divider"></div>
+        <img class="avatar"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcA0AcVfCur1-cUpHZE9qrHE0qL656aUuco5Ly7nC6GpR495yMLQR5TQqIXmbGJStpXkNZcTKpj_h8FlMz5jMrV48tWZLoFYnBoXHtU_n2bnXOo9ql8UyKHDEQJRiP2t8hLTswvwBq9NENYIjApnoEgk3BFKlgFIqxhJN0esijC8NsGcottmoj85NEvh_f9CgSgMTGLnPaOIwuUVkTGs8MiHFY_Pw0dnLVUE97VC-4qyC_CnqZH49HkrnDdUZfMUudrxsD93JwFMU"
+                 alt="User Profile Avatar">
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════
+         MAIN CONTENT
+══════════════════════════════════════ -->
+<main id="main">
+    <div class="p-4">
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-1 mb-2">
+                    <a href="#" class="breadcrumb-link">Caja</a>
+                    <span class="material-symbols-outlined breadcrumb-sep" style="font-size:14px;">chevron_right</span>
+                    <span class="breadcrumb-current">Asignación de Becas</span>
+                </div>
+                <h1 style="font-size:2rem;font-weight:700;letter-spacing:-0.02em;color:var(--primary);margin:0;">
+                    Asignación de Becas
+                </h1>
+            </div>
+            <div class="d-flex gap-3">
+                <button class="btn-outline-primary-custom">Exportar Reporte</button>
+                <button class="btn-primary-custom">Nueva Beca</button>
+            </div>
         </div>
 
-        <!-- Modal Body -->
-        <div class="modal-body p-4">
-
-          <!-- Payment methods list -->
-          <div class="d-flex flex-column gap-3">
-
-            <!-- Method 1 -->
-            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-              <div class="flex-grow-1">
-                <label class="form-label fw-bold text-secondary text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Método</label>
-                <div class="fw-semibold text-dark">Efectivo</div>
-              </div>
-              <div style="width:8rem;">
-                <label class="form-label fw-bold text-secondary text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Monto</label>
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text text-secondary">$</span>
-                  <input type="text" class="form-control fw-medium focus-ring-indigo" value="300.00"/>
+        <!-- ── Patient + Scholarship Selector ── -->
+        <div class="card-custom p-4 mb-4">
+            <div class="row g-4">
+                <div class="col-12 col-md-6">
+                    <label class="label-bold">PACIENTE</label>
+                    <div class="input-icon-wrap">
+                        <span class="material-symbols-outlined input-icon">person</span>
+                        <input class="input-custom" type="text" value="Javier Alejandro Montes">
+                    </div>
+                    <p style="font-size:0.6875rem;margin-top:4px;color:rgba(73,68,83,0.7);font-style:italic;padding:0 4px;">
+                        ID: 10294857 - Estado: Activo
+                    </p>
                 </div>
-              </div>
-              <button class="btn btn-sm btn-light border-0 mt-4 p-1 text-secondary" style="transition:color .15s" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color=''">
-                <i class="bi bi-trash3 fs-5"></i>
-              </button>
-            </div>
-
-            <!-- Method 2 -->
-            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-              <div class="flex-grow-1">
-                <label class="form-label fw-bold text-secondary text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Método</label>
-                <div class="fw-semibold text-dark">Tarjeta de Crédito</div>
-              </div>
-              <div style="width:8rem;">
-                <label class="form-label fw-bold text-secondary text-uppercase mb-1" style="font-size:.7rem;letter-spacing:.05em;">Monto</label>
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text text-secondary">$</span>
-                  <input type="text" class="form-control fw-medium focus-ring-indigo" value="300.00"/>
+                <div class="col-12 col-md-6">
+                    <label class="label-bold">BECA</label>
+                    <select class="select-custom">
+                        <option>Beca Excelencia Académica - 100%</option>
+                        <option selected>Beca Socioeconómica Especial - 50%</option>
+                        <option>Convenio Empresa Aliada</option>
+                    </select>
                 </div>
-              </div>
-              <button class="btn btn-sm btn-light border-0 mt-4 p-1 text-secondary" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color=''">
-                <i class="bi bi-trash3 fs-5"></i>
-              </button>
             </div>
-
-          </div><!-- /payment-methods-list -->
-
-          <!-- Add method button -->
-          <button class="btn btn-sm btn-link text-indigo fw-semibold ps-0 mt-3 text-decoration-none d-flex align-items-center gap-1">
-            <i class="bi bi-plus-circle fs-5"></i>
-            Añadir otro método de pago
-          </button>
-
-        </div><!-- /Modal Body -->
-
-        <!-- Modal Footer / Summary -->
-        <div class="modal-footer flex-column align-items-stretch px-4 py-4 border-top modal-footer-summary">
-
-          <!-- Totals -->
-          <div class="d-flex flex-column gap-2 mb-3 w-100">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="small text-secondary">Monto total ingresado:</span>
-              <span class="fw-bold text-dark">$600.00</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center p-2 rounded border" style="background:#f0fdf4;border-color:#bbf7d0!important;">
-              <span class="small fw-medium" style="color:#15803d;">Monto faltante:</span>
-              <span class="fw-bold" style="color:#15803d;">$0.00</span>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="d-flex justify-content-end gap-2 w-100">
-            <button type="button" class="btn btn-outline-secondary fw-semibold px-4" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-indigo fw-semibold px-4">Confirmar Métodos</button>
-          </div>
-
-        </div><!-- /Modal Footer -->
-
-      </div><!-- /modal-content -->
-    </div><!-- /modal-dialog -->
-  </div><!-- /modal -->
-
-
-  <!-- ══════════════════════════════════════════
-       MAIN CONTENT
-  ══════════════════════════════════════════ -->
-  <main class="main-wrapper flex-grow-1">
-
-    <!-- Body -->
-    <div class="main-content">
-
-      <!-- Patient Search -->
-      <section class="bg-white p-4 rounded-3 shadow-sm mb-4">
-        <h2 class="h6 fw-semibold text-secondary mb-3">Búsqueda de Paciente</h2>
-        <div class="d-flex gap-3">
-          <div class="flex-grow-1 position-relative">
-            <span class="position-absolute top-50 translate-middle-y ps-3" style="left:0;pointer-events:none;">
-              <i class="bi bi-search text-secondary"></i>
-            </span>
-            <input type="text"
-                   class="form-control ps-5"
-                   placeholder="Buscar por nombre o ID del paciente (ej. Acosta Carrillo)..."/>
-          </div>
-          <button class="btn btn-indigo px-4 fw-medium">Buscar</button>
-        </div>
-      </section>
-
-      <!-- Grid: Table + Summary -->
-      <div class="row g-4 pb-4">
-
-        <!-- Appointments Table -->
-        <div class="col-12 col-xl-8">
-          <section class="bg-white rounded-3 shadow-sm h-100">
-            <div class="p-3 border-bottom">
-              <h2 class="h6 fw-semibold text-secondary mb-0">Citas Pendientes de Pago</h2>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0" id="appointments-table">
-                <thead class="table-light">
-                  <tr>
-                    <th scope="col" style="width:2.5rem;">
-                      <input class="form-check-input" type="checkbox"/>
-                    </th>
-                    <th scope="col" class="text-uppercase small fw-bold text-secondary" style="letter-spacing:.05em;">Paciente</th>
-                    <th scope="col" class="text-uppercase small fw-bold text-secondary" style="letter-spacing:.05em;">Profesional</th>
-                    <th scope="col" class="text-uppercase small fw-bold text-secondary" style="letter-spacing:.05em;">Servicio / Costo</th>
-                    <th scope="col" class="text-uppercase small fw-bold text-secondary" style="letter-spacing:.05em;">Fecha y Hora</th>
-                    <th scope="col" class="text-uppercase small fw-bold text-secondary" style="letter-spacing:.05em;">Estatus</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Row 1 -->
-                  <tr class="table-active">
-                    <td><input class="form-check-input" type="checkbox" checked/></td>
-                    <td class="fw-medium small">Acosta Carrillo Iker (16.01)</td>
-                    <td class="text-secondary small">Martinez Lenguaje</td>
-                    <td class="text-secondary small">PSI / $300</td>
-                    <td class="text-secondary small">09/03/2026 09:00 a 09:40</td>
-                    <td><span class="badge rounded-pill badge-active px-2 py-1 small fw-semibold">ACTIVA</span></td>
-                  </tr>
-                  <!-- Row 2 -->
-                  <tr class="table-active">
-                    <td><input class="form-check-input" type="checkbox" checked/></td>
-                    <td class="fw-medium small">Acosta Carrillo Iker (16.01)</td>
-                    <td class="text-secondary small">Martinez Lenguaje</td>
-                    <td class="text-secondary small">PSI / $300</td>
-                    <td class="text-secondary small">09/03/2026 09:45 a 10:25</td>
-                    <td><span class="badge rounded-pill badge-active px-2 py-1 small fw-semibold">ACTIVA</span></td>
-                  </tr>
-                  <!-- Row 3 -->
-                  <tr>
-                    <td><input class="form-check-input" type="checkbox"/></td>
-                    <td class="fw-medium small">Acosta Carrillo Iker (16.01)</td>
-                    <td class="text-secondary small">Martinez Lenguaje</td>
-                    <td class="text-secondary small">PSI / $300</td>
-                    <td class="text-secondary small">09/03/2026 10:30 a 11:10</td>
-                    <td><span class="badge rounded-pill badge-active px-2 py-1 small fw-semibold">ACTIVA</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
         </div>
 
-        <!-- Payment Summary -->
-        <div class="col-12 col-xl-4">
-          <section class="bg-white rounded-3 shadow-sm p-4">
+        <!-- ── Configuration + Table ── -->
+        <div class="row g-4">
 
-            <h2 class="h6 fw-semibold text-secondary mb-4 pb-2 border-bottom">Resumen de Pago</h2>
+            <!-- Configuration Card -->
+            <div class="col-12 col-lg-4">
+                <div class="card-custom p-4 h-100">
+                    <div class="section-header mb-4">
+                        <span class="material-symbols-outlined">settings_suggest</span>
+                        <span>Configuración</span>
+                    </div>
 
-            <!-- Line items -->
-            <div class="d-flex flex-column gap-3 mb-4">
-              <div class="d-flex justify-content-between text-secondary small">
-                <span>Subtotal (2 citas)</span>
-                <span class="fw-medium">$600.00</span>
-              </div>
-              <div class="d-flex justify-content-between text-secondary small">
-                <span>Impuestos (0%)</span>
-                <span class="fw-medium">$0.00</span>
-              </div>
-              <div class="d-flex justify-content-between text-secondary small">
-                <span>Descuentos</span>
-                <span class="fw-medium text-success">-$0.00</span>
-              </div>
-              <div class="d-flex justify-content-between pt-3 border-top align-items-center">
-                <span class="h6 fw-bold text-dark mb-0">Total a Pagar</span>
-                <span class="h5 fw-bold mb-0 text-indigo" id="total-amount">$600.00</span>
-              </div>
+                    <div class="mb-4">
+                        <label class="label-bold">MONTO DE LA BECA (MXN)</label>
+                        <div class="amount-wrap">
+                            <span class="currency-sign">$</span>
+                            <input class="input-custom" type="number" value="1500.00">
+                        </div>
+                    </div>
+
+                    <div class="detail-box">
+                        <div class="detail-title">Detalles del Beneficio</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Tipo:</span>
+                            <span class="detail-value">Parcial</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Vigencia:</span>
+                            <span class="detail-value">Semestral</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Categoría:</span>
+                            <span class="badge-priority">PRIORIDAD A</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Partial Payment Input -->
-            <div class="payment-entry-box mb-4">
-              <label for="amount-to-pay" class="form-label fw-bold text-uppercase small mb-2"
-                     style="color:#1e1b4b;letter-spacing:.05em;">
-                Cantidad a Pagar / Recibir
-              </label>
-              <div class="position-relative">
-                <span class="input-prefix">$</span>
-                <input type="number"
-                       id="amount-to-pay"
-                       class="form-control"
-                       placeholder="0.00"
-                       value="600.00"/>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-2 small">
-                <span class="text-secondary">Saldo Restante:</span>
-                <span class="fw-bold text-danger" id="remaining-balance">$0.00</span>
-              </div>
+            <!-- Pending Appointments Table -->
+            <div class="col-12 col-lg-8">
+                <div class="card-custom d-flex flex-column h-100" style="overflow:hidden;">
+
+                    <!-- Table Header -->
+                    <div class="d-flex justify-content-between align-items-center p-4"
+                             style="border-bottom:1px solid var(--outline-variant);">
+                        <div class="section-header">
+                            <span class="material-symbols-outlined">receipt_long</span>
+                            <span>Citas Deudoras</span>
+                        </div>
+                        <span class="badge-pending">3 PENDIENTES</span>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive flex-grow-1">
+                        <table class="table table-borderless mb-0 table-custom">
+                            <thead>
+                                <tr>
+                                    <th>FECHA</th>
+                                    <th>SERVICIO / CONCEPTO</th>
+                                    <th class="text-end">MONTO ORIGINAL</th>
+                                    <th class="text-end">SALDO</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>12/05/2024</td>
+                                    <td><strong>Consulta Médica General</strong></td>
+                                    <td class="text-end">$800.00</td>
+                                    <td class="text-end text-error fw-bold">$800.00</td>
+                                    <td class="text-center">
+                                        <input type="checkbox" checked>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>28/04/2024</td>
+                                    <td><strong>Terapia Física - Sesión 4</strong></td>
+                                    <td class="text-end">$1,200.00</td>
+                                    <td class="text-end text-error fw-bold">$1,200.00</td>
+                                    <td class="text-center">
+                                        <input type="checkbox" checked>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>15/04/2024</td>
+                                    <td><strong>Análisis Clínicos Completo</strong></td>
+                                    <td class="text-end">$2,500.00</td>
+                                    <td class="text-end text-error fw-bold">$1,500.00</td>
+                                    <td class="text-center">
+                                        <input type="checkbox">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Table Footer -->
+                    <div class="table-footer">
+                        <span class="note">Se han seleccionado 2 conceptos para aplicar la beca</span>
+                        <div>
+                            <span class="total-label">Total Seleccionado</span>
+                            <span class="total-value">$2,000.00</span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
-            <!-- Payment method selector -->
-            <div class="mb-4">
-              <label class="form-label small fw-medium text-dark">Método de Pago para este monto</label>
+        </div><!-- /row -->
 
-              <div class="row g-2 mb-2">
-                <div class="col-6">
-                  <button class="pay-method-btn active">
-                    <i class="bi bi-wallet2"></i>
-                    Efectivo
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button class="pay-method-btn">
-                    <i class="bi bi-credit-card"></i>
-                    Tarjeta
-                  </button>
-                </div>
-              </div>
+    </div><!-- /p-4 -->
+</main>
 
-              <div class="row g-2">
-                <div class="col-6">
-                  <button class="pay-method-btn">
-                    <i class="bi bi-arrow-left-right"></i>
-                    Transfer.
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button class="pay-method-btn dashed"
-                          data-bs-toggle="modal" data-bs-target="#modalDividirPago">
-                    <i class="bi bi-sliders"></i>
-                    Dividir Pago
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Process button -->
-            <button class="btn-process">
-              <i class="bi bi-check-circle fs-5"></i>
-              Procesar Pago
-            </button>
-
-            <p class="text-center text-muted small fst-italic mt-3 mb-0">
-              Se enviará el comprobante de pago al correo registrado del paciente.
-            </p>
-
-          </section>
+<!-- ══════════════════════════════════════
+         STICKY FOOTER
+══════════════════════════════════════ -->
+<div id="sticky-footer">
+    <div class="d-flex gap-5">
+        <div class="footer-stat">
+            <span class="stat-label">Total a Liquidar</span>
+            <span class="stat-value-secondary">$1,500.00</span>
         </div>
+        <div class="footer-stat">
+            <span class="stat-label">Saldo Remanente</span>
+            <span class="stat-value-primary">$500.00</span>
+        </div>
+    </div>
+    <div class="d-flex gap-3">
+        <button class="btn-cancel">Cancelar</button>
+        <button class="btn-confirm" onclick="simulateConfirm(event)">
+            <span class="material-symbols-outlined" style="font-size:20px;">check_circle</span>
+            Confirmar Asignación
+        </button>
+    </div>
+</div>
 
-      </div><!-- /row -->
-    </div><!-- /main-content -->
-  </main>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Bootstrap 5 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function simulateConfirm(e) {
+        const btn = e.currentTarget;
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined spin">sync</span> Procesando...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            btn.style.backgroundColor = '#16a34a';
+            btn.innerHTML = '<span class="material-symbols-outlined">check</span> ¡Asignada!';
+
+            setTimeout(() => {
+                btn.innerHTML = original;
+                btn.style.backgroundColor = '';
+                btn.disabled = false;
+                alert('La beca ha sido asignada exitosamente a los conceptos seleccionados.');
+            }, 2000);
+        }, 1500);
+    }
+
+    // Toggle checkbox on row click
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('click', () => {
+            const cb = row.querySelector('input[type="checkbox"]');
+            if (cb) cb.checked = !cb.checked;
+        });
+    });
+</script>
+
 </body>
 </html>

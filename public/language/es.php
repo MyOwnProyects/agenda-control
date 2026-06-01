@@ -207,7 +207,8 @@ return [
     'html_capture_date'                         => 'Fecha de captura',
     'html_total_paid'                           => 'Total pagado',
     'html_type_scholarship'                     => 'Tipo de beca',
-    'html_schoolarship_title'                   => 'Becas'                   ,
+    'html_schoolarship_title'                   => 'Becas',
+    'html_assign_scholarships'                  => 'Asignar becas',
     
 
 
