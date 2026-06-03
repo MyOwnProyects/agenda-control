@@ -538,7 +538,7 @@ use App\Library\FuncionesGlobales;
                     <thead class="table-light">
                         <tr>
                             <th scope="col" style="width:2.5rem;">
-                                <input id="check_todas_citas" type="checkbox"/>
+                                <!-- <input id="check_todas_citas" type="checkbox"/> -->
                             </th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">#</th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Profesional</th>
@@ -926,6 +926,9 @@ use App\Library\FuncionesGlobales;
         //  CITAS RESULTANTES DE LA BUSQUEDA
         let obj_info_citas      = {};
 
+        //  CITAS QUE NO APLICARA LA BECA
+        let obj_citas_excluidas = [];
+
         // Función para inicializar o recargar la tabla
         function cargarTabla() {
             draw    ++;
@@ -1083,61 +1086,26 @@ use App\Library\FuncionesGlobales;
                 $('#section_citas_resumen').addClass('d-none');
             });
 
-            //  INPUT CHECK SELECCION DE TODAS LAS CITAS
-            $("#check_todas_citas").on('click',function(){
-                let check_actual    = $(this).prop('checked');
-
-                $("#body_table").find('.check_cita').each(function(){
-                    if (check_actual){
-                        $(this).closest('tr').addClass('table-active');
-                        $(this).prop('disabled',false).prop('checked',true);
-                    } else {
-                        $(this).closest('tr').removeClass('table-active');
-                        $(this).prop('checked',false);
-
-                        //  DEJA HABILITADO EL PRIMER ROW
-                        if ($(this).closest('tr').data('idrow') != 1){
-                            $(this).prop('disabled',true);
-                        }
-                    }
-                });
-                
-                calcula_total();
-            });
-
             //  INPUT CHECK DE SELECCION POR CITA
             $("#body_table").on('click','.check_cita',function(){
                 let check_actual    = $(this).prop('checked');
                 let id_row          = $(this).closest('tr').data('idrow');
+                let id_agenda_cita  = $(this).closest('tr').data('idagendacita');
                 if (check_actual){
                     $(this).closest('tr').addClass('table-active');
-                    
-                    //  SE DESBLOQUEA EL SIGUIENTE ROW
-                    let next_row    = parseInt(id_row) + parseInt(1);
-                    $("#body_table").find('.row_'+next_row).find('.check_cita').prop('disabled',false);
 
-                    //  SI TODAS LAS CITAS ESTAN SELECCIONADAS SE SELECCIONA EL DIV GENERAL
-                    const citas_no_marcadas = $('#body_table input[type=checkbox]:not(:checked)').length > 0;
+                    //  RETORNA EL ARRAY SIN EL ID_AGENDA_CITA
+                    obj_citas_excluidas = obj_citas_excluidas.filter(id => id !== id_agenda_cita);
                     
-                    if (!citas_no_marcadas){
-                        $("#check_todas_citas").prop('checked',true);
-                    }
 
                 } else {
-
                     //  SE QUITA LA CLASE ACTIVA
                     $(this).closest('tr').removeClass('table-active');
+                    obj_citas_excluidas.push(id_agenda_cita);
 
-                    //  SE DSELECCIONAN Y SE BLOQUEAN TODOS LOS ROWS SIGUIENTES A ESTE
-                    $("#body_table").find('.row_cita').each(function(){
-                        if ($(this).data('idrow') > id_row){
-                            $(this).removeClass('table-active');
-                            $(this).find('.check_cita').prop('disabled',true).prop('checked',false);
-                        }
-                    });
-
-                    $("#check_todas_citas").prop('checked',false);
                 }
+
+                console.log('obj_citas_excluidas 1',obj_citas_excluidas);
                 calcula_total();
             });
 
@@ -1158,18 +1126,6 @@ use App\Library\FuncionesGlobales;
                 const efectivo      = parseFloat($('#monto_efectivo').val())      || 0;
                 const tarjeta       = parseFloat($('#monto_tarjeta').val())       || 0;
                 const transferencia = parseFloat($('#monto_transferencia').val()) || 0;
-
-                // Bloquear otros métodos solo si UN método ya supera el total individualmente
-                if (efectivo >= totalAPagar) {
-                    $('#monto_tarjeta, #monto_transferencia').val('').prop('disabled', true);
-                } else if (tarjeta >= totalAPagar) {
-                    $('#monto_efectivo, #monto_transferencia').val('').prop('disabled', true);
-                } else if (transferencia >= totalAPagar) {
-                    $('#monto_efectivo, #monto_tarjeta').val('').prop('disabled', true);
-                } else {
-                    // Ninguno supera el total solo, habilitar todos
-                    $('#monto_efectivo, #monto_tarjeta, #monto_transferencia').prop('disabled', false);
-                }
 
                 if (transferencia > 0){
                     $("#div_referencia_transferencia").removeClass('d-none');
@@ -1224,7 +1180,7 @@ use App\Library\FuncionesGlobales;
                 //  VERIFICA QUE NO SE SALTEE CITAS PARA PAGAR
                 let last_checked        = 0;
                 let error_check_pago    = false;
-                $('#table_citas_deudoras').                          find(".check_cita").each(function(){
+                $('#table_citas_deudoras').find(".check_cita").each(function(){
                     let num_row = $(this).data('numrow');
                     if ($(this).prop('checked')){
                         if ((parseInt(last_checked) + parseInt(1)) == num_row){
@@ -1499,11 +1455,11 @@ use App\Library\FuncionesGlobales;
                         title       = 'title="Ver información de movimientos"';
                     }
 
-                    let disabled    = num_citas == 1 ? '' : 'disabled';
+                    //let disabled    = num_citas == 1 ? '' : 'disabled';
 
                     let row = 
                     '<tr class="row_cita '+has_movtos+' row_'+num_citas+'" data-idrow="'+num_citas+'" data-saldocita="'+cita.saldo_cita+'" data-idagendacita="'+cita.id_agenda_cita+'" '+title+'>'+
-                        '<td><input class="check_cita" type="checkbox" '+disabled+' data-numrow="'+num_citas+'" /></td>'+
+                        '<td><input class="check_cita" type="checkbox" disabled data-numrow="'+num_citas+'" /></td>'+
                         '<td class="small">'+num_citas+'</td>'+
                         '<td class="small">'+cita.nombre_profesional+'</td>'+
                         '<td class="small td_servicio">'+cita.num_servicios_costo+'</td>'+
@@ -1701,11 +1657,7 @@ use App\Library\FuncionesGlobales;
 
             $("#span_total_a_pagar").text('$'+formatoDinero(total_calculado));
 
-            //  SE VUELVE DISABLED EL INPUT SI NO HAY CITAS SELECCIONADAS
-            $(".input_monto_pagar").prop('disabled',citas_seleccionadas <= 0);
-
             if (citas_seleccionadas == 0){
-               $(".input_monto_pagar").val('');
                $("#btnProcesarPago").addClass('d-none');
             } else {
                 $("#btnProcesarPago").removeClass('d-none');
@@ -1731,6 +1683,7 @@ use App\Library\FuncionesGlobales;
 
         //  SUMA LAS CANTIDADES ENTRE METODOS DE PAGO PARA SABER CUANDO QUIERE PAGAR EL USUARIO
         function mostrar_monto_pagar(){
+            console.log('obj_citas_excluidas 2',obj_citas_excluidas);
             let monto_recibido  = 0;
             $(".input_monto_pagar").each(function(){
                 let valor = $(this).val();
@@ -1740,65 +1693,36 @@ use App\Library\FuncionesGlobales;
                 monto_recibido = ((monto_recibido * 100) + (valor * 100)) / 100;
             });
 
-            // MUESTRA EL MONTO FALTANTE
-            let monto_faltante = ((total_calculado * 100) - (monto_recibido * 100)) / 100;
-            monto_faltante     = monto_faltante > 0 ? monto_faltante : 0;
-            $("#span_monto_faltante").text("$" + formatoDinero(monto_faltante));
-            $("#span_monto_recibido").text("$" + formatoDinero(monto_recibido));
+            //  SE RECORREN TODAS LAS CITAS Y SE IRAN HABILITANDO HASTA QUE EL MONTO RECIBIDO
+            //  SE ACABE
 
-            // CITAS DISPONIBLES PARA SELECCIONAR
-            const citas_disponibles = $('#body_table input[type=checkbox]:not(:checked)').length > 0;
-            const excedente         = (((monto_recibido * 100) - (total_calculado * 100)) / 100);
+            let tmp_monto_recibido  = monto_recibido;
+            $("#table_citas_deudoras").find('.row_cita').each(function(){
 
-            // HAY EFECTIVO?
-            const tiene_efectivo = parseFloat($("#monto_efectivo").val()) > 0;
+                //  SI EXISTE LA CITA EN EL ARRAY, 
+                let id_agenda_cita  = $(this).data('idagendacita');
+                const index = obj_citas_excluidas.indexOf(id_agenda_cita);
 
-            // CAMBIA EL COLOR DEPENDIENDO DEL MONTO
-            $('#box_monto_recibido').removeClass('completo excedido incompleto');
+                console.log('index ',index);
+                console.log('id_agenda_cita ',id_agenda_cita);
+                console.log('val 1',tmp_monto_recibido,tmp_monto_recibido > 0);
+                console.log('val 2',index == -1);
+                
+                //  SE DETIENE EL PROCESO SI SE ACABA EL DINERO
+                if (tmp_monto_recibido > 0 && index == -1){
+                    console.log('aqui 1');
+                    $(this).find('.check_cita').prop('disabled',false).prop('checked',true);
 
-            switch (true) {
-                case monto_recibido === 0:
-                    $('#box_excedente').addClass('d-none');
-                    break;
+                    let saldo_cita  = $(this).data('saldocita');
+                    tmp_monto_recibido  = ((tmp_monto_recibido * 100) - (saldo_cita * 100)) / 100;
+                } else {
+                    console.log('aqui 2');
+                    $(this).find('.check_cita').prop('checked',false);
+                }
 
-                case monto_recibido === total_calculado:
-                    $('#box_monto_recibido').addClass('completo');
-                    $('#box_excedente').addClass('d-none');
-                    break;
+            });
 
-                case excedente > 0:
-                    $('#box_monto_recibido').addClass('excedido');
-                    $('#span_excedente').text('$' + formatoDinero(excedente));
-                    $('#box_excedente').removeClass('d-none');
-                    $(".pay-method-btn").removeClass('active');
-
-                    // "Devolver Cambio" solo si hay efectivo
-                    if (tiene_efectivo) {
-                        $('#btn_devolver_cambio').removeClass('d-none');
-                        $('#btn_devolver_cambio').addClass('active'); // accion por defecto
-                    } else {
-                        $('#btn_devolver_cambio').addClass('d-none');
-                    }
-
-                    // "Saldo a Favor" solo si no hay citas pendientes
-                    if (citas_disponibles && tiene_efectivo) {
-                        $('#btn_saldo_favor').addClass('d-none');
-                    } else {
-                        $('#btn_saldo_favor').removeClass('d-none');
-                    }
-
-                    // Si no hay efectivo, saldo a favor es la accion por defecto
-                    if (!tiene_efectivo) {
-                        $('#btn_saldo_favor').addClass('active');
-                    }
-
-                    break;
-
-                default:
-                    $('#box_monto_recibido').addClass('incompleto');
-                    $('#box_excedente').addClass('d-none');
-                    break;
-            }
+            let excedente   = tmp_monto_recibido;
 
             // GUARDAR EN OBJETO
             obj_totales_calculados['pago_efectivo']      = $("#monto_efectivo").val();
@@ -1806,9 +1730,7 @@ use App\Library\FuncionesGlobales;
             obj_totales_calculados['pago_tarjeta']       = $("#monto_tarjeta").val();
             obj_totales_calculados['monto_recibido']     = monto_recibido;
             obj_totales_calculados['excedente']          = excedente > 0 ? excedente : 0;
-            obj_totales_calculados['accion_excedente']   = $('#btn_saldo_favor').hasClass('active') 
-                                                            ? 'saldo_favor' 
-                                                            : 'devolver_cambio';
+            obj_totales_calculados['accion_excedente']   = 'saldo_favor';
         }
 
         //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
@@ -1991,12 +1913,6 @@ use App\Library\FuncionesGlobales;
 
         //  FUNCION PARA LIMPIAR TODO LO VISUAL
         function clear_view(){
-            //  BORRAR TODO DESDE EL CHECKED
-            if ($("#check_todas_citas").prop('checked') == false){
-                $("#check_todas_citas").prop('checked',true).trigger('click');
-            } else {
-                $("#check_todas_citas").trigger('click');
-            }
             
             $("#body_table").find('.row_cita').remove();
             $("#body_table").find('#row_sin_registros').show();
