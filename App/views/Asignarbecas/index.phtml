@@ -1091,21 +1091,27 @@ use App\Library\FuncionesGlobales;
                 let check_actual    = $(this).prop('checked');
                 let id_row          = $(this).closest('tr').data('idrow');
                 let id_agenda_cita  = $(this).closest('tr').data('idagendacita');
-                if (check_actual){
-                    $(this).closest('tr').addClass('table-active');
+                
 
-                    //  RETORNA EL ARRAY SIN EL ID_AGENDA_CITA
-                    obj_citas_excluidas = obj_citas_excluidas.filter(id => id !== id_agenda_cita);
-                    
+                //  SE CAPTURAN TODAS LAS CITAS QUE VAN A QUEDAR EXCLUIDAS
+                let rows        = $("#table_citas_deudoras").find('.row_cita');
+                let find_check  = false;
+                obj_citas_excluidas = [];
+                $(rows.get().reverse()).each(function() {
+                    // tu lógica aquí
+                    if ($(this).find('.check_cita').is(':checked')){
+                        if (!find_check){
+                            find_check  = true;
+                        }
+                    } else {
+                        if (find_check){
+                            let tmp_id_agenda_cita  = $(this).data('idagendacita');
+                            obj_citas_excluidas.push(tmp_id_agenda_cita);
+                        }
+                    }
+                });
 
-                } else {
-                    //  SE QUITA LA CLASE ACTIVA
-                    $(this).closest('tr').removeClass('table-active');
-                    obj_citas_excluidas.push(id_agenda_cita);
-
-                }
-
-                console.log('obj_citas_excluidas 1',obj_citas_excluidas);
+                console.log('obj_citas_excluidas',obj_citas_excluidas);
                 calcula_total();
             });
 
@@ -1463,7 +1469,7 @@ use App\Library\FuncionesGlobales;
                         '<td class="small">'+num_citas+'</td>'+
                         '<td class="small">'+cita.nombre_profesional+'</td>'+
                         '<td class="small td_servicio">'+cita.num_servicios_costo+'</td>'+
-                        '<td class="small">$'+formatoDinero(cita.saldo_cita)+'</td>'+
+                        '<td class="small td_saldo_cita">$'+formatoDinero(cita.saldo_cita)+'</td>'+
                         '<td class="small">'+cita.fecha_completa+'</td>'+
                         '<td><span class="badge rounded-pill badge-'+cita.asistencia+' px-2 py-1 small fw-semibold">'+cita.label_asistencia+'</span></td>'+
                         '<td><span class="badge rounded-pill badge-cita-'+cita.activa+' px-2 py-1 small fw-semibold">'+cita.estatus+'</span></td>'+
@@ -1657,12 +1663,6 @@ use App\Library\FuncionesGlobales;
 
             $("#span_total_a_pagar").text('$'+formatoDinero(total_calculado));
 
-            if (citas_seleccionadas == 0){
-               $("#btnProcesarPago").addClass('d-none');
-            } else {
-                $("#btnProcesarPago").removeClass('d-none');
-            }
-
             //  SE CALCULA EL SALDO A FAVOR RESTANTE
             let saldo_favor_restante    = ((saldo_favor * 100) - (sub_total_calculado * 100)) / 100;
 
@@ -1683,7 +1683,7 @@ use App\Library\FuncionesGlobales;
 
         //  SUMA LAS CANTIDADES ENTRE METODOS DE PAGO PARA SABER CUANDO QUIERE PAGAR EL USUARIO
         function mostrar_monto_pagar(){
-            console.log('obj_citas_excluidas 2',obj_citas_excluidas);
+
             let monto_recibido  = 0;
             $(".input_monto_pagar").each(function(){
                 let valor = $(this).val();
@@ -1693,31 +1693,46 @@ use App\Library\FuncionesGlobales;
                 monto_recibido = ((monto_recibido * 100) + (valor * 100)) / 100;
             });
 
+            if (monto_recibido == 0){
+               $("#btnProcesarPago").addClass('d-none');
+            } else {
+                $("#btnProcesarPago").removeClass('d-none');
+            }
+
             //  SE RECORREN TODAS LAS CITAS Y SE IRAN HABILITANDO HASTA QUE EL MONTO RECIBIDO
             //  SE ACABE
 
             let tmp_monto_recibido  = monto_recibido;
+
             $("#table_citas_deudoras").find('.row_cita').each(function(){
 
                 //  SI EXISTE LA CITA EN EL ARRAY, 
-                let id_agenda_cita  = $(this).data('idagendacita');
-                const index = obj_citas_excluidas.indexOf(id_agenda_cita);
-
-                console.log('index ',index);
-                console.log('id_agenda_cita ',id_agenda_cita);
-                console.log('val 1',tmp_monto_recibido,tmp_monto_recibido > 0);
-                console.log('val 2',index == -1);
+                let id_agenda_cita          = $(this).data('idagendacita');
+                const existe_cita_excluida  = obj_citas_excluidas.indexOf(id_agenda_cita);
                 
                 //  SE DETIENE EL PROCESO SI SE ACABA EL DINERO
-                if (tmp_monto_recibido > 0 && index == -1){
-                    console.log('aqui 1');
+                if (tmp_monto_recibido > 0 && existe_cita_excluida == -1){
                     $(this).find('.check_cita').prop('disabled',false).prop('checked',true);
 
-                    let saldo_cita  = $(this).data('saldocita');
-                    tmp_monto_recibido  = ((tmp_monto_recibido * 100) - (saldo_cita * 100)) / 100;
+                    let saldo_cita          = $(this).data('saldocita');
+                    let nuevo_saldo_cita    = ((saldo_cita * 100) - (tmp_monto_recibido * 100)) / 100;
+                    tmp_monto_recibido      = ((tmp_monto_recibido * 100) - (saldo_cita * 100)) / 100;
+
+                    nuevo_saldo_cita    = nuevo_saldo_cita < 0 ? 0 : nuevo_saldo_cita;
+
+                    $(this).find('.td_saldo_cita').text('$'+formatoDinero(nuevo_saldo_cita));
+
                 } else {
-                    console.log('aqui 2');
                     $(this).find('.check_cita').prop('checked',false);
+                    let saldo_cita          = $(this).data('saldocita');
+                    $(this).find('.td_saldo_cita').text('$'+formatoDinero(saldo_cita));
+                }
+
+                if ($(this).find('.check_cita').is(':checked')){
+                    $(this).closest('tr').addClass('table-active');
+                } else {
+                    //  SE QUITA LA CLASE ACTIVA
+                    $(this).closest('tr').removeClass('table-active');
                 }
 
             });
@@ -1731,6 +1746,7 @@ use App\Library\FuncionesGlobales;
             obj_totales_calculados['monto_recibido']     = monto_recibido;
             obj_totales_calculados['excedente']          = excedente > 0 ? excedente : 0;
             obj_totales_calculados['accion_excedente']   = 'saldo_favor';
+
         }
 
         //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
