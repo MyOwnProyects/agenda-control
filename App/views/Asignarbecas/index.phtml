@@ -665,7 +665,7 @@ use App\Library\FuncionesGlobales;
                             <span class="text-secondary" id="ticket_num_citas">Subtotal (0 citas)</span>
                             <span class="fw-medium" id="ticket_subtotal">$0.00</span>
                         </div>
-                        <div class="d-flex justify-content-between small">
+                        <div class="d-flex justify-content-between small d-none">
                             <span class="text-secondary">Saldo a favor</span>
                             <span class="fw-medium text-success" id="ticket_saldo_favor">-$0.00</span>
                         </div>
@@ -673,7 +673,7 @@ use App\Library\FuncionesGlobales;
                             <span class="fw-bold text-dark">Total a Pagar</span>
                             <span class="fw-bold text-indigo h6 mb-0" id="ticket_total">$0.00</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top d-none">
                             <span class="fw-bold text-dark">Saldo a favor restante</span>
                             <span class="fw-bold text-indigo h6 mb-0" id="ticket_saldo_favor_restante">$0.00</span>
                         </div>
@@ -1207,13 +1207,8 @@ use App\Library\FuncionesGlobales;
                 obj_totales_calculados['fecha_transferencia']       = $("#input_fecha_transferencia").val().trim();
                 obj_totales_calculados['hora_transferencia']        = $("#input_hora_transferencia").val().trim();
 
-                if (obj_totales_calculados['excedente'] > 0 && $(".pay-method-btn.active").length == 0){
-                    showAlert('danger','Seleccione la acción sobre el monto excedente');
-                    return false;
-                }
-
                 if (obj_totales_calculados['excedente'] > 0){
-                    obj_totales_calculados['accion_excedente']  = $(".pay-method-btn.active").data('excedente');
+                    obj_totales_calculados['accion_excedente']  = 'saldo_favor';
                 } else {
                     obj_totales_calculados['accion_excedente']  = null;
                 }
@@ -1245,7 +1240,7 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-
+                calcula_total();
                 $.ajax({
                     url         : url_index,
                     method      : 'post',
@@ -1435,7 +1430,7 @@ use App\Library\FuncionesGlobales;
         function show_table_citas(info_paciente){
 
             let info_citas  = info_paciente['citas'];
-            saldo_favor     = info_paciente['saldo_favor'];
+            //saldo_favor     = info_paciente['saldo_favor'];
 
             //  DISABLED DEL SELECT DE BECAS
             $("#select_becas").prop('disabled',false);
@@ -1625,7 +1620,7 @@ use App\Library\FuncionesGlobales;
             //  RECORRIDO DE TODAS LAS CITAS SELECCIONADAS
             obj_totales_calculados['servicios'] = [];
             let citas_seleccionadas = 0;
-            $("#body_table").find('.table-active').each(function(){
+            $("#table_citas_deudoras").find('.table-active').each(function(){
                 citas_seleccionadas ++;
                 let total_cita  = $(this).data('saldocita');
 
@@ -1702,9 +1697,9 @@ use App\Library\FuncionesGlobales;
             //  SE RECORREN TODAS LAS CITAS Y SE IRAN HABILITANDO HASTA QUE EL MONTO RECIBIDO
             //  SE ACABE
 
-            let tmp_monto_recibido  = monto_recibido;
+            let tmp_monto_recibido  = monto_recibido;//monto_recibido != 0 ? ((monto_recibido * 100) + (saldo_favor * 100)) / 100 : 0;
 
-            $("#table_citas_deudoras").find('.row_cita').each(function(){
+            $("#body_table").find('.row_cita').each(function(){
 
                 //  SI EXISTE LA CITA EN EL ARRAY, 
                 let id_agenda_cita          = $(this).data('idagendacita');
@@ -1736,6 +1731,8 @@ use App\Library\FuncionesGlobales;
                 }
 
             });
+
+            console.log('monto_recibido',monto_recibido);
 
             let excedente   = tmp_monto_recibido;
 
@@ -1811,6 +1808,7 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find('#ticket_total').text('$'+formatoDinero(obj_totales_calculados['total_pagar']));
             $(modal_clone).find('#ticket_monto_recibido').text('$'+formatoDinero(obj_totales_calculados['monto_recibido']));
 
+            console.log('excedente objeto',obj_totales_calculados['excedente']);
             if (obj_totales_calculados['excedente'] > 0){
                 $(modal_clone).find('#ticket_box_excedente').removeClass('d-none').find('#ticket_excedente_monto').text('$'+formatoDinero(obj_totales_calculados['excedente']));
                 $(modal_clone).find('#ticket_excedente_label').text(obj_totales_calculados['accion_excedente'] == 'saldo_favor' ? 'Saldo a favor' : 'Devolver cambio');
