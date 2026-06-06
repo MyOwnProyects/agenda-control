@@ -166,7 +166,8 @@ return [
         'delete'    => "/becas/delete",
         'save'      => "/becas/save",
         'count'     => "/becas/count",
-        'change_status' => '/becas/change_status'
+        'change_status' => '/becas/change_status',
+        'save_pago'     => '/becas/save_pago'
     ),
     'paciente_becas'    => array(
         'count' => '/paciente_becas/count',

@@ -405,7 +405,7 @@ use App\Library\FuncionesGlobales;
                         <select id="select_becas" disabled>
                             <option></option>
                             <?php foreach($arr_info_becas as $beca): ?>
-                            <option values="<?php echo $beca['id']; ?>" data-indefinida="<?php echo $beca['indefinida']; ?>" data-tipobeca="<?php echo $beca['tipo_beca']; ?>"><?php echo $beca['clave'].' - '.$beca['nombre']; ?></option>
+                            <option value="<?php echo $beca['id']; ?>" data-indefinida="<?php echo $beca['indefinida']; ?>" data-tipobeca="<?php echo $beca['tipo_beca']; ?>"><?php echo $beca['clave'].' - '.$beca['nombre']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -625,10 +625,18 @@ use App\Library\FuncionesGlobales;
                             <p class="fw-bold mb-0 text-dark" id="ticket_paciente">—</p>
                         </div>
                     </div>
+                    <div class="py-2 bg-white"><div class="custom-dashed"></div></div>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div>
+                            <p class="text-uppercase fw-bold mb-0"
+                               style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Beca</p>
+                            <p class="fw-bold mb-0 text-dark" id="ticket_beca">—</p>
+                        </div>
+                    </div>
+                    <div class="py-2 bg-white"><div class="custom-dashed"></div></div>
 
                     <!-- Servicios -->
-                    <p class="text-uppercase fw-bold mb-2"
-                       style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Servicios</p>
+                    <p class="text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Servicios</p>
                     <div id="ticket_servicios" class="d-flex flex-column gap-2">
                         <!-- Se llena desde JS -->
                     </div>
@@ -785,7 +793,7 @@ use App\Library\FuncionesGlobales;
                     <h5 class="modal-title">Movimientos realizados al ticket:</h5>
                     <!-- Info de contexto de la cita -->
                     <small class="text-muted" id="small_folio">
-                        T-0001 — Sáb 09/05/2026
+                        B-0001 — Sáb 09/05/2026
                     </small>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -1128,6 +1136,21 @@ use App\Library\FuncionesGlobales;
                     $(this).val(0);
                 }
 
+                //  VALIDACION PARA QUE PERMITA UN SOLO TIPO DE PAGO
+                if ($(this).val() == '' || $(this).val() == null || $(this).val() == 0){
+                    $(".input_monto_pagar").val('').prop('disabled',false);
+                } else {
+                    let id_input    = $(this).attr('id');
+                    $('.input_monto_pagar').each(function(){
+                        if (id_input != $(this).attr('id')){
+                            $(this).val('');
+                            $(this).prop('disabled',true);
+                        } else {
+                            $(this).prop('disabled',false);
+                        }
+                    })
+                }
+
                 const totalAPagar   = total_calculado;
                 const efectivo      = parseFloat($('#monto_efectivo').val())      || 0;
                 const tarjeta       = parseFloat($('#monto_tarjeta').val())       || 0;
@@ -1152,6 +1175,12 @@ use App\Library\FuncionesGlobales;
             //  MODAL PARA MOSTRAR UN TICKET CON EL PAGO
             $("#btnProcesarPago").on('click',function(){
                 //  VALIDACIONES
+
+                if ($("#select_becas").val() == null || $("#select_becas").val() == ''){
+                    showAlert('danger','Seleccione una beca');
+                    return false;
+                }
+
                 if ($('#body_table input[type=checkbox]:checked').length == 0){
                     showAlert('danger','Seleccione al menos una cita');
                     return false;
@@ -1186,14 +1215,21 @@ use App\Library\FuncionesGlobales;
                 //  VERIFICA QUE NO SE SALTEE CITAS PARA PAGAR
                 let last_checked        = 0;
                 let error_check_pago    = false;
+                console.log('obj_citas_excluidas',obj_citas_excluidas);
                 $('#table_citas_deudoras').find(".check_cita").each(function(){
-                    let num_row = $(this).data('numrow');
+                    let num_row                 = $(this).data('numrow');
+                    let id_agenda_cita          = $(this).closest('.row_cita').data('idagendacita');
+
                     if ($(this).prop('checked')){
                         if ((parseInt(last_checked) + parseInt(1)) == num_row){
                             last_checked    ++;
                         } else {
                             error_check_pago    = true;
                             return false;
+                        }
+                    } else {
+                        if (obj_citas_excluidas.includes(id_agenda_cita)){
+                            last_checked    ++;
                         }
                     }
                 });
@@ -1763,11 +1799,14 @@ use App\Library\FuncionesGlobales;
 
             let nombre_paciente = $("#select_pacientes").find('option:selected').text();
             nombre_paciente     = nombre_paciente.split('-')[1].trim();
+            let nombre_beca     = $("#select_becas").find('option:selected').text();
+
 
             let modal_clone = $("#modalConfirmarPago").clone().removeAttr('id');
 
             $(modal_clone).find('#ticket_fecha').text(fecha_hora);
             $(modal_clone).find('#ticket_paciente').text(nombre_paciente);
+            $(modal_clone).find('#ticket_beca').text(nombre_beca);
 
             for(let servicio of obj_totales_calculados['servicios']){
                 $(modal_clone).find('#ticket_servicios').append(`
@@ -1818,6 +1857,8 @@ use App\Library\FuncionesGlobales;
                 let btn = $(this);
                 $(btn).prop('disabled',true);
 
+                console.log('obj_citas_excluidas',$("#select_becas").val());
+
                 let obj_info_pago = {
                     pago_efectivo       : parseFloat(obj_totales_calculados['pago_efectivo']) || 0,
                     pago_transferencia  : parseFloat(obj_totales_calculados['pago_transferencia']) || 0,
@@ -1828,7 +1869,10 @@ use App\Library\FuncionesGlobales;
                     excedente                   : parseFloat(obj_totales_calculados['excedente']) || 0,
                     accion_excedente            : obj_totales_calculados['accion_excedente'] || '',
                     saldo_favor                 : saldo_favor,
-                    saldo_favor_restante        : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0
+                    saldo_favor_restante        : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0,
+                    id_beca                     : $("#select_becas").val(),
+                    nombre_beca                 : $("#select_becas").find('option:selected').val(),
+                    citas_excluidas             : obj_citas_excluidas != [] ? obj_citas_excluidas : null
                 };
 
                 // Aplicar resta si es devolver cambio
@@ -1836,6 +1880,8 @@ use App\Library\FuncionesGlobales;
                     obj_info_pago['pago_efectivo']  = ((obj_info_pago['pago_efectivo'] * 100) - (obj_info_pago['excedente']    * 100)) / 100;
                     obj_info_pago['excedente']      = 0;
                 }
+
+                console.log('obj_info_pago',obj_info_pago);
 
                 $.ajax({
                     url         : url_index,

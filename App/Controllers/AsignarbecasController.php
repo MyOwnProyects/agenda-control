@@ -99,7 +99,7 @@ class AsignarbecasController extends BaseController
             }
 
             if ($accion == 'save_pago'){
-                $route      = $this->url_api.$this->rutas['caja']['save_pago'];
+                $route      = $this->url_api.$this->rutas['becas']['save_pago'];
                 $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST);
 
                 $response = new Response();
