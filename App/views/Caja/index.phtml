@@ -856,7 +856,7 @@ use App\Library\FuncionesGlobales;
             <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
                 <div class="d-flex align-items-center justify-content-between w-100">
                     <!-- Acción -->
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="div_ocultar_beca d-flex align-items-center gap-3">
                         <span class="text-muted small">Acción para los seleccionados:</span>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="tipo_accion" id="radio_cancelar" value="1">
@@ -868,7 +868,7 @@ use App\Library\FuncionesGlobales;
                         </div>
                     </div>
                     <!-- Total seleccionado -->
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="div_ocultar_beca d-flex align-items-center gap-2">
                         <span class="text-muted small">Total seleccionado:</span>
                         <span class="fw-bold text-danger" id="span_total_seleccionado">$0.00</span>
                     </div>
@@ -883,7 +883,7 @@ use App\Library\FuncionesGlobales;
                     <button type="button" class="btn btn-sm" data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="button" id="btn_aplicar_accion" class="btn btn-danger btn-sm">
+                    <button type="button" id="btn_aplicar_accion" class="btn btn-danger btn-sm div_ocultar_beca">
                         <i class="bi bi-check2-circle"></i> Aplicar
                     </button>
                 </div>
@@ -1013,11 +1013,11 @@ use App\Library\FuncionesGlobales;
                             orderable: false, // Desactiva el ordenamiento para esta columna
                             render: function (data, type, row) {
                                 draw    ++;
-                                let btn_preview     = ' <button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
+                                let btn_preview     = data['nombre_beca'] != null ? '' : ' <button class="btn btn-outline-dark btn-sm btn_preview" data-id="'+data['id']+'" title="'+translations['title_preview'] +'">' +
                                                         '   <i class="bi bi-search"></i>'+
                                                     '   </button>';
 
-                                let btn_cancelar_devoler    = cancelar_devolver_abono ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" title="Cancelación o devolución de pago">' +
+                                let btn_cancelar_devoler    = cancelar_devolver_abono ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" data-ticketbeca="'+(data['nombre_beca'] != null ? 1 : 0)+'" title="Cancelación o devolución de pago">' +
                                                                                         '   <i class="bi-arrow-counterclockwise"></i>'+
                                                                                     '   </button>' : '';
 
@@ -1365,8 +1365,6 @@ use App\Library\FuncionesGlobales;
                         info_data   : row_data
                     },
                     success     : function(data){
-                        console.log('data');
-                        console.log(data);
                         window.open(data['url_ticket'], '_blank');
                         $(btn).prop('disabled',false);
                     },
@@ -1384,6 +1382,7 @@ use App\Library\FuncionesGlobales;
                 $(btn).prop('disabled',true);
 
                 let row_data    = $(this).closest('tr').data('rowData');
+                let ticket_beca = $(this).data('ticketbeca');
 
                 $.ajax({
                     url         : url_index,
@@ -1394,10 +1393,8 @@ use App\Library\FuncionesGlobales;
                         folio       : row_data['folio']
                     },
                     success     : function(data){
-                        console.log('data');
-                        console.log(data);
 
-                        show_table_cancelar_devolver(data);
+                        show_table_cancelar_devolver(data,ticket_beca);
 
                         $(btn).prop('disabled',false);
                         
@@ -1418,14 +1415,11 @@ use App\Library\FuncionesGlobales;
 
                 const id_agenda_cita    = $(this).data('idagendacita');
 
-                console.log(obj_info_citas,obj_info_citas[id_agenda_cita]);
-
                 // Subtítulo de contexto
                 $(modal_clone).find('#small_profesional_fecha').text(obj_info_citas[id_agenda_cita]['nombre_profesional'] + ' — ' + obj_info_citas[id_agenda_cita]['fecha_completa']);
 
                 let row = '';
                 for(let movto of obj_info_citas[id_agenda_cita]['movimientos']){
-                    console.log(movto);
 
                     let estatus = '';
 
@@ -1554,8 +1548,12 @@ use App\Library\FuncionesGlobales;
         }
 
         //  MUESTRA MODAL PARA CANCELAR ABONOS
-        function show_table_cancelar_devolver(info_abonos){
+        function show_table_cancelar_devolver(info_abonos,ticket_beca){
             let modal_clone = $("#modal_cancelar_devolver_abono").clone().removeAttr('id');
+
+            if (ticket_beca){
+                $(modal_clone).find('.div_ocultar_beca').remove();
+            }
 
             //  DEL PRIMER ABONO SE OBTIENE EL FOLIO Y LA FECHA DE CAPTURA
             let folio           = info_abonos[0]['ticket_folio'];
@@ -1581,6 +1579,10 @@ use App\Library\FuncionesGlobales;
 
                 let total_movto = abono.monto.replaceAll("$", "");
                 let checkbox    = abono.estatus != 2 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" data-total="'+total_movto+'" />' : '';
+
+                if (ticket_beca){
+                    checkbox    = '';
+                }
 
                 let fecha_cita  = abono.label_dia +'<br> '+abono.label_fecha_cita + ' - ' + abono.hora_inicio;
                 
@@ -1667,7 +1669,7 @@ use App\Library\FuncionesGlobales;
                             paciente    : $("#select_pacientes").find('option:selected').text()
                         },
                         success     : function(data){
-                            console.log('data',data);
+
                             $(btn).prop('disabled',false);
                             showAlert('success','Movimiento capturado exitosamente!');
                             $(modal_clone).modal('hide');
@@ -2002,9 +2004,7 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('.div_tarjeta').removeClass('d-none').find('#ticket_tarjeta').text('$'+formatoDinero(detalle['pago_tarjeta']));
             }
 
-            console.log('detalle',detalle['pago_transferencia']);
             if (detalle['pago_transferencia'] != '' && detalle['pago_transferencia'] > 0){
-                console.log('aqui');
                 $(modal_clone).find('.div_transferencia').removeClass('d-none').find('#ticket_transferencia').text('$'+formatoDinero(detalle['pago_transferencia']));
                 $(modal_clone).find('.div_transferencia').find('#ticket_referencia').text(detalle['referencia_transferencia']);
             }

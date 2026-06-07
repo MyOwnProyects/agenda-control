@@ -265,7 +265,7 @@ use App\Library\FuncionesGlobales;
 }
 
 .resumen-card {
-    flex: 1; /* 👈 esto las distribuye a todo el ancho */
+    flex: 1;
     border-radius: 10px;
     padding: 10px 16px;
 }
@@ -504,18 +504,7 @@ use App\Library\FuncionesGlobales;
                                 <i class="bi bi-info-circle me-1"></i>
                                 Monto excedente: <span id="span_excedente">$0.00</span>
                             </p>
-                            <p class="text-muted small mb-3 p_pregunta_diferencia">¿Qué deseas hacer con la diferencia?</p>
-
-                            <div class="d-flex gap-2">
-                                <button class="pay-method-btn" id="btn_devolver_cambio" data-excedente="devolver_cambio">
-                                    <i class="bi bi-cash-coin"></i>
-                                    Devolver Cambio
-                                </button>
-                                <button class="pay-method-btn" id="btn_saldo_favor" data-excedente="saldo_favor">
-                                    <i class="bi bi-piggy-bank"></i>
-                                    Saldo a Favor
-                                </button>
-                            </div>
+                            <p class="text-muted small mb-3 p_pregunta_diferencia">Este monto se registrará como saldo a favor en la cuenta del paciente</p>
 
                         </div>
                     </div>
@@ -969,8 +958,8 @@ use App\Library\FuncionesGlobales;
                     columns: [
                         { data: 'beca' }, // Columna 1
                         { data: 'label_fecha_captura' }, // Columna 1
-                        { data: 'monto_asignado' }, // Columna 1
-                        { data: 'monto_recibido' }, // Columna 1
+                        { data: 'label_monto_asignado' }, // Columna 1
+                        { data: 'label_monto_disponible' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -1215,7 +1204,7 @@ use App\Library\FuncionesGlobales;
                 //  VERIFICA QUE NO SE SALTEE CITAS PARA PAGAR
                 let last_checked        = 0;
                 let error_check_pago    = false;
-                console.log('obj_citas_excluidas',obj_citas_excluidas);
+
                 $('#table_citas_deudoras').find(".check_cita").each(function(){
                     let num_row                 = $(this).data('numrow');
                     let id_agenda_cita          = $(this).closest('.row_cita').data('idagendacita');
@@ -1300,7 +1289,8 @@ use App\Library\FuncionesGlobales;
                 let row_data    = $(this).closest('tr').data('rowData');
                 let detalle     = row_data['detalle'];
                 detalle         = JSON.parse(detalle);
-                detalle['folio']    = row_data['folio'];
+                detalle['folio']        = row_data['folio'];
+                detalle['nombre_beca']  = row_data['beca'];
 
                 show_modal_preview_ticket(detalle,row_data['nombre_completo']);
                 
@@ -1780,6 +1770,14 @@ use App\Library\FuncionesGlobales;
             obj_totales_calculados['excedente']          = excedente > 0 ? excedente : 0;
             obj_totales_calculados['accion_excedente']   = 'saldo_favor';
 
+            if (excedente > 0){
+                $("#box_excedente").find("#span_excedente").text('$'+formatoDinero(excedente));
+                $("#box_excedente").removeClass('d-none');
+            } else {
+                $("#box_excedente").find("#span_excedente").text('');
+                $("#box_excedente").addClass('d-none');
+            }
+
         }
 
         //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
@@ -1924,6 +1922,7 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).find("#ticket_folio").text(detalle['folio'])
             $(modal_clone).find('#ticket_fecha').text(detalle['fecha_hora']);
             $(modal_clone).find('#ticket_paciente').text(nombre_paciente);
+            $(modal_clone).find('#ticket_beca').text(detalle['nombre_beca']);
 
             for(let servicio of detalle['servicios']){
                 $(modal_clone).find('#ticket_servicios').append(`
@@ -1976,7 +1975,16 @@ use App\Library\FuncionesGlobales;
             
             $("#body_table").find('.row_cita').remove();
             $("#body_table").find('#row_sin_registros').show();
-            $("#span_saldo_favor").text('-$0.00')
+            $("#span_saldo_favor").text('-$0.00');
+
+            //  BECA
+            $("#select_becas").prop('disabled',true).val(null).trigger('change');
+            $("#span_tipo_beca").text('-');
+            $("#span_indefinida").text('-');
+
+            $(".input_monto_pagar").prop('disabled',true).val('');
+            $("#btnProcesarPago").addClass('d-none');
+
 
             //  SALDO A FAVOR DEL PACIENTE
             saldo_favor         = 0;

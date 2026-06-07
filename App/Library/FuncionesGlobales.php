@@ -837,7 +837,7 @@ class FuncionesGlobales{
 
     public static function formatoMonetario($numero, int $decimales = 2): string{
         
-        if (!is_numeric($numero) || empty($numero)) return $numero;
+        if (!is_numeric($numero)) return $numero;
         
         // Convertimos a número por seguridad
         $numero = (float)$numero;
@@ -1189,6 +1189,7 @@ class FuncionesGlobales{
 
             $result     = $result[0];
             $detalle    = json_decode($result['detalle'],true);
+            $info_beca  = $result['nombre_beca'];
 
             //  IMAGENES BASE64
             $base_64_icono_paciente     = "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";
@@ -1212,16 +1213,47 @@ class FuncionesGlobales{
             // ─────────────────────────────────────────────
             // VARIABLES DINÁMICAS  (reemplaza con las tuyas)
             // ─────────────────────────────────────────────
-            $fecha       = $result['label_fecha'];
-            $paciente    = $result['nombre_completo'];
-            $num_citas   = $detalle['num_citas'];
-            $subtotal    = '$'.SELF::formatoMonetario($detalle['subtotal_calculado']);
-            $saldo_favor = '$'.SELF::formatoMonetario($detalle['saldo_favor']);
+            $fecha          = $result['label_fecha'];
+            $paciente       = $result['nombre_completo'];
+            $nombre_beca    = $result['nombre_beca'];
+            $num_citas      = $detalle['num_citas'];
+            $subtotal       = '$'.SELF::formatoMonetario($detalle['subtotal_calculado']);
+            $saldo_favor    = '$'.SELF::formatoMonetario($detalle['saldo_favor']);
             $saldo_favor_restante   = '$'.SELF::formatoMonetario($detalle['saldo_favor_restante']);
             $total                  = '$'.SELF::formatoMonetario($detalle['total_pagar']);
             $monto_rec              = '$'.SELF::formatoMonetario($detalle['monto_recibido']);
             $excedente              = '$'.SELF::formatoMonetario($detalle['excedente']);
             $resolucion             = '';
+
+            $fila_saldo_favor = $nombre_beca != null ? '' : '
+                <tr>
+                    <td>Saldo a favor</td>
+                    <td align="right" class="saldo-favor-amt">'.$saldo_favor.'</td>
+                </tr>
+            ';
+
+            $fila_saldo_restante = $nombre_beca != null ? '' : '
+                <tr>
+                    <td>Saldo a favor restante</td>
+                    <td align="right" class="saldo-favor-amt">'.$saldo_favor_restante.'</td>
+                </tr>
+            ';
+
+            //  HTML EN CASO DE SER UN TICKET DE BECA
+            $html_nombre_beca = $nombre_beca == null ? '' : '
+                <hr class="separator">
+                <table class="paciente-wrap">
+                    <tr>
+                        <td style="vertical-align:middle;">
+                            <div style="font-size:7pt; color:#9aa0b5; text-transform:uppercase; letter-spacing:0.5px; padding-bottom:4px;">Beca</div>
+                            <div style="font-size:8pt; font-weight:bold; color:#1a1a2e;">' . htmlspecialchars($nombre_beca) . '</div>
+                        </td>
+                    </tr>
+                </table>
+                <hr class="separator">
+            ';
+
+            $hr_post_paciente = $nombre_beca == null ? '<hr class="separator">' : '';
             
             // Servicios: array de ['nombre' => '...', 'precio' => '...']
             $servicios = $detalle['servicios'];
@@ -1533,8 +1565,10 @@ class FuncionesGlobales{
                     </td>
                 </tr>
             </table>
+
+            {$html_nombre_beca}
             
-            <hr class="separator">
+            {$hr_post_paciente}
             
             <!-- ═══ SERVICIOS ═══ -->
             <div class="section-label">Servicios</div>
@@ -1558,18 +1592,12 @@ class FuncionesGlobales{
                     <td>Subtotal ({$num_citas} citas)</td>
                     <td align="right">{$subtotal}</td>
                 </tr>
-                <tr>
-                    <td>Saldo a favor</td>
-                    <td align="right" class="saldo-favor-amt">{$saldo_favor}</td>
-                </tr>
+                {$fila_saldo_favor}
                 <tr class="total-row">
                     <td><strong>Total a Pagar</strong></td>
                     <td align="right" class="amount"><strong>{$total}</strong></td>
                 </tr>
-                <tr>
-                    <td>Saldo a favor restante</td>
-                    <td align="right" class="saldo-favor-amt">{$saldo_favor_restante}</td>
-                </tr>
+                {$fila_saldo_restante}
                 <tr>
                     <td style="padding-top:4px;">Monto Recibido</td>
                     <td align="right" style="padding-top:4px;">{$monto_rec}</td>
