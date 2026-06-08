@@ -317,3 +317,33 @@ function validar_monto(monto) {
 
     return true;
 }
+
+function operacion_aritmetica(dato1,dato2,operacion){
+    if (!(!isNaN(parseFloat(dato1)) && isFinite(dato1))){
+        return 0;
+    }
+
+    if (!(!isNaN(parseFloat(dato2)) && isFinite(dato2))){
+        return 0;
+    }
+
+    //  SUMA
+    if (operacion == 's'){
+        return ((dato1 * 100) + (dato2 * 100)) / 100;
+    }
+
+    //  RESTA
+    if (operacion == 'r'){
+        return ((dato1 * 100) - (dato2 * 100)) / 100;
+    }
+
+    //  MULTIPLICACION
+    if (operacion == 'm'){
+        return ((dato1 * 100) * (dato2 * 100)) / 100;
+    }
+
+    //  DIVISION    
+    if (operacion == 's'){
+        return ((dato1 * 100) / (dato2 * 100)) / 100;
+    }
+}

@@ -436,6 +436,10 @@ use App\Library\FuncionesGlobales;
                             <span>Saldo a favor</span>
                             <span id="span_saldo_favor" class="fw-medium text-success">-$0.00</span>
                         </div>
+                        <div class="div_saldo_favor_beca d-flex justify-content-between small d-none">
+                            <span>Saldo a favor de beca</span>
+                            <span id="span_saldo_favor_beca" class="fw-medium text-success">-$0.00</span>
+                        </div>
                         <div class="d-flex justify-content-between pt-3 border-top align-items-center">
                             <span class="h6 fw-bold text-dark mb-0">Total a Pagar</span>
                             <span class="h5 fw-bold mb-0 text-indigo" id="span_total_a_pagar">$0.00</span>
@@ -944,6 +948,7 @@ use App\Library\FuncionesGlobales;
         let saldo_favor         = 0;
         let sub_total_calculado = 0;
         let total_calculado     = 0;
+        let saldo_favor_beca    = 0;
 
         //  OBJETO CON TODOS LOS CALCULOS ALMACENADOS PARA EVITAR RECALCULO
         let obj_totales_calculados  = {
@@ -1497,11 +1502,16 @@ use App\Library\FuncionesGlobales;
         //  
         function show_table_citas(info_paciente){
 
-            let info_citas  = info_paciente['citas'];
-            saldo_favor     = info_paciente['saldo_favor'];
+            let info_citas      = info_paciente['citas'];
+            saldo_favor         = info_paciente['saldo_favor'];
+            saldo_favor_beca    = info_paciente['saldo_favor_beca'];
+
 
             //  SE MUESTRA EL SALDO A FAVOR
             $("#span_saldo_favor").text('-$'+formatoDinero(saldo_favor));
+            if (saldo_favor_beca > 0){
+                $(".div_saldo_favor_beca").removeClass('d-none').find("#span_saldo_favor_beca").text('-$'+formatoDinero(saldo_favor_beca));
+            }
 
             //  NUMERO DE CITAS
             $("#badge_num_citas").text(Object.keys(info_citas).length);
@@ -1698,10 +1708,12 @@ use App\Library\FuncionesGlobales;
             
             //  RECORRIDO DE TODAS LAS CITAS SELECCIONADAS
             obj_totales_calculados['servicios'] = [];
-            let citas_seleccionadas = 0;
+            let citas_seleccionadas     = 0;
+            let saldo_favor_beca_usado  = 0;
             $("#body_table").find('.table-active').each(function(){
                 citas_seleccionadas ++;
-                let total_cita  = $(this).data('saldocita');
+                let total_cita      = $(this).data('saldocita');
+                let id_agenda_cita  = $(this).data('idagendacita');
 
                 let nombre_servicio = $(this).find('.td_servicio').text();
 
@@ -1720,18 +1732,29 @@ use App\Library\FuncionesGlobales;
                 }
 
                 sub_total_calculado = ((sub_total_calculado * 100) + (total_cita * 100)) / 100;
+                
             });
 
             let mensaje = citas_seleccionadas == 1 ? 'cita' : 'citas';
 
             $("#span_subtotal").text('$'+formatoDinero(sub_total_calculado));
             $("#span_num_citas").text('Subtotal ('+citas_seleccionadas+' '+mensaje+')');
+            //  PRIMERO SE DEBE DE APLICAR LA BECA AL SUB TOTAL
+            let tmp_total_calculado = operacion_aritmetica(sub_total_calculado,saldo_favor_beca,'r');
+
+            if (tmp_total_calculado < 0){
+                tmp_total_calculado = 0;
+            }
 
             //  AL SUBTOTAL SE LE RESTA EL SALDO A FAVOR
-            total_calculado = ((sub_total_calculado * 100) - (saldo_favor * 100)) / 100;
+            if (tmp_total_calculado > 0){
+                total_calculado = ((tmp_total_calculado * 100) - (saldo_favor * 100)) / 100;
 
-            //  PARA EVITAR MOSTRAR NUMEROS NEGATIVOS
-            if (total_calculado < 0){
+                //  PARA EVITAR MOSTRAR NUMEROS NEGATIVOS
+                if (total_calculado < 0){
+                    total_calculado = 0;
+                }
+            } else {
                 total_calculado = 0;
             }
 
@@ -2034,7 +2057,8 @@ use App\Library\FuncionesGlobales;
             
             $("#body_table").find('.row_cita').remove();
             $("#body_table").find('#row_sin_registros').show();
-            $("#span_saldo_favor").text('-$0.00')
+            $("#span_saldo_favor").text('-$0.00');
+            $(".div_saldo_favor_beca").addClass('d-none').find("#span_saldo_favor_beca").text('');
 
             //  SALDO A FAVOR DEL PACIENTE
             saldo_favor         = 0;
