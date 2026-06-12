@@ -1314,7 +1314,7 @@ use App\Library\FuncionesGlobales;
                 }
 
                 //  VALIDA QUE LA SUMATORIA SEA MAYOR A 0
-                if (input_monto_pagar == 0 && saldo_favor == 0){
+                if (input_monto_pagar == 0 && saldo_favor == 0 && saldo_favor_beca == 0){
                     showAlert("danger","El monto recibido debe ser mayor a 0");
                     return false;
                 }
