@@ -392,6 +392,7 @@ use App\Library\FuncionesGlobales;
                     </select>
                     <div class="invalid-feedback"><?php echo $translations['html_error_selected_location']; ?></div>
                 </div>
+                <div class="col-md-6"></div>
                 <!-- Campo Nombre -->
                 <div class="col-md-6">
                     <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
@@ -417,10 +418,10 @@ use App\Library\FuncionesGlobales;
         <div class="d-flex align-items-center">
           <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
           <div>
-            <p class="mb-2 fw-semibold">Las citas que han sido generadas con anterioridad serán canceladas, por lo cual se perderán:</p>
+            <p class="mb-2 fw-semibold">Acciones que el sistema realizará si el paciente tiene citas generadas con anterioridad:</p>
             <ul class="mb-1 ps-3">
-              <li class="mb-1">Registros de asistencias y faltas de esas citas</li>
-              <li class="mb-1">Registros de pagos asociados</li>
+              <li class="mb-1">Las citas previamente generadas serán canceladas, por lo cual se perderán los registros de asistencias y faltas capturadas.</li>
+              <li class="mb-1">Los pagos asociados a las citas que se borrarán se reasignarán ya sea a las citas que se generarán o a las citas anteriores que no esten pagadas</li>
             </ul>
             <p class="mt-2 small text-muted">Esta acción no se puede deshacer una vez confirmada.</p> <!-- Texto adicional opcional -->
           </div>
