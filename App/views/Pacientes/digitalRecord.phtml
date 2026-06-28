@@ -21,9 +21,9 @@ use App\Library\FuncionesGlobales;
     
     #container_digital_record .sidebar {
         width: 220px;
-        height: 100%;
+        height: calc(100% - 52px);
         position: fixed;
-        top: 0;
+        top: 5px;
         z-index: 1000;
         transition: transform 0.3s ease;
     }
@@ -61,6 +61,7 @@ use App\Library\FuncionesGlobales;
         padding: 1rem;
         overflow-x: hidden;
         box-sizing: border-box;
+        padding-top: calc(52px + 1rem); /* navbar + el padding original */
     }
     
     #container_digital_record .sidebar-toggle {
