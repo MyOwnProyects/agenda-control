@@ -352,6 +352,34 @@ use App\Library\FuncionesGlobales;
         margin-top: 0;
     }
 
+#container_digital_record .sidebar.sidebar-movil {
+    width: 90px;
+}
+
+#container_digital_record .main-content.main-movil {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    max-width: calc(100% - 70px);
+}
+
+#container_digital_record .sidebar.sidebar-movil .nav-link {
+    justify-content: center;
+    padding: 0.75rem 0;
+}
+
+#container_digital_record .sidebar.sidebar-movil .nav-link.active {
+    background-color: transparent !important;
+    border-left: 3px solid #0d6efd;
+    color: #0d6efd !important;
+    border-radius: 0;
+    padding-left: 0;
+    justify-content: center;
+}
+
+#container_digital_record .sidebar.sidebar-movil .nav-link.active i {
+    color: #0d6efd !important;
+    margin-left: 3px;
+}
 </style>
 <?php 
 //  FUNCIONES Y ARREGLOS PARA MOSTRAR DATOS GENERALES
@@ -393,6 +421,33 @@ function cambiarFormatoFecha($fecha) {
     <div class="container-fluid p-0">
         <div class="row g-5">
             <!-- Sidebar -->
+            <?php if ($vista_movil): ?>
+            <aside class="sidebar sidebar-movil bg-white border-end d-flex flex-column" id="sidebar">
+                <div class="p-3">
+                    <nav class="nav flex-column nav-pills">
+                        <a class="nav-link text-dark btn_regresar" title="Regresar">
+                            <i class="bi bi-arrow-90deg-left"></i>
+                        </a>
+                        <a class="nav-link active bg-primary text-white" data-section="resumen" title="Resumen">
+                            <i class="bi bi-card-list"></i>
+                        </a>
+                        <a class="nav-link text-dark" data-section="perfil_neurodesarrollo" title="Perfil neurodesarrollo">
+                            <i class="bi bi-person-arms-up"></i>
+                        </a>
+                        <?php if($download || $info_digital_record['citas_activas'] == 1): ?>
+                        <a class="nav-link text-dark" data-section="documentos" title="Documentos">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </a>
+                        <?php endif; ?>
+                        <?php if ($info_digital_record['citas_activas'] == 1): ?>
+                        <a class="nav-link text-dark" data-section="notas" title="Notas">
+                            <i class="bi bi-journal"></i>
+                        </a>
+                        <?php endif; ?>
+                    </nav>
+                </div>
+            </aside>
+            <?php else : ?>
             <aside class="sidebar bg-white border-end d-flex flex-column" id="sidebar">
                 <div class="p-3">
                     <div class="mb-4">
@@ -428,9 +483,10 @@ function cambiarFormatoFecha($fecha) {
                     </nav>
                 </div>
             </aside>
+            <?php endif; ?>
 
             <!-- Contenido principal -->
-            <main class="main-content p-4 div_resumen">
+            <main class="main-content <?php echo $vista_movil ? 'main-movil' : ''; ?> p-4 div_resumen">
                 <div class="row g-2">
                     <div class="mb-4">
                         <h2 class="h3 fw-bold mb-1">Resumen del Expediente</h2>
@@ -600,7 +656,7 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
-            <main class="main-content p-4 div_perfil_neurodesarrollo" style="display:none;">
+            <main class="main-content <?php echo $vista_movil ? 'main-movil' : ''; ?> p-4 div_perfil_neurodesarrollo" style="display:none;">
                 <div class="row g-2">
                     <div class="mb-4">
                         <h2 class="h3 fw-bold mb-1">Perfil Neurodesarrollo</h2>
@@ -670,7 +726,7 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
-            <main class="main-content p-4 div_documentos" style="display:none;">
+            <main class="main-content <?php echo $vista_movil ? 'main-movil' : ''; ?> p-4 div_documentos" style="display:none;">
                 <div class="row g-2">
                     <div class="mb-4">
                         <h2 class="h3 fw-bold mb-1">Gestión de documentos</h2>
@@ -766,7 +822,7 @@ function cambiarFormatoFecha($fecha) {
                     </section>
                 </div>
             </main>
-            <main class="main-content flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
+            <main class="main-content <?php echo $vista_movil ? 'main-movil' : ''; ?> flex-grow-1 p-4 overflow-auto div_notas" style="display:none;">
                 <div class="row g-2">
                     <div class="mb-4">
                         <h2 class="h3 fw-bold mb-1">Notas</h2>
@@ -960,16 +1016,16 @@ function cambiarFormatoFecha($fecha) {
             <div class="row mb-3">            
                 <div class="div_lista_diagnosticos col-md-12">
                     <div class="row">
-                        <div class="col-md-2"><?php echo $translations['html_abrev']; ?></div>
-                        <div class="col-md-8"><?php echo $translations['html_diagnoses']; ?></div>
-                        <div class="col-md-2"><?php echo $translations['html_evidence']; ?></div>
+                        <div class="col-2"><?php echo $translations['html_abrev']; ?></div>
+                        <div class="col-8"><?php echo $translations['html_diagnoses']; ?></div>
+                        <div class="col-2"><?php echo $translations['html_evidence']; ?></div>
                     </div>
                     
                     <?php foreach($arr_transtornos as $row): ?>
                         <div data-id="<?php echo $row['id']; ?>" class="row div_diagnostico" id="diagnostico_<?php echo $row['id']; ?>">
-                            <div class="col-md-2"><?php echo ($row['clave']); ?></div>
-                            <div class="col-md-8"><?php echo ($row['nombre']); ?></div>
-                            <div class="col-md-2" align="center"><input type="checkbox" class="input_evidencia"  disabled/></div>
+                            <div class="col-2"><?php echo ($row['clave']); ?></div>
+                            <div class="col-8"><?php echo ($row['nombre']); ?></div>
+                            <div class="col-2" align="center"><input type="checkbox" class="input_evidencia"  disabled/></div>
                         </div>
                     <?php endforeach; ?>
                 </div>
