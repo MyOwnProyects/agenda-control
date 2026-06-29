@@ -151,6 +151,15 @@ return [
         'show'                  => '/plantillas_mensajes/show',
         'save_plantilla'        => '/plantillas_mensajes/save_plantilla',
         'delete_plantilla'      => '/plantillas_mensajes/delete_plantilla'
+    ),
+    'caja'  => array(
+        'get_citas_adeudos' => '/caja/get_citas_adeudos',
+        'get_fecha_hora'    => '/caja/get_fecha_hora',
+        'save_pago'         => '/caja/save_pago',
+        'tickets_count'     => '/caja/tickets_count',
+        'tickets_show'      => '/caja/tickets_show',
+        'ticket_movtos_show'            => '/caja/ticket_movtos_show',
+        'save_cancelacion_devolucion'   => '/caja/save_cancelacion_devolucion'
     )
 
 ];

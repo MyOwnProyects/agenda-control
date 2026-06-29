@@ -542,7 +542,7 @@ class ReporteadorController extends BaseController
             // 4. Llenar datos
             $columna    = 10;
             foreach ($arr_rows['hoja_2'] as $row) {
-                $sheet2->setCellValue('A'.$columna, $row['fecha_pago']);
+                $sheet2->setCellValue('A'.$columna, $row['fecha_hora_pago']);
                 $sheet2->setCellValue('B'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_transferencia']));
                 $sheet2->setCellValue('C'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_efectivo']));
                 $sheet2->setCellValue('D'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['total_pagos']));
@@ -552,6 +552,237 @@ class ReporteadorController extends BaseController
 
             foreach (range('A', 'E') as $col) {
                 $sheet2->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            //  PAGINA 3
+            $sheet3 = $spreadsheet->createSheet();
+
+            $sheet3->setTitle('DETALLE DE INFORMACIÓN');
+
+            $sheet3->mergeCells('A1:E1');
+            $sheet3->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet3->mergeCells('A2:E2');
+            $sheet3->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet3->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet3->setCellValue('B4', date('d/m/Y'));
+
+            $sheet3->setCellValue('A5', 'Hora de impresión: ');
+            $sheet2->setCellValue('B5', date('H:i:s'));
+
+            $sheet3->setCellValue('A6', 'Rango de fechas: ');
+            $sheet3->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet3->setCellValue('A7', 'Generado por:');
+            $sheet3->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet3->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet3->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet3->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+        
+            foreach (range('A', 'E') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $sheet3->setTitle('CONCENTRADO DE ABONOS');
+
+            $sheet3->mergeCells('A1:E1');
+            $sheet3->setCellValue('A1', 'REPORTE GENERAL DE INGRESOS');
+
+            $sheet3->mergeCells('A2:E2');
+            $sheet3->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet3->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet3->setCellValue('B4', date('d/m/Y'));
+
+            $sheet3->setCellValue('A5', 'Hora de impresión: ');
+            $sheet3->setCellValue('B5', date('H:i:s'));
+
+            $sheet3->setCellValue('A6', 'Rango de fechas: ');
+            $sheet3->setCellValue('B6', FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_inicio']) .' al '.FuncionesGlobales::formatearFecha($_POST['rango_fechas']['fecha_termino']));
+
+            $sheet3->setCellValue('A7', 'Generado por:');
+            $sheet3->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet3->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet3->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet3->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+
+            //  INFORMACION A MOSTRAR
+            $sheet3->setCellValue('A9', 'TIPO');
+            $sheet3->setCellValue('B9', 'PACIENTE');
+            $sheet3->setCellValue('C9', 'FECHA');
+            $sheet3->setCellValue('D9', 'MONTO');
+            $sheet3->setCellValue('E9', 'ESTATUS');
+            $sheet3->setCellValue('F9', 'MÉTODO DE PAGO');
+            $sheet3->setCellValue('G9', 'MONTO DISPONIBLE');
+
+            $sheet3->getStyle('A9:G9')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF000000'],
+                ],
+            ]);
+
+            $columna    = 10;
+            foreach ($arr_rows['hoja_3'] as $row) {
+                $sheet3->setCellValue('A'.$columna, 'ABONO');
+                $sheet3->setCellValue('B'.$columna, $row['nombre_completo']);
+                $sheet3->setCellValue('C'.$columna, $row['fecha_hora_pago']);
+                $sheet3->setCellValue('D'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['monto']));
+                $sheet3->setCellValue('E'.$columna, $row['label_estatus_abono']);
+                $sheet3->setCellValue('F'.$columna, $row['metodo_pago']);
+                $sheet3->setCellValue('G'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['monto_disponible']));
+
+                $sheet3->getStyle('A'.$columna.':G'.$columna)->applyFromArray([
+                    'font' => [
+                        'bold'  => true,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                    'fill' => [
+                        'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FFD9E1F2'],
+                    ],
+                ]);
+
+                $columna++;
+                //  MUESTRA LA INFORMACION DE LOS MOVIMIENTOS
+                if (count($row['info_movtos']) > 0){
+                    foreach($row['info_movtos'] as $row_movto){
+                        
+
+                        $sheet3->setCellValue('A'.$columna, 'MOVIMIENTO');
+                        $sheet3->setCellValue('B'.$columna, '-');
+                        $sheet3->setCellValue('C'.$columna, $row_movto['fecha_hora_pago']);
+                        $sheet3->setCellValue('D'.$columna, '$'.FuncionesGlobales::formatoMonetario($row_movto['monto']));
+                        $sheet3->setCellValue('E'.$columna, $row_movto['label_estatus_movto']);
+                        $sheet3->setCellValue('F'.$columna, '-');
+                        $sheet3->setCellValue('G'.$columna, '-');
+
+                        $sheet3->getStyle('A'.$columna)->applyFromArray([
+                            'font' => [
+                                'italic' => true,
+                                'color'  => ['argb' => 'FF666666'],
+                            ],
+                            'alignment' => [
+                                'indent'     => 2,
+                                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+                            ],
+                        ]);
+
+                        $columna++;
+                    }
+                } else {
+                    
+
+                    $sheet3->setCellValue('A'.$columna, 'SIN MOVIMIENTOS');
+                    $sheet3->setCellValue('B'.$columna, '-');
+                    $sheet3->setCellValue('C'.$columna, '-');
+                    $sheet3->setCellValue('D'.$columna, '-');
+                    $sheet3->setCellValue('E'.$columna, '-');
+                    $sheet3->setCellValue('F'.$columna, '-');
+                    $sheet3->setCellValue('G'.$columna, '-');
+
+                    $sheet3->getStyle('A'.$columna)->applyFromArray([
+                        'font' => [
+                            'italic' => true,
+                            'color'  => ['argb' => 'FF666666'],
+                        ],
+                        'alignment' => [
+                            'indent'     => 2,
+                            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+                        ],
+                    ]);
+
+                    $columna++;
+                }
+            }
+
+            foreach (range('A', 'G') as $col) {
+                $sheet3->getColumnDimension($col)->setAutoSize(true);
             }
 
             $spreadsheet->setActiveSheetIndex(0);
