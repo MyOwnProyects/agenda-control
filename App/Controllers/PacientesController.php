@@ -985,6 +985,7 @@ class PacientesController extends BaseController
         $this->view->download               = FuncionesGlobales::HasAccess("Menu","download");
         $this->view->clinicalData           = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
         $this->view->ultima_ruta            = $url_anterior;
+        $this->view->vista_movil            = $this->session->get('vista_movil');
     }
 
 
