@@ -233,7 +233,7 @@ class PacientesController extends BaseController
                     return $response;
                 }
 
-                $solicitud  = count($_POST['data_old']) == 0 ? 'CREAR' : 'EDITAR';  
+                $solicitud  = isset($_POST['data_old']) && count($_POST['data_old']) == 0 ? 'CREAR' : 'EDITAR';  
                 FuncionesGlobales::saveBitacora($this->bitacora,$solicitud,'Se ejecuto la '.$solicitud.' del diagnostico del paciente: '.$_POST['data_old']['nombre_completo'],$_POST);
 
                 $response->setJsonContent('Edición exitosa');
@@ -985,6 +985,7 @@ class PacientesController extends BaseController
         $this->view->download               = FuncionesGlobales::HasAccess("Menu","download");
         $this->view->clinicalData           = FuncionesGlobales::HasAccess("Pacientes","clinicalData");
         $this->view->ultima_ruta            = $url_anterior;
+        $this->view->vista_movil            = $this->session->get('vista_movil');
     }
 
 
