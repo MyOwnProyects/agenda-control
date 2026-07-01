@@ -157,6 +157,7 @@ return [
     'html_select_color'                 => 'Selecciona el color del servicio',
     'html_active'                       => 'Activo',
     'html_birthdate'                    => 'Fecha de nacimiento',
+    'html_registration_date'            => 'Fecha de registro',
     'html_current_age'                  => 'Edad actual',
     'html_diagnosis_capture'            => 'Captura de diagnostico(s)',
     'html_List_neurodevelopmental_disorders'    => 'Lista de transtornos de neurodesarrollo',
