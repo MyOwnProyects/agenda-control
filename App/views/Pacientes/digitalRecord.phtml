@@ -568,7 +568,15 @@ function cambiarFormatoFecha($fecha) {
                                                 <?php echo $translations['html_error_cellphone']; ?>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6 col-lg-4">
+                                        <div class="col-sm-6 col-lg-3">
+                                            <p class="small text-muted mb-1">Fecha de registro</p>
+                                            <p class="fw-medium mb-0 p_datos"><?php echo cambiarFormatoFecha($info_digital_record['info_paciente']['fecha_registro']); ?></p>
+                                            <input type="date" class="input_editar_datos form-control input_fecha_registro hide_element" data-campo="fecha_registro" data-datooriginal="<?php echo $info_digital_record['info_paciente']['fecha_registro']; ?>" value="<?php echo $info_digital_record['info_paciente']['fecha_registro']; ?>" />
+                                            <div class="invalid-feedback">
+                                                <?php echo $translations['html_error_cellphone']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-3">
                                             <p class="small text-muted mb-1">Correo Electrónico</p>
                                             <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['correo_electronico'] == null ? 'S/A' : $info_digital_record['info_paciente']['correo_electronico']; ?></p>
                                             <input type="text" class="input_editar_datos input_correo_electronico form-control hide_element" data-campo="correo_electronico" data-datooriginal="<?php echo $info_digital_record['info_paciente']['correo_electronico']; ?>" value="<?php echo $info_digital_record['info_paciente']['correo_electronico']; ?>" />
@@ -576,7 +584,7 @@ function cambiarFormatoFecha($fecha) {
                                                 <?php echo $translations['html_error_email']; ?>
                                             </div>
                                         </div>
-                                        <div class="col-8">
+                                        <div class="col-6">
                                             <p class="small text-muted mb-1">Dirección</p>
                                             <p class="fw-medium mb-0 p_datos"><?php echo $info_digital_record['info_paciente']['direccion'] == null ? 'S/A' : $info_digital_record['info_paciente']['direccion']; ?></p>
                                             <input type="text" class="input_editar_datos form-control input_direccion hide_element" data-campo="direccion" data-datooriginal="<?php echo $info_digital_record['info_paciente']['direccion']; ?>" value="<?php echo $info_digital_record['info_paciente']['direccion']; ?>" />
@@ -2041,7 +2049,8 @@ function cambiarFormatoFecha($fecha) {
                     genero              : $(".select_genero").val() != null ? $(".select_genero").val().trim() : null,
                     celular             : $(".input_celular").val() != null ? $(".input_celular").val().trim() : null,
                     correo_electronico  : $(".input_correo_electronico").val() != null ? $(".input_correo_electronico").val().trim() : null,
-                    direccion           : $(".input_direccion").val() != null ? $(".input_direccion").val().trim() : null
+                    direccion           : $(".input_direccion").val() != null ? $(".input_direccion").val().trim() : null,
+                    fecha_registro      : $(".input_fecha_registro").val() != null ? $(".input_fecha_registro").val().trim() : null,
                 };
 
                 $.ajax({
@@ -2057,13 +2066,29 @@ function cambiarFormatoFecha($fecha) {
                         $(".input_primer_apellido").closest('div').find('.p_datos').text($(".input_primer_apellido").val().trim());
                         $(".input_segundo_apellido").closest('div').find('.p_datos').text($(".input_segundo_apellido").val().trim());
                         $(".input_nombre").closest('div').find('.p_datos').text($(".input_nombre").val().trim());
-                        $(".input_fecha_nacimiento").closest('div').find('.p_datos').text(moment($(".input_fecha_nacimiento").val().trim(), 'YYYY-MM-DD').format('DD/MM/YYYY'));
+
+                        if ($(".input_fecha_nacimiento").val().trim() != ''){
+                            $(".input_fecha_nacimiento").closest('div').find('.p_datos').text(moment($(".input_fecha_nacimiento").val().trim(), 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                        } else {
+                            $(".input_fecha_nacimiento").closest('div').find('.p_datos').text('');
+                        }
+                        
                         $(".select_genero").closest('div').find('.p_datos').text($(".select_genero").find('option:selected').text());
                         $(".input_celular").closest('div').find('.p_datos').text($(".input_celular").val().trim());
                         $(".input_correo_electronico").closest('div').find('.p_datos').text($(".input_correo_electronico").val().trim());
                         $(".input_direccion").closest('div').find('.p_datos').text($(".input_direccion").val().trim());
+                        
+                        if ($(".input_fecha_registro").val().trim() != ''){
+                            $(".input_fecha_registro").closest('div').find('.p_datos').text(moment($(".input_fecha_registro").val().trim(), 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                        } else {
+                            $(".input_fecha_registro").closest('div').find('.p_datos').text('');
+                        }
 
-                        $(".p_edad_actual").text(data['edad_actual'] + ' años');
+                        if (data['edad_actual'] != null && data['edad_actual'] != ''){
+                            $(".p_edad_actual").text(data['edad_actual'] + ' años');
+                        } else {
+                            $(".p_edad_actual").text('0.0 años');
+                        }
 
                         $(".btn_revert_info_personal").trigger('click');
                     },
