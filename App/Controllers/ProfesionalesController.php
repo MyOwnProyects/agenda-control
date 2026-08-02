@@ -171,7 +171,10 @@ class ProfesionalesController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+                $last_estatus   = $_POST['estatus'] == 1 ? 'ACTIVO' : 'INACTIVO';
+                $new_estatus    = $_POST['estatus'] == 1 ? 'INACTIVO' : 'ACTIVO';
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$last_estatus.' a '.$new_estatus  ,$_POST);
                 FuncionesGlobales::deleteCacheByPattern('info_location_');
             } 
 
