@@ -211,6 +211,32 @@ aside:not(.aside-collapsed) .nav-pills .nav-link .bi {
   margin-right: 20px !important;
 }
 
+aside:not(.aside-collapsed) .nav-pills .nav-link {
+    display: flex !important;
+    align-items: flex-start !important;
+    white-space: normal !important;
+}
+
+/* El ícono se comporta como una "línea" más, con la misma altura que el texto */
+aside:not(.aside-collapsed) .nav-pills .nav-link .bi {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;       /* centra el glifo dentro de su propia caja */
+    justify-content: center;
+    height: 1.3rem;            /* MISMO valor que el line-height del texto */
+    line-height: 1.3rem;       /* MISMO valor que el line-height del texto */
+}
+
+aside:not(.aside-collapsed) .nav-pills .nav-link span {
+    display: inline-block !important;
+    line-height: 1.3rem;       /* MISMO valor que el height/line-height del ícono */
+    word-break: normal;
+}
+
+aside:not(.aside-collapsed) .nav-pills .nav-item {
+    margin-bottom: 8px;
+}
+
 /* ============================================
    ESTILOS DEL MENÚ ANCLADOS A .r_container
    ============================================ */
