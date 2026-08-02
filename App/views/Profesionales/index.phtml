@@ -303,8 +303,10 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_change_status',async function(){
                 const id        = $(this).data('id');
                 const estatus   = $(this).data('estatus');
-                let btn     = $(this);
+                const clave     = $(this).data('clave');
+                let btn         = $(this);
                 $(btn).prop('disabled',true);
+                console.log('id',id);
 
                 const respuesta = await window.modalConfirm(translations['confirm_update']);
 
@@ -316,7 +318,9 @@ use App\Library\FuncionesGlobales;
                         method  : 'POST',
                         data    :  {
                             accion  : 'change_status',
-                            id      : id
+                            id      : id,
+                            estatus : estatus,
+                            clave   : clave
                         },
                         success : function(data){
                             console.log('data');
@@ -428,6 +432,7 @@ use App\Library\FuncionesGlobales;
                             className: "text-center", // Centra el contenido de la celda
                             orderable: false, // Desactiva el ordenamiento para esta columna
                             render: function (data, type, row) {
+                                console.log('data',data);
                                 draw    ++;
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
@@ -443,7 +448,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_schedule_availability" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+(data['primer_apellido']+' '+data['segundo_apellido']+' '+data['nombre'])+'" title="'+translations['schedule_availability'] +'">' +
                                     '<i class="bi bi-calendar2-event"></i>'+
                                 '</button>' +
-                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" data-clave="'+data['clave']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
                                 '</button>'
                                 

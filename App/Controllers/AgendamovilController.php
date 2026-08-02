@@ -221,7 +221,8 @@ class AgendamovilController extends BaseController
                 $servicios  = FuncionesGlobales::RequestApi('GET',$route,array(
                     'id_locacion'   => $_POST['id_locacion'],
                     'id'            => $_POST['id_profesional'],
-                    'get_servicios' => true
+                    'get_servicios' => true,
+                    'estatus' => 1
                 ));
 
                 $result['servicios']    = $servicios[0]['servicios'];
@@ -233,6 +234,7 @@ class AgendamovilController extends BaseController
             }
 
             if ($accion == 'get_profesionales'){
+                $_POST['estatus']   = 1;
                 $route      = $this->url_api.$this->rutas['ctprofesionales']['show'];
                 $result     = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
@@ -433,7 +435,8 @@ class AgendamovilController extends BaseController
             $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array(
                 'id_locacion'   => $_POST['id_locacion'],
                 'get_servicios' => true,
-                'id'            => $id_profesional
+                'id'            => $id_profesional,
+                'estatus' => 1
                 ));
 
             //FuncionesGlobales::saveCache($cacheKey,$arr_return);

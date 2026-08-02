@@ -342,7 +342,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_edit" data-id="'+data['id']+'" title="'+translations['title_update'] +'">' +
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
-                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['title_change'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" data-clave="'+data['clave']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
                                 '</button>'  +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_password" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" title="'+translations['change_password'] +'">' +
@@ -396,6 +396,7 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_change_status',function(){
                 const id        = $(this).data('id');
                 const estatus   = $(this).data('estatus');
+                const clave     = $(this).data('clave');
                 let btn     = $(this);
                 $(btn).prop('disabled',true);
                 $.ajax({
@@ -403,7 +404,9 @@ use App\Library\FuncionesGlobales;
                     method  : 'POST',
                     data    :  {
                         accion  : 'change_status',
-                        id      : id
+                        id      : id,
+                        clave   : clave,
+                        estatus : estatus
                     },
                     success : function(data){
                         console.log('data');
