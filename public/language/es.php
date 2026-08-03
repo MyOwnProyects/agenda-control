@@ -204,6 +204,9 @@ return [
     'html_title_reporter'                       => 'Reporteador',
     'html_message_templates'                    => 'Plantillas de mensajes',
     'html_movil_agenda'                         => 'Agenda movil',
+    'html_view_fixed_schedule'                  => 'Ver horario fijo',
+    'html_fixed_schedule'                       => 'Horario fijo',
+    'html_transfer_appointment'                 => 'Transferir cita',
     
 
 
