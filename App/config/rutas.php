@@ -54,7 +54,8 @@ return [
         'save_schedule_availability'    => '/ctprofesionales/save_schedule_availability',
         'get_horario_fijo'              => '/ctprofesionales/get_horario_fijo',
         'verificar_disponibilidad'      => '/ctprofesionales/verificar_disponibilidad',
-        'update_horario_fijo'           => '/ctprofesionales/update_horario_fijo'
+        'update_horario_fijo'           => '/ctprofesionales/update_horario_fijo',
+        'get_pacientes_asignados'       => '/ctprofesionales/get_pacientes_asignados'
     ],
     'tbhorarios_atencion'   => array(
         'get_opening_hours'     => '/tbhorarios_atencion/get_opening_hours',

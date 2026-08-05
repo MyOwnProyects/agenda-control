@@ -35,12 +35,24 @@ use App\Library\FuncionesGlobales;
         display:none;
     }
 
-    .div_header_horario_fijo .table-responsive {
-        max-height: 400px; /* ajusta según lo que necesites */
+    /* .div_header_horario_fijo .table-responsive {
+        max-height: 400px; 
         overflow-y: auto;
     }
 
     .div_header_horario_fijo .table-responsive thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #fff; 
+    } */
+
+    .div_scroll .table-responsive {
+        max-height: 400px; /* ajusta según lo que necesites */
+        overflow-y: auto;
+    }
+
+    .div_scroll .table-responsive thead th {
         position: sticky;
         top: 0;
         z-index: 2;
@@ -56,6 +68,11 @@ use App\Library\FuncionesGlobales;
         display: block;
         color: #495057;
         font-size: 0.95rem;
+    }
+
+    .div_header_pacientes_asignados tbody td {
+        text-align: left;
+        vertical-align: middle;
     }
 
 </style>
@@ -233,8 +250,23 @@ use App\Library\FuncionesGlobales;
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <div class="alert alert-warning mx-3 mb-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                <div>
+                    <p class="mb-2 fw-semibold">
+                        Estas son las citas fijas asignadas al/la profesional
+                        <b><span id="nombre_profesional">nombre</span>.</b>
+                    </p>
+                    <ul class="mb-1 ps-3">
+                        <li class="mb-1">Los cambios realizados en esta configuración no se reflejarán de inmediato en la agenda.</li>
+                        <li class="mb-1">Los cambios se aplicarán cuando se ejecute el proceso de <strong>"Apertura de agenda"</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <form id="form_modal_create" class="needs-validation" novalidate>
-            <div class="mb-3 div_header_horario_fijo">
+            <div class="mb-3 div_header_horario_fijo div_scroll">
                 <div class="table-responsive">
                     <table class="table_citas table table-striped">
                         <thead>
@@ -319,6 +351,41 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
+<div class="modal fade modal-xl" id="modal_pacientes_asignados" tabindex="-1" aria-labelledby="label_save_class" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal_ver_pacientes_asignados"><?php echo FuncionesGlobales::UpperString($translations['html_assigned_patients']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="mb-3 div_header_pacientes_asignados div_scroll">
+                <div class="table-responsive">
+                    <table class="table_pacientes table table-striped">
+                        <thead>
+                        <tr>
+                                <th scope="col" style="text-align: left;"><input type="checkbox" id="select_all" /></th>
+                                <th scope="col" style="text-align: left;"><?php echo $translations['html_title_patient']; ?></th>
+                                <th scope="col" style="text-align: left;"><?php echo $translations['html_fixed_schedule']; ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary" disabled><?php echo $translations['html_generate_dates']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     let module_profesionale = (function(){
         let draw            = 1;
@@ -356,6 +423,7 @@ use App\Library\FuncionesGlobales;
             confirm_update  : "<?= $translations['html_confirm_update']?>",
             schedule_availability   : "<?= $translations['html_schedule_availability']?>",
             view_fixed_schedule     : "<?= $translations['html_view_fixed_schedule'] ?>",
+            assigned_patients       : "<?= $translations['html_assigned_patients'] ?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -484,6 +552,33 @@ use App\Library\FuncionesGlobales;
                 });
             });
 
+            //
+            $("#table_results").on('click','.btn_pacientes_asignados',async function(){
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'get_pacientes_asignados',
+                        id_profesional  : id,
+                        clave           : clave
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        show_modal_pacientes_asignados(data,btn);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
             // Evento click del botón "Buscar"
             $("#header_filters").on('click',"#btnBuscar",function() {
                 cargarTabla();
@@ -591,13 +686,16 @@ use App\Library\FuncionesGlobales;
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_schedule_availability" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+(data['primer_apellido']+' '+data['segundo_apellido']+' '+data['nombre'])+'" title="'+translations['schedule_availability'] +'">' +
-                                    '<i class="bi bi-calendar2-event"></i>'+
+                                    '<i class="bi bi-clock"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" data-clave="'+data['clave']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_ver_horario_fijo" data-id="'+data['id']+'"  title="'+translations['view_fixed_schedule'] +'">' +
-                                    '<i class="bi bi-calendar-week-fill"></i>'+
+                                    '<i class="bi bi-calendar-week"></i>'+
+                                '</button>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_pacientes_asignados" data-id="'+data['id']+'"  title="'+translations['assigned_patients'] +'">' +
+                                    '<i class="bi bi-person-bounding-box"></i>'+
                                 '</button>'
                                 
                                 : '';
@@ -917,6 +1015,9 @@ use App\Library\FuncionesGlobales;
         function show_modal_horario_fijo(info_citas,btn_inicial){
             let modal_clone = $("#modal_horario_fjo").clone().removeAttr('id').show();
 
+            let nombre_profesional  = $(btn_inicial).closest('tr').find('td').eq(1).text();
+            $(modal_clone).find('#nombre_profesional').text(nombre_profesional);
+
             let rows    = '';
 
             for(let cita of info_citas){
@@ -1133,6 +1234,49 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).on('hidden.bs.modal', function (e) {
                 $(btn_inicial).trigger('click');
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_pacientes_asignados(lista_pacientes,btn){
+            let modal_clone = $("#modal_pacientes_asignados").clone().removeAttr('id').show();
+
+            let rows    = '';
+            for(let i in lista_pacientes){
+                let paciente    = lista_pacientes[i];
+                rows += 
+                        '<tr class="tr_header" >'+
+                            '<td class="td_row"><input type="checkbox" class="input_selected" data-idpaciente="'+paciente.id_paciente+'" /></td>'+
+                            '<td class="td_row">'+paciente.nombre+'</td>'+
+                            '<td class="td_row">'+paciente.citas+'</td>'+
+                        '</tr>';
+            }
+
+            if (rows == ''){
+                rows    = '<tr><td colspan="3" align="center">'+translations['emptyTable']+'</td></tr>';
+            }
+
+            $(modal_clone).find('.table_pacientes').find('tbody').append(rows);
+
+            $(modal_clone).on('click','#select_all',function(){
+                let checked = $(this).prop('checked');
+
+                $(modal_clone).find('.input_selected').prop('checked',checked);
+
+                if (checked){
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                } else {
+                    $(modal_clone).find('#btnSave').prop('disabled',true);
+                }
+            })
+
+            $(modal_clone).on('change','.input_selected',function(){
+                if ($(modal_clone).find('.input_selected:checked').length > 0){
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                } else {
+                    $(modal_clone).find('#btnSave').prop('disabled',true);
+                }
             });
 
             $(modal_clone).modal('show');

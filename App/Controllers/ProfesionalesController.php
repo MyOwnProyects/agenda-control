@@ -362,6 +362,18 @@ class ProfesionalesController extends BaseController
                 return $response;
             }
 
+            if ($accion == 'get_pacientes_asignados'){
+                $route                  = $this->url_api.$this->rutas['ctprofesionales']['get_pacientes_asignados'];
+                $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_profesional'    => $_POST['id_profesional'],
+                ));
+
+                $response = new Response();
+                $response->setJsonContent($arr_info_profesional);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
 
             $response->setJsonContent('Captura exitosa');
             $response->setStatusCode(200, 'OK');

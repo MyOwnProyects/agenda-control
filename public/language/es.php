@@ -207,6 +207,7 @@ return [
     'html_view_fixed_schedule'                  => 'Ver horario fijo',
     'html_fixed_schedule'                       => 'Horario fijo',
     'html_transfer_appointment'                 => 'Transferir cita',
+    'html_assigned_patients'                    => 'Pacientes asignados',
     
 
 
