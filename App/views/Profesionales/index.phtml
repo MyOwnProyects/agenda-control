@@ -360,12 +360,20 @@ use App\Library\FuncionesGlobales;
       </div>
       <div class="modal-body">
         <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3 div_append">
+                <div class="col-md-3">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_inicio" required>
+                </div>
+            </div>
+            
             <div class="mb-3 div_header_pacientes_asignados div_scroll">
                 <div class="table-responsive">
                     <table class="table_pacientes table table-striped">
                         <thead>
                         <tr>
                                 <th scope="col" style="text-align: left;"><input type="checkbox" id="select_all" /></th>
+                                <th scope="col" style="text-align: left;"><?php echo $translations['html_location']; ?></th>
                                 <th scope="col" style="text-align: left;"><?php echo $translations['html_title_patient']; ?></th>
                                 <th scope="col" style="text-align: left;"><?php echo $translations['html_fixed_schedule']; ?></th>
                             </tr>
@@ -381,6 +389,32 @@ use App\Library\FuncionesGlobales;
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
         <button type="button" id="btnSave" class="btn btn-primary" disabled><?php echo $translations['html_generate_dates']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_resultado_citas" tabindex="-1" aria-labelledby="label_resultado_citas" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_resultado_citas">Resultados</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <h6 class="text-success">Citas generadas</h6>
+          <ul id="lista_mensaje_ok" class="list-group mb-3">
+          </ul>
+        </div>
+        <div class="mb-3">
+          <h6 class="text-danger">Errores</h6>
+          <ul id="lista_mensaje_error" class="list-group">
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
       </div>
     </div>
   </div>
@@ -556,6 +590,7 @@ use App\Library\FuncionesGlobales;
             $("#table_results").on('click','.btn_pacientes_asignados',async function(){
                 const id        = $(this).data('id');
                 const clave     = $(this).data('clave');
+                const estatus   = $(this).data('estatus');
                 let btn         = $(this);
                 $(btn).prop('disabled',true);
 
@@ -571,7 +606,7 @@ use App\Library\FuncionesGlobales;
                         console.log('data');
                         console.log(data);
                         $(btn).prop('disabled',false);
-                        show_modal_pacientes_asignados(data,btn);
+                        show_modal_pacientes_asignados(data,btn,estatus);
                     },
                     error   : function(error){
                         actionJsonError(error,btn);
@@ -694,7 +729,7 @@ use App\Library\FuncionesGlobales;
                                 '<button class="btn btn-outline-dark btn-sm btn_ver_horario_fijo" data-id="'+data['id']+'"  title="'+translations['view_fixed_schedule'] +'">' +
                                     '<i class="bi bi-calendar-week"></i>'+
                                 '</button>'+
-                                '<button class="btn btn-outline-dark btn-sm btn_pacientes_asignados" data-id="'+data['id']+'"  title="'+translations['assigned_patients'] +'">' +
+                                '<button class="btn btn-outline-dark btn-sm btn_pacientes_asignados" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'"  title="'+translations['assigned_patients'] +'">' +
                                     '<i class="bi bi-person-bounding-box"></i>'+
                                 '</button>'
                                 
@@ -1239,22 +1274,43 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).modal('show');
         }
 
-        function show_modal_pacientes_asignados(lista_pacientes,btn){
+        function show_modal_pacientes_asignados(lista_pacientes,btn,estatus){
             let modal_clone = $("#modal_pacientes_asignados").clone().removeAttr('id').show();
 
+            if (estatus != 1){
+                $(modal_clone).find("#select_all").remove();
+                $(modal_clone).find("#input_fecha_inicio").closest('div').remove();
+                $(modal_clone).find("#btnSave").remove();
+            }
+
+            //  PINTA FECHAS LIMITE POR LOCACION
+            let row_fecha_limite    = '';
+            for(let i in lista_pacientes['fecha_limite']){
+                let info_fecha  = lista_pacientes['fecha_limite'][i];
+                row_fecha_limite    = ' <div class="col-md-3">'+
+                                            '<label for="input_fecha_inicio" class="col-form-label">Fecha limite a generar de: '+info_fecha.nombre_locacion+'</label>'+
+                                            '<input type="text" class="form-control" disabled value="'+info_fecha.fecha_limite+'">'+
+                                        '</div>';
+            }
+
+            $(modal_clone).find(".div_append").append(row_fecha_limite);
+
             let rows    = '';
-            for(let i in lista_pacientes){
-                let paciente    = lista_pacientes[i];
+            for(let i in lista_pacientes['pacientes']){
+                let paciente    = lista_pacientes['pacientes'][i];
+                console.log('paciente',paciente);
+                let disabled    = estatus == 0 ? 'disabled' : '';
                 rows += 
-                        '<tr class="tr_header" >'+
-                            '<td class="td_row"><input type="checkbox" class="input_selected" data-idpaciente="'+paciente.id_paciente+'" /></td>'+
+                        '<tr class="tr_header" data-idlocacion="'+paciente.id_locacion+'">'+
+                            '<td class="td_row"><input type="checkbox" class="input_selected" data-idpaciente="'+paciente.id_paciente+'" data-idlocacion="'+paciente.id_locacion+'" '+disabled+' /></td>'+
+                            '<td class="td_row">'+paciente.nombre_locacion+'</td>'+
                             '<td class="td_row">'+paciente.nombre+'</td>'+
                             '<td class="td_row">'+paciente.citas+'</td>'+
                         '</tr>';
             }
 
             if (rows == ''){
-                rows    = '<tr><td colspan="3" align="center">'+translations['emptyTable']+'</td></tr>';
+                rows    = '<tr><td colspan="4" align="center">'+translations['emptyTable']+'</td></tr>';
             }
 
             $(modal_clone).find('.table_pacientes').find('tbody').append(rows);
@@ -1277,6 +1333,82 @@ use App\Library\FuncionesGlobales;
                 } else {
                     $(modal_clone).find('#btnSave').prop('disabled',true);
                 }
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+
+                let fecha_inicio    = $(modal_clone).find("#input_fecha_inicio").val();
+
+                if (fecha_inicio == '' || fecha_inicio == null){
+                    showAlert('danger','Ingrese la fecha de inicio');
+                    return false;
+                }
+
+                let lista_pacientes = [];
+
+                $(modal_clone).find('.input_selected:checked').each(function(){
+                    let id_paciente = $(this).data('idpaciente');
+                    let id_locacion = $(this).data('idlocacion');
+                    lista_pacientes.push({
+                        id_paciente : id_paciente,
+                        id_locacion : id_locacion
+                    });
+                });
+
+                if (Object.keys(lista_pacientes).length == 0){
+                    showAlert('danger','Seleccione al menos un paciente');
+                    return false;
+                }
+
+                console.log('lista_pacientes',lista_pacientes);
+
+                $.ajax({
+                    url         : url_update,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion          : 'generar_citas',
+                        fecha_inicio    : fecha_inicio,
+                        lista_pacientes : lista_pacientes
+                    },
+                    success     : function(data){
+                        console.log(data);
+
+                        // Cierra el modal actual
+                        $(modal_clone).modal('hide');
+
+                        // Clona el modal de resultado y trabaja sobre el clon
+                        let modal_clone_respuesta = $('#modal_resultado_citas').clone();
+                        modal_clone_respuesta.removeAttr('id');
+                        modal_clone_respuesta.find('.modal-title').attr('id', 'label_resultado_citas_clone');
+
+                        const $listaOk    = modal_clone_respuesta.find('#lista_mensaje_ok').empty();
+                        const $listaError = modal_clone_respuesta.find('#lista_mensaje_error').empty();
+
+                        if (data.mensaje_ok && data.mensaje_ok.length > 0) {
+                            data.mensaje_ok.forEach(item => {
+                                $listaOk.append(`<li class="list-group-item">${item}</li>`);
+                            });
+                        } else {
+                            $listaOk.append('<li class="list-group-item">Sin registros</li>');
+                        }
+
+                        if (data.mensaje_error && data.mensaje_error.length > 0) {
+                            data.mensaje_error.forEach(item => {
+                                $listaError.append(`<li class="list-group-item">${item}</li>`);
+                            });
+                        } else {
+                            $listaError.append('<li class="list-group-item">Sin registros</li>');
+                        }
+
+                        $('body').append(modal_clone_respuesta);
+                        modal_clone_respuesta.modal('show');
+
+                        modal_clone_respuesta.on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    }
+                });
             });
 
             $(modal_clone).modal('show');
