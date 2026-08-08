@@ -358,7 +358,20 @@ use App\Library\FuncionesGlobales;
         <h5 class="modal-title" id="modal_ver_pacientes_asignados"><?php echo FuncionesGlobales::UpperString($translations['html_assigned_patients']); ?></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+        <div class="modal-body">
+            <div class="alert alert-warning mx-3 mb-3">
+            <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+            <div>
+                <p class="mb-2 fw-semibold">Las citas que han sido generadas con anterioridad serán canceladas, por lo cual se perderán:</p>
+                <ul class="mb-1 ps-3">
+                <li class="mb-1">Registros de asistencias y faltas de esas citas</li>
+                <li class="mb-1">Registros de pagos asociados</li>
+                </ul>
+                <p class="mt-2 small text-muted">Esta acción no se puede deshacer una vez confirmada.</p> <!-- Texto adicional opcional -->
+            </div>
+            </div>
+        </div>
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3 div_append">
                 <div class="col-md-3">
@@ -811,8 +824,6 @@ use App\Library\FuncionesGlobales;
 
                 },
                 error   : function(error){
-                    console.log('error');
-                    console.log(error);
                     actionJsonError(error);
                     $(modal_clone).modal('hide');
                 }
@@ -1336,6 +1347,9 @@ use App\Library\FuncionesGlobales;
             });
 
             $(modal_clone).on('click','#btnSave',function(){
+                let btn = $(this);
+
+                $(btn).prop('disabled',true);
 
                 let fecha_inicio    = $(modal_clone).find("#input_fecha_inicio").val();
 
@@ -1407,6 +1421,9 @@ use App\Library\FuncionesGlobales;
                         modal_clone_respuesta.on('hidden.bs.modal', function () {
                             $(this).remove();
                         });
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
                     }
                 });
             });

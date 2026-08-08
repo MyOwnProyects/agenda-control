@@ -386,6 +386,14 @@ class ProfesionalesController extends BaseController
                     return $response;
                 }
 
+                foreach($result['mensaje_ok'] as $mensaje){
+                    FuncionesGlobales::saveBitacora($this->bitacora,'PROGRAMAR CITAS',$mensaje,$_POST);
+                }
+
+                foreach($result['mensaje_error'] as $mensaje){
+                    FuncionesGlobales::saveBitacora($this->bitacora,'PROGRAMAR CITAS',$mensaje,$_POST);
+                }
+
                 //FuncionesGlobales::saveBitacora($this->bitacora,'ACTUALIZAR','Al profesional '.$_POST['nombre_profesional'].' se le asigno el horario '.$_POST['horario'].' del paciente '.$_POST['nombre_paciente'],$_POST);
 
                 $response->setJsonContent($result);
