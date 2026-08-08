@@ -545,7 +545,12 @@ class PacientesController extends BaseController
         $route                  = $this->url_api.$this->rutas['tbapertura_agenda']['show'];
         $result['info_agenda']  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
 
-        $aqui = 1;
+        //  OBTENCION DE LA RUTA DE PROCEDENCIA
+        $url_anterior   = $this->request->getHTTPReferer();
+        preg_match('/\/([^\/]+)\/?$/', $url_anterior, $matches);
+        $url_anterior   = $matches[1];
+
+        $this->view->url_anterior   = trim($url_anterior);
 
     } 
 

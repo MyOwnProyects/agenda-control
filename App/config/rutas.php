@@ -52,6 +52,11 @@ return [
         'change_status'                 => "/ctprofesionales/change_status",
         'get_schedule_availability'     => '/ctprofesionales/get_schedule_availability',
         'save_schedule_availability'    => '/ctprofesionales/save_schedule_availability',
+        'get_horario_fijo'              => '/ctprofesionales/get_horario_fijo',
+        'verificar_disponibilidad'      => '/ctprofesionales/verificar_disponibilidad',
+        'update_horario_fijo'           => '/ctprofesionales/update_horario_fijo',
+        'get_pacientes_asignados'       => '/ctprofesionales/get_pacientes_asignados',
+        'generar_citas'                 => '/ctprofesionales/generar_citas'
     ],
     'tbhorarios_atencion'   => array(
         'get_opening_hours'     => '/tbhorarios_atencion/get_opening_hours',

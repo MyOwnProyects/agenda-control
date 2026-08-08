@@ -50,7 +50,6 @@ function decodeUnicode(str) {
  * @param {String} message MENSAJE A MOSTRAR
  */
 function showAlert(type = 'success' , message,timer = null) {
-    console.log('message message',message,decodeUnicode(message));
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-fixed`;
     alertDiv.style.display = 'none';

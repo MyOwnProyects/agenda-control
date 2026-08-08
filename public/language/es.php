@@ -207,6 +207,10 @@ return [
     'html_payment_module'                       => 'Caja',
     'html_capture_date'                         => 'Fecha de captura',
     'html_total_paid'                           => 'Total pagado',
+    'html_view_fixed_schedule'                  => 'Ver horario fijo',
+    'html_fixed_schedule'                       => 'Horario fijo',
+    'html_transfer_appointment'                 => 'Transferir cita',
+    'html_assigned_patients'                    => 'Pacientes asignados',
     
 
 
