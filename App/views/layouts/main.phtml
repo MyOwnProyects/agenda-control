@@ -65,6 +65,7 @@
     $bitacora       = \App\Library\FuncionesGlobales::HasAccess('Bitacora', 'index');
     $bloqueo_agenda = \App\Library\FuncionesGlobales::HasAccess('Bloqueoagenda', 'index');
     $reporteador    = \App\Library\FuncionesGlobales::HasAccess('Reporteador', 'index');
+    $caja           = \App\Library\FuncionesGlobales::HasAccess('Caja', 'index');
     $plantillas_mensajes    = \App\Library\FuncionesGlobales::HasAccess('Plantillasmensajes', 'index');
     $di                     = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
     $session                = $di->getShared('session');
@@ -142,7 +143,7 @@
                   </a>
               </li>
               <li class="menu-divider"></li>
-              <?php if ($agenda || $control_citas || $pacientes || $agenda_movil): ?>
+              <?php if ($agenda || $control_citas || $pacientes || $agenda_movil || $caja): ?>
                 <li class="menu-section-title">Operación diaria</li>
 
                 <!-- Agenda -->
@@ -161,6 +162,15 @@
                         <i class="bi bi-phone me-2"></i>
                         <span><?php echo $translations['html_movil_agenda']; ?></span>
                         <div class="nav-item-text" data-texto="<?php echo $translations['html_movil_agenda']; ?>"><?php echo $translations['html_movil_agenda']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+                <?php if($caja): ?>
+                <li class="nav-item" title="<?php echo $translations['html_payment_module']; ?>">
+                    <a href="/Caja/" class="nav-link text-white <?php echo $currentController == 'Caja' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-cash me-2"></i>
+                        <span><?php echo $translations['html_payment_module']; ?></span>
+                        <div class="nav-item-text" data-texto="<?php echo $translations['html_payment_module']; ?>"><?php echo $translations['html_payment_module']; ?></div>
                     </a>
                 </li>
                 <?php endif; ?>
