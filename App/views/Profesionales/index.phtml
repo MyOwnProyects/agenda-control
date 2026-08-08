@@ -35,6 +35,46 @@ use App\Library\FuncionesGlobales;
         display:none;
     }
 
+    /* .div_header_horario_fijo .table-responsive {
+        max-height: 400px; 
+        overflow-y: auto;
+    }
+
+    .div_header_horario_fijo .table-responsive thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #fff; 
+    } */
+
+    .div_scroll .table-responsive {
+        max-height: 400px; /* ajusta según lo que necesites */
+        overflow-y: auto;
+    }
+
+    .div_scroll .table-responsive thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #fff; /* importante para que no se vea el contenido pasando por debajo */
+    }
+
+    .div_header_horario_fijo tbody td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .modal_transferir .fix-padding span {
+        display: block;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+
+    .div_header_pacientes_asignados tbody td {
+        text-align: left;
+        vertical-align: middle;
+    }
+
 </style>
 <div class="container mt-4">
     <!-- Section 1: Search Filters -->
@@ -202,6 +242,197 @@ use App\Library\FuncionesGlobales;
     <div class="col-1"><button type="button" class="btn btn-outline-danger btn_delete_hours">X</button></div>
 </div>
 
+<div class="modal fade modal-xl" id="modal_horario_fjo" tabindex="-1" aria-labelledby="label_save_class" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal_ver_cita_fuera_horario"><?php echo FuncionesGlobales::UpperString($translations['html_fixed_schedule']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning mx-3 mb-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                <div>
+                    <p class="mb-2 fw-semibold">
+                        Estas son las citas fijas asignadas al/la profesional
+                        <b><span id="nombre_profesional">nombre</span>.</b>
+                    </p>
+                    <ul class="mb-1 ps-3">
+                        <li class="mb-1">Los cambios realizados en esta configuración no se reflejarán de inmediato en la agenda.</li>
+                        <li class="mb-1">Los cambios se aplicarán cuando se ejecute el proceso de <strong>"Apertura de agenda"</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="mb-3 div_header_horario_fijo div_scroll">
+                <div class="table-responsive">
+                    <table class="table_citas table table-striped">
+                        <thead>
+                        <tr>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_day']; ?></th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_assigned_schedule']; ?></th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_title_patient']; ?></th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_service']; ?></th>
+                                <th scope="col" style="text-align: center;"><?php echo $translations['html_options']; ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal_transferir" id="modal_transferir" tabindex="-1" aria-labelledby="label_modal_transferir" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_modal_transferir"><?php echo FuncionesGlobales::UpperString($translations['html_transfer_appointment']); ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body col-md-12">
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3">
+                <div class="col-md-6 fix-padding">
+                    <label for="locacion" class="form-label"><?php echo $translations['html_location']; ?></label>
+                    <span id="locacion"></span>
+                </div>                
+                <!-- Campo Clave -->
+                <div class="col-md-6 fix-padding">
+                    <label for="nombre_paciente" class="form-label"><?php echo $translations['html_title_patient']; ?></label>
+                    <span id="nombre_paciente"></span>
+                </div> 
+                <!-- Campo Nombre -->
+                <div class="col-md-6 fix-padding">
+                    <label for="servicio" class="form-label"><?php echo $translations['html_service']; ?></label>
+                    <span id="servicio"></span>
+                </div> 
+                <div class="col-md-6 fix-padding">
+                    <label for="horario" class="form-label">Horario</label>
+                    <span id="horario"></span>
+                </div> 
+                <div class="col-md-6 fix-padding">
+                    <label for="profesional_actual" class="form-label"><?php echo $translations['html_appointment_professional']; ?></label>
+                    <span id="profesional_actual"></span>
+                </div> 
+                <!-- Campo fecha nacimiento -->
+                <div class="col-md-12" style="padding-bottom: 16px;">
+                    <label for="select_profesionales" class="col-form-label"><?php echo $translations['html_error_professional']; ?></label>
+                    <select id="select_profesionales" class="form-control">
+                        
+                    </select>
+                </div>
+            
+            <div id="alert_error" class="alert alert-danger align-items-center" role="alert" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                <div id="msg_error">
+                    
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary"><?php echo $translations['html_btn_save']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal-xl" id="modal_pacientes_asignados" tabindex="-1" aria-labelledby="label_save_class" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal_ver_pacientes_asignados"><?php echo FuncionesGlobales::UpperString($translations['html_assigned_patients']); ?></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <div class="modal-body">
+            <div class="alert alert-warning mx-3 mb-3">
+            <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+            <div>
+                <p class="mb-2 fw-semibold">Las citas que han sido generadas con anterioridad serán canceladas, por lo cual se perderán:</p>
+                <ul class="mb-1 ps-3">
+                <li class="mb-1">Registros de asistencias y faltas de esas citas</li>
+                <li class="mb-1">Registros de pagos asociados</li>
+                </ul>
+                <p class="mt-2 small text-muted">Esta acción no se puede deshacer una vez confirmada.</p> <!-- Texto adicional opcional -->
+            </div>
+            </div>
+        </div>
+        <form id="form_modal_create" class="needs-validation" novalidate>
+            <div class="row mb-3 div_append">
+                <div class="col-md-3">
+                    <label for="input_fecha_inicio" class="col-form-label"><?php echo $translations['html_starting_date']; ?></label>
+                    <input type="date" class="form-control" id="input_fecha_inicio" required>
+                </div>
+            </div>
+            
+            <div class="mb-3 div_header_pacientes_asignados div_scroll">
+                <div class="table-responsive">
+                    <table class="table_pacientes table table-striped">
+                        <thead>
+                        <tr>
+                                <th scope="col" style="text-align: left;"><input type="checkbox" id="select_all" /></th>
+                                <th scope="col" style="text-align: left;"><?php echo $translations['html_location']; ?></th>
+                                <th scope="col" style="text-align: left;"><?php echo $translations['html_title_patient']; ?></th>
+                                <th scope="col" style="text-align: left;"><?php echo $translations['html_fixed_schedule']; ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+        <button type="button" id="btnSave" class="btn btn-primary" disabled><?php echo $translations['html_generate_dates']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal_resultado_citas" tabindex="-1" aria-labelledby="label_resultado_citas" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-xl-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="label_resultado_citas">Resultados</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <h6 class="text-success">Citas generadas</h6>
+          <ul id="lista_mensaje_ok" class="list-group mb-3">
+          </ul>
+        </div>
+        <div class="mb-3">
+          <h6 class="text-danger">Errores</h6>
+          <ul id="lista_mensaje_error" class="list-group">
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"><?php echo $translations['html_btn_cancel']; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     let module_profesionale = (function(){
         let draw            = 1;
@@ -238,6 +469,8 @@ use App\Library\FuncionesGlobales;
             confirm_delete  : "<?= $translations['html_confirm_delete']?>",
             confirm_update  : "<?= $translations['html_confirm_update']?>",
             schedule_availability   : "<?= $translations['html_schedule_availability']?>",
+            view_fixed_schedule     : "<?= $translations['html_view_fixed_schedule'] ?>",
+            assigned_patients       : "<?= $translations['html_assigned_patients'] ?>",
         };
 
         //  LISTA DE ERRORES EN MODAL
@@ -338,6 +571,62 @@ use App\Library\FuncionesGlobales;
                 }
             });
 
+            //  EVENTO BOTON EDITAR
+            $("#table_results").on('click','.btn_ver_horario_fijo',async function(){
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'get_horario_fijo',
+                        id_profesional  : id,
+                        clave           : clave
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        show_modal_horario_fijo(data,btn);
+                        
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            //
+            $("#table_results").on('click','.btn_pacientes_asignados',async function(){
+                const id        = $(this).data('id');
+                const clave     = $(this).data('clave');
+                const estatus   = $(this).data('estatus');
+                let btn         = $(this);
+                $(btn).prop('disabled',true);
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    :  {
+                        accion  : 'get_pacientes_asignados',
+                        id_profesional  : id,
+                        clave           : clave
+                    },
+                    success : function(data){
+                        console.log('data');
+                        console.log(data);
+                        $(btn).prop('disabled',false);
+                        show_modal_pacientes_asignados(data,btn,estatus);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
             // Evento click del botón "Buscar"
             $("#header_filters").on('click',"#btnBuscar",function() {
                 cargarTabla();
@@ -432,7 +721,6 @@ use App\Library\FuncionesGlobales;
                             className: "text-center", // Centra el contenido de la celda
                             orderable: false, // Desactiva el ordenamiento para esta columna
                             render: function (data, type, row) {
-                                console.log('data',data);
                                 draw    ++;
                                 // `data` contiene el objeto completo de la fila
                                 // Generamos un botón con un atributo dinámico para identificar la fila
@@ -446,10 +734,16 @@ use App\Library\FuncionesGlobales;
                                     '<i class="bi bi-pencil-fill"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_schedule_availability" data-id="'+data['id']+'" data-clave="'+data['clave']+'" data-nombre="'+(data['primer_apellido']+' '+data['segundo_apellido']+' '+data['nombre'])+'" title="'+translations['schedule_availability'] +'">' +
-                                    '<i class="bi bi-calendar2-event"></i>'+
+                                    '<i class="bi bi-clock"></i>'+
                                 '</button>' +
                                 '<button class="btn btn-outline-dark btn-sm btn_change_status" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'" data-clave="'+data['clave']+'" title="'+translations['title_change'] +'">' +
                                     '<i class="bi bi-arrow-repeat"></i>'+
+                                '</button>' +
+                                '<button class="btn btn-outline-dark btn-sm btn_ver_horario_fijo" data-id="'+data['id']+'"  title="'+translations['view_fixed_schedule'] +'">' +
+                                    '<i class="bi bi-calendar-week"></i>'+
+                                '</button>'+
+                                '<button class="btn btn-outline-dark btn-sm btn_pacientes_asignados" data-id="'+data['id']+'" data-estatus="'+data['estatus']+'"  title="'+translations['assigned_patients'] +'">' +
+                                    '<i class="bi bi-person-bounding-box"></i>'+
                                 '</button>'
                                 
                                 : '';
@@ -530,8 +824,6 @@ use App\Library\FuncionesGlobales;
 
                 },
                 error   : function(error){
-                    console.log('error');
-                    console.log(error);
                     actionJsonError(error);
                     $(modal_clone).modal('hide');
                 }
@@ -764,6 +1056,379 @@ use App\Library\FuncionesGlobales;
 
             $(modal_clone).modal('show');
 
+        }
+
+        function show_modal_horario_fijo(info_citas,btn_inicial){
+            let modal_clone = $("#modal_horario_fjo").clone().removeAttr('id').show();
+
+            let nombre_profesional  = $(btn_inicial).closest('tr').find('td').eq(1).text();
+            $(modal_clone).find('#nombre_profesional').text(nombre_profesional);
+
+            let rows    = '';
+
+            for(let cita of info_citas){
+                rows += 
+                        '<tr class="tr_header" data-idcitaprogramada="'+cita.id_cita_programada+'" data-idservicio="'+cita.id_servicio+'">'+
+                            '<td class="td_row">'+cita.label_dia+'</td>'+
+                            '<td class="td_row">'+cita.hora_inicio+' - '+cita.hora_termino+'</td>'+
+                            '<td class="td_row">'+cita.nombre_paciente+'</td>'+
+                            '<td class="td_row" align="center" style="background: '+cita.codigo_color+';width: 80px; max-width: 80px; font-size: 0.85rem;">'+cita.clave_servicio+'</td>'+
+                            '<td align="center">'+
+                                '<div class="btn-group" role="group" aria-label="Acciones de cita">'+
+                                    '<button type="button" class="btn btn_editar" data-idpaciente="'+cita.id_paciente+'" title="Editar" ><i class="bi bi-pencil-fill"></i></button>'+
+                                    '<button type="button" class="btn btn_transferir" title="Trasferir" data-idservicio="'+cita.id_servicio+'" data-idlocacion="'+cita.id_locacion+'" data-idprofesional="'+cita.id_profesional+'" data-nombrepaciente="'+cita.nombre_paciente+'" data-servicio="'+cita.clave_servicio+'" data-labeldia="'+cita.label_dia+'" data-horario="'+cita.hora_inicio+' - '+cita.hora_termino+'"  data-idcitaprogramadaserviciohorario="'+cita.id_cita_programada_servicio_horario+'" data-nombrelocacion="'+cita.nombre_locacion+'" data-nombreprofesional="'+cita.nombre_profesional+'"><i class="bi bi-arrow-left-right"></i></button>'+
+                                    '<button type="button" class="btn btn_borrar" data-nombrepaciente="'+cita.nombre_paciente+'" data-servicio="'+cita.clave_servicio+'" data-labeldia="'+cita.label_dia+'" data-horario="'+cita.hora_inicio+' - '+cita.hora_termino+'"  data-idcitaprogramadaserviciohorario="'+cita.id_cita_programada_servicio_horario+'" title="Elimitar">'+
+                                        '<i class="bi bi-trash3-fill"></i>'+
+                                    '</button>'+
+                            '</div>'+
+                            '</td>'+
+                        '</tr>';
+            }
+
+            if (rows == ''){
+                rows    = '<tr><td colspan="5" align="center">'+translations['emptyTable']+'</td></tr>';
+            }
+
+            $(modal_clone).find('.table_citas').find('tbody').append(rows);
+
+            //  EVENTOS
+            $(modal_clone).on('click','.btn_editar',function(){
+                const id_paciente   = $(this).data('idpaciente');
+                window.location.href = '/Pacientes/scheduleappointments?id='+id_paciente;
+            });
+
+            $(modal_clone).on('click','.btn_borrar', async function(){
+                const id_cita_programada_servicio_horario   = $(this).data('idcitaprogramadaserviciohorario');
+                const nombre_paciente   = $(this).data('nombrepaciente');
+                const servicio          = $(this).data('servicio');
+                const horario           = $(this).data('horario');
+                const dia               = $(this).data('labeldia');
+                const respuesta = await window.modalConfirm(translations['confirm_delete']);
+                let btn         = $(this);
+
+                $(btn).prop('disabled',true);
+
+                console.log('id_cita_programada_servicio_horario',id_cita_programada_servicio_horario);
+                console.log('nombre_paciente',nombre_paciente);
+                console.log('servicio',servicio);
+                console.log('horario',horario);
+
+                if (respuesta) {
+                    $.ajax({
+                        url     : url_update,
+                        method  : 'POST',
+                        data    : {
+                            accion          : 'delete_horario_fijo',
+                            nombre_paciente : nombre_paciente,
+                            servicio        : servicio,
+                            horario         : horario,
+                            dia             : dia,
+                            id_cita_programada_servicio_horario : id_cita_programada_servicio_horario ,
+                        },
+                        success : function(data){
+                            console.log('data');
+                            console.log(data);
+                            $(btn).prop('disabled',false);
+                            showAlert('success',"Borrado exitosa!");
+                            $(modal_clone).modal('hide');
+                        },
+                        error   : function(error){
+                            actionJsonError(error,btn);
+                        }
+                    });
+                } else {
+                    $(btn).prop('disabled',false);
+                }
+            });
+
+            $(modal_clone).on('click','.btn_transferir',function(){
+                const id_servicio       = $(this).data('idservicio');
+                const id_locacion       = $(this).data('idlocacion');
+                const id_profesional    = $(this).data('idprofesional');
+
+                const id_cita_programada_servicio_horario = $(this).data('idcitaprogramadaserviciohorario');
+                const nombre_paciente = $(this).data('nombrepaciente');
+                const servicio = $(this).data('servicio');
+                const horario = $(this).data('horario');
+                const dia = $(this).data('labeldia');
+                const nombre_locacion       = $(this).data('nombrelocacion');
+                const nombre_profesional    = $(this).data('nombreprofesional');
+
+                let info_cita = {
+                    id_cita_programada_servicio_horario: id_cita_programada_servicio_horario,
+                    nombre_paciente: nombre_paciente,
+                    servicio: servicio,
+                    horario: horario,
+                    dia: dia,
+                    nombre_locacion : nombre_locacion,
+                    nombre_profesional : nombre_profesional
+                };
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    : {
+                        accion          : 'get_profesionales_disponibles',
+                        id_servicio     : id_servicio,
+                        id_locacion     : id_locacion,
+                        id_profesional  : id_profesional
+                    },
+                    success : function(data){
+                        $(modal_clone).modal('hide');
+                        show_modal_transferir(info_cita,data,btn_inicial);
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        //  MODAL CON TODA LA INFORMACION PARA TRANSFERIR 
+        function show_modal_transferir(info_cita,profesionales,btn_inicial){
+            console.log('info_cita',info_cita);
+            let modal_clone         = $("#modal_transferir").clone().removeAttr('id').show();
+            let permitir_guardar    = false;
+
+            $(modal_clone).find('#locacion').text(info_cita['nombre_locacion']);
+            $(modal_clone).find('#nombre_paciente').text(info_cita['nombre_paciente']);
+            $(modal_clone).find('#servicio').text(info_cita['servicio']);
+            $(modal_clone).find('#horario').text(info_cita['dia']+ ' ' +info_cita['horario']);
+            $(modal_clone).find('#profesional_actual').text(info_cita['nombre_profesional']);
+
+            let options = '<option value="">Seleccione un profesional</option>';
+            for(let row of profesionales){
+                options += '<option value="'+row['id']+'">'+row['nombre_completo']+'</option>';
+            }
+
+            $(modal_clone).find("#select_profesionales").append(options);
+
+            $(modal_clone).on('change','#select_profesionales',function(){
+                if ($(this).val() == null || $(this).val() == ''){
+                    return false;
+                }
+
+                const id_profesional    = $(this).val();
+
+                $.ajax({
+                    url     : url_update,
+                    method  : 'POST',
+                    data    : {
+                        accion          : 'verificar_disponibilidad',
+                        id_profesional  : id_profesional,
+                        id_cita_programada_servicio_horario : info_cita['id_cita_programada_servicio_horario']
+                    },
+                    success : function(data){
+                        $(modal_clone).find('#alert_error').removeClass('alert-danger').addClass('alert-success');
+                        $(modal_clone).find('#alert_error').find('#msg_error').html('Profesional disponible');
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                        permitir_guardar    = true;
+                    },
+                    error   : function(error){
+                        $(modal_clone).find('#alert_error').removeClass('alert-success').addClass('alert-danger');
+                        $(modal_clone).find('#alert_error').find('#msg_error').html(error.responseText);
+                        $(modal_clone).find('#alert_error').addClass('d-flex').show();
+                        permitir_guardar    = false;
+                        //actionJsonError(error,btn);
+                    }
+                });                
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+
+                let btn = $(this);
+                $(btn).prop('disabled',true);
+
+                if ($(modal_clone).find("#select_profesionales").val() == null || $(modal_clone).find("#select_profesionales").val() == ''){
+                    showAlert('danger','Seleccione un profesional');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                if (!permitir_guardar){
+                    showAlert('danger','Profesional no disponible');
+                    $(btn).prop('disabled',false);
+                    return false;
+                }
+
+                const id_profesional        = $(modal_clone).find("#select_profesionales").val();
+                const nombre_profesional    = $(modal_clone).find("#select_profesionales").find('option:selected').text();
+
+                $.ajax({
+                    url         : url_update,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion  : 'update_horario_fijo',
+                        id_profesional  : id_profesional,
+                        nombre_profesional  : nombre_profesional,
+                        nombre_paciente     : info_cita['nombre_paciente'],
+                        horario             : info_cita['dia']+ ' ' +info_cita['horario'],
+                        id_cita_programada_servicio_horario : info_cita['id_cita_programada_servicio_horario']
+                    },
+                    success     : function(data){
+                        showAlert('success','Reasignación exitosa');
+                        $(modal_clone).modal('hide');
+                    },
+                    error   : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $(modal_clone).on('hidden.bs.modal', function (e) {
+                $(btn_inicial).trigger('click');
+            });
+
+            $(modal_clone).modal('show');
+        }
+
+        function show_modal_pacientes_asignados(lista_pacientes,btn,estatus){
+            let modal_clone = $("#modal_pacientes_asignados").clone().removeAttr('id').show();
+
+            if (estatus != 1){
+                $(modal_clone).find("#select_all").remove();
+                $(modal_clone).find("#input_fecha_inicio").closest('div').remove();
+                $(modal_clone).find("#btnSave").remove();
+            }
+
+            //  PINTA FECHAS LIMITE POR LOCACION
+            let row_fecha_limite    = '';
+            for(let i in lista_pacientes['fecha_limite']){
+                let info_fecha  = lista_pacientes['fecha_limite'][i];
+                row_fecha_limite    = ' <div class="col-md-3">'+
+                                            '<label for="input_fecha_inicio" class="col-form-label">Fecha limite a generar de: '+info_fecha.nombre_locacion+'</label>'+
+                                            '<input type="text" class="form-control" disabled value="'+info_fecha.fecha_limite+'">'+
+                                        '</div>';
+            }
+
+            $(modal_clone).find(".div_append").append(row_fecha_limite);
+
+            let rows    = '';
+            for(let i in lista_pacientes['pacientes']){
+                let paciente    = lista_pacientes['pacientes'][i];
+                console.log('paciente',paciente);
+                let disabled    = estatus == 0 ? 'disabled' : '';
+                rows += 
+                        '<tr class="tr_header" data-idlocacion="'+paciente.id_locacion+'">'+
+                            '<td class="td_row"><input type="checkbox" class="input_selected" data-idpaciente="'+paciente.id_paciente+'" data-idlocacion="'+paciente.id_locacion+'" '+disabled+' /></td>'+
+                            '<td class="td_row">'+paciente.nombre_locacion+'</td>'+
+                            '<td class="td_row">'+paciente.nombre+'</td>'+
+                            '<td class="td_row">'+paciente.citas+'</td>'+
+                        '</tr>';
+            }
+
+            if (rows == ''){
+                rows    = '<tr><td colspan="4" align="center">'+translations['emptyTable']+'</td></tr>';
+            }
+
+            $(modal_clone).find('.table_pacientes').find('tbody').append(rows);
+
+            $(modal_clone).on('click','#select_all',function(){
+                let checked = $(this).prop('checked');
+
+                $(modal_clone).find('.input_selected').prop('checked',checked);
+
+                if (checked){
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                } else {
+                    $(modal_clone).find('#btnSave').prop('disabled',true);
+                }
+            })
+
+            $(modal_clone).on('change','.input_selected',function(){
+                if ($(modal_clone).find('.input_selected:checked').length > 0){
+                    $(modal_clone).find('#btnSave').prop('disabled',false);
+                } else {
+                    $(modal_clone).find('#btnSave').prop('disabled',true);
+                }
+            });
+
+            $(modal_clone).on('click','#btnSave',function(){
+                let btn = $(this);
+
+                $(btn).prop('disabled',true);
+
+                let fecha_inicio    = $(modal_clone).find("#input_fecha_inicio").val();
+
+                if (fecha_inicio == '' || fecha_inicio == null){
+                    showAlert('danger','Ingrese la fecha de inicio');
+                    return false;
+                }
+
+                let lista_pacientes = [];
+
+                $(modal_clone).find('.input_selected:checked').each(function(){
+                    let id_paciente = $(this).data('idpaciente');
+                    let id_locacion = $(this).data('idlocacion');
+                    lista_pacientes.push({
+                        id_paciente : id_paciente,
+                        id_locacion : id_locacion
+                    });
+                });
+
+                if (Object.keys(lista_pacientes).length == 0){
+                    showAlert('danger','Seleccione al menos un paciente');
+                    return false;
+                }
+
+                console.log('lista_pacientes',lista_pacientes);
+
+                $.ajax({
+                    url         : url_update,
+                    method      : 'post',
+                    dataType    : 'json',
+                    data        : {
+                        accion          : 'generar_citas',
+                        fecha_inicio    : fecha_inicio,
+                        lista_pacientes : lista_pacientes
+                    },
+                    success     : function(data){
+                        console.log(data);
+
+                        // Cierra el modal actual
+                        $(modal_clone).modal('hide');
+
+                        // Clona el modal de resultado y trabaja sobre el clon
+                        let modal_clone_respuesta = $('#modal_resultado_citas').clone();
+                        modal_clone_respuesta.removeAttr('id');
+                        modal_clone_respuesta.find('.modal-title').attr('id', 'label_resultado_citas_clone');
+
+                        const $listaOk    = modal_clone_respuesta.find('#lista_mensaje_ok').empty();
+                        const $listaError = modal_clone_respuesta.find('#lista_mensaje_error').empty();
+
+                        if (data.mensaje_ok && data.mensaje_ok.length > 0) {
+                            data.mensaje_ok.forEach(item => {
+                                $listaOk.append(`<li class="list-group-item">${item}</li>`);
+                            });
+                        } else {
+                            $listaOk.append('<li class="list-group-item">Sin registros</li>');
+                        }
+
+                        if (data.mensaje_error && data.mensaje_error.length > 0) {
+                            data.mensaje_error.forEach(item => {
+                                $listaError.append(`<li class="list-group-item">${item}</li>`);
+                            });
+                        } else {
+                            $listaError.append('<li class="list-group-item">Sin registros</li>');
+                        }
+
+                        $('body').append(modal_clone_respuesta);
+                        modal_clone_respuesta.modal('show');
+
+                        modal_clone_respuesta.on('hidden.bs.modal', function () {
+                            $(this).remove();
+                        });
+                    },
+                    error       : function(error){
+                        actionJsonError(error,btn);
+                    }
+                });
+            });
+
+            $(modal_clone).modal('show');
         }
     })();
 </script>
