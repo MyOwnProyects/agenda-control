@@ -157,15 +157,16 @@ class AsignarbecasController extends BaseController
         $this->view->arr_info_becas = $arr_info_becas;
 
         //  PERMISO PARA CANCELAR O DEVOLVER PAGOS
-        //$this->view->cancelar_devolver_abono    = FuncionesGlobales::HasAccess("Caja","cancelarDevolverAbono");
+        $this->view->cancelar_abono = FuncionesGlobales::HasAccess("Asignarbecas","delete");
     }
 
-    public function cancelarDevolverAbonoAction(){
+    public function deleteAction(){
+        $aqui   = 1;
         if ($this->request->isAjax()){
             $accion = $_POST['accion'];
 
             if ($accion == 'save_accion'){
-                $route  = $this->url_api.$this->rutas['caja']['save_cancelacion_devolucion'];
+                $route  = $this->url_api.$this->rutas['becas']['cancelar_pago'];
                 $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST['obj_info']);
 
                 $response = new Response();
@@ -176,8 +177,8 @@ class AsignarbecasController extends BaseController
                     return $response;
                 }
 
-                $accion = $_POST['obj_info']['tipo_cancelacion'] == 1 ? 'CANCELACION' : 'DEVOLUCION';
-                FuncionesGlobales::saveBitacora($this->bitacora,$accion,'Se realizó la '.$accion.' del paciente: '.$_POST['paciente'].' de '.count($_POST['obj_info']['arr_id_abono_movimiento']).' movimiento(s) de ticket con folio: '.$_POST['obj_info']['ticket_folio'].' sumando un total de: $'.FuncionesGlobales::formatoMonetario($_POST['obj_info']['total_movimiento']),$_POST['obj_info']);
+                $accion = 'CANCELACION';
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,'Se realizó la CANCELACION de un abono de tipo BECA del paciente: '.$_POST['paciente'].' Ticket: '.$_POST['obj_info']['ticket_folio'],$_POST['obj_info']);
                 
                 $response->setJsonContent($arr_info);
                 $response->setStatusCode(200, 'OK');

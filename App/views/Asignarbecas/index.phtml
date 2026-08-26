@@ -383,6 +383,7 @@ use App\Library\FuncionesGlobales;
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Monto inicial</th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Monto disponible</th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Estatus</th>
+                            <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Opciones</th>
                         </tr>
                     </thead>
                 </table>
@@ -774,7 +775,7 @@ use App\Library\FuncionesGlobales;
     </div>
 </div>
 
-<div class="modal fade modal_movtos" id="modal_cancelar_devolver_abono" tabindex="-1">
+<div class="modal fade modal_movtos" id="modal_cancelar_abono" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -798,7 +799,6 @@ use App\Library\FuncionesGlobales;
                             <th>Fecha cancelación</th>
                             <th>Usuario cancelación</th>
                             <th>Obs. Cancelación</th>
-                            <th>Opción</th>
                         </tr>
                     </thead>
                     <tbody id="tbody_abonos">
@@ -807,25 +807,6 @@ use App\Library\FuncionesGlobales;
                 </table>
             </div>
             <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
-                <div class="d-flex align-items-center justify-content-between w-100">
-                    <!-- Acción -->
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="text-muted small">Acción para los seleccionados:</span>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="tipo_accion" id="radio_cancelar" value="1">
-                            <label class="form-check-label" for="radio_cancelar">Cancelar</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="tipo_accion" id="radio_devolucion" value="2">
-                            <label class="form-check-label" for="radio_devolucion">Devolución</label>
-                        </div>
-                    </div>
-                    <!-- Total seleccionado -->
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted small">Total seleccionado:</span>
-                        <span class="fw-bold text-danger" id="span_total_seleccionado">$0.00</span>
-                    </div>
-                </div>
                 <!-- Observaciones -->
                 <div class="w-100">
                     <input type="text" id="input_observaciones" class="form-control form-control-sm" 
@@ -834,10 +815,10 @@ use App\Library\FuncionesGlobales;
                 <!-- Botón aplicar -->
                 <div class="w-100 d-flex justify-content-end">
                     <button type="button" class="btn btn-sm" data-bs-dismiss="modal">
-                        Cancelar
+                        Regresar
                     </button>
                     <button type="button" id="btn_aplicar_accion" class="btn btn-danger btn-sm">
-                        <i class="bi bi-check2-circle"></i> Aplicar
+                        <i class="bi bi-check2-circle"></i> Cancelar abono
                     </button>
                 </div>
             </div>
@@ -854,12 +835,12 @@ use App\Library\FuncionesGlobales;
         let table;
 
         //  Rutas
-        const controller    = '/Asignarbecas';
-        const url_index     = controller+"/index";
-        const url_cancelacion_devolucion    = controller+"/cancelarDevolverAbono";
+        const controller        = '/Asignarbecas';
+        const url_index         = controller+"/index";
+        const url_cancelacion   = controller+"/delete";
 
         //  PERMISO PARA CANCELAR Y DEVOLVER PAGOS
-        const cancelar_devolver_abono   = 0;
+        const cancelar_abono    = '<?php echo $cancelar_abono; ?>';
 
         //  language
         const translations  = {
@@ -960,6 +941,7 @@ use App\Library\FuncionesGlobales;
                         { data: 'label_fecha_captura' }, // Columna 1
                         { data: 'label_monto_asignado' }, // Columna 1
                         { data: 'label_monto_disponible' }, // Columna 1
+                        { data: 'label_estatus' }, // Columna 1
                         {
                             data: null, 
                             className: "text-center", // Centra el contenido de la celda
@@ -970,7 +952,7 @@ use App\Library\FuncionesGlobales;
                                                         '   <i class="bi bi-search"></i>'+
                                                     '   </button>';
 
-                                let btn_cancelar_devoler    = cancelar_devolver_abono ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" title="Cancelación o devolución de pago">' +
+                                let btn_cancelar_devoler    = cancelar_abono && data['estatus'] == 1 ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" title="Cancelación o devolución de pago">' +
                                                                                         '   <i class="bi-arrow-counterclockwise"></i>'+
                                                                                     '   </button>' : '';
 
@@ -1504,7 +1486,7 @@ use App\Library\FuncionesGlobales;
 
         //  MUESTRA MODAL PARA CANCELAR ABONOS
         function show_table_cancelar_devolver(info_abonos){
-            let modal_clone = $("#modal_cancelar_devolver_abono").clone().removeAttr('id');
+            let modal_clone = $("#modal_cancelar_abono").clone().removeAttr('id');
 
             //  DEL PRIMER ABONO SE OBTIENE EL FOLIO Y LA FECHA DE CAPTURA
             let folio           = info_abonos[0]['ticket_folio'];
@@ -1542,7 +1524,6 @@ use App\Library\FuncionesGlobales;
                             '<td>'+abono.label_fecha_cancelacion+'</td>'+
                             '<td>'+abono.clave_usuario_cancelacion+'</td>'+
                             '<td>'+abono.observaciones_cancelacion+'</td>'+
-                            '<td>'+checkbox+'</td>'+
                         '</tr>';
             }
 
@@ -1560,27 +1541,6 @@ use App\Library\FuncionesGlobales;
             $(modal_clone).on('click','#btn_aplicar_accion',async function(){
                 let btn = $(this);
                 $(btn).prop('disabled',true);
-                //  VERIFICA SI HAY UN CLICK SELECCIONADO
-                let arr_id_abono_movimiento = [];
-
-                $(modal_clone).find("#tbody_abonos").find('.input_abono').each(function(){
-
-                    if ($(this).prop('checked')){
-                        arr_id_abono_movimiento.push($(this).data('id'));
-                    }
-                })
-
-                if (arr_id_abono_movimiento.length == 0){
-                    showAlert('danger','Seleccione al menos un abono');
-                    $(btn).prop('disabled',false);
-                    return false;
-                }
-
-                if ($(modal_clone).find('[name="tipo_accion"]:checked').length == 0){
-                    showAlert('danger','Seleccione la acción a tomar');
-                    $(btn).prop('disabled',false);
-                    return false;
-                }
 
                 if ($(modal_clone).find("#input_observaciones").val().trim() == ''){
                     showAlert('danger','Ingrese una observación o motivo de esta acción');
@@ -1588,26 +1548,18 @@ use App\Library\FuncionesGlobales;
                     return false;
                 }
 
-                let total   = 0;
-                $(modal_clone).find('.input_abono:checked').each(function(){
-                    let row_total   = $(this).data('total');
-                    total   = ((total * 100) + (row_total * 100)) / 100;
-                });
-
                 let obj_info    = {
-                    arr_id_abono_movimiento     : arr_id_abono_movimiento,
-                    tipo_cancelacion            : $(modal_clone).find('[name="tipo_accion"]:checked').val(),
                     observaciones_cancelacion   : $(modal_clone).find("#input_observaciones").val().trim(),
                     ticket_folio                : folio,
-                    total_movimiento            : total
+                    id_paciente                 : $("#select_pacientes").val()
                 }
 
                 //const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?',true);
-                const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?');
+                const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?',true);
 
                 if (respuesta){
                     $.ajax({
-                        url         : url_cancelacion_devolucion,
+                        url         : url_cancelacion,
                         method      : 'post',
                         dataType    : 'json',
                         data        : {

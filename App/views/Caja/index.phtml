@@ -878,7 +878,7 @@ use App\Library\FuncionesGlobales;
                     </div>
                 </div>
                 <!-- Observaciones -->
-                <div class="w-100">
+                <div class="w-100 div_ocultar_beca">
                     <input type="text" id="input_observaciones" class="form-control form-control-sm" 
                     placeholder="Observaciones...">
                 </div>
@@ -1022,14 +1022,18 @@ use App\Library\FuncionesGlobales;
                                                         '   <i class="bi bi-search"></i>'+
                                                     '   </button>';
 
-                                let btn_cancelar_devoler    = cancelar_devolver_abono ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" data-ticketbeca="'+(data['nombre_beca'] != null ? 1 : 0)+'" title="Cancelación o devolución de pago">' +
+                                let btn_movtos_beca = data['nombre_beca'] != null ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" data-ticketbeca="'+(data['nombre_beca'] != null ? 1 : 0)+'" title="Ver movimientos">' +
+                                                                                        '   <i class="bi-search"></i>'+
+                                                                                    '   </button>' : '';
+
+                                let btn_cancelar_devoler    = cancelar_devolver_abono && data['nombre_beca'] == null ? ' <button class="btn btn-outline-dark btn-sm btn_cancelar_devolver_abono" data-id="'+data['id']+'" data-ticketbeca="'+(data['nombre_beca'] != null ? 1 : 0)+'" title="Cancelación o devolución de pago">' +
                                                                                         '   <i class="bi-arrow-counterclockwise"></i>'+
                                                                                     '   </button>' : '';
 
                                 let btn_download    = ' <button class="btn btn-outline-dark btn-sm btn_download" data-id="'+data['id']+'" title="Descargar ticket">' +
                                                         '   <i class="bi bi-download"></i>'+
                                                     '   </button>'; 
-                                return btn_preview + btn_download + btn_cancelar_devoler;
+                                return btn_preview + btn_movtos_beca + btn_download + btn_cancelar_devoler;
                             }
                         }
                     ],
@@ -1505,6 +1509,7 @@ use App\Library\FuncionesGlobales;
             let info_citas      = info_paciente['citas'];
             saldo_favor         = info_paciente['saldo_favor'];
             saldo_favor_beca    = info_paciente['saldo_favor_beca'];
+            console.log('saldo_favor_beca',saldo_favor_beca);
 
 
             //  SE MUESTRA EL SALDO A FAVOR
@@ -1735,6 +1740,8 @@ use App\Library\FuncionesGlobales;
                 
             });
 
+            console.log('sub_total_calculado',sub_total_calculado);
+
             let mensaje = citas_seleccionadas == 1 ? 'cita' : 'citas';
 
             $("#span_subtotal").text('$'+formatoDinero(sub_total_calculado));
@@ -1745,6 +1752,8 @@ use App\Library\FuncionesGlobales;
             if (tmp_total_calculado < 0){
                 tmp_total_calculado = 0;
             }
+
+            console.log('tmp_total_calculado',tmp_total_calculado);
 
             //  AL SUBTOTAL SE LE RESTA EL SALDO A FAVOR
             if (tmp_total_calculado > 0){
@@ -1808,6 +1817,10 @@ use App\Library\FuncionesGlobales;
             // CITAS DISPONIBLES PARA SELECCIONAR
             const citas_disponibles = $('#body_table input[type=checkbox]:not(:checked)').length > 0;
             const excedente         = (((monto_recibido * 100) - (total_calculado * 100)) / 100);
+
+            console.log('total_calculado',total_calculado);
+            console.log('monto_recibido',monto_recibido);
+            console.log('excedente',excedente);
 
             // HAY EFECTIVO?
             const tiene_efectivo = parseFloat($("#monto_efectivo").val()) > 0;

@@ -319,11 +319,11 @@ function validar_monto(monto) {
 
 function operacion_aritmetica(dato1,dato2,operacion){
     if (!(!isNaN(parseFloat(dato1)) && isFinite(dato1))){
-        return 0;
+        dato1   = 0;
     }
 
     if (!(!isNaN(parseFloat(dato2)) && isFinite(dato2))){
-        return 0;
+        dato2   = 0;
     }
 
     //  SUMA

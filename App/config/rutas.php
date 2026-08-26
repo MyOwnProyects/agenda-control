@@ -172,7 +172,8 @@ return [
         'save'      => "/becas/save",
         'count'     => "/becas/count",
         'change_status' => '/becas/change_status',
-        'save_pago'     => '/becas/save_pago'
+        'save_pago'     => '/becas/save_pago',
+        'cancelar_pago' => '/becas/cancelar_pago'
     ),
     'paciente_becas'    => array(
         'count' => '/paciente_becas/count',
