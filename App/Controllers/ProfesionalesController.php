@@ -171,7 +171,10 @@ class ProfesionalesController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$_POST['last_estatus'].' a '.$_POST['estatus']  ,$_POST);
+                $last_estatus   = $_POST['estatus'] == 1 ? 'ACTIVO' : 'INACTIVO';
+                $new_estatus    = $_POST['estatus'] == 1 ? 'INACTIVO' : 'ACTIVO';
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'EDITAR','Se mando modificar el estatus del usuario: '.$_POST['clave'].' de '.$last_estatus.' a '.$new_estatus  ,$_POST);
                 FuncionesGlobales::deleteCacheByPattern('info_location_');
             } 
 
@@ -266,6 +269,134 @@ class ProfesionalesController extends BaseController
 
                 $response = new Response();
                 $response->setJsonContent($arr_info_profesional[0]['locaciones']);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_horario_fijo'){
+                $route                  = $this->url_api.$this->rutas['ctprofesionales']['get_horario_fijo'];
+                $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_profesional'    => $_POST['id_profesional'],
+                ));
+
+                $response = new Response();
+                $response->setJsonContent($arr_info_profesional);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'delete_horario_fijo'){
+                $route                  = $this->url_api.$this->rutas['ctpacientes']['delete_program_date'];
+                $arr_info_profesional   = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : 'Error al borrar el registro');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'BORRAR','Se borro el registro de horario fijo del paciente: '.$_POST['nombre_paciente'].' del servicio: '.$_POST['servicio'].' con horario: '.$_POST['dia'].' '.$_POST['horario'],$_POST);
+
+                $response->setJsonContent('Borrado exitoso!');
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_profesionales_disponibles'){
+                $route      = $this->url_api.$this->rutas['ctprofesionales']['show'];
+                $arr_return = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_locacion'   => $_POST['id_locacion'],
+                    'id_servicio'   => $_POST['id_servicio'],
+                    'estatus'       => 1
+                ));
+
+                $arr_profesionales  = [];
+
+                foreach($arr_return as $row){
+                    if ($row['id'] != $_POST['id_profesional']){
+                        $arr_profesionales[]    = $row;
+                    }
+                }
+
+                $response = new Response();
+                $response->setJsonContent($arr_profesionales);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'verificar_disponibilidad'){
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['verificar_disponibilidad'];
+                $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : 'Error al borrar el registro');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'update_horario_fijo'){
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['update_horario_fijo'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : 'Error al actualizar el registro');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'ACTUALIZAR','Al profesional '.$_POST['nombre_profesional'].' se le asigno el horario '.$_POST['horario'].' del paciente '.$_POST['nombre_paciente'],$_POST);
+
+                $response->setJsonContent($result);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'get_pacientes_asignados'){
+                $route                  = $this->url_api.$this->rutas['ctprofesionales']['get_pacientes_asignados'];
+                $arr_info_profesional   = FuncionesGlobales::RequestApi('GET',$route,array(
+                    'id_profesional'    => $_POST['id_profesional'],
+                ));
+
+                $response = new Response();
+                $response->setJsonContent($arr_info_profesional);
+                $response->setStatusCode(200, 'OK');
+                return $response;
+            }
+
+            if ($accion == 'generar_citas'){
+                $route  = $this->url_api.$this->rutas['ctprofesionales']['generar_citas'];
+                $result = FuncionesGlobales::RequestApi('POST',$route,$_POST);
+
+                $response = new Response();
+    
+                if ($response->getStatusCode() >= 400 || (isset($result['status_code']) && $result['status_code'] >= 400)){
+                    $response->setJsonContent(isset($result['error']) ? $result['error'] : 'Error al actualizar el registro');
+                    $response->setStatusCode(404, 'Error');
+                    return $response;
+                }
+
+                foreach($result['mensaje_ok'] as $mensaje){
+                    FuncionesGlobales::saveBitacora($this->bitacora,'PROGRAMAR CITAS',$mensaje,$_POST);
+                }
+
+                foreach($result['mensaje_error'] as $mensaje){
+                    FuncionesGlobales::saveBitacora($this->bitacora,'PROGRAMAR CITAS',$mensaje,$_POST);
+                }
+
+                //FuncionesGlobales::saveBitacora($this->bitacora,'ACTUALIZAR','Al profesional '.$_POST['nombre_profesional'].' se le asigno el horario '.$_POST['horario'].' del paciente '.$_POST['nombre_paciente'],$_POST);
+
+                $response->setJsonContent($result);
                 $response->setStatusCode(200, 'OK');
                 return $response;
             }

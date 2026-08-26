@@ -416,7 +416,7 @@ class AgendaController extends BaseController
 
             // INFORMACION DE LOS PROFESIONALES
             $route                              = $this->url_api.$this->rutas['ctprofesionales']['show'];
-            $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true));
+            $arr_return['all_professionals']    = FuncionesGlobales::RequestApi('GET',$route,array('id_locacion' => $_POST['id_locacion'],'get_servicios' => true,'estatus' => 1));
 
             //FuncionesGlobales::saveCache($cacheKey,$arr_return);
         } else {

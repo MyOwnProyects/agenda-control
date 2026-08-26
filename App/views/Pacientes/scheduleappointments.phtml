@@ -503,6 +503,11 @@ let module_schedule_appointments    = (function(){
     const controller                = '/Pacientes';
     const url_scheduleappointments  = controller+"/scheduleappointments";
 
+    //  RUTA ANTERIOR
+    let ultima_ruta = '<?php echo $url_anterior ?>';
+    console.log('ultima_ruta',ultima_ruta);
+    ultima_ruta     = ultima_ruta == null || ultima_ruta == '' ? 'Pacientes' : ultima_ruta;
+
     const translations  = {
         emptyTable: "<?= $translations['table_no_data'] ?>",
         info: "<?= $translations['showing_info'] ?>",
@@ -876,11 +881,9 @@ let module_schedule_appointments    = (function(){
             $(".div_header_filters").find('#select_locaciones').trigger('select2:select');
         }
 
-        $(".container").on('click',"#btn_return",async function(){
-            const respuesta = await window.modalConfirm(translations['question_return']);
-            if (respuesta){
-                window.location = "/Pacientes";
-            }
+        $("#btn_return").on('click',function(){
+            event.stopPropagation();
+            window.location.href = `/${ultima_ruta}/`;
         });
 
         //  EVENTOS PARA APERTURA DE AGENDA
