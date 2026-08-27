@@ -432,13 +432,19 @@ use App\Library\FuncionesGlobales;
                             <span id="span_num_citas">Subtotal (0 citas)</span>
                             <span id="span_subtotal" class="fw-medium">$0.00</span>
                         </div>
+                        <div class="div_saldo_favor_beca d-flex justify-content-between small d-none">
+                            <span>Saldo a favor de beca</span>
+                            <span id="span_saldo_favor_beca" class="fw-medium text-success">-$0.00</span>
+                        </div>
                         <div class="d-flex justify-content-between small">
                             <span>Saldo a favor</span>
                             <span id="span_saldo_favor" class="fw-medium text-success">-$0.00</span>
                         </div>
-                        <div class="div_saldo_favor_beca d-flex justify-content-between small d-none">
-                            <span>Saldo a favor de beca</span>
-                            <span id="span_saldo_favor_beca" class="fw-medium text-success">-$0.00</span>
+                        <div class="div_info_saldo_favor d-flex justify-content-between align-items-center p-3 rounded-3 mb-4 d-none"
+                            style="background: #fff3cd; border: 1px solid #ffe69c;">
+                            <div>
+                                <div class="small" style="color: #664d03;">* El saldo a favor de la beca se aplicará antes que el saldo a favor de pago ordinario</div>
+                            </div>
                         </div>
                         <div class="d-flex justify-content-between pt-3 border-top align-items-center">
                             <span class="h6 fw-bold text-dark mb-0">Total a Pagar</span>
@@ -1509,13 +1515,16 @@ use App\Library\FuncionesGlobales;
             let info_citas      = info_paciente['citas'];
             saldo_favor         = info_paciente['saldo_favor'];
             saldo_favor_beca    = info_paciente['saldo_favor_beca'];
-            console.log('saldo_favor_beca',saldo_favor_beca);
 
 
             //  SE MUESTRA EL SALDO A FAVOR
             $("#span_saldo_favor").text('-$'+formatoDinero(saldo_favor));
             if (saldo_favor_beca > 0){
                 $(".div_saldo_favor_beca").removeClass('d-none').find("#span_saldo_favor_beca").text('-$'+formatoDinero(saldo_favor_beca));
+            }
+
+            if (saldo_favor > 0 && saldo_favor_beca > 0){
+                $(".div_info_saldo_favor").removeClass('d-none');
             }
 
             //  NUMERO DE CITAS
@@ -1667,7 +1676,8 @@ use App\Library\FuncionesGlobales;
                     tipo_cancelacion            : $(modal_clone).find('[name="tipo_accion"]:checked').val(),
                     observaciones_cancelacion   : $(modal_clone).find("#input_observaciones").val().trim(),
                     ticket_folio                : folio,
-                    total_movimiento            : total
+                    total_movimiento            : total,
+                    id_paciente                 : $("#select_pacientes").val()
                 }
 
                 //const respuesta = await window.modalConfirm('Esta acción no se podra revertir ¿Deseas continuar?',true);
@@ -1964,7 +1974,8 @@ use App\Library\FuncionesGlobales;
                     excedente                   : parseFloat(obj_totales_calculados['excedente']) || 0,
                     accion_excedente            : obj_totales_calculados['accion_excedente'] || '',
                     saldo_favor                 : saldo_favor,
-                    saldo_favor_restante        : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0
+                    saldo_favor_restante        : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0,
+                    total_saldo_favor           : operacion_aritmetica(saldo_favor,saldo_favor_beca,'s')
                 };
 
                 // Aplicar resta si es devolver cambio
@@ -2072,6 +2083,7 @@ use App\Library\FuncionesGlobales;
             $("#body_table").find('#row_sin_registros').show();
             $("#span_saldo_favor").text('-$0.00');
             $(".div_saldo_favor_beca").addClass('d-none').find("#span_saldo_favor_beca").text('');
+            $(".div_info_saldo_favor").addClass('d-none');
 
             //  SALDO A FAVOR DEL PACIENTE
             saldo_favor         = 0;

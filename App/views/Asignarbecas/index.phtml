@@ -1077,7 +1077,6 @@ use App\Library\FuncionesGlobales;
                 let find_check  = false;
                 obj_citas_excluidas = [];
                 $(rows.get().reverse()).each(function() {
-                    // tu lógica aquí
                     if ($(this).find('.check_cita').is(':checked')){
                         if (!find_check){
                             find_check  = true;
