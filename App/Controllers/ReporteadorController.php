@@ -709,7 +709,7 @@ class ReporteadorController extends BaseController
 
             $columna    = 10;
             foreach ($arr_rows['hoja_3'] as $row) {
-                $sheet3->setCellValue('A'.$columna, 'ABONO');
+                $sheet3->setCellValue('A'.$columna, $row['label_tipo_abono']);
                 $sheet3->setCellValue('B'.$columna, $row['nombre_completo']);
                 $sheet3->setCellValue('C'.$columna, $row['fecha_hora_pago']);
                 $sheet3->setCellValue('D'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['monto']));
