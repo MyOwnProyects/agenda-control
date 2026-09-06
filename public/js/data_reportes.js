@@ -41,7 +41,7 @@ function data_reportes(reporte){
                 },
                 1: {
                     columna     : 'Hoja 1 - Valor',
-                    descripcion : 'Cantidad monetaria por metodo de pago'
+                    descripcion : 'Suma total monetaria por metodo de pago'
                 },
                 2: {
                     columna     : 'Hoja 2 - Fecha de pago',
@@ -61,7 +61,7 @@ function data_reportes(reporte){
                 },
                 6: {
                     columna     : 'Hoja 3 - Tipo',
-                    descripcion : 'Indica si el registro es un abono o un movimiento que se realizó al abono en cuestión.'
+                    descripcion : 'Tipo de abono, ya sea pago realizado en caja o ingreso de beca'
                 },
                 7: {
                     columna     : 'Hoja 3 - Fecha',
@@ -77,6 +77,25 @@ function data_reportes(reporte){
                 }
             }
         },
+        pacientes_becas     : {
+            titulo      : 'Pacientes Becados',
+            descripcion : 'Reporte donde incluye un listado de pacientes que han sido becados, en este incluye el nombre de la beca y si tiene un saldo disponible de cada abono ',
+            datos_tabla : {
+                0: {
+                    columna     : 'Monto',
+                    descripcion : 'Cantidad monetaria que la institucion recibió del paciente'
+                },
+                1: {
+                    columna     : 'Fecha de inicio',
+                    descripcion : 'Fecha de la primera cita a la que fue asignada la beca'
+                },
+                2:  {
+                    columna     : 'Estatus',
+                    descripcion : 'Indica si la beca se encuetra activa, es decir con abonos sin cancelar'
+                }
+            }
+        }
+        ,
         mensajes_enviados   : {
             titulo      : 'Reporte de mensajes enviados por Whatsapp',
             descripcion : 'Reporte donde se muestra el mensaje que generó el sistema utilizando las plantillas de Whatssapp con la información de la cita',

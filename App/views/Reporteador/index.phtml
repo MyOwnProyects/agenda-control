@@ -156,6 +156,7 @@ use App\Library\FuncionesGlobales;
                         <option class="option_clear" value="" selected>Selecciona una opción</option>
                         <option value="general_citas">General de Citas</option>
                         <option value="general_ingresos">General de Ingresos</option>
+                        <option value="pacientes_becas">Pacientes Becados</option>
                         <option value="mensajes_enviados">Mensajes enviados por whatsapp</option>
                     </select>
                 </div>
@@ -462,6 +463,14 @@ use App\Library\FuncionesGlobales;
                     $("#select_profesionales").closest('div').addClass('hide');
                     $("#select_pacientes").closest('div').removeClass('hide');
                 } 
+
+                if (tipo_reporte == 'pacientes_becas'){
+                    $("#select_profesionales").prop('disabled',true);
+                    $("#select_pacientes").prop('disabled',true);
+
+                    $("#select_profesionales").closest('div').addClass('hide');
+                    $("#select_pacientes").closest('div').addClass('hide');
+                }
 
                 //  INFORMACION DEL REPORTE PARA MOSTRAR EN PANEL
                 let info_reporte    = data_reportes($(this).val());
