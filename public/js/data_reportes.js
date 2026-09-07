@@ -82,16 +82,20 @@ function data_reportes(reporte){
             descripcion : 'Reporte donde incluye un listado de pacientes que han sido becados, en este incluye el nombre de la beca y si tiene un saldo disponible de cada abono ',
             datos_tabla : {
                 0: {
-                    columna     : 'Monto',
+                    columna     : 'Monto asignado',
                     descripcion : 'Cantidad monetaria que la institucion recibió del paciente'
                 },
                 1: {
-                    columna     : 'Fecha de inicio',
+                    columna     : 'Primera cita aplicada',
                     descripcion : 'Fecha de la primera cita a la que fue asignada la beca'
                 },
                 2:  {
                     columna     : 'Estatus',
                     descripcion : 'Indica si la beca se encuetra activa, es decir con abonos sin cancelar'
+                },
+                3:  {
+                    columna     : 'Monto disponible',
+                    descripcion  : 'Saldo a favor de esta asignación de beca'
                 }
             }
         }

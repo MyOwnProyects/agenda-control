@@ -63,6 +63,8 @@ class ReporteadorController extends BaseController
                         break;
                     case 'mensajes_enviados':
                         $route_file = $this->reporte_mensajes_enviados();
+                    case 'pacientes_becas':
+                        $route_file = $this->reporte_pacientes_becas();
                 }
 
                 //  BITACORA
@@ -938,6 +940,186 @@ class ReporteadorController extends BaseController
             $writer     = new Xlsx($spreadsheet);
             $fecha_archivo  = $this->cadena_fecha();
             $file_name      = 'reporte_general_citas_'.$fecha_archivo.'.xlsx';
+            $writer->save($path_file.$file_name);
+
+            return [
+                'path_file'     => FuncionesGlobales::get_url_download('reportes',$file_name),
+                'error_msg'     => '',
+                'status_code'   => 200
+            ];
+
+        } catch(\Exception $e){
+            return [
+                'path_file'     => '',
+                'error_msg'     => $e->getMessage(),
+                'status_code'   => $e->getCode()
+            ];
+        }
+    }
+
+    public function reporte_pacientes_becas(){
+        try{
+
+            $route      = $this->url_api.$this->rutas['reportes']['pacientes_becas'];
+            $arr_rows   = FuncionesGlobales::RequestApi('GET',$route,$_POST);
+
+            if (isset($arr_rows['status_code']) && $arr_rows['status_code'] > 399){
+                throw new Exception($arr_rows['error'],$arr_rows['status_code']);
+            }
+
+            $info_usuario   = $this->session->get('nombre').' '.$this->session->get('primer_apellido');
+
+            $fecha_inicio  = trim($_POST['rango_fechas']['fecha_inicio']);
+            $fecha_termino = trim($_POST['rango_fechas']['fecha_termino']);
+            $fecha_impresion    = date('d/m/Y');
+
+            $texto_rango_fechas = '';
+
+            if ($fecha_inicio == '' && $fecha_termino == '') {
+                // 1. Sin rango de fechas
+                $texto_rango_fechas = 'Sin rango de fechas';
+            }
+
+            if ($fecha_inicio != '' && $fecha_termino == '') {
+                // 2. Solo fecha inicio
+                $texto_rango_fechas = 'Desde ' . FuncionesGlobales::formatearFecha($fecha_inicio).' Hasta '.$fecha_impresion;
+            }
+
+            if ($fecha_inicio == '' && $fecha_termino != '') {
+                // 3. Solo fecha termino
+                $texto_rango_fechas = 'Desde el inicio hasta el ' . FuncionesGlobales::formatearFecha($fecha_termino);
+            }
+
+            if ($fecha_inicio != '' && $fecha_termino != '') {
+                // 4. Con fecha inicio y fecha termino
+                $texto_rango_fechas = FuncionesGlobales::formatearFecha($fecha_inicio) . ' al ' . FuncionesGlobales::formatearFecha($fecha_termino);
+            }
+
+            // 1. Crear nueva hoja de cálculo
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Pacientes becados');
+
+            $sheet->mergeCells('A1:E1');
+            $sheet->setCellValue('A1', 'REPORTE DE BECAS ASIGNADAS');
+
+            $sheet->mergeCells('A2:E2');
+            $sheet->setCellValue('A2', 'Sistema de Control de citas');
+            $sheet->setCellValue('A4', 'Fecha de impresión: ');
+            $sheet->setCellValue('B4', date('d/m/Y'));
+
+            $sheet->setCellValue('A5', 'Hora de impresión: ');
+            $sheet->setCellValue('B5', $fecha_impresion);
+
+            $sheet->setCellValue('A6', 'Rango de fechas: ');
+            $sheet->setCellValue('B6', $texto_rango_fechas);
+
+            $sheet->setCellValue('A7', 'Generado por:');
+            $sheet->setCellValue('B7', $info_usuario);
+
+            // == ESTILOS ==
+
+            // Título principal
+            $sheet->getStyle('A1')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 16,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF1F4E79'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Subtítulo
+            $sheet->getStyle('A2')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'size'  => 12,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF2E75B6'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            // Etiquetas de info
+            $sheet->getStyle('A4:A7')->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD6E4F0'],
+                ],
+            ]);
+
+            $sheet->setCellValue('A9', 'BECA');
+            $sheet->setCellValue('B9', 'PACIENTE');
+            $sheet->setCellValue('C9', 'FECHA DE CAPTURA');
+            $sheet->setCellValue('D9', 'USUARIO CAPTURA');
+            $sheet->setCellValue('E9', 'PRIMERA CITA APLICADA');
+            $sheet->setCellValue('F9', 'ESTATUS');
+            $sheet->setCellValue('G9', 'MONTO ASIGNADO');
+            $sheet->setCellValue('H9', 'MONTO DISPONIBLE');
+            $sheet->setCellValue('I9', 'FECHA DE CANCELACION');
+            $sheet->setCellValue('J9', 'USUARIO CANCELACION');
+            $sheet->setCellValue('K9', 'OBSERVACIONES DE CANCELACION');
+
+            $sheet->getStyle('A9:K9')->applyFromArray([
+                'font' => [
+                    'bold'  => true,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                ],
+                'fill' => [
+                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF000000'],
+                ],
+            ]);
+
+            $sheet->getStyle('J11:J'.(count($arr_rows) + 11))
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
+            // 4. Llenar datos
+            $columna    = 10;
+            foreach ($arr_rows as $row) {
+                $sheet->setCellValue('A'.$columna, $row['nombre_beca']);
+                $sheet->setCellValue('B'.$columna, $row['nombre_paciente']);
+                $sheet->setCellValue('C'.$columna, $row['fecha_captura']);
+                $sheet->setCellValue('D'.$columna, $row['nombre_usuario']);
+                $sheet->setCellValue('E'.$columna, $row['fecha_inicio']);
+                $sheet->setCellValue('F'.$columna, $row['label_estatus']);
+                $sheet->setCellValue('G'.$columna, '$'.FuncionesGlobales::formatoMonetario($row['monto_asignado']));
+                $sheet->setCellValue('H'.$columna, $row['estatus'] == 1 ? '$'.FuncionesGlobales::formatoMonetario($row['monto_disponible']) : '-');
+                $sheet->setCellValue('I'.$columna, $row['fecha_cancelacion']);
+                $sheet->setCellValue('J'.$columna, $row['nombre_usuario_cancelacion']);
+                $sheet->setCellValue('K'.$columna, $row['observaciones_cancelacion']);
+
+                $columna++;
+            }
+
+            // // 3. Estilos básicos (Negrita en la cabecera)
+            // $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+            // // 4. Ajustar ancho de columna automáticamente
+            foreach (range('A', 'K') as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $path_file = FuncionesGlobales::get_path_file('reportes');
+
+            // 5. Guardar archivo
+            $writer     = new Xlsx($spreadsheet);
+            $fecha_archivo  = $this->cadena_fecha();
+            $file_name      = 'reporte_paciente_becas_'.$fecha_archivo.'.xlsx';
             $writer->save($path_file.$file_name);
 
             return [

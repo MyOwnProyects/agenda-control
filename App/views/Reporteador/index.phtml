@@ -156,8 +156,8 @@ use App\Library\FuncionesGlobales;
                         <option class="option_clear" value="" selected>Selecciona una opción</option>
                         <option value="general_citas">General de Citas</option>
                         <option value="general_ingresos">General de Ingresos</option>
-                        <option value="pacientes_becas">Pacientes Becados</option>
                         <option value="mensajes_enviados">Mensajes enviados por whatsapp</option>
+                        <option value="pacientes_becas">Pacientes Becados</option>
                     </select>
                 </div>
                 <div class="col-md-4 d-flex align-items-end justify-content-end">
@@ -513,8 +513,8 @@ use App\Library\FuncionesGlobales;
 
                 const form = $('#form_filtros_generales')[0]; // Obtén el elemento DOM
                 let flag_error  = false;
-                
-                if (!form.checkValidity()) {
+
+                if (!form.checkValidity() && $("#select_tipo_reporte").val() != 'pacientes_becas') {
                     $(form).addClass('was-validated');
                     
 
