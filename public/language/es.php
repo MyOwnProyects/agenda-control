@@ -214,6 +214,7 @@ return [
     'html_type_scholarship'                     => 'Tipo de beca',
     'html_schoolarship_title'                   => 'Becas',
     'html_assign_scholarships'                  => 'Asignar becas',
+    'html_scholarships'                         => 'Becas',
     
 
 

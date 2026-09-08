@@ -66,6 +66,8 @@
     $bloqueo_agenda = \App\Library\FuncionesGlobales::HasAccess('Bloqueoagenda', 'index');
     $reporteador    = \App\Library\FuncionesGlobales::HasAccess('Reporteador', 'index');
     $caja           = \App\Library\FuncionesGlobales::HasAccess('Caja', 'index');
+    $asignar_becas  = \App\Library\FuncionesGlobales::HasAccess('Asignarbecas', 'index');
+    $becas          = \App\Library\FuncionesGlobales::HasAccess('Becas', 'index');
     $plantillas_mensajes    = \App\Library\FuncionesGlobales::HasAccess('Plantillasmensajes', 'index');
     $di                     = \Phalcon\Di\Di::getDefault(); // obtiene el DI por defecto
     $session                = $di->getShared('session');
@@ -202,11 +204,32 @@
               <!-- ─────────────── -->
               <!-- ADMINISTRACIÓN -->
               <!-- ─────────────── -->
-               <?php if ($profesionales || $locaciones || $servicios || $bloqueo_agenda || $reporteador || $plantillas_mensajes): ?>
+               <?php if ($profesionales || $locaciones || $servicios || $bloqueo_agenda || $reporteador || $plantillas_mensajes || $asignar_becas || $becas): ?>
                 <li class="menu-divider"></li>
                 <li class="menu-section-title">Administración</li>
 
                 <!-- Profesionales -->
+
+                <?php if($asignar_becas): ?>
+                <li class="nav-item" title="<?php echo $translations['html_assign_scholarships']; ?>">
+                    <a href="/Asignarbecas/" class="nav-link text-white <?php echo $currentController == 'Asignarbecas' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-person-workspace me-2"></i>
+                        <span><?php echo $translations['html_assign_scholarships']; ?></span>
+                        <div class="nav-item-text" data-texto="<?php echo $translations['html_assign_scholarships']; ?>"><?php echo $translations['html_assign_scholarships']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <?php if($becas): ?>
+                <li class="nav-item" title="<?php echo $translations['html_scholarships']; ?>">
+                    <a href="/Becas/" class="nav-link text-white <?php echo $currentController == 'Becas' ? 'active-view' : ''; ?>">
+                        <i class="bi bi-bookmark-star me-2"></i>
+                        <span><?php echo $translations['html_scholarships']; ?></span>
+                        <div class="nav-item-text" data-texto="<?php echo $translations['html_scholarships']; ?>"><?php echo $translations['html_scholarships']; ?></div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
                 <?php if($bloqueo_agenda): ?>
                 <li class="nav-item" title="<?php echo $translations['html_agenda_lock']; ?>">
                     <a href="/Bloqueoagenda/" class="nav-link text-white <?php echo $currentController == 'Bloqueoagenda' ? 'active-view' : ''; ?>">
