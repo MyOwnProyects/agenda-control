@@ -753,158 +753,230 @@ use App\Library\FuncionesGlobales;
     .whatsappModal .modal-footer{
         padding: 1.25rem 1.5rem;
     }
+
+    .bg-surface-lowest{
+    background-color: var(--clr-surface-container-lowest) !important;
+    }
+
+    :root{
+    --clr-surface-container-lowest: #ffffff;
+    }
+
+    :root{
+  --clr-primary: #3525cd;
+  --clr-secondary: #006591;
+  --clr-tertiary: #95002b;
+  --clr-surface-container-lowest: #ffffff;
+  --clr-surface-container-low: #f2f3ff;
+  --clr-surface-container-high: #e2e7ff;
+  --clr-on-surface-variant: #464555;
+}
+
+.bg-surface-lowest{ background-color: var(--clr-surface-container-lowest) !important; }
+.bg-surface-low{ background-color: var(--clr-surface-container-low) !important; }
+.bg-surface-high{ background-color: var(--clr-surface-container-high) !important; }
+.bg-brand-primary{ background-color: var(--clr-primary) !important; }
+.bg-brand-secondary{ background-color: var(--clr-secondary) !important; }
+.bg-brand-tertiary{ background-color: var(--clr-tertiary) !important; }
+.text-brand-primary{ color: var(--clr-primary) !important; }
+.text-brand-secondary{ color: var(--clr-secondary) !important; }
+.text-brand-tertiary{ color: var(--clr-tertiary) !important; }
+.text-on-surface-variant{ color: var(--clr-on-surface-variant) !important; }
+.chip{ border-radius:999px; font-size:11px; font-weight:600; padding:.15rem .6rem; }
+.font-headline{ font-family:'Plus Jakarta Sans', sans-serif; }
+
+
 </style>
-<div class="container div_principal_filter div_header_filters col-11">
-    <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
-
-    <!-- Filtros de Servicios y Pacientes -->
-    <div class="row filters col-12">
-
-        <div class="col-3">
-            <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_locations']; ?></label>
-            <?php $count_locaciones = count($arr_locaciones); ?>
-            <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
-                <option value=""></option>
-                <?php foreach($arr_locaciones as $locacion): ?>
-                    <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
-                <?php endforeach; ?>
-            </select>
+<div class="container mt-4">
+    <div class="container div_principal_filter div_header_filters col-11">
+        <!-- ---- Top strip: navegación + acciones ---- -->
+    <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="d-flex align-items-center gap-1 bg-surface-low p-1 rounded-3">
+            <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
+            <i class="bi bi-chevron-left" style="font-size:16px;"></i>
+            </button>
+            <button class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
+            <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
+            <i class="bi bi-chevron-right" style="font-size:16px;"></i>
+            </button>
         </div>
-        <div class="col-3">
-            <label for="select_servicios" class="form-label"><?php echo $translations['html_services']; ?></label>
-            <select id="select_servicios" class="select_servicios select_filtros">
-                <option value=""></option>
-            </select>
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-calendar3 text-brand-primary" style="font-size:20px;"></i>
+            <span class="font-headline fw-semibold" style="font-size:18px;">Semana 39: 21 al 27 de Septiembre, 2026</span>
+            <span class="chip bg-brand-secondary bg-opacity-10 text-brand-secondary text-uppercase">Activa</span>
         </div>
-        <div class="col-3">
-            <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
-            <select id="select_profesionales" class="select_profesionales select_filtros">
-                <option value=""></option>
-            </select>
-        </div>
-        <div class="col-3">
-            <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
-            <select id="select_pacientes" class="select_pacientes select_filtros">
-                <option value=""></option>
-            </select>
-        </div>
-    </div>
-    <div class="color-legend mt-3" style="display:none;">
-        <h6>Indicadores:</h6>
-        <div class="d-flex flex-wrap div_append_label_servicios">
-            
-        </div>
-    </div>
-
-        <!-- Sección de navegación -->
-    <div class="navigation">
-        <!-- Sección izquierda: Botones de Mes, Semana y Día -->
-        <div class="left-section">
-            <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">< Mes </button>
-            <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< Sem.</button>
-            <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">< D&iacute;a</button>
-            <h3 id="fecha-actual"></h3>
-            <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia ></button>
-            <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. ></button>
-            <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes ></button>
-            <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
         </div>
 
-        <!-- Sección derecha: Botones de Mes/Semana/Día -->
-        <div class="right-section">
-            <button id="btn-mes" class="btn btn-primary"><?php echo $translations['html_month']; ?></button>
-            <button id="btn-semana" class="btn btn-primary"><?php echo $translations['html_week']; ?></button>
-            <button id="btn-dia" class="btn btn-primary"><?php echo $translations['html_day']; ?></button>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="d-flex align-items-center bg-surface-low p-1 rounded-3">
+            <button class="btn btn-sm text-on-surface-variant" type="button">Día</button>
+            <button class="btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Semana</button>
+            <button class="btn btn-sm text-on-surface-variant" type="button">Mes</button>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn bg-surface-high d-flex align-items-center gap-2" type="button">
+            <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
+            <span class="fw-semibold small">Fuera de horario</span>
+            <span class="badge rounded-pill bg-brand-tertiary">1</span>
+            </button>
+            <button class="btn bg-brand-primary text-white d-flex align-items-center gap-2 shadow" type="button">
+            <i class="bi bi-plus-lg" style="font-size:18px;"></i>
+            <span class="fw-semibold small">Nueva Cita</span>
+            </button>
+        </div>
         </div>
     </div>
-    <?php if ($citas_fuera_horario): ?>
-    <div class="color-legend mt-3">
-        <div class="d-flex flex-wrap justify-content-end gap-2">
-            <button id="btn_ver_cita_fuera_horario" type="button" class="icon-button btn btn-info" title="Citas registradas fuera del horario habitual">Ver citas fuera de horario (<span id="span_count_citas_fuera_horario">0</span>)</button>
-            <button id="btn_crear_cita_fuera_horario" type="button" class="icon-button btn btn-primary" title="Citas registradas fuera del horario habitual">Agendar cita fuera de horario</button>
-        </div>
-    </div>
-    <?php endif; ?>
-</div>
-<div id="div_header_agenda" class="p-3">
-    <div id="div_append_days_container" class="div_append_days_container">
-        <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
-    </div>
-    <div id="div_append_weeks_container" class="div_append_weeks_container">
 
-    </div>
-    
-    <div class=" div_header_month_container hide_container container-calendar col-12">
-        <!-- Nuevo elemento para mostrar el mes -->
-        <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
-            
-        </div>
-        <div class="days">
-            <div class="day">Dom</div>
-            <div class="day">Lun</div>
-            <div class="day">Mar</div>
-            <div class="day">Mié</div>
-            <div class="day">Jue</div>
-            <div class="day">Vie</div>
-            <div class="day">Sáb</div>
-        </div>
-        <div class="calendar_month_dates" id="calendar_month_dates"></div>
-    </div>
-</div>
+        <!-- Filtros de Servicios y Pacientes -->
+        <div class="row filters col-12" style="display:none!important">
 
-<div id="template_label_servicios" class="legend-item me-3 mb-2" style="display:none">
-    <span class="legend-color"></span>
-    <span class="texto_servicio">Servicio</span>
-</div>
+            <div class="col-3">
+                <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_locations']; ?></label>
+                <?php $count_locaciones = count($arr_locaciones); ?>
+                <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
+                    <option value=""></option>
+                    <?php foreach($arr_locaciones as $locacion): ?>
+                        <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-3">
+                <label for="select_servicios" class="form-label"><?php echo $translations['html_services']; ?></label>
+                <select id="select_servicios" class="select_servicios select_filtros">
+                    <option value=""></option>
+                </select>
+            </div>
+            <div class="col-3">
+                <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
+                <select id="select_profesionales" class="select_profesionales select_filtros">
+                    <option value=""></option>
+                </select>
+            </div>
+            <div class="col-3">
+                <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
+                <select id="select_pacientes" class="select_pacientes select_filtros">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="color-legend mt-3" style="display:none;">
+            <h6>Indicadores:</h6>
+            <div class="d-flex flex-wrap div_append_label_servicios">
+                
+            </div>
+        </div>
 
-<div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
-    <!-- Agenda -->
-     <div class="titulo" align="center"></div>
-    <div class="agenda-container" id="agenda-container">
-        <!-- Header -->
-        <div class="agenda-row agenda-header" id="agenda-header">
-            <div class="agenda-time">Hora</div>
-            <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
-        </div>
-        <!-- Las filas de horas se generarán dinámicamente aquí -->
-    </div>
-</div>
+            <!-- Sección de navegación -->
+        <div class="navigation">
+            <!-- Sección izquierda: Botones de Mes, Semana y Día -->
+            <div class="left-section">
+                <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">< Mes </button>
+                <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< Sem.</button>
+                <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">< D&iacute;a</button>
+                <h3 id="fecha-actual"></h3>
+                <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia ></button>
+                <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. ></button>
+                <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes ></button>
+                <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
+            </div>
 
-    <!--    AGREGAR clase d-flex    -->
-<div id ="template_week_container" class="container mt-4  flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
-    <!-- Nuevo div para el título del turno -->
-    <div class="shift-title" style="text-align: center; font-weight: bold; margin-bottom: 10px; background: #f0f0f0; padding: 5px;">
-        Turno: <!-- El texto se asignará dinámicamente al clonar -->
+            <!-- Sección derecha: Botones de Mes/Semana/Día -->
+            <div class="right-section">
+                <button id="btn-mes" class="btn btn-primary"><?php echo $translations['html_month']; ?></button>
+                <button id="btn-semana" class="btn btn-primary"><?php echo $translations['html_week']; ?></button>
+                <button id="btn-dia" class="btn btn-primary"><?php echo $translations['html_day']; ?></button>
+            </div>
+        </div>
+        <?php if ($citas_fuera_horario): ?>
+        <div class="color-legend mt-3">
+            <div class="d-flex flex-wrap justify-content-end gap-2">
+                <button id="btn_ver_cita_fuera_horario" type="button" class="icon-button btn btn-info" title="Citas registradas fuera del horario habitual">Ver citas fuera de horario (<span id="span_count_citas_fuera_horario">0</span>)</button>
+                <button id="btn_crear_cita_fuera_horario" type="button" class="icon-button btn btn-primary" title="Citas registradas fuera del horario habitual">Agendar cita fuera de horario</button>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
-    <div class="week-container div_principal">
-        <div class="grid-item header"></div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Lunes
+    <div id="div_header_agenda" class="p-3">
+        <div id="div_append_days_container" class="div_append_days_container">
+            <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
         </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Martes
+        <div id="div_append_weeks_container" class="div_append_weeks_container">
+
         </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Miércoles
+        
+        <div class=" div_header_month_container hide_container container-calendar col-12">
+            <!-- Nuevo elemento para mostrar el mes -->
+            <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
+                
+            </div>
+            <div class="days">
+                <div class="day">Dom</div>
+                <div class="day">Lun</div>
+                <div class="day">Mar</div>
+                <div class="day">Mié</div>
+                <div class="day">Jue</div>
+                <div class="day">Vie</div>
+                <div class="day">Sáb</div>
+            </div>
+            <div class="calendar_month_dates" id="calendar_month_dates"></div>
         </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Jueves
+    </div>
+
+    <div id="template_label_servicios" class="legend-item me-3 mb-2" style="display:none">
+        <span class="legend-color"></span>
+        <span class="texto_servicio">Servicio</span>
+    </div>
+
+    <div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
+        <!-- Agenda -->
+        <div class="titulo" align="center"></div>
+        <div class="agenda-container" id="agenda-container">
+            <!-- Header -->
+            <div class="agenda-row agenda-header" id="agenda-header">
+                <div class="agenda-time">Hora</div>
+                <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+            </div>
+            <!-- Las filas de horas se generarán dinámicamente aquí -->
         </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Viernes
+    </div>
+
+        <!--    AGREGAR clase d-flex    -->
+    <div id ="template_week_container" class="container mt-4  flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
+        <!-- Nuevo div para el título del turno -->
+        <div class="shift-title" style="text-align: center; font-weight: bold; margin-bottom: 10px; background: #f0f0f0; padding: 5px;">
+            Turno: <!-- El texto se asignará dinámicamente al clonar -->
         </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Sábado
-        </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Domingo
+        <div class="week-container div_principal">
+            <div class="grid-item header"></div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Lunes
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Martes
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Miércoles
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Jueves
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Viernes
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Sábado
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Domingo
+            </div>
         </div>
     </div>
 </div>
