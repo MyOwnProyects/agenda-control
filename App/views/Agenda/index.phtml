@@ -791,42 +791,37 @@ use App\Library\FuncionesGlobales;
     <div class="container div_principal_filter div_header_filters col-11">
         <!-- ---- Top strip: navegación + acciones ---- -->
     <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
-        <div class="d-flex flex-wrap align-items-center gap-3">
-        <div class="d-flex align-items-center gap-1 bg-surface-low p-1 rounded-3">
-            <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
-            <i class="bi bi-chevron-left" style="font-size:16px;"></i>
-            </button>
-            <button class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
-            <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
-            <i class="bi bi-chevron-right" style="font-size:16px;"></i>
-            </button>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-calendar3 text-brand-primary" style="font-size:20px;"></i>
-            <span class="font-headline fw-semibold" style="font-size:18px;">Semana 39: 21 al 27 de Septiembre, 2026</span>
-            <span class="chip bg-brand-secondary bg-opacity-10 text-brand-secondary text-uppercase">Activa</span>
-        </div>
-        </div>
-
-        <div class="d-flex flex-wrap align-items-center gap-3">
-        <div class="d-flex align-items-center bg-surface-low p-1 rounded-3">
-            <button class="btn btn-sm text-on-surface-variant" type="button">Día</button>
-            <button class="btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Semana</button>
-            <button class="btn btn-sm text-on-surface-variant" type="button">Mes</button>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <button class="btn bg-surface-high d-flex align-items-center gap-2" type="button">
-            <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
-            <span class="fw-semibold small">Fuera de horario</span>
-            <span class="badge rounded-pill bg-brand-tertiary">1</span>
-            </button>
-            <button class="btn bg-brand-primary text-white d-flex align-items-center gap-2 shadow" type="button">
-            <i class="bi bi-plus-lg" style="font-size:18px;"></i>
-            <span class="fw-semibold small">Nueva Cita</span>
-            </button>
-        </div>
-        </div>
+  <div class="d-flex flex-nowrap align-items-center gap-3">
+    <div class="d-flex align-items-center gap-1 bg-surface-low p-1 rounded-3">
+      <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
+        <i class="bi bi-chevron-left" style="font-size:16px;"></i>
+      </button>
+      <button class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
+      <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
+        <i class="bi bi-chevron-right" style="font-size:16px;"></i>
+      </button>
     </div>
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-calendar3 text-brand-primary" style="font-size:20px;"></i>
+      <span class="font-headline fw-semibold text-nowrap" style="font-size:18px;">Semana 39: 21 al 27 de Septiembre, 2026</span>
+    </div>
+  </div>
+
+  <div class="d-flex flex-nowrap align-items-center gap-3">
+    <div class="d-flex align-items-center bg-surface-low p-1 rounded-3">
+      <button class="btn btn-sm text-on-surface-variant" type="button">Día</button>
+      <button class="btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Semana</button>
+      <button class="btn btn-sm text-on-surface-variant" type="button">Mes</button>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn bg-surface-high d-flex align-items-center gap-2" type="button">
+        <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
+        <span class="fw-semibold small">Fuera de horario</span>
+        <span class="badge rounded-pill bg-brand-tertiary">1</span>
+      </button>
+    </div>
+  </div>
+</div>
 
         <!-- Filtros de Servicios y Pacientes -->
         <div class="row filters col-12" style="display:none!important">
