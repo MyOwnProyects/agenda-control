@@ -167,14 +167,15 @@ use App\Library\FuncionesGlobales;
 
     .div_header_week_container .week-container {
         display: grid;
-        grid-template-columns: repeat(8, 120px);
+        grid-template-columns: 90px repeat(7, 1fr);
         grid-auto-rows: 70px;
         gap: 1px;
         background-color: #f0f0f0;
         padding: 1px;
         position: relative;
-        width: fit-content; /* Ajusta el ancho al contenido */
-        margin: 0 auto; /* Centra el contenedor */
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
     }
 
     .div_header_week_container .grid-item {
@@ -817,9 +818,117 @@ use App\Library\FuncionesGlobales;
     padding: 0;
     display: block;
 }
+
+/* ==================================================================
+   ESTILO VISUAL "TEMPLATE" PARA EL CALENDARIO SEMANAL
+   ================================================================== */
+
+/* Contenedor general: se convierte en tarjeta blanca con sombra suave,
+   igual que las secciones "Turno Matutino/Vespertino" del template */
+.div_header_week_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+/* Título del turno (ya lo llenas con .text() desde JS, no toques su contenido) */
+.div_header_week_container .shift-title{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+/* Fondo del grid (las líneas divisorias entre celdas) */
+.div_header_week_container .week-container{
+    background-color: var(--clr-surface-container-high);
+    border-radius: 0.5rem;
+}
+
+/* Celdas base */
+.div_header_week_container .grid-item{
+    background-color: var(--clr-surface-container-lowest);
+    border: none;
+}
+
+/* Encabezados de día (Lunes, Martes...) */
+.div_header_week_container .grid-item.header{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+.div_header_week_container .grid-item.header .header-date{
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--clr-primary);
+}
+
+/* Columna de horas */
+.div_header_week_container .grid-item.hour{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Celdas vacías (disponibles para agendar) */
+.div_header_week_container .grid-hours{
+    transition: background-color .15s ease, border-color .15s ease;
+}
+.div_header_week_container .grid-hours:hover{
+    background-color: var(--clr-surface-container-low);
+    border: 1px solid var(--clr-primary) !important;
+    cursor: pointer;
+}
+
+/* ---- Recuadros de citas / bloqueos (floating-box) ---- */
+.div_header_week_container .floating-box{
+    border-radius: 0.4rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    border: none !important;
+    transition: box-shadow .15s ease;
+}
+.div_header_week_container .floating-box:hover{
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Colores por tipo, mapeados a la paleta del dashboard */
+.div_header_week_container .floating-box.bg-secondary{
+    background-color: rgba(0, 101, 145, 0.55) !important;   /* --clr-secondary */
+}
+.div_header_week_container .floating-box.bg-danger{
+    background-color: rgba(149, 0, 43, 0.55) !important;    /* --clr-tertiary */
+}
+.div_header_week_container .floating-box.bg-success{
+    background-color: rgba(40, 167, 69, 0.35) !important;
+}
+.div_header_week_container .floating-box.bg-info{
+    background-color: rgba(53, 37, 205, 0.35) !important;   /* --clr-primary */
+}
+.div_header_week_container .floating-box.bg-dark{
+    background-color: rgba(70, 69, 85, 0.55) !important;    /* --clr-on-surface-variant */
+}
+.div_header_week_container .floating-box.flot_cita{
+    background-color: rgba(195, 192, 255, 0.75) !important; /* variante clara de primary, para texto negro legible */
+}
+
+/* Badge de citas simultáneas, ya alineado a la paleta */
+.badge-citas-simultaneas{
+    background-color: var(--clr-tertiary) !important;
+}
+
 </style>
 <div class="container mt-4">
-    <div class="container div_principal_filter div_header_filters col-11">
+    <div class="div_principal_filter div_header_filters px-2">
         <!-- ---- Top strip: navegación + acciones ---- -->
     <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
   <div class="d-flex flex-nowrap align-items-center gap-3">
@@ -840,16 +949,32 @@ use App\Library\FuncionesGlobales;
 
   <div class="d-flex flex-nowrap align-items-center gap-3">
     <div class="d-flex align-items-center bg-surface-low p-1 rounded-3">
-      <button class="btn btn-sm text-on-surface-variant" type="button">Día</button>
-      <button class="btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Semana</button>
-      <button class="btn btn-sm text-on-surface-variant" type="button">Mes</button>
+      <button id="btn-dia" class="btn_principal btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Día</button>
+      <button id="btn-semana" class="btn_principal btn btn-sm text-on-surface-variant" type="button">Semana</button>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <button class="btn bg-surface-high d-flex align-items-center gap-2" type="button">
-        <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
-        <span class="fw-semibold small">Fuera de horario</span>
-        <span class="badge rounded-pill bg-brand-tertiary">1</span>
-      </button>
+      <div class="dropdown">
+        <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> class="btn bg-surface-high d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
+            <span class="fw-semibold small">Fuera de horario</span>
+            <span class="badge rounded-pill bg-brand-tertiary span_count_citas_fuera_horario_badge">0</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> id="btn_ver_cita_fuera_horario" type="button" class="dropdown-item d-flex align-items-center gap-2" title="Citas registradas fuera del horario habitual">
+                    <i class="bi bi-list-ul"></i>
+                    Ver citas fuera de horario
+                    <span class="badge rounded-pill bg-brand-tertiary ms-auto span_count_citas_fuera_horario_badge">0</span>
+                </button>
+            </li>
+            <li>
+                <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> id="btn_crear_cita_fuera_horario" type="button" class="dropdown-item d-flex align-items-center gap-2" title="Citas registradas fuera del horario habitual">
+                    <i class="bi bi-plus-lg"></i>
+                    Agendar cita fuera de horario
+                </button>
+            </li>
+        </ul>
+    </div>
     </div>
   </div>
 </div>
@@ -926,15 +1051,6 @@ use App\Library\FuncionesGlobales;
 
     <!-- ============ COLUMNA DERECHA: filtros + navegación + agenda ============ -->
     <div class="col-lg-9">
-        <?php if ($citas_fuera_horario): ?>
-        <div class="color-legend mt-3">
-            <div class="d-flex flex-wrap justify-content-end gap-2">
-                <button id="btn_ver_cita_fuera_horario" type="button" class="icon-button btn btn-info" title="Citas registradas fuera del horario habitual">Ver citas fuera de horario (<span id="span_count_citas_fuera_horario">0</span>)</button>
-                <button id="btn_crear_cita_fuera_horario" type="button" class="icon-button btn btn-primary" title="Citas registradas fuera del horario habitual">Agendar cita fuera de horario</button>
-            </div>
-        </div>
-        <?php endif; ?>
-
         <div id="div_header_agenda" class="p-3">
             <div id="div_append_days_container" class="div_append_days_container">
                 <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
@@ -2548,7 +2664,7 @@ use App\Library\FuncionesGlobales;
 
             // Formato visual: D/MMMM (ej. 20/agosto)
             const fechaFormateada = fecha.format('D/MMMM').split('/');
-            fechaFormateada[1] = fechaFormateada[1].toLowerCase();
+            fechaFormateada[1] = fechaFormateada[1].toLowerCase().substring(0,4);
 
             // Asignar texto y atributo data-day
             const $headerDate = $(this).find('.header-date');
@@ -2758,7 +2874,7 @@ use App\Library\FuncionesGlobales;
 
                     //  SE PINTA EL NUMERO DE CITAS FUERA DE HORARIO
                     if (typeof data['citas_fuera_horario'] != "undefined"){
-                        $("#span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
+                        $(".span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
                         arr_citas_fuera_horario = data['citas_fuera_horario'];
                     }
                 } else {
@@ -2943,14 +3059,6 @@ use App\Library\FuncionesGlobales;
             $($weekContainer).find('#' + id_horario_cita).remove();
         }
 
-        // let {
-        //     start, end, day, duracion = null,
-        //     id_cita_programada_servicio_horario = null,
-        //     servicio = null, nombre_locacion = null,
-        //     profesional = null,
-        //     codigo_color = null
-        // } = evento;
-
         let { start, end, day, duracion = null,
             id_agenda_cita = null,nombre_completo = null,
             id_cita_programada_servicio_horario = null,
@@ -2965,7 +3073,6 @@ use App\Library\FuncionesGlobales;
             lista_nombres_edades = null
          } = evento;
 
-        //const dayIndex = diasSemana.indexOf(day) + 1;
         const dayIndex  = isNaN(day) ? diasSemana.indexOf(day) + 1 : day;
         const duracion_minutos = duracion == null
             ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos')
@@ -3066,7 +3173,6 @@ use App\Library\FuncionesGlobales;
                 $($weekContainer).closest('#form_modal_create').find(".header_row#" + id_horario_cita).find('.input_hora_termino').val(end);
             }
 
-            //  se construye string de las datas a mostrar
             data_paciente   = ' data-paciente="'+evento.nombre_completo+'" data-asistencia="'+evento.asistencia+'"';
         }
 
@@ -3086,11 +3192,9 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        
         if (tipo_flot == 'flot_cita' && lista_nombres_edades != null) {
             background_servicio = codigo_color != null ? codigo_color : $weekContainer.closest("#form_modal_create").find("#select_servicios_modal").find('option:selected').data('codigocolor');
             span_info   = lista_nombres_edades.join('');
-            //background  = '';
             color       = '#000000';
         }
 
@@ -3107,9 +3211,11 @@ use App\Library\FuncionesGlobales;
             return h * 60 + m;
         };
 
-        const cellWidth = 120;
-        const cellHeight = 70;
-        const borderSize = 1;
+        //  IMPORTANTE: este valor debe coincidir EXACTAMENTE con el CSS:
+        //  .div_header_week_container .week-container { grid-template-columns: 90px repeat(7, 1fr); }
+        const hourColWidth = 90;
+        const borderSize   = 1;
+        const cellHeight   = 70;
 
         const startMin = aMinutos(start);
         const endMin = aMinutos(end);
@@ -3118,15 +3224,16 @@ use App\Library\FuncionesGlobales;
         const top = ((startMin - inicioHorarioMin) * (cellHeight + borderSize) / intervalo_citas) + 72;
         const height = ((endMin - startMin) * cellHeight / intervalo_citas + ((endMin - startMin) / intervalo_citas * borderSize));
 
-
-        const left = ((dayIndex) * (cellWidth + borderSize)) + 2;
-        const width = cellWidth;
+        //  Se calculan left/width como expresiones CSS calc(), para que el navegador
+        //  las resuelva contra el ancho REAL en pintado (funciona aunque el contenedor
+        //  esté oculto al momento de generar el floating-box).
+        const leftCalc  = `calc(${hourColWidth}px + ${borderSize}px + ${dayIndex - 1} * ((100% - ${hourColWidth}px) / 7) + 2px)`;
+        const widthCalc = `calc((100% - ${hourColWidth}px) / 7 - ${borderSize}px)`;
 
         let id_floating = id_cita_programada_servicio_horario == null
             ? 'id_horario_cita_' + (count_id_citas)
             : 'id_horario_cita_' + id_cita_programada_servicio_horario;
 
-        //  SIGNIFICA QUE SE ESTA CREANDO UN DIV NUEVO PERO ES UNA EDICION DE CITA PROGRAMADA
         if (id_cita_programada_servicio_horario == null && id_horario_cita != null){
             id_floating = id_horario_cita;
         }
@@ -3146,26 +3253,23 @@ use App\Library\FuncionesGlobales;
             '\' data-day="'+fecha_cita+
             '" data-idhorarioatencion="'+id_horario_atencion+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
-            left: `${left}px`,
-            width: `${width - borderSize}px`,
+            left: leftCalc,
+            width: widthCalc,
             height: `${height - borderSize}px`,
         });
 
-
         $floatingBox.attr('data-height', height);
-
-        //$floatingBox.get(0).style.setProperty('color', '#000', 'important');
 
         const spanCount = lista_nombres_edades?.length;
         if (spanCount > 1) {
             const alturaOriginal = height;
-            const alturaExpandida = alturaOriginal + (spanCount - 1) * 28; // Ajusta 18px por línea adicional
+            const alturaExpandida = alturaOriginal + (spanCount - 1) * 28;
 
             $floatingBox
                 .attr('data-height-expandido', alturaExpandida)
                 .addClass('expand-on-hover');
         }
-            
+
         $weekContainer.append($floatingBox);
     }
 
@@ -4624,6 +4728,12 @@ use App\Library\FuncionesGlobales;
             $("#btn-semana-siguiente").show();
             $(".watermark-message").hide();
 
+            if ($('.div_principal_filter').find("#btn-semana").hasClass('btn_principal')){
+                $('.btn_principal').removeClass('bg-brand-primary text-white shadow-sm').addClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-semana").removeClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-semana").addClass('bg-brand-primary text-white shadow-sm');
+            }
+
         });
         divHeaderFilters.find("#btn-dia").on("click", () => {
             //alert("Cambiar a vista de Día");
@@ -4632,6 +4742,12 @@ use App\Library\FuncionesGlobales;
             $(".div_header_days_container").removeClass('hide_container');
             $("#btn-anterior").show();
             $("#btn-siguiente").show();
+            
+            if ($('.div_principal_filter').find("#btn-dia").hasClass('btn_principal')){
+                $('.btn_principal').removeClass('bg-brand-primary text-white shadow-sm').addClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-dia").removeClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-dia").addClass('bg-brand-primary text-white shadow-sm');
+            }
 
             if ($("#div_append_days_container").find('.div_header_days_container').not('.hide').length == 0){
                 //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
