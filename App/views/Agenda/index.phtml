@@ -785,7 +785,38 @@ use App\Library\FuncionesGlobales;
 .chip{ border-radius:999px; font-size:11px; font-weight:600; padding:.15rem .6rem; }
 .font-headline{ font-family:'Plus Jakarta Sans', sans-serif; }
 
-
+.mini-calendar .calendar_month_dates{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.mini-calendar .calendar_month_dates > div{
+    padding: 4px 2px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.mini-calendar .calendar_month_dates > div.other-month{
+    color: var(--clr-outline-variant, #c7c4d8);
+}
+.mini-calendar .calendar_month_dates > div.current-day{
+    background-color: var(--clr-primary);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+}
+.mini-calendar .calendar_month_dates > div:hover{
+    background-color: var(--clr-surface-container-low, #f2f3ff);
+}
+/* El mini calendario no debe heredar el tamaño/ancho fijo del calendario mensual completo */
+.div_header_month_container.mini-calendar{
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+    border-radius: inherit;
+    padding: 0;
+    display: block;
+}
 </style>
 <div class="container mt-4">
     <div class="container div_principal_filter div_header_filters col-11">
@@ -793,11 +824,11 @@ use App\Library\FuncionesGlobales;
     <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
   <div class="d-flex flex-nowrap align-items-center gap-3">
     <div class="d-flex align-items-center gap-1 bg-surface-low p-1 rounded-3">
-      <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
+      <button id="btn-anterior" class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
         <i class="bi bi-chevron-left" style="font-size:16px;"></i>
       </button>
-      <button class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
-      <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
+      <button id="btn-hoy" class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
+      <button id="btn-siguiente" class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
         <i class="bi bi-chevron-right" style="font-size:16px;"></i>
       </button>
     </div>
@@ -823,66 +854,78 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
-        <!-- Filtros de Servicios y Pacientes -->
-        <div class="row filters col-12" style="display:none!important">
+        <div class="row g-3 align-items-start">
 
-            <div class="col-3">
-                <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_locations']; ?></label>
-                <?php $count_locaciones = count($arr_locaciones); ?>
-                <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
-                    <option value=""></option>
-                    <?php foreach($arr_locaciones as $locacion): ?>
-                        <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
-                    <?php endforeach; ?>
-                </select>
+    <!-- ============ COLUMNA IZQUIERDA: Mini calendario ============ -->
+    <div class="col-lg-3">
+        <div class="bg-surface-lowest rounded-3 shadow-sm p-3 mb-3 div_header_month_container mini-calendar">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="fw-semibold small month-title"></span>
+                <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm p-0 d-flex align-items-center justify-content-center btn-mes-mini-anterior" style="width:24px;height:24px;">
+                        <i class="bi bi-chevron-left" style="font-size:14px;"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm p-0 d-flex align-items-center justify-content-center btn-mes-mini-siguiente" style="width:24px;height:24px;">
+                        <i class="bi bi-chevron-right" style="font-size:14px;"></i>
+                    </button>
+                </div>
             </div>
-            <div class="col-3">
-                <label for="select_servicios" class="form-label"><?php echo $translations['html_services']; ?></label>
-                <select id="select_servicios" class="select_servicios select_filtros">
-                    <option value=""></option>
-                </select>
+            <div class="row row-cols-7 g-0 text-center text-on-surface-variant small mb-2">
+                <div class="col">Do</div><div class="col">Lu</div><div class="col">Ma</div><div class="col">Mi</div><div class="col">Ju</div><div class="col">Vi</div><div class="col">Sá</div>
             </div>
-            <div class="col-3">
-                <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
-                <select id="select_profesionales" class="select_profesionales select_filtros">
-                    <option value=""></option>
-                </select>
-            </div>
-            <div class="col-3">
-                <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
-                <select id="select_pacientes" class="select_pacientes select_filtros">
-                    <option value=""></option>
-                </select>
-            </div>
-        </div>
-        <div class="color-legend mt-3" style="display:none;">
-            <h6>Indicadores:</h6>
-            <div class="d-flex flex-wrap div_append_label_servicios">
-                
-            </div>
+            <div class="row row-cols-7 g-1 text-center font-mono calendar_month_dates"></div>
         </div>
 
-            <!-- Sección de navegación -->
-        <div class="navigation">
-            <!-- Sección izquierda: Botones de Mes, Semana y Día -->
-            <div class="left-section">
-                <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">< Mes </button>
-                <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< Sem.</button>
-                <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">< D&iacute;a</button>
-                <h3 id="fecha-actual"></h3>
-                <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia ></button>
-                <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. ></button>
-                <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes ></button>
-                <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
-            </div>
+        <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column gap-3 filters">
 
-            <!-- Sección derecha: Botones de Mes/Semana/Día -->
-            <div class="right-section">
-                <button id="btn-mes" class="btn btn-primary"><?php echo $translations['html_month']; ?></button>
-                <button id="btn-semana" class="btn btn-primary"><?php echo $translations['html_week']; ?></button>
-                <button id="btn-dia" class="btn btn-primary"><?php echo $translations['html_day']; ?></button>
-            </div>
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+            <span class="font-headline fw-semibold" style="font-size:15px;">Filtros de Agenda</span>
         </div>
+
+        <div>
+            <label for="select_locaciones" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_locations']; ?></label>
+            <?php $count_locaciones = count($arr_locaciones); ?>
+            <select id="select_locaciones" class="select_locaciones form-select form-select-sm" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
+                <option value=""></option>
+                <?php foreach($arr_locaciones as $locacion): ?>
+                    <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div>
+            <label for="select_servicios" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_services']; ?></label>
+            <select id="select_servicios" class="select_servicios select_filtros form-select form-select-sm">
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div>
+            <label for="select_profesionales" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_title_professionals']; ?></label>
+            <select id="select_profesionales" class="select_profesionales select_filtros form-select form-select-sm">
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div>
+            <label for="select_pacientes" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_title_patients']; ?></label>
+            <select id="select_pacientes" class="select_pacientes select_filtros form-select form-select-sm">
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div class="color-legend" style="display:none;">
+            <label class="form-label small text-on-surface-variant mb-1">Indicadores</label>
+            <div class="d-flex flex-column gap-1 div_append_label_servicios"></div>
+        </div>
+
+    </div>
+    </div>
+
+    
+
+    <!-- ============ COLUMNA DERECHA: filtros + navegación + agenda ============ -->
+    <div class="col-lg-9">
         <?php if ($citas_fuera_horario): ?>
         <div class="color-legend mt-3">
             <div class="d-flex flex-wrap justify-content-end gap-2">
@@ -891,32 +934,30 @@ use App\Library\FuncionesGlobales;
             </div>
         </div>
         <?php endif; ?>
-    </div>
-    <div id="div_header_agenda" class="p-3">
-        <div id="div_append_days_container" class="div_append_days_container">
-            <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
-        </div>
-        <div id="div_append_weeks_container" class="div_append_weeks_container">
 
-        </div>
-        
-        <div class=" div_header_month_container hide_container container-calendar col-12">
-            <!-- Nuevo elemento para mostrar el mes -->
-            <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
-                
+        <div id="div_header_agenda" class="p-3">
+            <div id="div_append_days_container" class="div_append_days_container">
+                <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
             </div>
-            <div class="days">
-                <div class="day">Dom</div>
-                <div class="day">Lun</div>
-                <div class="day">Mar</div>
-                <div class="day">Mié</div>
-                <div class="day">Jue</div>
-                <div class="day">Vie</div>
-                <div class="day">Sáb</div>
+            <div id="div_append_weeks_container" class="div_append_weeks_container"></div>
+
+            <div class="div_header_month_container hide_container container-calendar col-12">
+                <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;"></div>
+                <div class="days">
+                    <div class="day">Dom</div>
+                    <div class="day">Lun</div>
+                    <div class="day">Mar</div>
+                    <div class="day">Mié</div>
+                    <div class="day">Jue</div>
+                    <div class="day">Vie</div>
+                    <div class="day">Sáb</div>
+                </div>
+                <div class="calendar_month_dates" id="calendar_month_dates"></div>
             </div>
-            <div class="calendar_month_dates" id="calendar_month_dates"></div>
         </div>
+
     </div>
+</div>
 
     <div id="template_label_servicios" class="legend-item me-3 mb-2" style="display:none">
         <span class="legend-color"></span>
@@ -2287,7 +2328,7 @@ use App\Library\FuncionesGlobales;
     //  funcion para renderizar calendario por mes  
     function renderCalendarMes() {
         const $calendarContainer = $('.div_header_month_container');
-        const $dates = $calendarContainer.find('#calendar_month_dates');
+        const $dates = $calendarContainer.find('#calendar_month_dates, .calendar_month_dates');
         const year = fechaActual.getFullYear();
         const month = fechaActual.getMonth();
         const today = new Date();
@@ -4554,6 +4595,9 @@ use App\Library\FuncionesGlobales;
         // Eventos para cambiar mes
         divHeaderFilters.find("#btn-mes-anterior").on("click", () => cambiarMes(-1));
         divHeaderFilters.find("#btn-mes-siguiente").on("click", () => cambiarMes(1));
+
+        $('.btn-mes-mini-anterior').on('click', () => cambiarMes(-1));
+        $('.btn-mes-mini-siguiente').on('click', () => cambiarMes(1));
 
         // Evento para volver al día actual
         divHeaderFilters.find("#btn-hoy").on("click", () => irAFechaActual($("#div_header_agenda")));
