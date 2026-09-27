@@ -777,6 +777,289 @@ use App\Library\FuncionesGlobales;
         cursor: pointer;
     }
 
+    /* ==================================================================
+   PALETA DE COLORES (misma que la agenda de escritorio)
+   ================================================================== */
+:root{
+  --clr-primary: #3525cd;
+  --clr-on-primary-fixed-variant: #3323cc;
+  --clr-secondary: #006591;
+  --clr-tertiary: #95002b;
+  --clr-surface-container-lowest: #ffffff;
+  --clr-surface-container-low: #f2f3ff;
+  --clr-surface-container-high: #e2e7ff;
+  --clr-surface-variant: #dae2fd;
+  --clr-on-surface: #131b2e;
+  --clr-on-surface-variant: #464555;
+  --clr-outline-variant: #c7c4d8;
+}
+
+/* ==================================================================
+   CONTENEDOR GENERAL
+   ================================================================== */
+.div_principal_filter{
+    background-color: var(--clr-background, #faf8ff);
+}
+.div_principal_filter h1{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--clr-on-surface);
+}
+
+/* ---- Filtros (Locaciones / Profesionales) como tarjeta ---- */
+.div_principal_filter .filters{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.div_principal_filter .filters .form-label{
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--clr-on-surface-variant);
+}
+.div_principal_filter .filters{
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+}
+.div_principal_filter .filters > [class*="col-"]{
+    padding-left: 0;
+    padding-right: 0;
+}
+.select2-container--default .select2-selection--single{
+    border-radius: 0.5rem;
+    border-color: var(--clr-surface-container-high);
+    height: 38px;
+    display: flex;
+    align-items: center;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 36px;
+}
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--single{
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 0.15rem rgba(53, 37, 205, 0.15);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected]{
+    background-color: var(--clr-primary) !important;
+}
+
+/* ==================================================================
+   BOTONES: mapeo de btn-primary/btn-secondary a la paleta
+   (usados en .navigation, en modales, etc.)
+   ================================================================== */
+.btn-primary{
+    --bs-btn-bg: var(--clr-primary);
+    --bs-btn-border-color: var(--clr-primary);
+    --bs-btn-hover-bg: var(--clr-on-primary-fixed-variant);
+    --bs-btn-hover-border-color: var(--clr-on-primary-fixed-variant);
+    --bs-btn-active-bg: var(--clr-on-primary-fixed-variant);
+    --bs-btn-active-border-color: var(--clr-on-primary-fixed-variant);
+}
+.btn-secondary{
+    --bs-btn-bg: var(--clr-surface-container-high);
+    --bs-btn-border-color: var(--clr-surface-container-high);
+    --bs-btn-color: var(--clr-on-surface);
+    --bs-btn-hover-bg: var(--clr-surface-variant);
+    --bs-btn-hover-border-color: var(--clr-surface-variant);
+    --bs-btn-hover-color: var(--clr-on-surface);
+    --bs-btn-active-bg: var(--clr-surface-variant);
+}
+
+/* ==================================================================
+   BARRA DE NAVEGACIÓN (día anterior/siguiente, fecha, Hoy)
+   ================================================================== */
+.div_principal_filter .navigation{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 0.75rem !important;
+    margin: 0 0 1rem 0 !important; /* sobreescribe el margin:20px genérico */
+}
+.div_principal_filter .navigation .left-section{
+    gap: 10px;
+}
+.div_principal_filter .navigation button{
+    padding: 8px 14px !important; /* sobreescribe el padding:10px 20px genérico */
+    font-size: 0.9rem !important;
+    border-radius: 0.5rem;
+}
+#btn-hoy{
+    font-weight: 600 !important;
+}
+#fecha-actual{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    color: var(--clr-on-surface);
+    font-size: 1rem !important;
+}
+
+/* ==================================================================
+   INDICADORES (leyenda colapsable de servicios)
+   ================================================================== */
+.color-legend{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 0.75rem 1rem;
+}
+.color-legend h6{
+    font-weight: 600;
+    color: var(--clr-on-surface-variant);
+    margin: 0;
+    font-size: 0.85rem;
+}
+.div_principal_filter .legend-item{
+    background: transparent;
+    padding: 0;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--clr-on-surface-variant);
+}
+.div_principal_filter .legend-color{
+    border-radius: 50%;
+}
+
+/* ==================================================================
+   CALENDARIO POR DÍA (mismo estilo que la agenda de escritorio)
+   ================================================================== */
+.div_header_days_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+}
+.div_header_days_container .titulo{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+.div_header_days_container .agenda-container{
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--clr-surface-container-high);
+    margin: 0;
+}
+.div_header_days_container .agenda-row{
+    border-bottom: 1px solid var(--clr-surface-container-high);
+}
+.div_header_days_container .agenda-time{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-right: 1px solid var(--clr-surface-container-high);
+}
+.div_header_days_container .agenda-header{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.div_header_days_container .agenda-header .agenda-service{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+}
+.div_header_days_container .agenda-service{
+    background-color: var(--clr-surface-container-lowest);
+    border-right: 1px solid var(--clr-surface-container-high);
+    transition: background-color .15s ease;
+}
+.div_header_days_container .agenda-hours:hover:not(.no-hover-effect){
+    background-color: var(--clr-surface-container-low);
+    outline: 1px solid var(--clr-primary);
+}
+
+/* ---- Recuadros de citas / bloqueos ---- */
+.div_header_days_container .evento-flotante{
+    border-radius: 0.4rem;
+    border: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: box-shadow .15s ease;
+}
+.div_header_days_container .evento-flotante:hover{
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.div_header_days_container .evento-flotante.bg-secondary{
+    background-color: rgba(0, 101, 145, 0.55) !important;
+}
+.div_header_days_container .evento-flotante.bg-light{
+    background-color: rgba(195, 192, 255, 0.75) !important;
+}
+.badge-citas-simultaneas{
+    background-color: var(--clr-tertiary) !important;
+}
+
+/* ==================================================================
+   CALENDARIO POR MES (vista completa)
+   ================================================================== */
+.div_header_month_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+}
+.div_header_month_container .days{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+}
+.div_header_month_container .calendar_month_dates div.other-month{
+    color: var(--clr-outline-variant);
+}
+.div_header_month_container .calendar_month_dates div:hover{
+    border-color: var(--clr-primary) !important;
+}
+.div_header_month_container .current-day{
+    background-color: var(--clr-primary) !important;
+    border-color: var(--clr-primary) !important;
+}
+.month-title{
+    color: var(--clr-on-surface);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ==================================================================
+   CAJA FLOTANTE DE INFORMACIÓN DE CITA (#infoBox)
+   ================================================================== */
+#infoBox{
+    border-radius: 0.75rem;
+}
+#infoBox .dot{
+    background-color: var(--clr-primary);
+}
+#infoBox .icon-button{
+    color: var(--clr-on-surface-variant);
+    border-radius: 0.4rem;
+    transition: background-color .15s ease;
+}
+#infoBox .icon-button:hover{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-primary);
+}
+.div_header_days_container.container,
+.div_header_days_container.container-calendar{
+    max-width: none !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+#div_header_agenda{
+    margin-top: 1rem;
+}
+
 </style>
 <div class="container div_principal_filter div_header_filters col-10">
     <h1 class="text-center my-4">Agenda Movil</h1>
@@ -832,27 +1115,28 @@ use App\Library\FuncionesGlobales;
         </div>
     </div>
     <?php endif; ?>
-</div>
-<div id="div_header_agenda" class="p-3">
-    <div id="div_append_days_container" class="div_append_days_container">
-        <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
-    </div>
-    
-    <div class=" div_header_month_container hide_container container-calendar col-12">
-        <!-- Nuevo elemento para mostrar el mes -->
-        <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
-            
+
+    <div id="div_header_agenda">
+        <div id="div_append_days_container" class="div_append_days_container">
+            <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
         </div>
-        <div class="days">
-            <div class="day">Dom</div>
-            <div class="day">Lun</div>
-            <div class="day">Mar</div>
-            <div class="day">Mié</div>
-            <div class="day">Jue</div>
-            <div class="day">Vie</div>
-            <div class="day">Sáb</div>
+        
+        <div class=" div_header_month_container hide_container container-calendar col-12">
+            <!-- Nuevo elemento para mostrar el mes -->
+            <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
+                
+            </div>
+            <div class="days">
+                <div class="day">Dom</div>
+                <div class="day">Lun</div>
+                <div class="day">Mar</div>
+                <div class="day">Mié</div>
+                <div class="day">Jue</div>
+                <div class="day">Vie</div>
+                <div class="day">Sáb</div>
+            </div>
+            <div class="calendar_month_dates" id="calendar_month_dates"></div>
         </div>
-        <div class="calendar_month_dates" id="calendar_month_dates"></div>
     </div>
 </div>
 
@@ -861,7 +1145,7 @@ use App\Library\FuncionesGlobales;
     <span class="texto_servicio">Servicio</span>
 </div>
 
-<div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
+<div id="template_days_container" class="div_header_days_container container-calendar hide_container" style="display:none;">
     <!-- Agenda -->
      <div class="titulo" align="center"></div>
     <div class="agenda-container" id="agenda-container">
@@ -1843,6 +2127,7 @@ use App\Library\FuncionesGlobales;
                         $(div_header).find('.input_hora_inicio').val(usar_valor_actual ? actual_value_input_inicio : arr_solo_hora_inicio[0]);
 
                         //  SE RECORRE TODOS LOS DIVS DE TURNOS PARA SABER CUAL SE DEBE DE MOSTRAR
+                        let first_show  = true;
                         $(div_header).find('.div_header_days_container').each(function(){
                             let id_horario_atencion = $(this).data('idhorarioatencion');
                             let diasPermitidos      = $(this).data('dias');
@@ -1869,6 +2154,8 @@ use App\Library\FuncionesGlobales;
                                     }
                                 });
                             }
+
+                            first_show   = false;
                         });
                         setTimeout(function(){
                             if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
@@ -2423,6 +2710,7 @@ use App\Library\FuncionesGlobales;
 
             //  SE CREA EL TEMPLATE DEL HORARIO
             horario_atencion    = data['horario_atencion'];
+            let first_row       = true;
             for(let i in horario_atencion){
                 let info_horario    = horario_atencion[i];
 
@@ -2447,6 +2735,10 @@ use App\Library\FuncionesGlobales;
                     .attr('id','div_header_week_container_'+info_horario['id'])
                     .data('idhorarioatencion',info_horario['id'])
                     .addClass('d-flex');
+
+                if (!first_row){
+                    $(template_week_container).addClass('mt-4');
+                }
 
                 if ($("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).length > 0){
                     $("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).find('.evento-flotante').remove();
