@@ -487,7 +487,7 @@ use App\Library\FuncionesGlobales;
     }
 
     .shift-title {
-        text-align: center;
+        text-align: left;
         font-weight: bold;
         margin-bottom: 10px;
         background: #f0f0f0;
@@ -509,6 +509,16 @@ use App\Library\FuncionesGlobales;
         vertical-align: middle;
         border: 1px solid rgba(0, 0, 0, 0.1); /* Borde negro muy sutil (10% de opacidad) */
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Opcional: sombra ligera para profundidad */
+    }
+
+    .color-legend .legend-color{
+        border-radius: 50%;
+    }
+    .color-legend .legend-item{
+        background: transparent;
+        padding: 0;
+        gap: 6px;
+        font-size: 0.85rem;
     }
 
     .div_principal_filter .legend-item {
@@ -840,10 +850,10 @@ use App\Library\FuncionesGlobales;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 0.9rem;
+    text-align: left;
     border-radius: 0.5rem;
     padding: 0.6rem 1rem;
     margin-bottom: 1rem;
-    text-align: left;
 }
 
 /* Fondo del grid (las líneas divisorias entre celdas) */
@@ -1080,7 +1090,15 @@ use App\Library\FuncionesGlobales;
   </div>
 </div>
 
-        <div class="row g-3 align-items-start">
+    <div class="row g-3 align-items-start">
+        <!-- ---- Barra de indicadores / leyenda de servicios (siempre visible) ---- -->
+    <div class="bg-surface-lowest rounded-3 shadow-sm px-3 py-2 d-flex flex-wrap align-items-center gap-3 mb-3 color-legend">
+        <span class="d-flex align-items-center gap-2 text-on-surface-variant fw-semibold small text-nowrap">
+            <i class="bi bi-tags-fill text-brand-primary"></i>
+            Servicios / Leyenda
+        </span>
+        <div class="d-flex flex-wrap align-items-center gap-3 div_append_label_servicios"></div>
+    </div>
 
     <!-- ============ COLUMNA IZQUIERDA: Mini calendario ============ -->
     <div class="col-lg-3">
@@ -1140,11 +1158,6 @@ use App\Library\FuncionesGlobales;
             </select>
         </div>
 
-        <div class="color-legend" style="display:none;">
-            <label class="form-label small text-on-surface-variant mb-1">Indicadores</label>
-            <div class="d-flex flex-column gap-1 div_append_label_servicios"></div>
-        </div>
-
     </div>
     </div>
 
@@ -1195,9 +1208,9 @@ use App\Library\FuncionesGlobales;
     </div>
 
         <!--    AGREGAR clase d-flex    -->
-    <div id ="template_week_container" class="container flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
+    <div id ="template_week_container" class="container flex-column div_header_week_container container-calendar col-12" style="display:none;">
         <!-- Nuevo div para el título del turno -->
-        <div class="shift-title" style="text-align: center; font-weight: bold; margin-bottom: 10px; background: #f0f0f0; padding: 5px;">
+        <div class="shift-title" >
             Turno: <!-- El texto se asignará dinámicamente al clonar -->
         </div>
         <div class="week-container div_principal">
@@ -2888,7 +2901,7 @@ use App\Library\FuncionesGlobales;
             }
 
             $(template_days_container).find('.titulo').text(info_horario['titulo']);
-            $(template_week_container).find('.shift-title').text(info_horario['titulo']);
+            $(template_week_container).find('.shift-title').text('Turno: '+info_horario['titulo']);
 
             if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide').show();
