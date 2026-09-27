@@ -516,7 +516,7 @@ use App\Library\FuncionesGlobales;
         align-items: center;
         font-size: 0.9em;
         padding: 3px 8px;
-        background: #f8f9fa; /* Fondo gris claro para contraste */
+        
         border-radius: 4px;
     }
 
@@ -926,6 +926,107 @@ use App\Library\FuncionesGlobales;
     background-color: var(--clr-tertiary) !important;
 }
 
+/* ==================================================================
+   ESTILO VISUAL "TEMPLATE" PARA EL CALENDARIO POR DÍA
+   ================================================================== */
+
+/* Contenedor general: tarjeta blanca con sombra suave */
+.div_header_days_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+}
+
+/* Título del turno (llenado por JS vía .titulo, se mantiene el contenido) */
+.div_header_days_container .titulo{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+/* Contenedor de la tabla de agenda */
+.div_header_days_container .agenda-container{
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--clr-surface-container-high);
+    margin: 0;
+}
+
+/* Filas */
+.div_header_days_container .agenda-row{
+    border-bottom: 1px solid var(--clr-surface-container-high);
+}
+
+/* Columna de horas */
+.div_header_days_container .agenda-time{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-right: 1px solid var(--clr-surface-container-high);
+}
+
+/* Encabezado con nombres de profesionales */
+.div_header_days_container .agenda-header{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+.div_header_days_container .agenda-header .agenda-time{
+    background-color: var(--clr-surface-container-low);
+}
+
+/* Columnas de servicio/profesional (celdas donde caen las citas) */
+.div_header_days_container .agenda-service{
+    background-color: var(--clr-surface-container-lowest);
+    border-right: 1px solid var(--clr-surface-container-high);
+    transition: background-color .15s ease;
+}
+.div_header_days_container .agenda-hours:hover:not(.no-hover-effect){
+    background-color: var(--clr-surface-container-low);
+    outline: 1px solid var(--clr-primary);
+    cursor: pointer;
+}
+
+/* ---- Recuadros de citas / bloqueos (evento-flotante) ---- */
+.div_header_days_container .evento-flotante{
+    border-radius: 0.4rem;
+    border: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: box-shadow .15s ease;
+}
+.div_header_days_container .evento-flotante:hover{
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Colores por tipo, igual que en la vista semana */
+.div_header_days_container .evento-flotante.bg-secondary{
+    background-color: rgba(0, 101, 145, 0.55) !important;
+}
+.div_header_days_container .evento-flotante.bg-danger{
+    background-color: rgba(149, 0, 43, 0.55) !important;
+}
+.div_header_days_container .evento-flotante.bg-success{
+    background-color: rgba(40, 167, 69, 0.35) !important;
+}
+.div_header_days_container .evento-flotante.bg-info{
+    background-color: rgba(53, 37, 205, 0.35) !important;
+}
+.div_header_days_container .evento-flotante.bg-dark{
+    background-color: rgba(70, 69, 85, 0.55) !important;
+}
+
+
 </style>
 <div class="container mt-4">
     <div class="div_principal_filter div_header_filters px-2">
@@ -943,7 +1044,7 @@ use App\Library\FuncionesGlobales;
     </div>
     <div class="d-flex align-items-center gap-2">
       <i class="bi bi-calendar3 text-brand-primary" style="font-size:20px;"></i>
-      <span class="font-headline fw-semibold text-nowrap" style="font-size:18px;">Semana 39: 21 al 27 de Septiembre, 2026</span>
+      <span id="span_rango_semana" class="font-headline fw-semibold text-nowrap" style="font-size:18px;">Semana --</span>
     </div>
   </div>
 
@@ -957,14 +1058,14 @@ use App\Library\FuncionesGlobales;
         <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> class="btn bg-surface-high d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
             <span class="fw-semibold small">Fuera de horario</span>
-            <span class="badge rounded-pill bg-brand-tertiary span_count_citas_fuera_horario_badge">0</span>
+            <span class="badge rounded-pill bg-brand-tertiary span_count_citas_fuera_horario">0</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
             <li>
                 <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> id="btn_ver_cita_fuera_horario" type="button" class="dropdown-item d-flex align-items-center gap-2" title="Citas registradas fuera del horario habitual">
                     <i class="bi bi-list-ul"></i>
                     Ver citas fuera de horario
-                    <span class="badge rounded-pill bg-brand-tertiary ms-auto span_count_citas_fuera_horario_badge">0</span>
+                    <span class="badge rounded-pill bg-brand-tertiary ms-auto span_count_citas_fuera_horario">0</span>
                 </button>
             </li>
             <li>
@@ -1051,7 +1152,7 @@ use App\Library\FuncionesGlobales;
 
     <!-- ============ COLUMNA DERECHA: filtros + navegación + agenda ============ -->
     <div class="col-lg-9">
-        <div id="div_header_agenda" class="p-3">
+        <div id="div_header_agenda">
             <div id="div_append_days_container" class="div_append_days_container">
                 <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
             </div>
@@ -1094,7 +1195,7 @@ use App\Library\FuncionesGlobales;
     </div>
 
         <!--    AGREGAR clase d-flex    -->
-    <div id ="template_week_container" class="container mt-4  flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
+    <div id ="template_week_container" class="container flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
         <!-- Nuevo div para el título del turno -->
         <div class="shift-title" style="text-align: center; font-weight: bold; margin-bottom: 10px; background: #f0f0f0; padding: 5px;">
             Turno: <!-- El texto se asignará dinámicamente al clonar -->
@@ -2655,9 +2756,12 @@ use App\Library\FuncionesGlobales;
             }
         });
 
-       // ASIGNA LA FECHA POR DIA:
+        // ASIGNA LA FECHA POR DIA:
         const fechaInicio = moment(rango_semana_actual.fecha_inicio);
         const fechaTermino = moment(rango_semana_actual.fecha_termino);
+
+        console.log('fechaInicio',fechaInicio,rango_semana_actual.fecha_inicio);
+        console.log('fechaTermino',fechaTermino);
 
         $weekContainer.find('.header:not(:first-child)').each(function(index) {
             const fecha = moment(fechaInicio).add(index, 'days');
@@ -2686,6 +2790,36 @@ use App\Library\FuncionesGlobales;
         });
 
         show_horario_no_disponible_profesional(template_days_container,id_horario_atencion);
+
+        moment.locale('es');
+
+        let tmp_fecha_inicio    = moment(rango_semana_actual.fecha_inicio, "YYYY-MM-DD");
+        let tmp_fecha_termino   = moment(rango_semana_actual.fecha_termino, "YYYY-MM-DD");
+
+        let numero_semana = tmp_fecha_inicio.isoWeek();
+
+        let texto = "";
+
+        if (tmp_fecha_inicio.isSame(tmp_fecha_termino, 'year')) {
+
+            if (tmp_fecha_inicio.isSame(tmp_fecha_termino, 'month')) {
+                // Mismo mes
+                texto = `Semana ${numero_semana}: Del ${tmp_fecha_inicio.format("D")} al ${tmp_fecha_termino.format("D")} de ${tmp_fecha_inicio.format("MMMM")}, ${tmp_fecha_inicio.format("YYYY")}`;
+            } else {
+                // Distinto mes, mismo año
+                texto = `Semana ${numero_semana}: Del ${tmp_fecha_inicio.format("D")} de ${tmp_fecha_inicio.format("MMMM")} al ${tmp_fecha_termino.format("D")} de ${tmp_fecha_termino.format("MMMM")}, ${tmp_fecha_inicio.format("YYYY")}`;
+            }
+
+        } else {
+            // Distinto año
+            texto = `Semana ${numero_semana}: Del ${tmp_fecha_inicio.format("D")} de ${tmp_fecha_inicio.format("MMMM")}, ${tmp_fecha_inicio.format("YYYY")} al ${tmp_fecha_termino.format("D")} de ${tmp_fecha_termino.format("MMMM")}, ${tmp_fecha_termino.format("YYYY")}`;
+        }
+
+        // Primera letra de cada mes en mayúscula
+        texto = texto.replace(/\b[a-záéíóúñ]/g, c => c.toUpperCase());
+
+        $("#span_rango_semana").text(texto);
+
     }
 
     function esColorClaro(hex) {
@@ -2713,6 +2847,7 @@ use App\Library\FuncionesGlobales;
 
         //  SE CREA EL TEMPLATE DEL HORARIO
         horario_atencion    = data['horario_atencion'];
+        let first_row       = true;
         for(let i in horario_atencion){
             let info_horario    = horario_atencion[i];
 
@@ -2737,6 +2872,10 @@ use App\Library\FuncionesGlobales;
                 .attr('id','div_header_week_container_'+info_horario['id'])
                 .data('idhorarioatencion',info_horario['id'])
                 .addClass('d-flex');
+
+            if (!first_row){
+                $(template_week_container).addClass('mt-4');
+            }
 
             if ($("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).length > 0){
                 $("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).find('.evento-flotante').remove();
@@ -2774,6 +2913,8 @@ use App\Library\FuncionesGlobales;
             $(template_days_container).data('dias',diasPermitidos);
             $(modal_clone).find('.div_append_days_container').append(template_days_container);
             $(modal_clone).find('.div_append_weeks_container').append(template_week_container);
+
+            first_row   = false;
         }
 
         if ($(".div_header_days_container").is(':visible').length == 0 && 
@@ -2873,6 +3014,7 @@ use App\Library\FuncionesGlobales;
                     setTimeout(show_calendar($("#div_header_agenda"),data),500);
 
                     //  SE PINTA EL NUMERO DE CITAS FUERA DE HORARIO
+                    console.log('citas fuera horario',Object.keys(data['citas_fuera_horario']).length);
                     if (typeof data['citas_fuera_horario'] != "undefined"){
                         $(".span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
                         arr_citas_fuera_horario = data['citas_fuera_horario'];
@@ -4722,8 +4864,8 @@ use App\Library\FuncionesGlobales;
             $(".container-calendar").addClass('hide_container');
             $(".div_header_week_container").removeClass('hide_container');
 
-            $("#btn-anterior").hide();
-            $("#btn-siguiente").hide();
+            $("#btn-anterior").prop('disabled',true);
+            $("#btn-siguiente").prop('disabled',true);
             $("#btn-semana-anterior").show();
             $("#btn-semana-siguiente").show();
             $(".watermark-message").hide();
@@ -4740,8 +4882,8 @@ use App\Library\FuncionesGlobales;
             // Aquí puedes implementar la lógica para cambiar a la vista de día
             $(".container-calendar").addClass('hide_container');
             $(".div_header_days_container").removeClass('hide_container');
-            $("#btn-anterior").show();
-            $("#btn-siguiente").show();
+            $("#btn-anterior").prop('disabled',false);
+            $("#btn-siguiente").prop('disabled',false);
             
             if ($('.div_principal_filter').find("#btn-dia").hasClass('btn_principal')){
                 $('.btn_principal').removeClass('bg-brand-primary text-white shadow-sm').addClass('text-on-surface-variant');
