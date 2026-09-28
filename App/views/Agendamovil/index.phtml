@@ -763,6 +763,13 @@ use App\Library\FuncionesGlobales;
         scroll-snap-type: none; /* evita que el scroll se regrese solo */
     }
 
+    .div_principal_filter .navigation .left-section.vista_movil > :first-child{
+        margin-left: auto;
+    }
+    .div_principal_filter .navigation .left-section.vista_movil > :last-child{
+        margin-right: auto;
+    }
+
     .div_principal_filter {
         padding-left: 0px !important;
         padding-right: 4px !important;
@@ -2136,6 +2143,10 @@ use App\Library\FuncionesGlobales;
                                 return true;
                             } else {
                                 $(this).removeClass('hide');
+
+                                if (!first_show){
+                                    $(this).addClass('mt-3');
+                                }
                             }
 
                             if (div_header == '#div_header_agenda'){
