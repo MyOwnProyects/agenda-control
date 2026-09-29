@@ -2945,8 +2945,8 @@ use App\Library\FuncionesGlobales;
                 template_week_container = $("#div_append_weeks_container").find("#div_header_week_container_"+info_horario['id']);
             }
 
-            $(template_days_container).find('.titulo').text(info_horario['titulo']);
-            $(template_week_container).find('.shift-title').text('Turno: '+info_horario['titulo']);
+            $(template_days_container).find('.titulo').text('Turno: '+info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
+            $(template_week_container).find('.shift-title').text('Turno: '+info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
 
             if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide').show();
@@ -4051,7 +4051,7 @@ use App\Library\FuncionesGlobales;
                 .show()
                 ;
 
-            $(template_days_container).find('.titulo').text(info_horario['titulo']);
+            $(template_days_container).find('.titulo').text(info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
 
             if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide');
