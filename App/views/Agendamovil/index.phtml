@@ -2761,6 +2761,9 @@ use App\Library\FuncionesGlobales;
 
                 if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                     $(template_days_container).removeClass('hide').show();
+                    if (!first_row){
+                        $(template_days_container).addClass('mt-3');
+                    }
                 } else {
                     $(template_days_container).addClass('hide');
                 }

@@ -2253,11 +2253,13 @@ use App\Library\FuncionesGlobales;
 
                     //  SE RECORRE TODOS LOS DIVS DE TURNOS PARA SABER CUAL SE DEBE DE MOSTRAR
                     let first_show  = true;
+                    console.log('first_show',first_show);
                     $(div_header).find('.div_header_days_container').each(function(){
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
                         if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                             $(this).addClass('hide');
+                            $(this).removeClass('mt-3');
                             return true;
                         } else {
                             $(this).removeClass('hide');
@@ -2948,6 +2950,9 @@ use App\Library\FuncionesGlobales;
 
             if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide').show();
+                if (!first_row){
+                    $(template_days_container).addClass('mt-3');
+                }
             } else {
                $(template_days_container).addClass('hide');
             }
