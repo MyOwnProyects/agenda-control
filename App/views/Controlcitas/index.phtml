@@ -431,6 +431,119 @@ use App\Library\FuncionesGlobales;
         padding: 1.25rem 1.5rem;
     }
 
+    /* ==================================================================
+   PALETA DE COLORES (misma que la agenda)
+   ================================================================== */
+:root{
+  --clr-primary: #3525cd;
+  --clr-on-primary-fixed-variant: #3323cc;
+  --clr-secondary: #006591;
+  --clr-tertiary: #95002b;
+  --clr-surface-container-lowest: #ffffff;
+  --clr-surface-container-low: #f2f3ff;
+  --clr-surface-container-high: #e2e7ff;
+  --clr-on-surface: #131b2e;
+  --clr-on-surface-variant: #464555;
+}
+
+/* ---- Botones del modal (btnSave, btn-hoy, etc.) ---- */
+.btn-primary{
+    --bs-btn-bg: var(--clr-primary);
+    --bs-btn-border-color: var(--clr-primary);
+    --bs-btn-hover-bg: var(--clr-on-primary-fixed-variant);
+    --bs-btn-hover-border-color: var(--clr-on-primary-fixed-variant);
+    --bs-btn-active-bg: var(--clr-on-primary-fixed-variant);
+    --bs-btn-active-border-color: var(--clr-on-primary-fixed-variant);
+}
+.btn-secondary{
+    --bs-btn-bg: var(--clr-surface-container-high);
+    --bs-btn-border-color: var(--clr-surface-container-high);
+    --bs-btn-color: var(--clr-on-surface);
+    --bs-btn-hover-bg: var(--clr-surface-container-low);
+    --bs-btn-hover-color: var(--clr-on-surface);
+}
+
+/* ==================================================================
+   CALENDARIO POR DÍA dentro del modal de edición (modal_save_class)
+   ================================================================== */
+.div_header_days_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+    font-family: inherit;
+}
+.div_header_days_container .titulo{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+.div_header_days_container .agenda-container{
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--clr-surface-container-high);
+    margin: 0;
+}
+.div_header_days_container .agenda-row{
+    border-bottom: 1px solid var(--clr-surface-container-high);
+}
+.div_header_days_container .agenda-time{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-right: 1px solid var(--clr-surface-container-high);
+}
+.div_header_days_container .agenda-header{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+}
+.div_header_days_container .agenda-header .agenda-service{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+}
+.div_header_days_container .agenda-service{
+    background-color: var(--clr-surface-container-lowest);
+    border-right: 1px solid var(--clr-surface-container-high);
+}
+.div_header_days_container .agenda-hours:hover:not(.no-hover-effect){
+    background-color: var(--clr-surface-container-low);
+    border: 1px solid var(--clr-primary) !important;
+}
+
+/* ---- Recuadros de citas: sobrescribe el color azul fijo por tipo ---- */
+.div_header_days_container .evento-flotante{
+    border-radius: 0.4rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.div_header_days_container .evento-flotante.bg-secondary{
+    background-color: rgba(0, 101, 145, 0.55) !important;
+    border: none !important;
+}
+.div_header_days_container .evento-flotante.bg-success{
+    background-color: rgba(40, 167, 69, 0.35) !important;
+    border: none !important;
+}
+.div_header_days_container .evento-flotante.bg-info{
+    background-color: rgba(53, 37, 205, 0.35) !important;
+    border: none !important;
+}
+.div_header_days_container .evento-flotante.bg-primary{
+    background-color: rgba(195, 192, 255, 0.75) !important;
+    border: none !important;
+    color: #000 !important;
+}
+.div_header_days_container .evento-flotante.bg-primary span{
+    color: #000 !important;
+}
+
 </style>
 
 <div class="container mt-4">
