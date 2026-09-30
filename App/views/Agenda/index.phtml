@@ -1043,6 +1043,60 @@ use App\Library\FuncionesGlobales;
     border-right: 1px solid var(--clr-surface-container-high);
 }
 
+#modal_save_class .modal-content{
+    border-radius: 1rem;
+    border: none;
+    overflow: hidden;
+}
+#modal_save_class .modal-header{
+    background-color: var(--clr-surface-container-low);
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+#modal_save_class .modal-title{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--clr-on-surface);
+}
+#modal_save_class .modal-footer{
+    background-color: var(--clr-surface-container-low);
+    border-top: none;
+    padding: 1rem 1.5rem;
+}
+
+#modal_save_class .div_input_paciente{
+    background-color: var(--clr-surface-container-low);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1rem 0 !important;
+}
+#modal_save_class .div_input_paciente .col-form-label{
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--clr-on-surface-variant);
+}
+#modal_save_class .div_input_paciente .form-control,
+#modal_save_class .div_input_paciente .select2-container--default .select2-selection--single{
+    border-radius: 0.5rem;
+    border-color: var(--clr-surface-container-high);
+}
+#modal_save_class .div_input_paciente .form-control:focus{
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 0.15rem rgba(53, 37, 205, 0.15);
+}
+
+#modal_save_class .div_text_paciente{
+    background-color: var(--clr-surface-container-low);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1rem 0 !important;
+}
+#modal_save_class .div_text_paciente label{
+    font-size: 0.85rem;
+    color: var(--clr-on-surface);
+}
+
 </style>
 <div class="container mt-4">
     <div class="div_principal_filter div_header_filters px-2">
@@ -1471,9 +1525,9 @@ use App\Library\FuncionesGlobales;
   <div class="modal-dialog modal-fullscreen-xl-down">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="label_modal_save_class"><?php echo FuncionesGlobales::UpperString($translations['html_schedule_an_appointment']); ?></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+        <h5 class="modal-title" id="label_modal_save_class">AGENDAR CITA</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3 div_input_paciente">
