@@ -993,7 +993,7 @@ use App\Library\FuncionesGlobales;
 /* ---- Recuadros de citas / bloqueos ---- */
 .div_header_days_container .evento-flotante{
     border-radius: 0.4rem;
-    border: none !important;
+    border: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     transition: box-shadow .15s ease;
 }
@@ -2378,7 +2378,7 @@ use App\Library\FuncionesGlobales;
                         }
 
                         if (evento.id_agenda_cita != null && pagada != 1) {
-                            eventoDiv.css("border", "2px solid #FF6961"); // Puedes usar #dc3545 para rojo Bootstrap si prefieres
+                            eventoDiv.css("border", "1px solid #FF6961"); // Puedes usar #dc3545 para rojo Bootstrap si prefieres
                         }
 
                         if (evento.num_citas_simultaneas > 0){
