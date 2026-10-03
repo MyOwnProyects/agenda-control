@@ -212,9 +212,13 @@ return [
     'html_capture_date'                         => 'Fecha de captura',
     'html_total_paid'                           => 'Total pagado',
     'html_type_scholarship'                     => 'Tipo de beca',
-    'html_schoolarship_title'                   => 'Becas',
+    'html_scholarship_title'                    => 'Becas',
     'html_assign_scholarships'                  => 'Asignar becas',
     'html_scholarships'                         => 'Becas',
+    'html_type_discount'                        => 'Tipo de descuento',
+    'html_discount_title'                       => 'Ajustes y Descuentos',
+    'html_assign_discounts'                     => 'Asignar descuentos',
+    'html_discounts'                            => 'Descuentos',
     
 
 

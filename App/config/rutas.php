@@ -176,6 +176,16 @@ return [
         'save_pago'     => '/becas/save_pago',
         'cancelar_pago' => '/becas/cancelar_pago'
     ),
+    'descuentos' => array(
+        'show'      => "/descuentos/show",
+        'delete'    => "/descuentos/delete",
+        'save'      => "/descuentos/save",
+        'count'     => "/descuentos/count",
+        'change_status' => '/descuentos/change_status',
+        'save_pago'     => '/descuentos/save_pago',
+        'cancelar_pago' => '/descuentos/cancelar_pago'
+    )
+    ,
     'paciente_becas'    => array(
         'count' => '/paciente_becas/count',
         'show'  => '/paciente_becas/show',

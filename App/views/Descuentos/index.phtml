@@ -66,7 +66,7 @@ use App\Library\FuncionesGlobales;
 <div class="container mt-4">
     <!-- Section 1: Search Filters -->
     <div>
-        <h2><?php echo FuncionesGlobales::UpperString($translations['html_scholarship_title']); ?></h2>
+        <h2><?php echo FuncionesGlobales::UpperString($translations['html_discount_title']); ?></h2>
     </div>
     <div id="header_filters" class="card mb-4">
         <div class="card-header">
@@ -107,7 +107,7 @@ use App\Library\FuncionesGlobales;
                     <tr>
                         <th><?php echo $translations['html_access_key']; ?></th>
                         <th><?php echo $translations['html_name']; ?></th>
-                        <th><?php echo $translations['html_type_scholarship']; ?></th>
+                        <th><?php echo $translations['html_type_discount']; ?></th>
                         <th><?php echo $translations['html_status']; ?></th>
                         <th><?php echo $translations['html_action']; ?></th>
                     </tr>
@@ -166,7 +166,7 @@ use App\Library\FuncionesGlobales;
     let module_servicios    = (function(){
         let draw            = 0;
         //  URL
-        const controller    = '/Becas';
+        const controller    = '/Descuentos';
         const url_index     = controller+"/index";
         const url_create    = controller+"/create";
         const url_delete    = controller+"/delete";
@@ -234,7 +234,7 @@ use App\Library\FuncionesGlobales;
                     columns: [
                         { data: 'clave' }, // Columna 1
                         { data: 'nombre' }, // Columna 1
-                        { data: 'label_tipo_beca' }, // Columna 1
+                        { data: 'label_tipo' }, // Columna 1
                         { data: 'label_estatus' }, // Columna 1
                         {
                             data: null, 
@@ -305,7 +305,7 @@ use App\Library\FuncionesGlobales;
                             accion  : 'change_status',
                             status_actual   : estatus,
                             nuevo_status    : estatus == 1 ? 0 : 1,
-                            beca            : data['clave'] + ' - ' +data['nombre'],
+                            descuento       : data['clave'] + ' - ' +data['nombre'],
                             id      : id
                         },
                         success : function(data){
@@ -436,7 +436,9 @@ use App\Library\FuncionesGlobales;
                     clave   : $(modal_clone).find('#input_clave').val(),
                     nombre  : $(modal_clone).find('#input_nombre').val(),
                     descripcion : $(modal_clone).find('#textarea_descripcion').val(),
-                    tipo_beca   : 1,
+                    tipo        : 1,
+                    importe     : 1,
+                    porcentaje  : 0,
                     indefinida  : 0
                 };
 
@@ -444,7 +446,9 @@ use App\Library\FuncionesGlobales;
                     obj_info['id']          = data['id'];
                     obj_info['clave_old']   = data['clave'];
                     obj_info['nombre_old']  = data['nombre'];
-                    obj_info['tipo_beca_old']   = data['tipo_beca'];
+                    obj_info['tipo_old']    = data['tipo'];
+                    obj_info['importe_old']     = data['tipo'];
+                    obj_info['porcentaje_old']  = data['tipo'];
                     obj_info['indefinida_old']  = data['indefinida'];
                 }
 
