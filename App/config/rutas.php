@@ -186,9 +186,9 @@ return [
         'cancelar_pago' => '/descuentos/cancelar_pago'
     )
     ,
-    'paciente_becas'    => array(
-        'count' => '/paciente_becas/count',
-        'show'  => '/paciente_becas/show',
+    'paciente_beneficios'    => array(
+        'count' => '/paciente_beneficios/count',
+        'show'  => '/paciente_beneficios/show',
     )
 
 ];

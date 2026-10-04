@@ -219,6 +219,7 @@ return [
     'html_discount_title'                       => 'Ajustes y Descuentos',
     'html_assign_discounts'                     => 'Asignar descuentos',
     'html_discounts'                            => 'Descuentos',
+    'html_assing_benefits'                      => 'Asignar beneficios',
     
 
 

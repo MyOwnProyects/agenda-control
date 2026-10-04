@@ -39,7 +39,7 @@ class AsignarbecasController extends BaseController
         
                 // SE REALIZA LA BUSQUEDA DEL COUNT
 
-                $route          = $this->url_api.$this->rutas['paciente_becas']['count'];
+                $route          = $this->url_api.$this->rutas['paciente_beneficios']['count'];
                 $num_registros  = FuncionesGlobales::RequestApi('GET',$route,$_POST);
         
                 if (!is_numeric($num_registros) || $num_registros == 0){
@@ -50,7 +50,7 @@ class AsignarbecasController extends BaseController
                         "data"              => $result
                     );
                 } else {
-                    $route  = $this->url_api.$this->rutas['paciente_becas']['show'];
+                    $route  = $this->url_api.$this->rutas['paciente_beneficios']['show'];
                     $result = FuncionesGlobales::RequestApi('GET',$route,$_POST);
             
                     $result = array(
@@ -99,7 +99,16 @@ class AsignarbecasController extends BaseController
             }
 
             if ($accion == 'save_pago'){
-                $route      = $this->url_api.$this->rutas['becas']['save_pago'];
+                $route      = null;
+
+                if ($_POST['tipo_beneficio'] == 'beca'){
+                    $route      = $this->url_api.$this->rutas['becas']['save_pago'];
+                }
+
+                if ($_POST['tipo_beneficio'] != 'beca'){
+                    $route      = $this->url_api.$this->rutas['descuentos']['save_pago'];
+                }
+                
                 $result     = FuncionesGlobales::RequestApi('POST',$route,$_POST);
 
                 $response = new Response();
@@ -154,7 +163,15 @@ class AsignarbecasController extends BaseController
         $route          = $this->url_api.$this->rutas['becas']['show'];
         $arr_info_becas = FuncionesGlobales::RequestApi('GET',$route,array());
 
-        $this->view->arr_info_becas = $arr_info_becas;
+        $this->view->arr_info_becas         = $arr_info_becas;
+        $this->view->json_arr_info_becas    = json_encode($arr_info_becas);
+
+        //  BECAS DISPONIBLES 
+        $route                  = $this->url_api.$this->rutas['descuentos']['show'];
+        $arr_info_descuentos    = FuncionesGlobales::RequestApi('GET',$route,array());
+
+        $this->view->arr_info_descuentos        = $arr_info_descuentos;
+        $this->view->json_arr_info_descuentos   = json_encode($arr_info_descuentos);
 
         //  PERMISO PARA CANCELAR O DEVOLVER PAGOS
         $this->view->cancelar_abono = FuncionesGlobales::HasAccess("Asignarbecas","delete");
@@ -166,7 +183,16 @@ class AsignarbecasController extends BaseController
             $accion = $_POST['accion'];
 
             if ($accion == 'save_accion'){
-                $route  = $this->url_api.$this->rutas['becas']['cancelar_pago'];
+                $route  = '';
+
+                if ($_POST['tipo_beneficio'] == 'beca'){
+                    $route  = $this->url_api.$this->rutas['becas']['cancelar_pago'];
+                }
+
+                if ($_POST['tipo_beneficio'] != 'beca'){
+                    $route  = $this->url_api.$this->rutas['descuentos']['cancelar_pago'];
+                }
+
                 $result = FuncionesGlobales::RequestApi('PUT',$route,$_POST['obj_info']);
 
                 $response = new Response();
@@ -178,7 +204,7 @@ class AsignarbecasController extends BaseController
                 }
 
                 $accion = 'CANCELACION';
-                FuncionesGlobales::saveBitacora($this->bitacora,$accion,'Se realizó la CANCELACION de un abono de tipo BECA del paciente: '.$_POST['paciente'].' Ticket: '.$_POST['obj_info']['ticket_folio'],$_POST['obj_info']);
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,'Se realizó la CANCELACION de un abono de tipo '.$_POST['tipo_beneficio'].' del paciente: '.$_POST['paciente'].' Ticket: '.$_POST['obj_info']['ticket_folio'],$_POST['obj_info']);
                 
                 $response->setJsonContent($arr_info);
                 $response->setStatusCode(200, 'OK');

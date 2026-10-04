@@ -335,6 +335,10 @@ use App\Library\FuncionesGlobales;
     max-height: 60vh;
     overflow-y: auto;
 }
+
+.hide{
+    display: none !important; 
+}
 </style>
 
 <!-- Body -->
@@ -372,13 +376,14 @@ use App\Library\FuncionesGlobales;
             <div class="col-12 col-xl-12">
                 <div class="card">
             <div class="card-header">
-                <h5>Historial de becas</h5>
+                <h5>Historial de beneficios</h5>
             </div>
             <div class="card-body">
                 <table id="table_results" class="display table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
-                            <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Beca</th>
+                            <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Beneficio</th>
+                            <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Nombre beneficio</th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Fecha de asignación</th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Monto inicial</th>
                             <th scope="col" class="text-uppercase small fw-bold " style="letter-spacing:.05em;">Monto disponible</th>
@@ -396,33 +401,42 @@ use App\Library\FuncionesGlobales;
             <div class="col-12 col-xl-4">
                 <section class="bg-white rounded-3 shadow-sm p-4">
 
-                    <h2 class="h6 fw-semibold mb-4 pb-2">Configuración de beca</h2>
+                    <h2 class="h6 fw-semibold mb-4 pb-2">Configuración de beneficios</h2>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-uppercase small mb-2"
                             style="color:#1e1b4b;letter-spacing:.05em;">
-                            1. Beca
+                            1. Tipo de beneficio
                         </label>
-                        <select id="select_becas" disabled>
+                        <select id="select_beneficios" disabled>
                             <option></option>
-                            <?php foreach($arr_info_becas as $beca): ?>
-                            <option value="<?php echo $beca['id']; ?>" data-indefinida="<?php echo $beca['indefinida']; ?>" data-tipobeca="<?php echo $beca['tipo_beca']; ?>"><?php echo $beca['clave'].' - '.$beca['nombre']; ?></option>
-                            <?php endforeach; ?>
+                            <option value="beca">Beca</option>
+                            <option value="descuento">Ajuste / Descuento</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-uppercase small mb-2"
+                            style="color:#1e1b4b;letter-spacing:.05em;">
+                            2. Opciones
+                        </label>
+                        <select id="select_opciones" disabled>
+                            <option class=""></option>
                         </select>
                     </div>
 
                     <div class="rounded-3 mb-4 p-3" id="box_monto_recibido" style="background:#f1f5f9; border: 1px solid #e2e8f0;">
 
                         <div class="small fw-bold text-uppercase mb-3" style="letter-spacing:.05em;">
-                            Información de la beca
+                            Detalles del beneficio
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="small text-secondary">Tipo de beca</span>
-                            <span class="small fw-bold" id="span_tipo_beca">-</span>
+                            <span class="small text-secondary">Descripción</span>
+                            <span class="small fw-bold" id="span_descripcion">-</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="small text-secondary">Indefinida</span>
-                            <span class="small fw-bold" id="span_indefinida">-</span>
+                            <span class="small text-secondary">Tipo</span>
+                            <span class="small fw-bold" id="span_tipo">-</span>
                         </div>
                     </div>
 
@@ -439,7 +453,7 @@ use App\Library\FuncionesGlobales;
                                 <div class="method-icon">
                                     <i class="bi bi-wallet2"></i>
                                 </div>
-                                <span class="small fw-semibold flex-grow-1 ms-2">Efectivo</span>
+                                <span id="label_metodo_pago" class="small fw-semibold flex-grow-1 ms-2">Efectivo</span>
                                 <div class="input-group input-group-sm" style="width:7rem;">
                                     <span class="input-group-text">$</span>
                                     <input type="number" id="monto_efectivo"
@@ -449,7 +463,7 @@ use App\Library\FuncionesGlobales;
                             </div>
 
                         <!-- Transferencia + Referencia agrupadas -->
-                        <div class="d-flex flex-column" style="border:1px solid #bfdbfe;border-radius:8px;overflow:hidden;">
+                        <div class="d-flex flex-column div_metodo_transferencia" style="border:1px solid #bfdbfe;border-radius:8px;overflow:hidden;">
                             <div class="payment-method-row" style="border:none;">
                                 <div class="method-icon">
                                     <i class="bi bi-arrow-left-right"></i>
@@ -618,8 +632,8 @@ use App\Library\FuncionesGlobales;
                     <div class="py-2 bg-white"><div class="custom-dashed"></div></div>
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div>
-                            <p class="text-uppercase fw-bold mb-0"
-                               style="font-size:.6rem;letter-spacing:.08em;color:#64748b;">Beca</p>
+                            <p class="text-uppercase fw-bold mb-0 p_tipo_beneficio"
+                               style="font-size:.6rem;letter-spacing:.08em;color:#64748b;"></p>
                             <p class="fw-bold mb-0 text-dark" id="ticket_beca">—</p>
                         </div>
                     </div>
@@ -638,11 +652,11 @@ use App\Library\FuncionesGlobales;
 
                 <!-- Resumen financiero -->
                 <div class="px-4 bg-white">
-                <p class="fw-bold mb-2"
+                <p class="fw-bold mb-2 div_hide_descuento"
                        style="letter-spacing:.08em;">Método de pago</p></div>
                 <div class="px-4 py-1 bg-white">
                     <div class="d-flex flex-column gap-2">
-                        <div class="d-none d-flex justify-content-between small div_efectivo">
+                        <div class="div_hide_descuento d-none d-flex justify-content-between small div_efectivo">
                             <span class="text-secondary">Efectivo</span>
                             <span class="fw-medium" id="ticket_efectivo">$0.00</span>
                         </div>
@@ -659,15 +673,11 @@ use App\Library\FuncionesGlobales;
                                 Ref: <span id="ticket_referencia" style="font-size:.75rem;padding-left:.75rem;"></span>
                             </span>
                         </div>
-                        <div class="d-flex justify-content-between small pt-2 border-top">
-                            <span class="text-secondary" id="ticket_num_citas">Subtotal (0 citas)</span>
-                            <span class="fw-medium" id="ticket_subtotal">$0.00</span>
-                        </div>
                         <div class="d-flex justify-content-between small d-none">
                             <span class="text-secondary">Saldo a favor</span>
                             <span class="fw-medium text-success" id="ticket_saldo_favor">-$0.00</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <div class="div_hide_descuento d-flex justify-content-between align-items-center pt-2 border-top">
                             <span class="fw-bold text-dark">Total a Pagar</span>
                             <span class="fw-bold text-indigo h6 mb-0" id="ticket_total">$0.00</span>
                         </div>
@@ -874,6 +884,10 @@ use App\Library\FuncionesGlobales;
             info_simultaneous_appointment   : "<?= $translations['html_info_simultaneous_appointment']?>",
         };
 
+        //  ARRAY DE BECAS Y DESCUENTOS
+        let arr_info_becas = JSON.parse('<?php echo addslashes($json_arr_info_becas); ?>');
+        let arr_info_descuentos = JSON.parse('<?php echo addslashes($json_arr_info_descuentos); ?>');
+
         //  SALDO A FAVOR DEL PACIENTE
         let saldo_favor         = 0;
         let sub_total_calculado = 0;
@@ -937,7 +951,8 @@ use App\Library\FuncionesGlobales;
                         }
                     },
                     columns: [
-                        { data: 'beca' }, // Columna 1
+                        { data: 'tipo_beneficio' }, // Columna 1
+                        { data: 'nombre_beneficio' }, // Columna 1
                         { data: 'label_fecha_captura' }, // Columna 1
                         { data: 'label_monto_asignado' }, // Columna 1
                         { data: 'label_monto_disponible' }, // Columna 1
@@ -1016,20 +1031,104 @@ use App\Library\FuncionesGlobales;
                 ajax_get_info_paciente();
             });
 
-            $('#select_becas').select2({
+            $('#select_beneficios').select2({
                 placeholder: 'Seleccione una opción'
-            }).on('select2:select',function(){
-                let tipo_beca   = $("#select_becas").find('option:selected').data('tipobeca');
-                tipo_beca       = tipo_beca == 1 ? '($)IMPORTE' : '(%)PORCENTAJE';
+            }).on('select2:select', function () {
 
-                let indefinida  = $("#select_becas").find('option:selected').data('indefinida');
-                indefinida      = indefinida == 1 ? 'SI' : 'NO';
+                let tipo_beneficio = $(this).val();
 
-                $("#span_tipo_beca").text(tipo_beca);
-                $("#span_indefinida").text(indefinida);
+                let arr_opciones = [];
 
-                $("#monto_efectivo").prop('disabled',false);
-                $("#monto_transferencia").prop('disabled',false);
+                if (tipo_beneficio == 'beca') {
+                    arr_opciones = arr_info_becas;
+                } else if (tipo_beneficio == 'descuento') {
+                    arr_opciones = arr_info_descuentos;
+                }
+
+                $("#select_opciones")
+                    .prop('disabled', false)
+                    .empty()
+                    .append('<option></option>');
+
+                $.each(arr_opciones, function(index, item) {
+
+                    $("#select_opciones").append(
+                        $('<option>', {
+                            value: item.id,
+                            text: item.nombre
+                        })
+                    );
+
+                });
+
+                $("#span_descripcion").text('-');
+                $("#span_tipo").text('-');
+
+                $("#select_opciones").val(null).trigger('change');
+
+                $("#monto_efectivo").val('').prop('disabled',true);
+                $("#monto_transferencia").val('').prop('disabled',true);
+
+                $(".check_cita").prop('disabled',true);
+                mostrar_monto_pagar();
+
+                //  SI NO ES BECA NO EXISTE UN METODO DE PAGO, POR LO CUAL 
+                //  SE TOMARA EL INPUT EFECTIVO Y SE CAMBIARA PARA QUE SOLO INGRESEN LA CANTIDAD
+                if (tipo_beneficio != 'beca'){
+                    $(".div_metodo_transferencia").addClass('hide');
+                    $("#label_metodo_pago").text('Cantidad');
+                } else {
+                    $(".div_metodo_transferencia").removeClass('hide');
+                    $("#label_metodo_pago").text('Efectivo');
+                }
+
+            });
+
+            $('#select_opciones').select2({
+                placeholder: 'Seleccione una opción'
+            }).on('select2:select', function () {
+
+                let tipo_beneficio = $("#select_beneficios").val();
+                let id_opcion      = $(this).val();
+
+                let registro = null;
+
+                if (tipo_beneficio == 'beca') {
+
+                    registro = arr_info_becas.find(function(item) {
+                        return item.id == id_opcion;
+                    });
+
+                } else if (tipo_beneficio == 'descuento') {
+
+                    registro = arr_info_descuentos.find(function(item) {
+                        return item.id == id_opcion;
+                    });
+
+                }
+
+                if (registro) {
+
+                    $("#span_descripcion").text(
+                        registro.descripcion ? registro.descripcion : 'Sin descripción'
+                    );
+
+                    $("#span_tipo").text(
+                        registro.label_tipo ? registro.label_tipo : '-'
+                    );
+
+                } else {
+
+                    $("#span_descripcion").text('-');
+                    $("#span_tipo").text('-');
+
+                }
+
+                $("#monto_efectivo").val('').prop('disabled',false);
+                $("#monto_transferencia").val('').prop('disabled',false);
+
+                $(".check_cita").prop('disabled',true);
+                mostrar_monto_pagar();
             });
 
             //  FILTRO DE BUSQUEDA DE ABONOS
@@ -1146,8 +1245,13 @@ use App\Library\FuncionesGlobales;
             $("#btnProcesarPago").on('click',function(){
                 //  VALIDACIONES
 
-                if ($("#select_becas").val() == null || $("#select_becas").val() == ''){
-                    showAlert('danger','Seleccione una beca');
+                if ($("#select_beneficios").val() == null || $("#select_beneficios").val() == ''){
+                    showAlert('danger','Seleccione un beneficio');
+                    return false;
+                }
+
+                if ($("#select_opciones").val() == null || $("#select_opciones").val() == ''){
+                    showAlert('danger','Seleccione una opción del beneficio');
                     return false;
                 }
 
@@ -1268,10 +1372,13 @@ use App\Library\FuncionesGlobales;
             //  EVENTOS DATAtABLE
             $("#table_results").on('click','.btn_preview',function(){
                 let row_data    = $(this).closest('tr').data('rowData');
+                console.log('row_data');
+                console.log(row_data);
                 let detalle     = row_data['detalle'];
                 detalle         = JSON.parse(detalle);
-                detalle['folio']        = row_data['folio'];
-                detalle['nombre_beca']  = row_data['beca'];
+                detalle['folio']            = row_data['folio'];
+                detalle['nombre_beneficio'] = row_data['nombre_beneficio'];
+                detalle['tipo_beneficio']   = row_data['tipo_beneficio'];
 
                 show_modal_preview_ticket(detalle,row_data['nombre_completo']);
                 
@@ -1440,7 +1547,7 @@ use App\Library\FuncionesGlobales;
             //saldo_favor     = info_paciente['saldo_favor'];
 
             //  DISABLED DEL SELECT DE BECAS
-            $("#select_becas").prop('disabled',false);
+            $("#select_beneficios").prop('disabled',false);
 
             obj_info_citas  = {};
 
@@ -1490,6 +1597,7 @@ use App\Library\FuncionesGlobales;
             //  DEL PRIMER ABONO SE OBTIENE EL FOLIO Y LA FECHA DE CAPTURA
             let folio           = info_abonos[0]['ticket_folio'];
             let fecha_captura   = info_abonos[0]['label_fecha_captura'];
+            let tipo_beneficio  = info_abonos[0]['tipo_abono'];
 
             $(modal_clone).find('#small_folio').text(folio + ' - ' + fecha_captura);
 
@@ -1509,6 +1617,8 @@ use App\Library\FuncionesGlobales;
                     estatus = 'DEVOLUCIÓN';
                 }
 
+                let metodo_pago = abono.metodo_pago == null || abono.metodo_pago == '' ? '-' : abono.metodo_pago;
+
                 let total_movto = abono.monto.replaceAll("$", "");
                 let checkbox    = abono.estatus != 2 ? '<input type="checkbox" class="input_abono" data-id="'+abono.id+'" data-total="'+total_movto+'" />' : '';
 
@@ -1517,7 +1627,7 @@ use App\Library\FuncionesGlobales;
 
                 row += '<tr class="tr_header">'+
                             '<td>'+fecha_cita+'</td>'+
-                            '<td>'+abono.metodo_pago+'</td>'+
+                            '<td>'+metodo_pago+'</td>'+
                             '<td><span class="badge rounded-pill badge-cita-'+abono.estatus+' px-2 py-1 small fw-semibold">'+estatus+'</span></td>'+
                             '<td>'+abono.monto+'</td>'+
                             '<td>'+abono.label_fecha_cancelacion+'</td>'+
@@ -1562,9 +1672,10 @@ use App\Library\FuncionesGlobales;
                         method      : 'post',
                         dataType    : 'json',
                         data        : {
-                            obj_info    : obj_info,
-                            accion      : 'save_accion',
-                            paciente    : $("#select_pacientes").find('option:selected').text()
+                            obj_info        : obj_info,
+                            accion          : 'save_accion',
+                            paciente        : $("#select_pacientes").find('option:selected').text(),
+                            tipo_beneficio  : tipo_beneficio
                         },
                         success     : function(data){
                             console.log('data',data);
@@ -1700,6 +1811,11 @@ use App\Library\FuncionesGlobales;
                     $(this).find('.td_saldo_cita').text('$'+formatoDinero(saldo_cita));
                 }
 
+                //  SI EL BENEFICIO NO ES BECA, NO PUEDE HABER CITAS EXCLUIDAS
+                if ($("#select_beneficios").val() != 'beca'){
+                    $(this).find('.check_cita').prop('disabled',true);
+                }
+
                 if ($(this).find('.check_cita').is(':checked')){
                     $(this).closest('tr').addClass('table-active');
                 } else {
@@ -1790,7 +1906,6 @@ use App\Library\FuncionesGlobales;
             }
 
             $(modal_clone).find("#ticket_num_citas").text('Subtotal ('+obj_totales_calculados['num_citas']+' '+mensaje+')');
-            $(modal_clone).find('#ticket_subtotal').text('$'+formatoDinero(obj_totales_calculados['subtotal_calculado']));
             $(modal_clone).find('#ticket_saldo_favor').text('$'+formatoDinero(obj_totales_calculados['saldo_favor']));
             $(modal_clone).find('#ticket_saldo_favor_restante').text('$'+formatoDinero(obj_totales_calculados['saldo_favor_restante']));
             $(modal_clone).find('#ticket_total').text('$'+formatoDinero(obj_totales_calculados['total_pagar']));
@@ -1802,11 +1917,13 @@ use App\Library\FuncionesGlobales;
                 $(modal_clone).find('#ticket_excedente_label').text(obj_totales_calculados['accion_excedente'] == 'saldo_favor' ? 'Saldo a favor' : 'Devolver cambio');
             }
 
+            if ($("#select_beneficios").val() != 'beca'){
+                $(modal_clone).find('.div_hide_descuento').addClass('d-none');
+            }
+
             $(modal_clone).on('click','#btn_confirmar_pago',function(){
                 let btn = $(this);
                 $(btn).prop('disabled',true);
-
-                console.log('obj_citas_excluidas',$("#select_becas").val());
 
                 let obj_info_pago = {
                     pago_efectivo       : parseFloat(obj_totales_calculados['pago_efectivo']) || 0,
@@ -1819,9 +1936,12 @@ use App\Library\FuncionesGlobales;
                     accion_excedente            : obj_totales_calculados['accion_excedente'] || '',
                     saldo_favor                 : saldo_favor,
                     saldo_favor_restante        : parseFloat(obj_totales_calculados['saldo_favor_restante']) || 0,
-                    id_beca                     : $("#select_becas").val(),
-                    nombre_beca                 : $("#select_becas").find('option:selected').val(),
-                    citas_excluidas             : obj_citas_excluidas != [] ? obj_citas_excluidas : null
+                    id_beca                     : $("#select_beneficios").val() == 'beca' ? $("#select_opciones").val() : null,
+                    id_descuento                : $("#select_beneficios").val() != 'beca' ? $("#select_opciones").val() : null,
+                    nombre_beca                 : $("#select_beneficios").val() == 'beca' ? $("#select_opciones").find('option:selected').text() : null,
+                    nombre_descuento            : $("#select_beneficios").val() != 'beca' ? $("#select_opciones").find('option:selected').text() : null,//.find('option:selected').val(),
+                    citas_excluidas             : obj_citas_excluidas != [] ? obj_citas_excluidas : null,
+                    tipo_beneficio              : $("#select_beneficios").val()
                 };
 
                 // Aplicar resta si es devolver cambio
@@ -1831,6 +1951,7 @@ use App\Library\FuncionesGlobales;
                 }
 
                 console.log('obj_info_pago',obj_info_pago);
+                //return false;
 
                 $.ajax({
                     url         : url_index,
@@ -1862,11 +1983,16 @@ use App\Library\FuncionesGlobales;
         //  MODAL PARA CONFIRMAR EL PAGO, MUESTRA TODA LA INFORMACION
         function show_modal_preview_ticket(detalle,nombre_paciente){
 
+            console.log('detalle 1');
+            console.log(detalle);
+
             let modal_clone = $("#modalConfirmarPago").clone().removeAttr('id');
 
             $(modal_clone).find('#label_verifica_datos').text('');
             $(modal_clone).find('#btn_confirmar_pago').remove();
             $(modal_clone).find('#close_modal').text('Cerrar');
+
+            $(modal_clone).find('.p_tipo_beneficio').text(detalle['tipo_beneficio']);
 
             $(modal_clone).find('#modalConfirmarPagoLabel').text('¡Pago realizado!');
 
@@ -1894,13 +2020,18 @@ use App\Library\FuncionesGlobales;
 
             if (detalle['pago_efectivo'] > 0){
                 $(modal_clone).find('.div_efectivo').removeClass('d-none').find('#ticket_efectivo').text('$'+formatoDinero(detalle['pago_efectivo']));
+                
+                if (detalle['tipo_beneficio'] != 'beca'){
+                    $(modal_clone).find('.div_efectivo').find('.text-secondary').text('Cantidad');
+                    $(modal_clone).find('.div_hide_descuento').addClass('d-none');
+                }
+
             }
 
             if (detalle['pago_tarjeta'] > 0){
                 $(modal_clone).find('.div_tarjeta').removeClass('d-none').find('#ticket_tarjeta').text('$'+formatoDinero(detalle['pago_tarjeta']));
             }
 
-            console.log('detalle',detalle['pago_transferencia']);
             if (detalle['pago_transferencia'] != '' && detalle['pago_transferencia'] > 0){
                 console.log('aqui');
                 $(modal_clone).find('.div_transferencia').removeClass('d-none').find('#ticket_transferencia').text('$'+formatoDinero(detalle['pago_transferencia']));
@@ -1929,7 +2060,8 @@ use App\Library\FuncionesGlobales;
             $("#span_saldo_favor").text('-$0.00');
 
             //  BECA
-            $("#select_becas").prop('disabled',true).val(null).trigger('change');
+            $("#select_beneficios").prop('disabled',true).val(null).trigger('change');
+            $("#select_opciones").prop('disabled',true).val(null).trigger('change');
             $("#span_tipo_beca").text('-');
             $("#span_indefinida").text('-');
 
