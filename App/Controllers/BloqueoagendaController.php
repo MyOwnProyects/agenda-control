@@ -131,11 +131,11 @@ class BloqueoagendaController extends BaseController
             }
 
             if ($accion == 'create_dia_inhabil'){
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro de día inhabil para la fecha: '.$_POST['fecha_inicio'].' con la descripción:'.$_POST['label_bloqueo'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro de día inhabil para la fecha: '.$_POST['fecha_inicio'].' con la descripción:'.$_POST['label_bloqueo'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s) eligiendo la opción de pagos de: '.$_POST['tipo_accion_pagos'] ,$_POST);
             }
 
             if ($accion == 'create_dia_inhabil_profesional'){
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro por motivo: '.$_POST['label_bloqueo'].' para el profesional: '.$_POST['nombre_profesional'].' en el rango de fecha: '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s)' ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREAR','Se creo el registro por motivo: '.$_POST['label_bloqueo'].' para el profesional: '.$_POST['nombre_profesional'].' en el rango de fecha: '.$_POST['fecha_inicio'].' - '.$_POST['fecha_termino'].' afectando: '.$num_citas_afectadas.' cita(s) activa(s) eligiendo la opción de pagos de: '.$_POST['tipo_accion_pagos'] ,$_POST);
             }
 
             FuncionesGlobales::deleteCacheByPattern('info_location_');

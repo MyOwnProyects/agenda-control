@@ -211,6 +211,12 @@ use App\Library\FuncionesGlobales;
                         <input type="date" class="form-control" id="input_rango_fecha_termino" name="input_rango_fecha_inicio" placeholder="<?php echo $translations['html_ending_date']; ?>" required>
                     </div>
                 </div>
+                <div id="div_ingresos_general" class="col-md-4 d-none">
+                    <label for="input_todos_movimientos" class="form-label d-block">Incluir movimientos fuera del rango de fechas</label>
+                    <div class="text-center">
+                        <input type="checkbox" id="input_todos_movimientos" class="mt-2" />
+                    </div>
+                </div>
 
             </form>
         </div>
@@ -422,7 +428,11 @@ use App\Library\FuncionesGlobales;
 
                     $("#select_profesionales").closest('div').addClass('hide');
                     $("#select_pacientes").closest('div').addClass('hide');
-                } 
+
+                    $("#div_ingresos_general").removeClass('d-none');
+                } else {
+                    $("#div_ingresos_general").addClass('d-none');
+                }
                  
                 if (tipo_reporte == 'general_citas'){
                     $("#select_profesionales").prop('disabled',false);
@@ -530,6 +540,7 @@ use App\Library\FuncionesGlobales;
                         id_locacion     : $("#select_locaciones").val(),
                         id_profesional  : $("#select_profesionales").val(),
                         id_paciente     : $("#select_pacientes").val(),
+                        incluir_movtos_futuros  : $("#input_todos_movimientos").prop('checked')
                     },
                     success     : function(data){
                         $(btn).prop('disabled',false);

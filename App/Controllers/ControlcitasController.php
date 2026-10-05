@@ -93,7 +93,9 @@ class ControlcitasController extends BaseController
                     return $response;
                 }
 
-                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacute;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'].' Mensaje de ejecución: '.$result['MSG'],$obj_info);
+                $mensaje_aplicar_saldo_favor    = $obj_info['aplicar_saldo_favor'] == 1 ? " Aplicación de saldo a favor: SI " : ' Aplicación de saldo a favor: NO ';
+
+                FuncionesGlobales::saveBitacora($this->bitacora,'CREARAPERTURA','Se realizó la apertura de agenda para la locaci&oacute;n: '.$obj_info['nombre_locacion'].' con rango de fechas del : '.$obj_info['fecha_inicio'].' al '.$obj_info['fecha_termino'].$mensaje_aplicar_saldo_favor.', Mensaje de ejecución: '.$result['MSG'],$obj_info);
                 FuncionesGlobales::deleteCacheByPattern('info_location_');
 
                 $response->setJsonContent($result['MSG']);
@@ -120,8 +122,13 @@ class ControlcitasController extends BaseController
                     $mensaje_inicial    = $_POST['tipo_movimiento'] == 'cancelar' ? 'Se realizó la cancelación masiva de '.count($_POST['arr_id_agenda_cita']).' citas' : 'Se marcaron como pendientes de reagendar de forma masiva : '.count($_POST['arr_id_agenda_cita']).' citas';
                     $accion             = $_POST['tipo_movimiento'] == 'cancelar' ? 'BORRARMASIVO' : 'EDITARMASIVO';
                 }
+
+                $mensaje_pago   = '';
+                if ($_POST['tipo_accion_pagos'] != null && $_POST['tipo_accion_pagos'] != ''){
+                    $mensaje_pago   = $_POST['tipo_accion_pagos'] == 'reasignar' ? ' Opción de pago: Reasignarsaldo a favor' : ' Opción de pago: Saldo a favor';
+                }
                 
-                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$mensaje_inicial.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'] ,$_POST);
+                FuncionesGlobales::saveBitacora($this->bitacora,$accion,$mensaje_inicial.$_POST['id_agenda_cita']. ' '.$_POST['texto_cita'].$mensaje_pago ,$_POST);
 
                 $response->setJsonContent('Cancelacion exitosa!');
                 $response->setStatusCode(200, 'OK');
@@ -379,7 +386,6 @@ class ControlcitasController extends BaseController
         
         //  PERMISOS     register_payment
         $this->view->apertura_agenda    = FuncionesGlobales::HasAccess("Controlcitas","agenda_opening");
-        $this->view->registrar_pago     = FuncionesGlobales::HasAccess("Controlcitas","register_payment");
 
         $route                      = $this->url_api.$this->rutas['ctvariables_sistema']['show'];
         $dias_programacion_citas    = FuncionesGlobales::RequestApi('GET',$route,array(
