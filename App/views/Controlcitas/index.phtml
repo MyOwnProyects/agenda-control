@@ -2258,7 +2258,7 @@ use App\Library\FuncionesGlobales;
                     .data('maxhoratermino',info_horario['max_hora_termino'])
                     ;
 
-                $(template_days_container).find('.titulo').text(info_horario['titulo']);
+                $(template_days_container).find('.titulo').text('Turno: '+info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
 
                 let show_cuadros_flotantes  = true;
                 if (diasPermitidos.includes(diaActual)) {
