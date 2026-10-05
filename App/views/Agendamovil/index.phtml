@@ -2916,45 +2916,91 @@ use App\Library\FuncionesGlobales;
                             arr_citas_fuera_horario = data['citas_fuera_horario'];
                         }
                     } else {
-                        let diaActual               = fechaActual.getDay();
-                        diaActual                   = diaActual == 0 ? 7 : diaActual;
-                        //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
+                        let diaActual = fechaActual.getDay();
+                        diaActual     = diaActual == 0 ? 7 : diaActual;
+
+                        // CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
                         $(modal_clone).find('.evento-flotante').remove();
 
-                        let id_profesional          = $(modal_clone).find("#select_profesionales_modal").val();
-                        let tmp_horario_atencion    = data['horario_atencion'];
-                        citas_desglosadas           = {};
-                        for(let i in tmp_horario_atencion){
-                            let info_horario_atencion   = tmp_horario_atencion[i];
-                            citas_desglosadas[info_horario_atencion['id']]  = info_horario_atencion['citas_paciente'];
+                        let id_profesional       = $(modal_clone).find("#select_profesionales_modal").val();
+                        let tmp_horario_atencion = data['horario_atencion'];
+                        citas_desglosadas        = {};
+                        arr_solo_hora_inicio     = [];   // se reinicia UNA sola vez, antes de ambos recorridos
 
-                            let diasPermitidos = info_horario_atencion['dias'].map(d => d.dia);
+                        // Helper: ¿este horario aplica para el día actual?
+                        const aplicaHoy = (info) => {
+                            const diasPermitidos = info['dias'].map(d => d.dia);
+                            return diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual));
+                        };
 
-                            let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
+                        // ============ PASADA 1: llenar arr_solo_hora_inicio ============
+                        for (let i in tmp_horario_atencion) {
+                            const info = tmp_horario_atencion[i];
 
-                            if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
-                                $(template_days_container).removeClass('hide');
-                                $(template_days_container).css('display','show');
+                            if (!aplicaHoy(info)) continue;
+
+                            let minutosInicio     = convertirHoraAMinutos(info['min_hora_inicio']);
+                            const minutosFin      = convertirHoraAMinutos(info['max_hora_termino']);
+                            const intervalo_citas = info['intervalo_citas'];
+
+                            while (minutosInicio < minutosFin) {
+                                const hora = convertirMinutosAHora(minutosInicio);
+                                if (!arr_solo_hora_inicio.includes(hora)) {
+                                    arr_solo_hora_inicio.push(hora);
+                                }
+                                minutosInicio += intervalo_citas;
+                            }
+                        }
+
+                        // (opcional) ordenar las horas
+                        arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
+
+                        let actual_value_input_inicio   = $(modal_clone).find('.input_hora_inicio').val();
+                        $(modal_clone).find('.input_hora_inicio').find('option').remove();
+                        let usar_valor_actual   = false;
+                        for(let i in arr_solo_hora_inicio){
+                            if (arr_solo_hora_inicio[i] == actual_value_input_inicio){
+                                usar_valor_actual   = true;
+                            }
+                            $(modal_clone).find('.input_hora_inicio').append('<option value="'+arr_solo_hora_inicio[i]+'">'+arr_solo_hora_inicio[i]+'</option>');
+                        }
+
+                        // ============ PASADA 2: usar el array ya completo ============
+                        for (let i in tmp_horario_atencion) {
+                            const info_horario_atencion = tmp_horario_atencion[i];
+                            const id_horario_atencion   = info_horario_atencion['id'];
+
+                            citas_desglosadas[id_horario_atencion] = info_horario_atencion['citas_paciente'];
+
+                            const template_days_container = $(modal_clone).find('#div_container_horario_' + id_horario_atencion);
+
+                            if (aplicaHoy(info_horario_atencion)) {
+                                template_days_container.removeClass('hide');
+                                template_days_container.css('display', 'block'); // 'show' no es un valor válido de display
                             } else {
-                                $(template_days_container).addClass('hide');
-                                //return;
+                                template_days_container.addClass('hide');
                             }
 
-                            $(template_days_container).find('.evento-flotante').remove();
+                            template_days_container.find('.evento-flotante').remove();
 
-                            let id_horario_atencion = info_horario_atencion['id'];
-                            
                             if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
                                 citas_desglosadas[id_horario_atencion].forEach(rango => {
-                                    if (rango.id_profesional != id_profesional){
-                                        return;
-                                    }
-                                    rango['id_horario_atencion']    = id_horario_atencion;
-                                    cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
+                                    if (rango.id_profesional != id_profesional) return;
+                                    rango['id_horario_atencion'] = id_horario_atencion;
+                                    cuadroFlotantesDiario($(modal_clone), rango, background_tipo_cita(rango), 'flot_cita', null);
                                 });
                             }
-                            show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,id_profesional);
-                            setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),50);
+
+                            show_horario_no_disponible_profesional($(modal_clone), id_horario_atencion, id_profesional);
+
+                            // Corregido: setTimeout necesita una función, no el resultado de llamarla
+                            setTimeout(() => {
+                                calcula_totales(
+                                    $(modal_clone),
+                                    $(modal_clone).find('#span_paciente').data('idprofesional'),
+                                    $(modal_clone).find('#span_paciente').data('idagendacita')
+                                );
+                            }, 50);
                         }
                     }
                     
