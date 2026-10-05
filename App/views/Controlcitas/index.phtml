@@ -544,6 +544,60 @@ use App\Library\FuncionesGlobales;
     color: #000 !important;
 }
 
+#modal_save_class .modal-content{
+    border-radius: 1rem;
+    border: none;
+    overflow: hidden;
+}
+#modal_save_class .modal-header{
+    background-color: var(--clr-surface-container-low);
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+#modal_save_class .modal-title{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--clr-on-surface);
+}
+#modal_save_class .modal-footer{
+    background-color: var(--clr-surface-container-low);
+    border-top: none;
+    padding: 1rem 1.5rem;
+}
+
+#modal_save_class .div_input_paciente{
+    background-color: var(--clr-surface-container-low);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1rem 0 !important;
+}
+#modal_save_class .div_input_paciente .col-form-label{
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--clr-on-surface-variant);
+}
+#modal_save_class .div_input_paciente .form-control,
+#modal_save_class .div_input_paciente .select2-container--default .select2-selection--single{
+    border-radius: 0.5rem;
+    border-color: var(--clr-surface-container-high);
+}
+#modal_save_class .div_input_paciente .form-control:focus{
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 0.15rem rgba(53, 37, 205, 0.15);
+}
+
+#modal_save_class .div_text_paciente{
+    /* background-color: var(--clr-surface-container-low); */
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1rem 0 !important;
+}
+#modal_save_class .div_text_paciente label{
+    font-size: 0.85rem;
+    color: var(--clr-on-surface);
+}
+
 </style>
 
 <div class="container mt-4">
@@ -1110,15 +1164,15 @@ use App\Library\FuncionesGlobales;
                     <input type="checkbox" class="input_modify_day" name="input_modify_day" />
                 </div>
                 <div class="row div_cambiar_dia col-md-12 div_header_filters" style="display:none;">
-                    <div class="navigation" style="width:50%">
+                    <div class="navigation d-flex flex-nowrap align-items-center justify-content-center" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< Sem.</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary" tile ="D&iacute;a Anterior">< D&iacute;a</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-sm p-1 btn-secondary" title="Semana Anterior">< S</button>
+                            <button type="button" id="btn-anterior" class="btn btn-sm p-1 btn-secondary" title="D&iacute;a Anterior" >< D</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguente">D&iacute;a ></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">Sem. ></button>
-                            <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-sm p-1 btn-secondary" title="D&iacute;a Siguiente">D ></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-sm p-1 btn-secondary" title="Semana Siguiente">S ></button>
+                            <button type="button" id="btn-hoy" class="btn btn-sm p-1 btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
                     <div class="navigation" style="width:50%">

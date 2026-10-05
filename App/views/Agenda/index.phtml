@@ -159,7 +159,7 @@ use App\Library\FuncionesGlobales;
     }
     .div_header_filters .navigation button {
         padding: 10px 20px;
-        font-size: 16px;
+        /* font-size: 16px; */
         cursor: pointer;
     }
     
@@ -1087,7 +1087,7 @@ use App\Library\FuncionesGlobales;
 }
 
 #modal_save_class .div_text_paciente{
-    background-color: var(--clr-surface-container-low);
+    /* background-color: var(--clr-surface-container-low); */
     border-radius: 0.75rem;
     padding: 1rem;
     margin: 0 0 1rem 0 !important;
@@ -1126,6 +1126,14 @@ use App\Library\FuncionesGlobales;
     max-width: 100%;
     box-sizing: border-box;
     padding: 0 4px;
+}
+
+.btn-secondary{
+    --bs-btn-bg: var(--clr-surface-container-high);
+    --bs-btn-border-color: var(--clr-surface-container-high);
+    --bs-btn-color: var(--clr-on-surface);
+    --bs-btn-hover-bg: var(--clr-surface-container-low);
+    --bs-btn-hover-color: var(--clr-on-surface);
 }
 
 </style>
@@ -1602,15 +1610,15 @@ use App\Library\FuncionesGlobales;
                     <input type="checkbox" class="input_modify_day" name="input_modify_day" />
                 </div>
                 <div class="row div_cambiar_dia col-md-12 div_header_filters" style="display:none;">
-                    <div class="navigation" style="width:50%">
+                    <div class="navigation d-flex flex-nowrap align-items-center justify-content-center" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< Sem.</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" >< D&iacute;a</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-sm p-1 btn-secondary" title="Semana Anterior">< S</button>
+                            <button type="button" id="btn-anterior" class="btn btn-sm p-1 btn-secondary" title="D&iacute;a Anterior" >< D</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">D&iacute;a ></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">Sem. ></button>
-                            <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-sm p-1 btn-secondary" title="D&iacute;a Siguiente">D ></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-sm p-1 btn-secondary" title="Semana Siguiente">S ></button>
+                            <button type="button" id="btn-hoy" class="btn btn-sm p-1 btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
                     <div class="navigation" style="width:50%">
