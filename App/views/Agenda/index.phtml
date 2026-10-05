@@ -156,7 +156,7 @@ use App\Library\FuncionesGlobales;
         display: flex;
         align-items: center;
         gap: 10px; /* Espacio entre los botones */
-    } */
+    }
     .div_header_filters .navigation button {
         padding: 10px 20px;
         font-size: 16px;
@@ -1097,6 +1097,12 @@ use App\Library\FuncionesGlobales;
     color: var(--clr-on-surface);
 }
 
+#div_header_servicios_combo,
+#div_header_profesionales_combo,
+#div_header_pacientes_combo {
+    position: relative;
+}
+
 </style>
 <div class="container mt-4">
     <div class="div_principal_filter div_header_filters px-2">
@@ -1199,21 +1205,21 @@ use App\Library\FuncionesGlobales;
                     </select>
                 </div>
 
-                <div>
+                <div id="div_header_servicios_combo">
                     <label for="select_servicios" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_services']; ?></label>
                     <select id="select_servicios" class="select_servicios select_filtros form-select form-select-sm">
                         <option value=""></option>
                     </select>
                 </div>
 
-                <div>
+                <div id="div_header_profesionales_combo">
                     <label for="select_profesionales" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_title_professionals']; ?></label>
                     <select id="select_profesionales" class="select_profesionales select_filtros form-select form-select-sm">
                         <option value=""></option>
                     </select>
                 </div>
 
-                <div>
+                <div id="div_header_pacientes_combo">
                     <label for="select_pacientes" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_title_patients']; ?></label>
                     <select id="select_pacientes" class="select_pacientes select_filtros form-select form-select-sm">
                         <option value=""></option>
@@ -4864,14 +4870,52 @@ use App\Library\FuncionesGlobales;
     $(document).ready(function () {
 
         //  CONVERTIR LOS COMBOS EN SELECT2
-        //selectToSelect2($(".div_header_filters"),"select_locaciones");
-        selectToSelect2($(".div_principal_filter"),"select_servicios");
-        selectToSelect2($(".div_principal_filter"),"select_profesionales");
-        //selectToSelect2($(".div_header_filters"),"select_pacientes");
+        $('#select_servicios').select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#div_header_servicios_combo')
+        });
+
+        $('#select_servicios').on('select2:open', function () {
+            const $select = $(this);
+
+            // setTimeout para asegurar que corra después de que select2 registre sus listeners
+            setTimeout(function () {
+                $(window).off('scroll.select2');
+                $select.next('.select2-container').parents().off('scroll.select2');
+
+                // Evita que el foco del buscador mueva la vista
+                const campo = document.querySelector('.select2-container--open .select2-search__field');
+                if (campo) campo.focus({ preventScroll: true });
+            }, 0);
+        });
+
+        $('#select_profesionales').select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#div_header_profesionales_combo')
+        });
+
+        $('#select_profesionales').on('select2:open', function () {
+            const $select = $(this);
+
+            // setTimeout para asegurar que corra después de que select2 registre sus listeners
+            setTimeout(function () {
+                $(window).off('scroll.select2');
+                $select.next('.select2-container').parents().off('scroll.select2');
+
+                // Evita que el foco del buscador mueva la vista
+                const campo = document.querySelector('.select2-container--open .select2-search__field');
+                if (campo) campo.focus({ preventScroll: true });
+            }, 0);
+        });
 
         $('.div_principal_filter').find('#select_pacientes').select2({
             placeholder: 'Seleccione una opción',
             width: '50px',
+            dropdownParent: $('#div_header_pacientes_combo'),
             minimumInputLength: 3,
             allowClear : true,
             ajax: {
@@ -4905,6 +4949,20 @@ use App\Library\FuncionesGlobales;
                 },
                 cache: true
             }
+        });
+
+        $('#select_pacientes').on('select2:open', function () {
+            const $select = $(this);
+
+            // setTimeout para asegurar que corra después de que select2 registre sus listeners
+            setTimeout(function () {
+                $(window).off('scroll.select2');
+                $select.next('.select2-container').parents().off('scroll.select2');
+
+                // Evita que el foco del buscador mueva la vista
+                const campo = document.querySelector('.select2-container--open .select2-search__field');
+                if (campo) campo.focus({ preventScroll: true });
+            }, 0);
         });
 
         //  EVENTOS PARA FILTRAR CITAS
