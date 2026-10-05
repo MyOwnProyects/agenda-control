@@ -2338,7 +2338,6 @@ use App\Library\FuncionesGlobales;
 
                     //  SE RECORRE TODOS LOS DIVS DE TURNOS PARA SABER CUAL SE DEBE DE MOSTRAR
                     let first_show  = true;
-                    console.log('first_show',first_show);
                     $(div_header).find('.div_header_days_container').each(function(){
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
@@ -3159,7 +3158,6 @@ use App\Library\FuncionesGlobales;
                     setTimeout(show_calendar($("#div_header_agenda"),data),500);
 
                     //  SE PINTA EL NUMERO DE CITAS FUERA DE HORARIO
-                    console.log('citas fuera horario',Object.keys(data['citas_fuera_horario']).length);
                     if (typeof data['citas_fuera_horario'] != "undefined"){
                         $(".span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
                         arr_citas_fuera_horario = data['citas_fuera_horario'];
@@ -3290,7 +3288,6 @@ use App\Library\FuncionesGlobales;
                 arr_citas_fuera_horario = [];
                 horario_atencion        = {};
                 //horario_no_disponible   = {};
-                console.log('horario_no_disponible',horario_no_disponible);
 
                 $(".watermark-message").show();
                 $("#div_header_agenda").find('.div_header_days_container').addClass('hide');
@@ -5352,7 +5349,6 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita  : info_cita['idagendacita']
                 },
                 success     : function(data){
-                    console.log(data);
                     show_modal_whatsapp(data);
                     $("#closeModal").trigger('click');
                 },
@@ -6062,7 +6058,6 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita  : id_agenda_cita
                 },
                 success     : function(data){
-                    console.log(data);
                     show_modal_whatsapp(data,true);
                     $(modal_clone).modal('hide');
                 },
