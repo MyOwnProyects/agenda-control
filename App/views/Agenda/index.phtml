@@ -1103,6 +1103,31 @@ use App\Library\FuncionesGlobales;
     position: relative;
 }
 
+/* ---- Vista día ---- */
+.div_header_days_container .evento-flotante{
+    overflow: hidden;  /* red de seguridad: nada puede salirse del recuadro */
+}
+.div_header_days_container .evento-flotante span{
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-right: 0;      /* el margin-right de 8px ya no aplica, eran dos spans en bloque, no en línea */
+    padding: 0 4px;        /* un pequeño respiro para que el "..." no quede pegado al borde */
+}
+
+/* ---- Vista semana ---- */
+.div_header_week_container .floating-box{
+    overflow: hidden;
+}
+.div_header_week_container .floating-box span{
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 4px;
+}
+
 </style>
 <div class="container mt-4">
     <div class="div_principal_filter div_header_filters px-2">
