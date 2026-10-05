@@ -75,13 +75,13 @@ use App\Library\FuncionesGlobales;
 
     .badge-citas-simultaneas {
         position: absolute;
-        top: -10px;
-        right: -10px;
+        top: -6px;
+        right: 2px;   /* antes: -10px */
         background-color: #ff6961;
         color: white;
         border-radius: 12px;
-        padding: 4px 10px;
-        font-size: 11px;
+        padding: 3px 8px;
+        font-size: 10px;
         font-weight: 600;
         white-space: nowrap;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -156,10 +156,10 @@ use App\Library\FuncionesGlobales;
         display: flex;
         align-items: center;
         gap: 10px; /* Espacio entre los botones */
-    } */
+    }
     .div_header_filters .navigation button {
         padding: 10px 20px;
-        font-size: 16px;
+        /* font-size: 16px; */
         cursor: pointer;
     }
     
@@ -167,14 +167,15 @@ use App\Library\FuncionesGlobales;
 
     .div_header_week_container .week-container {
         display: grid;
-        grid-template-columns: repeat(8, 120px);
+        grid-template-columns: 90px repeat(7, 1fr);
         grid-auto-rows: 70px;
         gap: 1px;
         background-color: #f0f0f0;
         padding: 1px;
         position: relative;
-        width: fit-content; /* Ajusta el ancho al contenido */
-        margin: 0 auto; /* Centra el contenedor */
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
     }
 
     .div_header_week_container .grid-item {
@@ -402,10 +403,6 @@ use App\Library\FuncionesGlobales;
         color: #aaa;
     }
 
-    .div_header_month_container .calendar_month_dates div:hover {
-        border: 1px solid #007bff; /* Borde azul de Bootstrap al hacer hover */
-    }
-
     .div_header_month_container .marked-day {
         background-color: #FFD700;
         color: black;
@@ -486,7 +483,7 @@ use App\Library\FuncionesGlobales;
     }
 
     .shift-title {
-        text-align: center;
+        text-align: left;
         font-weight: bold;
         margin-bottom: 10px;
         background: #f0f0f0;
@@ -510,12 +507,22 @@ use App\Library\FuncionesGlobales;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Opcional: sombra ligera para profundidad */
     }
 
+    .color-legend .legend-color{
+        border-radius: 50%;
+    }
+    .color-legend .legend-item{
+        background: transparent;
+        padding: 0;
+        gap: 6px;
+        font-size: 0.85rem;
+    }
+
     .div_principal_filter .legend-item {
         display: flex;
         align-items: center;
         font-size: 0.9em;
         padding: 3px 8px;
-        background: #f8f9fa; /* Fondo gris claro para contraste */
+        
         border-radius: 4px;
     }
 
@@ -753,158 +760,586 @@ use App\Library\FuncionesGlobales;
     .whatsappModal .modal-footer{
         padding: 1.25rem 1.5rem;
     }
+
+    .bg-surface-lowest{
+    background-color: var(--clr-surface-container-lowest) !important;
+    }
+
+    :root{
+    --clr-surface-container-lowest: #ffffff;
+    }
+
+    :root{
+  --clr-primary: #3525cd;
+  --clr-secondary: #006591;
+  --clr-tertiary: #95002b;
+  --clr-surface-container-lowest: #ffffff;
+  --clr-surface-container-low: #f2f3ff;
+  --clr-surface-container-high: #e2e7ff;
+  --clr-on-surface-variant: #464555;
+}
+
+.bg-surface-lowest{ background-color: var(--clr-surface-container-lowest) !important; }
+.bg-surface-low{ background-color: var(--clr-surface-container-low) !important; }
+.bg-surface-high{ background-color: var(--clr-surface-container-high) !important; }
+.bg-brand-primary{ background-color: var(--clr-primary) !important; }
+.bg-brand-secondary{ background-color: var(--clr-secondary) !important; }
+.bg-brand-tertiary{ background-color: var(--clr-tertiary) !important; }
+.text-brand-primary{ color: var(--clr-primary) !important; }
+.text-brand-secondary{ color: var(--clr-secondary) !important; }
+.text-brand-tertiary{ color: var(--clr-tertiary) !important; }
+.text-on-surface-variant{ color: var(--clr-on-surface-variant) !important; }
+.chip{ border-radius:999px; font-size:11px; font-weight:600; padding:.15rem .6rem; }
+.font-headline{ font-family:'Plus Jakarta Sans', sans-serif; }
+
+.mini-calendar .calendar_month_dates{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.mini-calendar .calendar_month_dates > div{
+    padding: 4px 2px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.mini-calendar .calendar_month_dates > div.other-month{
+    color: var(--clr-outline-variant, #c7c4d8);
+}
+.mini-calendar .calendar_month_dates > div.current-day{
+    background-color: var(--clr-primary);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+}
+.mini-calendar .calendar_month_dates > div:hover{
+    background-color: var(--clr-surface-container-low, #f2f3ff);
+}
+/* El mini calendario no debe heredar el tamaño/ancho fijo del calendario mensual completo */
+.div_header_month_container.mini-calendar{
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+    border-radius: inherit;
+    padding: 0;
+    display: block;
+}
+
+/* ==================================================================
+   ESTILO VISUAL "TEMPLATE" PARA EL CALENDARIO SEMANAL
+   ================================================================== */
+
+/* Contenedor general: se convierte en tarjeta blanca con sombra suave,
+   igual que las secciones "Turno Matutino/Vespertino" del template */
+.div_header_week_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+    overflow: hidden;
+}
+
+/* Título del turno (ya lo llenas con .text() desde JS, no toques su contenido) */
+.div_header_week_container .shift-title{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: left;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Fondo del grid (las líneas divisorias entre celdas) */
+.div_header_week_container .week-container{
+    background-color: var(--clr-surface-container-high);
+    border-radius: 0.5rem;
+}
+
+/* Celdas base */
+.div_header_week_container .grid-item{
+    background-color: var(--clr-surface-container-lowest);
+    border: none;
+}
+
+/* Encabezados de día (Lunes, Martes...) */
+.div_header_week_container .grid-item.header{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+.div_header_week_container .grid-item.header .header-date{
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--clr-primary);
+}
+
+/* Columna de horas */
+.div_header_week_container .grid-item.hour{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Celdas vacías (disponibles para agendar) */
+.div_header_week_container .grid-hours{
+    transition: background-color .15s ease, border-color .15s ease;
+}
+.div_header_week_container .grid-hours:hover{
+    background-color: var(--clr-surface-container-low);
+    border: 1px solid var(--clr-primary) !important;
+    cursor: pointer;
+}
+
+/* ---- Recuadros de citas / bloqueos (floating-box) ---- */
+.div_header_week_container .floating-box{
+    border-radius: 0.4rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    border: none !important;
+    transition: box-shadow .15s ease;
+}
+.div_header_week_container .floating-box:hover{
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Colores por tipo, mapeados a la paleta del dashboard */
+.div_header_week_container .floating-box.bg-secondary{
+    background-color: rgba(0, 101, 145, 0.55) !important;   /* --clr-secondary */
+}
+.div_header_week_container .floating-box.bg-danger{
+    background-color: rgba(149, 0, 43, 0.55) !important;    /* --clr-tertiary */
+}
+.div_header_week_container .floating-box.bg-success{
+    background-color: rgba(40, 167, 69, 0.35) !important;
+}
+.div_header_week_container .floating-box.bg-info{
+    background-color: rgba(53, 37, 205, 0.35) !important;   /* --clr-primary */
+}
+.div_header_week_container .floating-box.bg-dark{
+    background-color: rgba(70, 69, 85, 0.55) !important;    /* --clr-on-surface-variant */
+}
+.div_header_week_container .floating-box.flot_cita{
+    background-color: rgba(195, 192, 255, 0.75) !important; /* variante clara de primary, para texto negro legible */
+}
+
+/* Badge de citas simultáneas, ya alineado a la paleta */
+.badge-citas-simultaneas{
+    background-color: var(--clr-tertiary) !important;
+}
+
+/* ==================================================================
+   ESTILO VISUAL "TEMPLATE" PARA EL CALENDARIO POR DÍA
+   ================================================================== */
+
+/* Contenedor general: tarjeta blanca con sombra suave */
+.div_header_days_container{
+    background-color: var(--clr-surface-container-lowest);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+}
+
+/* Título del turno (llenado por JS vía .titulo, se mantiene el contenido) */
+.div_header_days_container .titulo{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+/* Contenedor de la tabla de agenda */
+.div_header_days_container .agenda-container{
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--clr-surface-container-high);
+    margin: 0;
+}
+
+/* Filas */
+.div_header_days_container .agenda-row{
+    border-bottom: 1px solid var(--clr-surface-container-high);
+}
+
+/* Columna de horas */
+.div_header_days_container .agenda-time{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-right: 1px solid var(--clr-surface-container-high);
+}
+
+/* Encabezado con nombres de profesionales */
+.div_header_days_container .agenda-header{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+.div_header_days_container .agenda-header .agenda-time{
+    background-color: var(--clr-surface-container-low);
+}
+
+/* Columnas de servicio/profesional (celdas donde caen las citas) */
+.div_header_days_container .agenda-service{
+    background-color: var(--clr-surface-container-lowest);
+    border-right: 1px solid var(--clr-surface-container-high);
+    transition: background-color .15s ease;
+}
+.div_header_days_container .agenda-hours:hover:not(.no-hover-effect){
+    background-color: var(--clr-surface-container-low);
+    outline: 1px solid var(--clr-primary);
+    cursor: pointer;
+}
+
+/* ---- Recuadros de citas / bloqueos (evento-flotante) ---- */
+.div_header_days_container .evento-flotante{
+    border-radius: 0.4rem;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: box-shadow .15s ease;
+}
+.div_header_days_container .evento-flotante:hover{
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Colores por tipo, igual que en la vista semana */
+.div_header_days_container .evento-flotante.bg-secondary{
+    background-color: rgba(0, 101, 145, 0.55) !important;
+}
+.div_header_days_container .evento-flotante.bg-danger{
+    background-color: rgba(149, 0, 43, 0.55) !important;
+}
+.div_header_days_container .evento-flotante.bg-success{
+    background-color: rgba(40, 167, 69, 0.35) !important;
+}
+.div_header_days_container .evento-flotante.bg-info{
+    background-color: rgba(53, 37, 205, 0.35) !important;
+}
+.div_header_days_container .evento-flotante.bg-dark{
+    background-color: rgba(70, 69, 85, 0.55) !important;
+}
+
+.div_header_days_container .agenda-header .agenda-service{
+    background-color: var(--clr-surface-container-low);
+    color: var(--clr-on-surface-variant);
+    font-weight: 600;
+    border-right: 1px solid var(--clr-surface-container-high);
+}
+
+#modal_save_class .modal-content{
+    border-radius: 1rem;
+    border: none;
+    overflow: hidden;
+}
+#modal_save_class .modal-header{
+    background-color: var(--clr-surface-container-low);
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+#modal_save_class .modal-title{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--clr-on-surface);
+}
+#modal_save_class .modal-footer{
+    background-color: var(--clr-surface-container-low);
+    border-top: none;
+    padding: 1rem 1.5rem;
+}
+
+#modal_save_class .div_input_paciente{
+    background-color: var(--clr-surface-container-low);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1rem 0 !important;
+}
+#modal_save_class .div_input_paciente .col-form-label{
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--clr-on-surface-variant);
+}
+#modal_save_class .div_input_paciente .form-control,
+#modal_save_class .div_input_paciente .select2-container--default .select2-selection--single{
+    border-radius: 0.5rem;
+    border-color: var(--clr-surface-container-high);
+}
+#modal_save_class .div_input_paciente .form-control:focus{
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 0.15rem rgba(53, 37, 205, 0.15);
+}
+
+#modal_save_class .div_text_paciente{
+    /* background-color: var(--clr-surface-container-low); */
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1rem 0 !important;
+}
+#modal_save_class .div_text_paciente label{
+    font-size: 0.85rem;
+    color: var(--clr-on-surface);
+}
+
+#div_header_servicios_combo,
+#div_header_profesionales_combo,
+#div_header_pacientes_combo {
+    position: relative;
+}
+
+/* ---- Vista día ---- */
+.div_header_days_container .evento-flotante{
+    overflow: hidden;  /* red de seguridad: nada puede salirse del recuadro */
+}
+.div_header_days_container .evento-flotante span{
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-right: 0;      /* el margin-right de 8px ya no aplica, eran dos spans en bloque, no en línea */
+    padding: 0 4px;        /* un pequeño respiro para que el "..." no quede pegado al borde */
+}
+
+/* ---- Vista semana ---- */
+.div_header_week_container .floating-box{
+    overflow: hidden;
+}
+.div_header_week_container .floating-box span{
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 4px;
+}
+
+.btn-secondary{
+    --bs-btn-bg: var(--clr-surface-container-high);
+    --bs-btn-border-color: var(--clr-surface-container-high);
+    --bs-btn-color: var(--clr-on-surface);
+    --bs-btn-hover-bg: var(--clr-surface-container-low);
+    --bs-btn-hover-color: var(--clr-on-surface);
+}
+
 </style>
-<div class="container div_principal_filter div_header_filters col-11">
-    <h1 class="text-center my-4"><?php echo $translations['html_agenda']; ?></h1>
+<div class="container mt-4">
+    <div class="div_principal_filter div_header_filters px-2">
+        <!-- ---- Top strip: navegación + acciones ---- -->
+        <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
+            <div class="d-flex flex-nowrap align-items-center gap-3">
+                <div class="d-flex align-items-center gap-1 bg-surface-low p-1 rounded-3">
+                <button id="btn-anterior" class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
+                    <i class="bi bi-chevron-left" style="font-size:16px;"></i>
+                </button>
+                <button id="btn-hoy" class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
+                <button id="btn-siguiente" class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
+                    <i class="bi bi-chevron-right" style="font-size:16px;"></i>
+                </button>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-calendar3 text-brand-primary" style="font-size:20px;"></i>
+                <span id="span_fecha_actual" class="font-headline fw-semibold text-nowrap" style="font-size:18px;">Semana --</span>
+                </div>
+            </div>
 
-    <!-- Filtros de Servicios y Pacientes -->
-    <div class="row filters col-12">
-
-        <div class="col-3">
-            <label for="input_primer_apellido" class="form-label"><?php echo $translations['html_locations']; ?></label>
-            <?php $count_locaciones = count($arr_locaciones); ?>
-            <select id="select_locaciones" class="select_locaciones" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
-                <option value=""></option>
-                <?php foreach($arr_locaciones as $locacion): ?>
-                    <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
-                <?php endforeach; ?>
-            </select>
+        <div class="d-flex flex-nowrap align-items-center gap-3">
+            <div class="d-flex align-items-center bg-surface-low p-1 rounded-3">
+                <button id="btn-dia" class="btn_principal btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Día</button>
+                <button id="btn-semana" class="btn_principal btn btn-sm text-on-surface-variant" type="button">Semana</button>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> class="btn bg-surface-high d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-exclamation-triangle-fill text-brand-tertiary" style="font-size:16px;"></i>
+                        <span class="fw-semibold small">Fuera de horario</span>
+                        <span class="badge rounded-pill bg-brand-tertiary span_count_citas_fuera_horario">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> id="btn_ver_cita_fuera_horario" type="button" class="dropdown-item d-flex align-items-center gap-2" title="Citas registradas fuera del horario habitual">
+                                <i class="bi bi-list-ul"></i>
+                                Ver citas fuera de horario
+                                <span class="badge rounded-pill bg-brand-tertiary ms-auto span_count_citas_fuera_horario">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button <?php echo $citas_fuera_horario ? '' :' disabled'; ?> id="btn_crear_cita_fuera_horario" type="button" class="dropdown-item d-flex align-items-center gap-2" title="Citas registradas fuera del horario habitual">
+                                <i class="bi bi-plus-lg"></i>
+                                Agendar cita fuera de horario
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="col-3">
-            <label for="select_servicios" class="form-label"><?php echo $translations['html_services']; ?></label>
-            <select id="select_servicios" class="select_servicios select_filtros">
-                <option value=""></option>
-            </select>
-        </div>
-        <div class="col-3">
-            <label for="select_profesionales" class="form-label"><?php echo $translations['html_title_professionals']; ?></label>
-            <select id="select_profesionales" class="select_profesionales select_filtros">
-                <option value=""></option>
-            </select>
-        </div>
-        <div class="col-3">
-            <label for="select_pacientes" class="form-label"><?php echo $translations['html_title_patients']; ?></label>
-            <select id="select_pacientes" class="select_pacientes select_filtros">
-                <option value=""></option>
-            </select>
-        </div>
-    </div>
-    <div class="color-legend mt-3" style="display:none;">
-        <h6>Indicadores:</h6>
-        <div class="d-flex flex-wrap div_append_label_servicios">
-            
-        </div>
-    </div>
-
-        <!-- Sección de navegación -->
-    <div class="navigation">
-        <!-- Sección izquierda: Botones de Mes, Semana y Día -->
-        <div class="left-section">
-            <button id="btn-mes-anterior" class="btn btn-secondary" title="Mes anterior">< Mes </button>
-            <button id="btn-semana-anterior" class="btn btn-secondary" title="Semana anterior">< Sem.</button>
-            <button id="btn-anterior" class="btn btn-secondary" title="D&iacute;a anterior">< D&iacute;a</button>
-            <h3 id="fecha-actual"></h3>
-            <button id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a siguiente">Dia ></button>
-            <button id="btn-semana-siguiente" class="btn btn-secondary" title="Siguiente semana">Sem. ></button>
-            <button id="btn-mes-siguiente" class="btn btn-secondary" title="Mes siguiente">Mes ></button>
-            <button id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
         </div>
 
-        <!-- Sección derecha: Botones de Mes/Semana/Día -->
-        <div class="right-section">
-            <button id="btn-mes" class="btn btn-primary"><?php echo $translations['html_month']; ?></button>
-            <button id="btn-semana" class="btn btn-primary"><?php echo $translations['html_week']; ?></button>
-            <button id="btn-dia" class="btn btn-primary"><?php echo $translations['html_day']; ?></button>
+        <!-- ---- Barra de indicadores / leyenda de servicios (siempre visible) ---- -->
+        <div class="bg-surface-lowest rounded-3 shadow-sm px-3 py-2 d-flex flex-wrap align-items-center gap-3 mb-3 color-legend">
+            <span class="d-flex align-items-center gap-2 text-on-surface-variant fw-semibold small text-nowrap">
+                <i class="bi bi-tags-fill text-brand-primary"></i>
+                Indicadores
+            </span>
+            <div class="d-flex flex-wrap align-items-center gap-3 div_append_label_servicios"></div>
+        </div>
+
+        <!-- ---- Row con mini calendario + agenda ---- -->
+        <div class="row g-3 align-items-start">
+
+            <!-- ============ COLUMNA IZQUIERDA: Mini calendario ============ -->
+            <div class="col-lg-3">
+                <div class="bg-surface-lowest rounded-3 shadow-sm p-3 mb-3 div_header_month_container mini-calendar">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="fw-semibold small month-title"></span>
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-sm p-0 d-flex align-items-center justify-content-center btn-mes-mini-anterior" style="width:24px;height:24px;">
+                                <i class="bi bi-chevron-left" style="font-size:14px;"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm p-0 d-flex align-items-center justify-content-center btn-mes-mini-siguiente" style="width:24px;height:24px;">
+                                <i class="bi bi-chevron-right" style="font-size:14px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row row-cols-7 g-0 text-center text-on-surface-variant small mb-2">
+                        <div class="col">Do</div><div class="col">Lu</div><div class="col">Ma</div><div class="col">Mi</div><div class="col">Ju</div><div class="col">Vi</div><div class="col">Sá</div>
+                    </div>
+                    <div class="row row-cols-7 g-1 text-center font-mono calendar_month_dates"></div>
+                </div>
+
+                <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column gap-3 filters">
+
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+                    <span class="font-headline fw-semibold" style="font-size:15px;">Filtros de Agenda</span>
+                </div>
+
+                <div>
+                    <label for="select_locaciones" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_locations']; ?></label>
+                    <?php $count_locaciones = count($arr_locaciones); ?>
+                    <select id="select_locaciones" class="select_locaciones form-select form-select-sm" <?php echo $count_locaciones == 1 ? 'disabled' : ''; ?>>
+                        <option value=""></option>
+                        <?php foreach($arr_locaciones as $locacion): ?>
+                            <option value="<?php echo $locacion['id']; ?>" <?php echo $count_locaciones == 1 ? 'selected' : ''; ?>><?php echo $locacion['nombre']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div id="div_header_servicios_combo">
+                    <label for="select_servicios" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_services']; ?></label>
+                    <select id="select_servicios" class="select_servicios select_filtros form-select form-select-sm">
+                        <option value=""></option>
+                    </select>
+                </div>
+
+                <div id="div_header_profesionales_combo">
+                    <label for="select_profesionales" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_title_professionals']; ?></label>
+                    <select id="select_profesionales" class="select_profesionales select_filtros form-select form-select-sm">
+                        <option value=""></option>
+                    </select>
+                </div>
+
+                <div id="div_header_pacientes_combo">
+                    <label for="select_pacientes" class="form-label small text-on-surface-variant mb-1"><?php echo $translations['html_title_patients']; ?></label>
+                    <select id="select_pacientes" class="select_pacientes select_filtros form-select form-select-sm">
+                        <option value=""></option>
+                    </select>
+                </div>
+
+                </div>
+            </div>
+
+            <!-- ============ COLUMNA DERECHA: navegación + agenda ============ -->
+            <div class="col-lg-9">
+                <div id="div_header_agenda">
+                    <div id="div_append_days_container" class="div_append_days_container">
+                        <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
+                    </div>
+                    <div id="div_append_weeks_container" class="div_append_weeks_container"></div>
+
+                    <div class="div_header_month_container hide_container container-calendar col-12">
+                        <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;"></div>
+                        <div class="days">
+                            <div class="day">Dom</div>
+                            <div class="day">Lun</div>
+                            <div class="day">Mar</div>
+                            <div class="day">Mié</div>
+                            <div class="day">Jue</div>
+                            <div class="day">Vie</div>
+                            <div class="day">Sáb</div>
+                        </div>
+                        <div class="calendar_month_dates" id="calendar_month_dates"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-    <?php if ($citas_fuera_horario): ?>
-    <div class="color-legend mt-3">
-        <div class="d-flex flex-wrap justify-content-end gap-2">
-            <button id="btn_ver_cita_fuera_horario" type="button" class="icon-button btn btn-info" title="Citas registradas fuera del horario habitual">Ver citas fuera de horario (<span id="span_count_citas_fuera_horario">0</span>)</button>
-            <button id="btn_crear_cita_fuera_horario" type="button" class="icon-button btn btn-primary" title="Citas registradas fuera del horario habitual">Agendar cita fuera de horario</button>
-        </div>
-    </div>
-    <?php endif; ?>
 </div>
-<div id="div_header_agenda" class="p-3">
-    <div id="div_append_days_container" class="div_append_days_container">
-        <div class="watermark-message" style="display:none;">Día no disponible para la locación</div>
-    </div>
-    <div id="div_append_weeks_container" class="div_append_weeks_container">
 
+    <div id="template_label_servicios" class="legend-item me-3 mb-2" style="display:none">
+        <span class="legend-color"></span>
+        <span class="texto_servicio">Servicio</span>
     </div>
-    
-    <div class=" div_header_month_container hide_container container-calendar col-12">
-        <!-- Nuevo elemento para mostrar el mes -->
-        <div class="month-title" style="text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold;">
-            
-        </div>
-        <div class="days">
-            <div class="day">Dom</div>
-            <div class="day">Lun</div>
-            <div class="day">Mar</div>
-            <div class="day">Mié</div>
-            <div class="day">Jue</div>
-            <div class="day">Vie</div>
-            <div class="day">Sáb</div>
-        </div>
-        <div class="calendar_month_dates" id="calendar_month_dates"></div>
-    </div>
-</div>
 
-<div id="template_label_servicios" class="legend-item me-3 mb-2" style="display:none">
-    <span class="legend-color"></span>
-    <span class="texto_servicio">Servicio</span>
-</div>
-
-<div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
-    <!-- Agenda -->
-     <div class="titulo" align="center"></div>
-    <div class="agenda-container" id="agenda-container">
-        <!-- Header -->
-        <div class="agenda-row agenda-header" id="agenda-header">
-            <div class="agenda-time">Hora</div>
-            <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+    <div id="template_days_container" class="container div_header_days_container container-calendar hide_container col-12" style="display:none;">
+        <!-- Agenda -->
+        <div class="titulo" align="center"></div>
+        <div class="agenda-container" id="agenda-container">
+            <!-- Header -->
+            <div class="agenda-row agenda-header" id="agenda-header">
+                <div class="agenda-time">Hora</div>
+                <!-- Las columnas de profesionales se generarán dinámicamente aquí -->
+            </div>
+            <!-- Las filas de horas se generarán dinámicamente aquí -->
         </div>
-        <!-- Las filas de horas se generarán dinámicamente aquí -->
     </div>
-</div>
 
-    <!--    AGREGAR clase d-flex    -->
-<div id ="template_week_container" class="container mt-4  flex-column align-items-center div_header_week_container container-calendar col-12" style="display:none;">
-    <!-- Nuevo div para el título del turno -->
-    <div class="shift-title" style="text-align: center; font-weight: bold; margin-bottom: 10px; background: #f0f0f0; padding: 5px;">
-        Turno: <!-- El texto se asignará dinámicamente al clonar -->
-    </div>
-    <div class="week-container div_principal">
-        <div class="grid-item header"></div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Lunes
+        <!--    AGREGAR clase d-flex    -->
+    <div id ="template_week_container" class="container flex-column div_header_week_container container-calendar col-12" style="display:none;">
+        <!-- Nuevo div para el título del turno -->
+        <div class="shift-title" >
+            Turno: <!-- El texto se asignará dinámicamente al clonar -->
         </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Martes
-        </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Miércoles
-        </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Jueves
-        </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Viernes
-        </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Sábado
-        </div>
-        <div class="grid-item header">
-            <div class="header-date"></div>
-            Domingo
+        <div class="week-container div_principal">
+            <div class="grid-item header"></div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Lunes
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Martes
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Miércoles
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Jueves
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Viernes
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Sábado
+            </div>
+            <div class="grid-item header">
+                <div class="header-date"></div>
+                Domingo
+            </div>
         </div>
     </div>
 </div>
@@ -1125,9 +1560,9 @@ use App\Library\FuncionesGlobales;
   <div class="modal-dialog modal-fullscreen-xl-down">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="label_modal_save_class"><?php echo FuncionesGlobales::UpperString($translations['html_schedule_an_appointment']); ?></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+        <h5 class="modal-title" id="label_modal_save_class">AGENDAR CITA</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
       <div class="modal-body col-md-12">
         <form id="form_modal_create" class="needs-validation" novalidate>
             <div class="row mb-3 div_input_paciente">
@@ -1171,15 +1606,15 @@ use App\Library\FuncionesGlobales;
                     <input type="checkbox" class="input_modify_day" name="input_modify_day" />
                 </div>
                 <div class="row div_cambiar_dia col-md-12 div_header_filters" style="display:none;">
-                    <div class="navigation" style="width:50%">
+                    <div class="navigation d-flex flex-nowrap align-items-center justify-content-center" style="width:50%">
                         <!-- Sección izquierda: Botones de Mes, Semana y Día -->
                         <div class="left-section">
-                            <button type="button" id="btn-semana-anterior" class="btn btn-secondary" title="Semana Anterior">< Sem.</button>
-                            <button type="button" id="btn-anterior" class="btn btn-secondary" title="D&iacute;a Anterior" >< D&iacute;a</button>
+                            <button type="button" id="btn-semana-anterior" class="btn btn-sm p-1 btn-secondary" title="Semana Anterior">< S</button>
+                            <button type="button" id="btn-anterior" class="btn btn-sm p-1 btn-secondary" title="D&iacute;a Anterior" >< D</button>
                             <h3 id="fecha-actual"></h3>
-                            <button type="button" id="btn-siguiente" class="btn btn-secondary" title="D&iacute;a Siguiente">D&iacute;a ></button>
-                            <button type="button" id="btn-semana-siguiente" class="btn btn-secondary" title="Semana Siguiente">Sem. ></button>
-                            <button type="button" id="btn-hoy" class="btn btn-primary"><?php echo $translations['html_today']; ?></button>
+                            <button type="button" id="btn-siguiente" class="btn btn-sm p-1 btn-secondary" title="D&iacute;a Siguiente">D ></button>
+                            <button type="button" id="btn-semana-siguiente" class="btn btn-sm p-1 btn-secondary" title="Semana Siguiente">S ></button>
+                            <button type="button" id="btn-hoy" class="btn btn-sm p-1 btn-primary"><?php echo $translations['html_today']; ?></button>
                         </div>
                     </div>
                     <div class="navigation" style="width:50%">
@@ -1796,20 +2231,49 @@ use App\Library\FuncionesGlobales;
     }
 
     // Función para formatear la fecha como "Día, DD/MM/AAAA"
-    function formatearFecha(fecha) {
-        const opciones = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
-        const partes = fechaFormateada.split(', ');
-        
+    function formatearFecha(fecha, letra = false) {
+
         function capitalizarPrimeraLetra(texto) {
             return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
         }
 
+        if (letra) {
+            const opciones = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+
+            // Ejemplo: "domingo, 27 de septiembre de 2026"
+            let fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+
+            const partes = fechaFormateada.split(', ');
+
+            if (partes.length > 1) {
+                return (
+                    capitalizarPrimeraLetra(partes[0]) +
+                    ', ' +
+                    partes[1].replace(' de ', ' de ').replace(/ de (\d{4})$/, ' del $1')
+                );
+            }
+
+            return capitalizarPrimeraLetra(fechaFormateada);
+        }
+
+        const opciones = {
+            weekday: 'long',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        };
+
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+        const partes = fechaFormateada.split(', ');
+
         if (partes.length > 1) {
-            // Si la fecha incluye coma (formato "día, fecha")
             return capitalizarPrimeraLetra(partes[0]) + ', ' + partes[1];
         } else {
-            // Si no hay coma, convertir la primera palabra (asumiendo que es el día)
             const palabras = fechaFormateada.split(' ');
             palabras[0] = capitalizarPrimeraLetra(palabras[0]);
             return palabras.join(' ');
@@ -1823,6 +2287,11 @@ use App\Library\FuncionesGlobales;
         let diaActual   = fechaActual.getDay();
         diaActual       = diaActual == 0 ? 7 : diaActual;
         $(div_fecha).find("#fecha-actual").text(formatearFecha(fechaActual));
+
+        if (!$(div_header).hasClass('modal') && $("#btn-dia").hasClass('bg-brand-primary')){
+            $("#span_fecha_actual").data('diaactual',formatearFecha(fechaActual,true));
+            $("#span_fecha_actual").text($("#span_fecha_actual").data('diaactual'));
+        }
 
         if (rango_semana_actual.fecha_inicio != ''){
             //  SE VERIFICA QUE LA NUEVA FECHA 
@@ -1872,14 +2341,19 @@ use App\Library\FuncionesGlobales;
                     $(div_header).find('.input_hora_inicio').val(usar_valor_actual ? actual_value_input_inicio : arr_solo_hora_inicio[0]);
 
                     //  SE RECORRE TODOS LOS DIVS DE TURNOS PARA SABER CUAL SE DEBE DE MOSTRAR
+                    let first_show  = true;
                     $(div_header).find('.div_header_days_container').each(function(){
                         let id_horario_atencion = $(this).data('idhorarioatencion');
                         let diasPermitidos      = $(this).data('dias');
                         if (!diasPermitidos.includes(diaActual) || dias_inhabiles.includes(String(diaActual))) {
                             $(this).addClass('hide');
+                            $(this).removeClass('mt-3');
                             return true;
                         } else {
                             $(this).removeClass('hide');
+                            if (!first_show){
+                                $(this).addClass('mt-3');
+                            }
                         }
 
                         if (div_header == '#div_header_agenda'){
@@ -1898,6 +2372,8 @@ use App\Library\FuncionesGlobales;
                                 }
                             });
                         }
+
+                        first_show   = false;
                     });
                     setTimeout(function(){
                         if ($(div_header).find('.div_header_days_container').not('.hide').length == 0){
@@ -2109,7 +2585,7 @@ use App\Library\FuncionesGlobales;
                     }
 
                     if (evento.id_agenda_cita != null && pagada != 1) {
-                        eventoDiv.css("border", "2px solid #FF6961"); // Puedes usar #dc3545 para rojo Bootstrap si prefieres
+                        eventoDiv.css("border", "1px solid #FF6961"); // Puedes usar #dc3545 para rojo Bootstrap si prefieres
                     }
 
                     if (evento.num_citas_simultaneas > 0){
@@ -2220,7 +2696,7 @@ use App\Library\FuncionesGlobales;
     //  funcion para renderizar calendario por mes  
     function renderCalendarMes() {
         const $calendarContainer = $('.div_header_month_container');
-        const $dates = $calendarContainer.find('#calendar_month_dates');
+        const $dates = $calendarContainer.find('#calendar_month_dates, .calendar_month_dates');
         const year = fechaActual.getFullYear();
         const month = fechaActual.getMonth();
         const today = new Date();
@@ -2431,7 +2907,7 @@ use App\Library\FuncionesGlobales;
             }
         });
 
-       // ASIGNA LA FECHA POR DIA:
+        // ASIGNA LA FECHA POR DIA:
         const fechaInicio = moment(rango_semana_actual.fecha_inicio);
         const fechaTermino = moment(rango_semana_actual.fecha_termino);
 
@@ -2440,7 +2916,7 @@ use App\Library\FuncionesGlobales;
 
             // Formato visual: D/MMMM (ej. 20/agosto)
             const fechaFormateada = fecha.format('D/MMMM').split('/');
-            fechaFormateada[1] = fechaFormateada[1].toLowerCase();
+            fechaFormateada[1] = fechaFormateada[1].toLowerCase().substring(0,4);
 
             // Asignar texto y atributo data-day
             const $headerDate = $(this).find('.header-date');
@@ -2462,6 +2938,34 @@ use App\Library\FuncionesGlobales;
         });
 
         show_horario_no_disponible_profesional(template_days_container,id_horario_atencion);
+
+        let tmp_fecha_inicio    = moment(rango_semana_actual.fecha_inicio, "YYYY-MM-DD");
+        let tmp_fecha_termino   = moment(rango_semana_actual.fecha_termino, "YYYY-MM-DD");
+
+        let numero_semana = tmp_fecha_inicio.isoWeek();
+
+        let texto = "";
+
+        if (tmp_fecha_inicio.isSame(tmp_fecha_termino, 'year')) {
+
+            if (tmp_fecha_inicio.isSame(tmp_fecha_termino, 'month')) {
+                // Mismo mes
+                texto = `Semana ${numero_semana}: Del ${tmp_fecha_inicio.format("D")} al ${tmp_fecha_termino.format("D")} de ${tmp_fecha_inicio.format("MMMM")}, ${tmp_fecha_inicio.format("YYYY")}`;
+            } else {
+                // Distinto mes, mismo año
+                texto = `Semana ${numero_semana}: Del ${tmp_fecha_inicio.format("D")} de ${tmp_fecha_inicio.format("MMMM")} al ${tmp_fecha_termino.format("D")} de ${tmp_fecha_termino.format("MMMM")}, ${tmp_fecha_inicio.format("YYYY")}`;
+            }
+
+        } else {
+            // Distinto año
+            texto = `Semana ${numero_semana}: Del ${tmp_fecha_inicio.format("D")} de ${tmp_fecha_inicio.format("MMMM")}, ${tmp_fecha_inicio.format("YYYY")} al ${tmp_fecha_termino.format("D")} de ${tmp_fecha_termino.format("MMMM")}, ${tmp_fecha_termino.format("YYYY")}`;
+        }
+
+        // Primera letra de cada mes en mayúscula
+        texto = texto.replace(/\b[a-záéíóúñ]/g, c => c.toUpperCase());
+
+        $("#span_fecha_actual").data('semanaactual',texto);
+
     }
 
     function esColorClaro(hex) {
@@ -2489,6 +2993,7 @@ use App\Library\FuncionesGlobales;
 
         //  SE CREA EL TEMPLATE DEL HORARIO
         horario_atencion    = data['horario_atencion'];
+        let first_row       = true;
         for(let i in horario_atencion){
             let info_horario    = horario_atencion[i];
 
@@ -2514,6 +3019,10 @@ use App\Library\FuncionesGlobales;
                 .data('idhorarioatencion',info_horario['id'])
                 .addClass('d-flex');
 
+            if (!first_row){
+                $(template_week_container).addClass('mt-4');
+            }
+
             if ($("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).length > 0){
                 $("#div_append_days_container").find("#div_container_horario_"+info_horario['id']).find('.evento-flotante').remove();
                 template_days_container = $("#div_append_days_container").find("#div_container_horario_"+info_horario['id']);
@@ -2524,11 +3033,14 @@ use App\Library\FuncionesGlobales;
                 template_week_container = $("#div_append_weeks_container").find("#div_header_week_container_"+info_horario['id']);
             }
 
-            $(template_days_container).find('.titulo').text(info_horario['titulo']);
-            $(template_week_container).find('.shift-title').text(info_horario['titulo']);
+            $(template_days_container).find('.titulo').text('Turno: '+info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
+            $(template_week_container).find('.shift-title').text('Turno: '+info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
 
             if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide').show();
+                if (!first_row){
+                    $(template_days_container).addClass('mt-3');
+                }
             } else {
                $(template_days_container).addClass('hide');
             }
@@ -2550,6 +3062,8 @@ use App\Library\FuncionesGlobales;
             $(template_days_container).data('dias',diasPermitidos);
             $(modal_clone).find('.div_append_days_container').append(template_days_container);
             $(modal_clone).find('.div_append_weeks_container').append(template_week_container);
+
+            first_row   = false;
         }
 
         if ($(".div_header_days_container").is(':visible').length == 0 && 
@@ -2585,7 +3099,6 @@ use App\Library\FuncionesGlobales;
             success : function(data){
                 dias_inhabiles  = data['dias_inhabiles'];
                 data    = data['info_horario'];
-                console.log('dias_inhabiles data',dias_inhabiles);
                 if (modal_clone == null){
                     min_hora_inicio = data.min_hora_inicio;
                     max_hora_inicio = data.max_hora_inicio;
@@ -2650,49 +3163,95 @@ use App\Library\FuncionesGlobales;
 
                     //  SE PINTA EL NUMERO DE CITAS FUERA DE HORARIO
                     if (typeof data['citas_fuera_horario'] != "undefined"){
-                        $("#span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
+                        $(".span_count_citas_fuera_horario").text(Object.keys(data['citas_fuera_horario']).length);
                         arr_citas_fuera_horario = data['citas_fuera_horario'];
                     }
                 } else {
-                    let diaActual               = fechaActual.getDay();
-                    diaActual                   = diaActual == 0 ? 7 : diaActual;
-                    //  CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
+                    let diaActual = fechaActual.getDay();
+                    diaActual     = diaActual == 0 ? 7 : diaActual;
+
+                    // CODIGO CUANDO EL EVENTO VIENE DESDE UN MODAL
                     $(modal_clone).find('.evento-flotante').remove();
 
-                    let id_profesional          = $(modal_clone).find("#select_profesionales_modal").val();
-                    let tmp_horario_atencion    = data['horario_atencion'];
-                    citas_desglosadas           = {};
-                    for(let i in tmp_horario_atencion){
-                        let info_horario_atencion   = tmp_horario_atencion[i];
-                        citas_desglosadas[info_horario_atencion['id']]  = info_horario_atencion['citas_paciente'];
+                    let id_profesional       = $(modal_clone).find("#select_profesionales_modal").val();
+                    let tmp_horario_atencion = data['horario_atencion'];
+                    citas_desglosadas        = {};
+                    arr_solo_hora_inicio     = [];   // se reinicia UNA sola vez, antes de ambos recorridos
 
-                        let diasPermitidos = info_horario_atencion['dias'].map(d => d.dia);
+                    // Helper: ¿este horario aplica para el día actual?
+                    const aplicaHoy = (info) => {
+                        const diasPermitidos = info['dias'].map(d => d.dia);
+                        return diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual));
+                    };
 
-                        let template_days_container = $(modal_clone).find('#div_container_horario_'+info_horario_atencion['id']);
+                    // ============ PASADA 1: llenar arr_solo_hora_inicio ============
+                    for (let i in tmp_horario_atencion) {
+                        const info = tmp_horario_atencion[i];
 
-                        if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
-                            $(template_days_container).removeClass('hide');
-                            $(template_days_container).css('display','show');
+                        if (!aplicaHoy(info)) continue;
+
+                        let minutosInicio     = convertirHoraAMinutos(info['min_hora_inicio']);
+                        const minutosFin      = convertirHoraAMinutos(info['max_hora_termino']);
+                        const intervalo_citas = info['intervalo_citas'];
+
+                        while (minutosInicio < minutosFin) {
+                            const hora = convertirMinutosAHora(minutosInicio);
+                            if (!arr_solo_hora_inicio.includes(hora)) {
+                                arr_solo_hora_inicio.push(hora);
+                            }
+                            minutosInicio += intervalo_citas;
+                        }
+                    }
+
+                    // (opcional) ordenar las horas
+                    arr_solo_hora_inicio.sort((a, b) => convertirHoraAMinutos(a) - convertirHoraAMinutos(b));
+
+                    let actual_value_input_inicio   = $(modal_clone).find('.input_hora_inicio').val();
+                    $(modal_clone).find('.input_hora_inicio').find('option').remove();
+                    let usar_valor_actual   = false;
+                    for(let i in arr_solo_hora_inicio){
+                        if (arr_solo_hora_inicio[i] == actual_value_input_inicio){
+                            usar_valor_actual   = true;
+                        }
+                        $(modal_clone).find('.input_hora_inicio').append('<option value="'+arr_solo_hora_inicio[i]+'">'+arr_solo_hora_inicio[i]+'</option>');
+                    }
+
+                    // ============ PASADA 2: usar el array ya completo ============
+                    for (let i in tmp_horario_atencion) {
+                        const info_horario_atencion = tmp_horario_atencion[i];
+                        const id_horario_atencion   = info_horario_atencion['id'];
+
+                        citas_desglosadas[id_horario_atencion] = info_horario_atencion['citas_paciente'];
+
+                        const template_days_container = $(modal_clone).find('#div_container_horario_' + id_horario_atencion);
+
+                        if (aplicaHoy(info_horario_atencion)) {
+                            template_days_container.removeClass('hide');
+                            template_days_container.css('display', 'block'); // 'show' no es un valor válido de display
                         } else {
-                            $(template_days_container).addClass('hide');
-                            //return;
+                            template_days_container.addClass('hide');
                         }
 
-                        $(template_days_container).find('.evento-flotante').remove();
+                        template_days_container.find('.evento-flotante').remove();
 
-                        let id_horario_atencion = info_horario_atencion['id'];
-                        
                         if (Array.isArray(citas_desglosadas[id_horario_atencion]) && citas_desglosadas[id_horario_atencion].length > 0) {
                             citas_desglosadas[id_horario_atencion].forEach(rango => {
-                                if (rango.id_profesional != id_profesional){
-                                    return;
-                                }
-                                rango['id_horario_atencion']    = id_horario_atencion;
-                                cuadroFlotantesDiario($(modal_clone),rango,background_tipo_cita(rango),'flot_cita',null)
+                                if (rango.id_profesional != id_profesional) return;
+                                rango['id_horario_atencion'] = id_horario_atencion;
+                                cuadroFlotantesDiario($(modal_clone), rango, background_tipo_cita(rango), 'flot_cita', null);
                             });
                         }
-                        show_horario_no_disponible_profesional($(modal_clone),id_horario_atencion,id_profesional);
-                        setTimeout(calcula_totales($(modal_clone),$(modal_clone).find('#span_paciente').data('idprofesional'),$(modal_clone).find('#span_paciente').data('idagendacita')),50);
+
+                        show_horario_no_disponible_profesional($(modal_clone), id_horario_atencion, id_profesional);
+
+                        // Corregido: setTimeout necesita una función, no el resultado de llamarla
+                        setTimeout(() => {
+                            calcula_totales(
+                                $(modal_clone),
+                                $(modal_clone).find('#span_paciente').data('idprofesional'),
+                                $(modal_clone).find('#span_paciente').data('idagendacita')
+                            );
+                        }, 50);
                     }
                 }
                 
@@ -2733,7 +3292,6 @@ use App\Library\FuncionesGlobales;
                 arr_citas_fuera_horario = [];
                 horario_atencion        = {};
                 //horario_no_disponible   = {};
-                console.log('horario_no_disponible',horario_no_disponible);
 
                 $(".watermark-message").show();
                 $("#div_header_agenda").find('.div_header_days_container').addClass('hide');
@@ -2835,14 +3393,6 @@ use App\Library\FuncionesGlobales;
             $($weekContainer).find('#' + id_horario_cita).remove();
         }
 
-        // let {
-        //     start, end, day, duracion = null,
-        //     id_cita_programada_servicio_horario = null,
-        //     servicio = null, nombre_locacion = null,
-        //     profesional = null,
-        //     codigo_color = null
-        // } = evento;
-
         let { start, end, day, duracion = null,
             id_agenda_cita = null,nombre_completo = null,
             id_cita_programada_servicio_horario = null,
@@ -2857,7 +3407,6 @@ use App\Library\FuncionesGlobales;
             lista_nombres_edades = null
          } = evento;
 
-        //const dayIndex = diasSemana.indexOf(day) + 1;
         const dayIndex  = isNaN(day) ? diasSemana.indexOf(day) + 1 : day;
         const duracion_minutos = duracion == null
             ? $($weekContainer).closest("#form_modal_create").find('#select_servicios_modal').find('option:selected').data('duracionminutos')
@@ -2958,7 +3507,6 @@ use App\Library\FuncionesGlobales;
                 $($weekContainer).closest('#form_modal_create').find(".header_row#" + id_horario_cita).find('.input_hora_termino').val(end);
             }
 
-            //  se construye string de las datas a mostrar
             data_paciente   = ' data-paciente="'+evento.nombre_completo+'" data-asistencia="'+evento.asistencia+'"';
         }
 
@@ -2978,11 +3526,9 @@ use App\Library\FuncionesGlobales;
             }
         }
 
-        
         if (tipo_flot == 'flot_cita' && lista_nombres_edades != null) {
             background_servicio = codigo_color != null ? codigo_color : $weekContainer.closest("#form_modal_create").find("#select_servicios_modal").find('option:selected').data('codigocolor');
             span_info   = lista_nombres_edades.join('');
-            //background  = '';
             color       = '#000000';
         }
 
@@ -2999,9 +3545,11 @@ use App\Library\FuncionesGlobales;
             return h * 60 + m;
         };
 
-        const cellWidth = 120;
-        const cellHeight = 70;
-        const borderSize = 1;
+        //  IMPORTANTE: este valor debe coincidir EXACTAMENTE con el CSS:
+        //  .div_header_week_container .week-container { grid-template-columns: 90px repeat(7, 1fr); }
+        const hourColWidth = 90;
+        const borderSize   = 1;
+        const cellHeight   = 70;
 
         const startMin = aMinutos(start);
         const endMin = aMinutos(end);
@@ -3010,15 +3558,16 @@ use App\Library\FuncionesGlobales;
         const top = ((startMin - inicioHorarioMin) * (cellHeight + borderSize) / intervalo_citas) + 72;
         const height = ((endMin - startMin) * cellHeight / intervalo_citas + ((endMin - startMin) / intervalo_citas * borderSize));
 
-
-        const left = ((dayIndex) * (cellWidth + borderSize)) + 2;
-        const width = cellWidth;
+        //  Se calculan left/width como expresiones CSS calc(), para que el navegador
+        //  las resuelva contra el ancho REAL en pintado (funciona aunque el contenedor
+        //  esté oculto al momento de generar el floating-box).
+        const leftCalc  = `calc(${hourColWidth}px + ${borderSize}px + ${dayIndex - 1} * ((100% - ${hourColWidth}px) / 7) + 2px)`;
+        const widthCalc = `calc((100% - ${hourColWidth}px) / 7 - ${borderSize}px)`;
 
         let id_floating = id_cita_programada_servicio_horario == null
             ? 'id_horario_cita_' + (count_id_citas)
             : 'id_horario_cita_' + id_cita_programada_servicio_horario;
 
-        //  SIGNIFICA QUE SE ESTA CREANDO UN DIV NUEVO PERO ES UNA EDICION DE CITA PROGRAMADA
         if (id_cita_programada_servicio_horario == null && id_horario_cita != null){
             id_floating = id_horario_cita;
         }
@@ -3038,26 +3587,23 @@ use App\Library\FuncionesGlobales;
             '\' data-day="'+fecha_cita+
             '" data-idhorarioatencion="'+id_horario_atencion+'">'+span_info+'</span></div>').css({
             top: `${top}px`,
-            left: `${left}px`,
-            width: `${width - borderSize}px`,
+            left: leftCalc,
+            width: widthCalc,
             height: `${height - borderSize}px`,
         });
 
-
         $floatingBox.attr('data-height', height);
-
-        //$floatingBox.get(0).style.setProperty('color', '#000', 'important');
 
         const spanCount = lista_nombres_edades?.length;
         if (spanCount > 1) {
             const alturaOriginal = height;
-            const alturaExpandida = alturaOriginal + (spanCount - 1) * 28; // Ajusta 18px por línea adicional
+            const alturaExpandida = alturaOriginal + (spanCount - 1) * 28;
 
             $floatingBox
                 .attr('data-height-expandido', alturaExpandida)
                 .addClass('expand-on-hover');
         }
-            
+
         $weekContainer.append($floatingBox);
     }
 
@@ -3636,7 +4182,7 @@ use App\Library\FuncionesGlobales;
                 .show()
                 ;
 
-            $(template_days_container).find('.titulo').text(info_horario['titulo']);
+            $(template_days_container).find('.titulo').text(info_horario['titulo']+' '+info_horario['min_hora_inicio']+' - '+info_horario['max_hora_termino']);
 
             if (diasPermitidos.includes(diaActual) && !dias_inhabiles.includes(String(diaActual))) {
                 $(template_days_container).removeClass('hide');
@@ -4350,14 +4896,52 @@ use App\Library\FuncionesGlobales;
     $(document).ready(function () {
 
         //  CONVERTIR LOS COMBOS EN SELECT2
-        //selectToSelect2($(".div_header_filters"),"select_locaciones");
-        selectToSelect2($(".div_principal_filter"),"select_servicios");
-        selectToSelect2($(".div_principal_filter"),"select_profesionales");
-        //selectToSelect2($(".div_header_filters"),"select_pacientes");
+        $('#select_servicios').select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#div_header_servicios_combo')
+        });
+
+        $('#select_servicios').on('select2:open', function () {
+            const $select = $(this);
+
+            // setTimeout para asegurar que corra después de que select2 registre sus listeners
+            setTimeout(function () {
+                $(window).off('scroll.select2');
+                $select.next('.select2-container').parents().off('scroll.select2');
+
+                // Evita que el foco del buscador mueva la vista
+                const campo = document.querySelector('.select2-container--open .select2-search__field');
+                if (campo) campo.focus({ preventScroll: true });
+            }, 0);
+        });
+
+        $('#select_profesionales').select2({
+            placeholder: 'Seleccione una opción',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $('#div_header_profesionales_combo')
+        });
+
+        $('#select_profesionales').on('select2:open', function () {
+            const $select = $(this);
+
+            // setTimeout para asegurar que corra después de que select2 registre sus listeners
+            setTimeout(function () {
+                $(window).off('scroll.select2');
+                $select.next('.select2-container').parents().off('scroll.select2');
+
+                // Evita que el foco del buscador mueva la vista
+                const campo = document.querySelector('.select2-container--open .select2-search__field');
+                if (campo) campo.focus({ preventScroll: true });
+            }, 0);
+        });
 
         $('.div_principal_filter').find('#select_pacientes').select2({
             placeholder: 'Seleccione una opción',
             width: '50px',
+            dropdownParent: $('#div_header_pacientes_combo'),
             minimumInputLength: 3,
             allowClear : true,
             ajax: {
@@ -4391,6 +4975,20 @@ use App\Library\FuncionesGlobales;
                 },
                 cache: true
             }
+        });
+
+        $('#select_pacientes').on('select2:open', function () {
+            const $select = $(this);
+
+            // setTimeout para asegurar que corra después de que select2 registre sus listeners
+            setTimeout(function () {
+                $(window).off('scroll.select2');
+                $select.next('.select2-container').parents().off('scroll.select2');
+
+                // Evita que el foco del buscador mueva la vista
+                const campo = document.querySelector('.select2-container--open .select2-search__field');
+                if (campo) campo.focus({ preventScroll: true });
+            }, 0);
         });
 
         //  EVENTOS PARA FILTRAR CITAS
@@ -4488,6 +5086,9 @@ use App\Library\FuncionesGlobales;
         divHeaderFilters.find("#btn-mes-anterior").on("click", () => cambiarMes(-1));
         divHeaderFilters.find("#btn-mes-siguiente").on("click", () => cambiarMes(1));
 
+        $('.btn-mes-mini-anterior').on('click', () => cambiarMes(-1));
+        $('.btn-mes-mini-siguiente').on('click', () => cambiarMes(1));
+
         // Evento para volver al día actual
         divHeaderFilters.find("#btn-hoy").on("click", () => irAFechaActual($("#div_header_agenda")));
 
@@ -4507,11 +5108,19 @@ use App\Library\FuncionesGlobales;
             $(".container-calendar").addClass('hide_container');
             $(".div_header_week_container").removeClass('hide_container');
 
-            $("#btn-anterior").hide();
-            $("#btn-siguiente").hide();
+            $("#btn-anterior").prop('disabled',true);
+            $("#btn-siguiente").prop('disabled',true);
             $("#btn-semana-anterior").show();
             $("#btn-semana-siguiente").show();
             $(".watermark-message").hide();
+
+            if ($('.div_principal_filter').find("#btn-semana").hasClass('btn_principal')){
+                $('.btn_principal').removeClass('bg-brand-primary text-white shadow-sm').addClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-semana").removeClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-semana").addClass('bg-brand-primary text-white shadow-sm');
+            }
+
+            $("#span_fecha_actual").text($("#span_fecha_actual").data('semanaactual'));
 
         });
         divHeaderFilters.find("#btn-dia").on("click", () => {
@@ -4519,8 +5128,14 @@ use App\Library\FuncionesGlobales;
             // Aquí puedes implementar la lógica para cambiar a la vista de día
             $(".container-calendar").addClass('hide_container');
             $(".div_header_days_container").removeClass('hide_container');
-            $("#btn-anterior").show();
-            $("#btn-siguiente").show();
+            $("#btn-anterior").prop('disabled',false);
+            $("#btn-siguiente").prop('disabled',false);
+            
+            if ($('.div_principal_filter').find("#btn-dia").hasClass('btn_principal')){
+                $('.btn_principal').removeClass('bg-brand-primary text-white shadow-sm').addClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-dia").removeClass('text-on-surface-variant');
+                $('.div_principal_filter').find("#btn-dia").addClass('bg-brand-primary text-white shadow-sm');
+            }
 
             if ($("#div_append_days_container").find('.div_header_days_container').not('.hide').length == 0){
                 //showAlert('danger','D&iacute;a no disponible para la locaci&oacute;n');
@@ -4528,6 +5143,8 @@ use App\Library\FuncionesGlobales;
             } else {
                 $(".watermark-message").hide();
             }
+
+            $("#span_fecha_actual").text($("#span_fecha_actual").data('diaactual'));
         });
 
         actualizarFecha(divHeaderFilters); // Mostrar la fecha actual al cargar la página
@@ -4736,7 +5353,6 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita  : info_cita['idagendacita']
                 },
                 success     : function(data){
-                    console.log(data);
                     show_modal_whatsapp(data);
                     $("#closeModal").trigger('click');
                 },
@@ -5446,7 +6062,6 @@ use App\Library\FuncionesGlobales;
                     id_agenda_cita  : id_agenda_cita
                 },
                 success     : function(data){
-                    console.log(data);
                     show_modal_whatsapp(data,true);
                     $(modal_clone).modal('hide');
                 },

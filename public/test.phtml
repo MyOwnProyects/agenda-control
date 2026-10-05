@@ -1,573 +1,667 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Agenda Móvil - Bootstrap 5</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda activa - Axolotl</title>
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      background-color: #f8fafc;
-      color: #0f172a;
-      padding-bottom: 100px;
-    }
+<!-- Fonts / Icons (conservados del original) -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
 
-    /* Header */
-    .main-header {
-      position: sticky;
-      top: 0;
-      z-index: 1050;
-      background: #fff;
-      border-bottom: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06);
-    }
+<style>
+:root{
+  --clr-primary:#3525cd;
+  --clr-primary-fixed:#e2dfff;
+  --clr-primary-fixed-dim:#c3c0ff;
+  --clr-on-primary:#ffffff;
+  --clr-on-primary-fixed-variant:#3323cc;
+  --clr-secondary:#006591;
+  --clr-secondary-container:#39b8fd;
+  --clr-secondary-fixed:#c9e6ff;
+  --clr-secondary-fixed-dim:#89ceff;
+  --clr-tertiary:#95002b;
+  --clr-tertiary-fixed:#ffdadb;
+  --clr-tertiary-fixed-dim:#ffb2b7;
+  --clr-tertiary-container:#bf0f3c;
+  --clr-background:#faf8ff;
+  --clr-surface:#faf8ff;
+  --clr-surface-container-lowest:#ffffff;
+  --clr-surface-container-low:#f2f3ff;
+  --clr-surface-container:#eaedff;
+  --clr-surface-container-high:#e2e7ff;
+  --clr-surface-container-highest:#dae2fd;
+  --clr-surface-variant:#dae2fd;
+  --clr-on-surface:#131b2e;
+  --clr-on-surface-variant:#464555;
+  --clr-outline:#777587;
+  --clr-outline-variant:#c7c4d8;
+}
+body{
+  background-color:var(--clr-background);
+  color:var(--clr-on-surface);
+  font-family:'Inter',sans-serif;
+  font-size:13px;
+}
+.font-headline{font-family:'Plus Jakarta Sans',sans-serif;}
+.font-mono{font-family:'JetBrains Mono',monospace; font-size:11px;}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20; vertical-align:middle;}
 
-    .avatar-btn {
-      width: 40px;
-      height: 40px;
-      background-color: #4f46e5;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      box-shadow: 0 2px 6px rgba(79,70,229,.4);
-    }
+/* ---- Utility color classes (mapeo de tokens del diseño original) ---- */
+.bg-brand-primary{background-color:var(--clr-primary)!important;}
+.text-brand-primary{color:var(--clr-primary)!important;}
+.bg-brand-primary-fixed{background-color:var(--clr-primary-fixed)!important;}
+.text-on-primary-fixed-variant{color:var(--clr-on-primary-fixed-variant)!important;}
+.bg-brand-secondary{background-color:var(--clr-secondary)!important;}
+.text-brand-secondary{color:var(--clr-secondary)!important;}
+.bg-secondary-fixed{background-color:var(--clr-secondary-fixed)!important;}
+.bg-brand-tertiary{background-color:var(--clr-tertiary)!important;}
+.text-brand-tertiary{color:var(--clr-tertiary)!important;}
+.bg-tertiary-fixed{background-color:var(--clr-tertiary-fixed)!important;}
+.bg-tertiary-fixed-dim{background-color:var(--clr-tertiary-fixed-dim)!important;}
+.text-on-surface-variant{color:var(--clr-on-surface-variant)!important;}
+.text-outline{color:var(--clr-outline)!important;}
+.text-outline-variant{color:var(--clr-outline-variant)!important;}
+.bg-surface-lowest{background-color:var(--clr-surface-container-lowest)!important;}
+.bg-surface-low{background-color:var(--clr-surface-container-low)!important;}
+.bg-surface-high{background-color:var(--clr-surface-container-high)!important;}
+.bg-surface-variant{background-color:var(--clr-surface-variant)!important;}
 
-    /* Selects */
-    .custom-select-wrapper {
-      position: relative;
-    }
-    .custom-select-wrapper select {
-      appearance: none;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      padding: 10px 40px 10px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.04);
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .custom-select-wrapper select:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99,102,241,.15);
-    }
-    .custom-select-wrapper .select-arrow {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      color: #94a3b8;
-    }
-    .select-prefix {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      font-size: 11px;
-      font-weight: 700;
-      background: #f1f5f9;
-      color: #64748b;
-      padding: 2px 5px;
-      border-radius: 4px;
-      line-height: 1.4;
-    }
-    .has-prefix select {
-      padding-left: 40px;
-    }
+/* ---- Layout shell ---- */
+.app-main{ padding:1.5rem; min-height:100vh;}
 
-    /* Date Navigator */
-    .date-navigator {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #f1f5f9;
-      box-shadow: 0 1px 4px rgba(0,0,0,.05);
-    }
-    .day-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #f1f5f9;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #475569;
-      transition: background .2s;
-    }
-    .day-btn:hover { background: #e2e8f0; }
-    .today-btn {
-      padding: 6px 12px;
-      background: #f1f5f9;
-      border: none;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      transition: background .2s;
-    }
-    .today-btn:hover { background: #e2e8f0; }
+/* Chips / pills */
+.chip{border-radius:999px; font-size:11px; font-weight:600; padding:.15rem .6rem;}
 
-    .date-display-btn {
-      background: none;
-      border: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      position: relative;
-    }
-    .date-display-btn p { margin: 0; }
-    .date-day-name {
-      font-size: 11px;
-      font-weight: 500;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-    }
-    .date-value {
-      font-size: 17px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .date-picker-overlay {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
+/* Calendar cells */
+.slot-cell{border-radius:.5rem; padding:.35rem; height:100%; cursor:pointer; transition:box-shadow .15s ease;}
+.slot-cell:hover{box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.slot-empty{background-color:var(--clr-surface-container-low); display:flex; align-items:center; justify-content:center; color:var(--clr-outline-variant);}
+.slot-empty:hover{background-color:var(--clr-surface-container); color:var(--clr-primary);}
+.slot-blocked{background-color:rgba(226,231,255,.5); color:var(--clr-outline); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.15rem; opacity:.8;}
+.table-agenda td, .table-agenda th{vertical-align:middle;}
+.table-agenda{table-layout:fixed;}
+.table-agenda th{background-color:var(--clr-surface-container-lowest);}
 
-    /* Badge / shift pill */
-    .shift-badge {
-      padding: 4px 12px;
-      background: #eef2ff;
-      color: #4338ca;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 999px;
-      border: 1px solid #e0e7ff;
-    }
-    .indicators-toggle-label {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: color .15s;
-    }
-    .indicators-toggle-label:hover { color: #475569; }
-    .indicators-toggle-label .chevron {
-      transition: transform .2s;
-    }
-    #indicators-toggle:checked ~ .indicators-toggle-label .chevron {
-      transform: rotate(180deg);
-    }
-    #indicators-content {
-      display: none;
-    }
-    #indicators-toggle:checked ~ #indicators-content {
-      display: grid;
-    }
-
-    /* Agenda divider */
-    .section-divider {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      color: #94a3b8;
-    }
-
-    /* Slot Cards */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .slot-card {
-      background: #fff;
-      border-radius: 16px;
-      border-left: 4px solid #f87171;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: box-shadow .2s;
-      animation: fadeIn .3s ease-out forwards;
-    }
-    .slot-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
-
-    .slot-card-available {
-      background: rgba(255,255,255,.5);
-      border: 2px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: border-color .2s, background .2s;
-      animation: fadeIn .3s ease-out forwards;
-    }
-    .slot-card-available:hover {
-      border-color: #a5b4fc;
-      background: #fff;
-    }
-
-    .slot-time-start {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0;
-    }
-    .slot-time-end {
-      font-size: 10px;
-      color: #94a3b8;
-      font-weight: 500;
-      margin: 0;
-    }
-    .slot-divider {
-      width: 1px;
-      height: 40px;
-      background: #f1f5f9;
-      flex-shrink: 0;
-    }
-    .slot-patient {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0;
-    }
-    .slot-patient .sub {
-      font-size: 11px;
-      font-weight: 400;
-      color: #94a3b8;
-    }
-    .slot-status {
-      font-size: 11px;
-      color: #ef4444;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin: 0;
-    }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      background: #ef4444;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .slot-available-label {
-      font-size: 13px;
-      font-style: italic;
-      color: #94a3b8;
-      font-weight: 500;
-      margin: 0;
-    }
-    .slot-available-time {
-      font-size: 13px;
-      font-weight: 700;
-      color: #94a3b8;
-    }
-    .slot-actions-btn {
-      background: none;
-      border: none;
-      padding: 6px;
-      color: #cbd5e1;
-      transition: color .2s, opacity .2s;
-      opacity: 0;
-    }
-    .slot-card:hover .slot-actions-btn { opacity: 1; }
-    .slot-actions-btn:hover { color: #6366f1; }
-
-    .schedule-btn {
-      background: #eef2ff;
-      color: #4f46e5;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: none;
-      transition: background .2s;
-      white-space: nowrap;
-    }
-    .schedule-btn:hover { background: #e0e7ff; }
-
-    /* Indicator legend */
-    .legend-swatch {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-    .legend-text {
-      font-size: 11px;
-      font-weight: 500;
-      color: #475569;
-    }
-
-    /* Footer */
-    .bottom-actions {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid #e2e8f0;
-      padding: 12px 16px 24px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,.05);
-      z-index: 1050;
-    }
-    .btn-view {
-      background-color: #06b6d4;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 16px;
-      padding: 12px 16px;
-      border: none;
-      box-shadow: 0 4px 14px rgba(6,182,212,.3);
-      transition: background .2s, transform .1s;
-    }
-    .btn-view:hover { background-color: #0891b2; color: #fff; }
-    .btn-view:active { transform: scale(.97); }
-
-    .btn-schedule {
-      background-color: #4f46e5;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 16px;
-      padding: 12px 16px;
-      border: none;
-      box-shadow: 0 4px 14px rgba(79,70,229,.3);
-      transition: background .2s, transform .1s;
-    }
-    .btn-schedule:hover { background-color: #4338ca; color: #fff; }
-    .btn-schedule:active { transform: scale(.97); }
-  </style>
+/* Legend swatch */
+.swatch{width:12px; height:12px; border-radius:50%; display:inline-block;}
+</style>
 </head>
+
 <body>
 
-<!-- ===== HEADER ===== -->
-<header class="main-header px-3 py-2">
-  <div class="d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-light btn-sm rounded-2 p-2" aria-label="Menu">
-        <i class="bi bi-list fs-5 text-secondary"></i>
-      </button>
-      <h1 class="fs-5 fw-bold text-dark mb-0" style="letter-spacing:-.02em;">Agenda Móvil</h1>
+<!-- ===================== MAIN ===================== -->
+<main class="app-main">
+
+  <!-- ---- Top strip: navegación + acciones ---- -->
+  <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <div class="d-flex align-items-center gap-1 bg-surface-low p-1 rounded-3">
+        <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana anterior">
+          <span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span>
+        </button>
+        <button class="btn btn-light btn-sm fw-semibold shadow-sm" type="button">Hoy</button>
+        <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:32px;height:32px;" aria-label="Semana siguiente">
+          <span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span>
+        </button>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="material-symbols-outlined text-brand-primary" style="font-size:22px;">calendar_month</span>
+        <span class="font-headline fw-semibold" style="font-size:18px;">Semana 39: 21 al 27 de Septiembre, 2026</span>
+        <span class="chip bg-brand-secondary bg-opacity-10 text-brand-secondary text-uppercase">Activa</span>
+      </div>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <span class="text-secondary fw-bold" style="font-size:11px;">TEST</span>
-      <div class="avatar-btn">
-        <i class="bi bi-person-fill fs-5"></i>
+
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <div class="d-flex align-items-center bg-surface-low p-1 rounded-3">
+        <button class="btn btn-sm text-on-surface-variant" type="button">Día</button>
+        <button class="btn btn-sm bg-brand-primary text-white shadow-sm" type="button">Semana</button>
+        <button class="btn btn-sm text-on-surface-variant" type="button">Mes</button>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn bg-surface-high d-flex align-items-center gap-2" type="button">
+          <span class="material-symbols-outlined text-brand-tertiary" style="font-size:18px;">warning</span>
+          <span class="fw-semibold small">Fuera de horario</span>
+          <span class="badge rounded-pill bg-brand-tertiary">1</span>
+        </button>
+        <button class="btn bg-brand-primary text-white d-flex align-items-center gap-2 shadow" type="button">
+          <span class="material-symbols-outlined" style="font-size:20px;">add</span>
+          <span class="fw-semibold small">Nueva Cita</span>
+        </button>
       </div>
     </div>
   </div>
-</header>
 
-<!-- ===== MAIN ===== -->
-<main class="container" style="max-width:480px;">
-  <div class="py-3 d-flex flex-column gap-4">
+  <!-- ---- Workspace: panel + grid ---- -->
+  <div class="row g-3 align-items-start">
 
-    <!-- ===== FILTERS ===== -->
-    <section>
-      <!-- Locaciones -->
-      <div class="mb-3">
-        <label class="d-block mb-1 text-uppercase fw-bold text-secondary ms-1" style="font-size:10px;letter-spacing:.08em;" for="location-select">Locaciones</label>
-        <div class="custom-select-wrapper">
-          <select class="form-select" id="location-select">
-            <option>Axolotl</option>
-            <option>Centro Médico Norte</option>
-            <option>Clínica Central</option>
-          </select>
-          <i class="bi bi-chevron-down select-arrow"></i>
-        </div>
-      </div>
-      <!-- Profesionales -->
-      <div>
-        <label class="d-block mb-1 text-uppercase fw-bold text-secondary ms-1" style="font-size:10px;letter-spacing:.08em;" for="professional-select">Profesionales</label>
-        <div class="custom-select-wrapper has-prefix">
-          <span class="select-prefix">×</span>
-          <select class="form-select" id="professional-select">
-            <option>Martinez Lenguaje</option>
-            <option>Gomez Fisioterapia</option>
-            <option>Lopez Psicología</option>
-          </select>
-          <i class="bi bi-chevron-down select-arrow"></i>
-        </div>
-      </div>
-    </section>
+    <!-- Panel lateral -->
+    <div class="col-lg-3 d-flex flex-column gap-3">
 
-    <!-- ===== DATE NAVIGATOR ===== -->
-    <section class="date-navigator p-3">
-      <!-- Top row -->
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <!-- Left: Prev + Hoy -->
-        <div class="d-flex align-items-center gap-1">
-          <button class="day-btn" aria-label="Previous Day">
-            <i class="bi bi-chevron-left" style="font-size:14px;"></i>
-          </button>
-          <button class="today-btn">Hoy</button>
+      <!-- Mini calendario -->
+      <div class="bg-surface-lowest rounded-3 shadow-sm p-3">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <span class="fw-semibold small">Septiembre 2026</span>
+          <div class="d-flex gap-1">
+            <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:24px;height:24px;" aria-label="Mes anterior"><span class="material-symbols-outlined" style="font-size:16px;">chevron_left</span></button>
+            <button class="btn btn-sm p-0 d-flex align-items-center justify-content-center" style="width:24px;height:24px;" aria-label="Mes siguiente"><span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span></button>
+          </div>
         </div>
-        <!-- Center: Date -->
-        <div class="text-center position-relative">
-          <button class="date-display-btn">
-            <p class="date-day-name">Martes</p>
-            <div class="d-flex align-items-center gap-1">
-              <p class="date-value">17 / 03 / 2026</p>
-              <i class="bi bi-chevron-down text-secondary" style="font-size:13px;"></i>
+        <div class="row row-cols-7 g-0 text-center text-on-surface-variant small mb-2">
+          <div class="col">Lu</div><div class="col">Ma</div><div class="col">Mi</div><div class="col">Ju</div><div class="col">Vi</div><div class="col">Sá</div><div class="col">Do</div>
+        </div>
+        <div class="row row-cols-7 g-1 text-center font-mono">
+          <div class="col py-1 text-outline-variant">31</div>
+          <div class="col py-1 text-on-surface-variant">1</div>
+          <div class="col py-1 text-on-surface-variant">2</div>
+          <div class="col py-1 text-on-surface-variant">3</div>
+          <div class="col py-1 text-on-surface-variant">4</div>
+          <div class="col py-1 text-outline-variant">5</div>
+          <div class="col py-1 text-outline-variant">6</div>
+          <div class="col py-1 text-on-surface-variant">7</div>
+          <div class="col py-1 text-on-surface-variant">8</div>
+          <div class="col py-1 text-on-surface-variant">9</div>
+          <div class="col py-1 text-on-surface-variant">10</div>
+          <div class="col py-1 text-on-surface-variant">11</div>
+          <div class="col py-1 text-outline-variant">12</div>
+          <div class="col py-1 text-outline-variant">13</div>
+          <div class="col py-1 text-on-surface-variant">14</div>
+          <div class="col py-1 text-on-surface-variant">15</div>
+          <div class="col py-1 text-on-surface-variant">16</div>
+          <div class="col py-1 text-on-surface-variant">17</div>
+          <div class="col py-1 text-on-surface-variant">18</div>
+          <div class="col py-1 text-outline-variant">19</div>
+          <div class="col py-1 text-outline-variant">20</div>
+          <div class="col-12">
+            <div class="row row-cols-7 g-0 py-1">
+              <div class="col text-brand-primary fw-bold">21</div>
+              <div class="col text-brand-primary fw-bold">22</div>
+              <div class="col"><span class="bg-brand-primary text-white rounded fw-bold px-1 shadow-sm">23</span></div>
+              <div class="col text-brand-primary fw-bold">24</div>
+              <div class="col text-brand-primary fw-bold">25</div>
+              <div class="col text-outline-variant fw-medium">26</div>
+              <div class="col text-outline-variant fw-medium">27</div>
             </div>
-          </button>
-          <input class="date-picker-overlay" id="date-picker-trigger" type="date" value="2026-03-17"/>
+          </div>
+          <div class="col py-1 text-on-surface-variant">28</div>
+          <div class="col py-1 text-on-surface-variant">29</div>
+          <div class="col py-1 text-on-surface-variant">30</div>
+          <div class="col py-1 text-outline-variant">1</div>
+          <div class="col py-1 text-outline-variant">2</div>
+          <div class="col py-1 text-outline-variant">3</div>
+          <div class="col py-1 text-outline-variant">4</div>
         </div>
-        <!-- Right: Next -->
-        <button class="day-btn" aria-label="Next Day">
-          <i class="bi bi-chevron-right" style="font-size:14px;"></i>
-        </button>
       </div>
 
-      <!-- Bottom row: shift + indicators -->
-      <div class="d-flex flex-column align-items-center gap-2">
-        <div class="d-flex align-items-center gap-3">
-          <span class="shift-badge">Matutino</span>
-          <div>
-            <input class="d-none" id="indicators-toggle" type="checkbox"/>
-            <label class="indicators-toggle-label" for="indicators-toggle">
-              Indicadores
-              <i class="bi bi-chevron-down chevron" style="font-size:12px;"></i>
+      <!-- Filtros -->
+      <div class="bg-surface-lowest rounded-3 shadow-sm p-3 d-flex flex-column gap-3">
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+          <span class="font-headline fw-semibold" style="font-size:15px;">Filtros de Agenda</span>
+          <button class="btn btn-link btn-sm text-brand-primary text-decoration-none p-0" type="button">Reestablecer</button>
+        </div>
+
+        <div>
+          <label class="form-label small text-on-surface-variant mb-1">Sede Clínica</label>
+          <div class="d-flex align-items-center justify-content-between bg-surface-low px-3 py-2 rounded-3" style="cursor:pointer;">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-brand-secondary" style="font-size:18px;">apartment</span>
+              <span class="fw-semibold small">Axolotl - Principal</span>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px;">expand_more</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label small text-on-surface-variant mb-1">Especialistas asignados</label>
+          <div class="d-flex flex-column gap-1">
+            <label class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-surface-low" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2">
+                <input class="form-check-input mt-0" type="checkbox" checked>
+                <span class="small">Alvarez B. Yamileth</span>
+              </div>
+              <span class="swatch bg-brand-secondary"></span>
             </label>
-            <!-- Legend content (toggled via CSS) -->
-            <div id="indicators-content" style="grid-template-columns:1fr 1fr; gap:8px 20px; width:100%; padding-top:10px; margin-top:6px; border-top:1px solid #f8fafc;">
+            <label class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-surface-low" style="cursor:pointer;">
               <div class="d-flex align-items-center gap-2">
-                <span class="legend-swatch" style="background:#fff1f2;border:2px solid #f87171;"></span>
-                <span class="legend-text">Pago no registrado</span>
+                <input class="form-check-input mt-0" type="checkbox" checked>
+                <span class="small">Gastélum V. Mónica B.</span>
               </div>
+              <span class="swatch" style="background-color:var(--clr-tertiary-container);"></span>
+            </label>
+            <label class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-surface-low" style="cursor:pointer;">
               <div class="d-flex align-items-center gap-2">
-                <span class="legend-swatch" style="background:#fca5a5;"></span>
-                <span class="legend-text">Lenguaje</span>
+                <input class="form-check-input mt-0" type="checkbox" checked>
+                <span class="small">Villarreal G. Sarahí</span>
               </div>
-              <div class="d-flex align-items-center gap-2">
-                <span class="legend-swatch" style="background:#bae6fd;"></span>
-                <span class="legend-text">Psicologia</span>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <span class="legend-swatch" style="background:#a7f3d0;"></span>
-                <span class="legend-text">Valoracion</span>
-              </div>
+              <span class="swatch bg-brand-primary"></span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label small text-on-surface-variant mb-2">Código de Especialidad</label>
+          <div class="d-flex flex-column gap-1">
+            <div class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2"><span class="swatch bg-brand-secondary"></span><span class="small">Conducta</span></div>
+              <span class="font-mono text-on-surface-variant">11</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2"><span class="swatch" style="background-color:var(--clr-primary-fixed-dim);"></span><span class="small">Integral</span></div>
+              <span class="font-mono text-on-surface-variant">14</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2"><span class="swatch" style="background-color:var(--clr-tertiary-fixed-dim);"></span><span class="small">Integral nuevo</span></div>
+              <span class="font-mono text-on-surface-variant">5</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2"><span class="swatch bg-secondary-fixed-dim" style="background-color:var(--clr-secondary-fixed-dim);"></span><span class="small">Lenguaje</span></div>
+              <span class="font-mono text-on-surface-variant">7</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2"><span class="swatch bg-surface-variant"></span><span class="small">Nivelación Académica</span></div>
+              <span class="font-mono text-on-surface-variant">3</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2" style="cursor:pointer;">
+              <div class="d-flex align-items-center gap-2"><span class="swatch bg-tertiary-fixed"></span><span class="small">Valoración</span></div>
+              <span class="font-mono text-on-surface-variant">2</span>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ===== AGENDA LIST ===== -->
-    <section class="d-flex flex-column gap-3">
-      <h2 class="section-divider px-1 mb-0">Próximos Turnos</h2>
-
-      <!-- Slot 1 (Ocupado) -->
-      <div class="slot-card" style="animation-delay:0s;">
-        <div class="d-flex align-items-center gap-3">
-          <div class="text-center" style="min-width:64px;">
-            <p class="slot-time-start">09:00</p>
-            <p class="slot-time-end">09:45</p>
-          </div>
-          <div class="slot-divider"></div>
-          <div>
-            <p class="slot-patient">Campos Bruno <span class="sub">(12.02)</span></p>
-            <p class="slot-status"><span class="status-dot"></span> Ocupado</p>
-          </div>
+        <div class="p-2 bg-tertiary-fixed bg-opacity-50 rounded-3 d-flex align-items-center gap-2">
+          <span class="material-symbols-outlined text-brand-tertiary" style="font-size:20px;">error</span>
+          <span class="small">Falta Pago: 6 citas requieren liquidación</span>
         </div>
-        <button class="slot-actions-btn" aria-label="Opciones">
-          <i class="bi bi-three-dots-vertical fs-5"></i>
-        </button>
       </div>
+    </div>
 
-      <!-- Slot 2 (Ocupado) -->
-      <div class="slot-card" style="animation-delay:.1s;">
-        <div class="d-flex align-items-center gap-3">
-          <div class="text-center" style="min-width:64px;">
-            <p class="slot-time-start">09:45</p>
-            <p class="slot-time-end">10:30</p>
+    <!-- Grid principal de calendario -->
+    <div class="col-lg-9 d-flex flex-column gap-3">
+
+      <!-- TURNO MATUTINO -->
+      <div class="bg-surface-lowest rounded-3 shadow-sm overflow-hidden">
+        <div class="bg-surface-low px-3 py-2 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-flex align-items-center justify-content-center rounded-2 bg-surface-high text-brand-primary" style="width:28px;height:28px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">wb_sunny</span>
+            </span>
+            <div>
+              <span class="font-headline fw-semibold" style="font-size:15px;">Turno Matutino</span>
+              <span class="font-mono text-on-surface-variant ms-2">09:00 - 12:45</span>
+            </div>
           </div>
-          <div class="slot-divider"></div>
-          <div>
-            <p class="slot-patient">Campos Bruno <span class="sub">(12.02)</span></p>
-            <p class="slot-status"><span class="status-dot"></span> Ocupado</p>
-          </div>
+          <span class="chip bg-surface-lowest shadow-sm">18 Citas Asignadas</span>
         </div>
-        <button class="slot-actions-btn" aria-label="Opciones">
-          <i class="bi bi-three-dots-vertical fs-5"></i>
-        </button>
-      </div>
 
-      <!-- Slot 3 (Disponible) -->
-      <div class="slot-card-available" style="animation-delay:.2s;">
-        <div class="d-flex align-items-center gap-3">
-          <div class="text-center" style="min-width:64px;">
-            <p class="slot-time-start" style="color:#94a3b8;">10:30</p>
-            <p class="slot-time-end" style="color:#cbd5e1;">11:15</p>
-          </div>
-          <div class="slot-divider"></div>
-          <div>
-            <p class="slot-available-label">Espacio disponible</p>
-          </div>
+        <div class="table-responsive">
+          <table class="table table-agenda mb-0" style="min-width:760px;">
+            <thead>
+              <tr class="text-on-surface-variant">
+                <th class="text-center small bg-surface-low" style="width:96px;">Hora</th>
+                <th class="small">21/sept. <span class="text-on-surface-variant fw-normal d-block">Lunes</span></th>
+                <th class="small">22/sept. <span class="text-on-surface-variant fw-normal d-block">Martes</span></th>
+                <th class="small bg-brand-primary-fixed bg-opacity-20 text-brand-primary">23/sept. <span class="fw-normal d-block">Miércoles</span></th>
+                <th class="small">24/sept. <span class="text-on-surface-variant fw-normal d-block">Jueves</span></th>
+                <th class="small">25/sept. <span class="text-on-surface-variant fw-normal d-block">Viernes</span></th>
+                <th class="text-center small bg-surface-high text-outline" style="width:112px;">26/Sáb.</th>
+                <th class="text-center small bg-surface-high text-outline" style="width:112px;">27/Dom.</th>
+              </tr>
+            </thead>
+            <tbody class="small">
+              <!-- Slot 09:00 - 09:45 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">09:00<br><span style="font-size:10px;" class="text-outline">09:45</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">Curiel V. Ian Tadeo</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (4.10)</span>
+                      <span class="material-symbols-outlined text-brand-primary" style="font-size:13px;">check_circle</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Benítez C. Carlos Alan</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (5.11)</span>
+                      <span class="material-symbols-outlined text-brand-tertiary" style="font-size:14px;" title="Falta Pago">error</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">Vargas G. Sofía</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (6.02)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="slot-blocked" rowspan="5"><span class="material-symbols-outlined" style="font-size:20px;">block</span><span style="font-size:11px;">Horario no disponible</span></td>
+                <td class="slot-blocked" rowspan="5"><span class="material-symbols-outlined" style="font-size:20px;">block</span><span style="font-size:11px;">Horario no disponible</span></td>
+              </tr>
+              <!-- Slot 09:45 - 10:30 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">09:45<br><span style="font-size:10px;" class="text-outline">10:30</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Méndez O. Luciana</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (9.02)</span>
+                      <span class="material-symbols-outlined text-brand-primary" style="font-size:13px;">check_circle</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Morales A. Diego</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (7.00)</span>
+                  </div>
+                </td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(255,178,183,.6);">
+                    <div class="fw-semibold text-truncate">Rodríguez M. Renata</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-tertiary" style="font-size:10px;">Valoración (S/E)</span>
+                      <span class="material-symbols-outlined text-brand-tertiary" style="font-size:14px;" title="Falta Pago">error</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">Beltrán C. Mateo</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (3.11)</span>
+                  </div>
+                </td>
+              </tr>
+              <!-- Slot 10:30 - 11:15 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">10:30<br><span style="font-size:10px;" class="text-outline">11:15</span></td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(255,178,183,.4);">
+                    <div class="fw-semibold text-truncate">Castro F. Santiago</div>
+                    <span class="font-mono text-brand-tertiary" style="font-size:10px;">Integral Nuevo (5.04)</span>
+                  </div>
+                </td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Norzagaray Israel</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (S/E)</span>
+                      <span class="material-symbols-outlined text-brand-primary" style="font-size:13px;">check_circle</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Ruiz P. Camila</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (4.06)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(218,226,253,.4);">
+                    <div class="fw-semibold text-truncate">Navarro D. Emilio</div>
+                    <span class="font-mono" style="font-size:10px;">Nivelación (8.01)</span>
+                  </div>
+                </td>
+              </tr>
+              <!-- Slot 11:15 - 12:00 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">11:15<br><span style="font-size:10px;" class="text-outline">12:00</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Torres M. Leonardo</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (5.00)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Hinojosa Liam</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (S/E)</span>
+                      <span class="material-symbols-outlined text-brand-tertiary" style="font-size:14px;" title="Falta Pago">error</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(255,178,183,.4);">
+                    <div class="fw-semibold text-truncate">Paredes R. Lucas</div>
+                    <span class="font-mono text-brand-tertiary" style="font-size:10px;">Integral Nuevo (6.05)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">López Q. Victoria</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (4.02)</span>
+                  </div>
+                </td>
+              </tr>
+              <!-- Slot 12:00 - 12:45 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">12:00<br><span style="font-size:10px;" class="text-outline">12:45</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(218,226,253,.4);">
+                    <div class="fw-semibold text-truncate">Gómez V. Bruno</div>
+                    <span class="font-mono" style="font-size:10px;">Nivelación (10.02)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Rivera P. Isaac Tadeo</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (5.11)</span>
+                      <span class="material-symbols-outlined text-brand-primary" style="font-size:13px;">check_circle</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Cervantes M. Elías</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (6.01)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <button class="schedule-btn">AGENDAR</button>
       </div>
 
-      <!-- Slot 4 (Ocupado) -->
-      <div class="slot-card" style="animation-delay:.3s;">
-        <div class="d-flex align-items-center gap-3">
-          <div class="text-center" style="min-width:64px;">
-            <p class="slot-time-start">11:15</p>
-            <p class="slot-time-end">12:00</p>
+      <!-- TURNO VESPERTINO -->
+      <div class="bg-surface-lowest rounded-3 shadow-sm overflow-hidden">
+        <div class="bg-surface-low px-3 py-2 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-flex align-items-center justify-content-center rounded-2 bg-surface-high text-brand-secondary" style="width:28px;height:28px;">
+              <span class="material-symbols-outlined" style="font-size:18px;">nights_stay</span>
+            </span>
+            <div>
+              <span class="font-headline fw-semibold" style="font-size:15px;">Turno Vespertino</span>
+              <span class="font-mono text-on-surface-variant ms-2">14:20 - 18:05</span>
+            </div>
           </div>
-          <div class="slot-divider"></div>
-          <div>
-            <p class="slot-patient">Campos Bruno <span class="sub">(12.02)</span></p>
-            <p class="slot-status"><span class="status-dot"></span> Ocupado</p>
-          </div>
+          <span class="chip bg-surface-lowest shadow-sm">15 Citas Asignadas</span>
         </div>
-        <button class="slot-actions-btn" aria-label="Opciones">
-          <i class="bi bi-three-dots-vertical fs-5"></i>
-        </button>
-      </div>
-    </section>
 
+        <div class="table-responsive">
+          <table class="table table-agenda mb-0" style="min-width:760px;">
+            <thead>
+              <tr class="text-on-surface-variant">
+                <th class="text-center small bg-surface-low" style="width:96px;">Hora</th>
+                <th class="small">21/sept. <span class="text-on-surface-variant fw-normal d-block">Lunes</span></th>
+                <th class="small">22/sept. <span class="text-on-surface-variant fw-normal d-block">Martes</span></th>
+                <th class="small bg-brand-primary-fixed bg-opacity-20 text-brand-primary">23/sept. <span class="fw-normal d-block">Miércoles</span></th>
+                <th class="small">24/sept. <span class="text-on-surface-variant fw-normal d-block">Jueves</span></th>
+                <th class="small">25/sept. <span class="text-on-surface-variant fw-normal d-block">Viernes</span></th>
+                <th class="text-center small bg-surface-high text-outline" style="width:112px;">26/Sáb.</th>
+                <th class="text-center small bg-surface-high text-outline" style="width:112px;">27/Dom.</th>
+              </tr>
+            </thead>
+            <tbody class="small">
+              <!-- Slot 14:20 - 15:05 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">14:20<br><span style="font-size:10px;" class="text-outline">15:05</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Salazar G. Gael</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (5.08)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(255,178,183,.6);">
+                    <div class="fw-semibold text-truncate">Montaño E. Paulette</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-tertiary" style="font-size:10px;">Valoración (S/E)</span>
+                      <span class="material-symbols-outlined text-brand-tertiary" style="font-size:14px;" title="Falta Pago">error</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">Vega L. Romina</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (4.04)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Ochoa K. Damián</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (6.00)</span>
+                  </div>
+                </td>
+                <td class="slot-blocked" rowspan="5"><span class="material-symbols-outlined" style="font-size:20px;">block</span><span style="font-size:11px;">Horario no disponible</span></td>
+                <td class="slot-blocked" rowspan="5"><span class="material-symbols-outlined" style="font-size:20px;">block</span><span style="font-size:11px;">Horario no disponible</span></td>
+              </tr>
+              <!-- Slot 15:05 - 15:50 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">15:05<br><span style="font-size:10px;" class="text-outline">15:50</span></td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Zazueta P. Rodrigo</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (7.02)</span>
+                      <span class="material-symbols-outlined text-brand-primary" style="font-size:13px;">check_circle</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Ibarra C. Valentina</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (6.03)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(218,226,253,.4);">
+                    <div class="fw-semibold text-truncate">Peralta M. Samuel</div>
+                    <span class="font-mono" style="font-size:10px;">Nivelación (9.05)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+              </tr>
+              <!-- Slot 15:50 - 16:35 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">15:50<br><span style="font-size:10px;" class="text-outline">16:35</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">Guerrero D. Regina</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (4.07)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(255,178,183,.4);">
+                    <div class="fw-semibold text-truncate">Soto M. Cristóbal</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-tertiary" style="font-size:10px;">Integral Nuevo (5.02)</span>
+                      <span class="material-symbols-outlined text-brand-tertiary" style="font-size:14px;" title="Falta Pago">error</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Lara B. Maximiliano</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (8.00)</span>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Espinoza J. Miranda</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (5.09)</span>
+                  </div>
+                </td>
+              </tr>
+              <!-- Slot 16:35 - 17:20 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">16:35<br><span style="font-size:10px;" class="text-outline">17:20</span></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Valenzuela C. Sebastián</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (6.04)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(137,206,255,.4);">
+                    <div class="fw-semibold text-truncate">Chávez L. Victoria</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Lenguaje (3.09)</span>
+                      <span class="material-symbols-outlined text-brand-primary" style="font-size:13px;">check_circle</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Bojórquez R. Matías</div>
+                    <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (5.01)</span>
+                  </div>
+                </td>
+              </tr>
+              <!-- Slot 17:20 - 18:05 -->
+              <tr style="height:64px;">
+                <td class="text-center font-mono bg-surface-low text-on-surface-variant">17:20<br><span style="font-size:10px;" class="text-outline">18:05</span></td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(195,192,255,.6);">
+                    <div class="fw-semibold text-truncate">Felix G. Emiliano</div>
+                    <span class="font-mono text-on-primary-fixed-variant" style="font-size:10px;">Integral (7.05)</span>
+                  </div>
+                </td>
+                <td class="p-1 bg-brand-primary-fixed bg-opacity-10">
+                  <div class="slot-cell" style="background-color:rgba(0,101,145,.15);">
+                    <div class="fw-semibold text-truncate">Urías M. Leonardo</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-mono text-brand-secondary" style="font-size:10px;">Conducta (6.06)</span>
+                      <span class="material-symbols-outlined text-brand-tertiary" style="font-size:14px;" title="Falta Pago">error</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-1">
+                  <div class="slot-cell" style="background-color:rgba(218,226,253,.4);">
+                    <div class="fw-semibold text-truncate">Acosta T. Daniela</div>
+                    <span class="font-mono" style="font-size:10px;">Nivelación (8.11)</span>
+                  </div>
+                </td>
+                <td class="p-1"><div class="slot-cell slot-empty"><span class="material-symbols-outlined" style="font-size:18px;">add_circle_outline</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
   </div>
 </main>
 
-<!-- ===== FOOTER ===== -->
-<footer class="bottom-actions">
-  <div class="d-flex gap-3" style="max-width:480px; margin:0 auto;">
-    <button class="btn btn-view flex-fill d-flex align-items-center justify-content-center gap-2">
-      <i class="bi bi-eye-fill fs-6"></i>
-      Ver CFH (1)
-    </button>
-    <button class="btn btn-schedule flex-fill d-flex align-items-center justify-content-center gap-2">
-      <i class="bi bi-plus-lg fs-6"></i>
-      Agendar CFH
-    </button>
-  </div>
-</footer>
-
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
